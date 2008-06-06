@@ -2,7 +2,6 @@ from persistent import Persistent
 
 from zope.interface import implements
 from zope.interface import alsoProvides
-from zope.interface import implementedBy
 from zope.interface.declarations import Implements
 
 from zope.component import getUtility
@@ -13,7 +12,6 @@ from zope.schema import getFieldsInOrder
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityFactory
 
-from Products.CMFCore.utils import getToolByName
 from Products.GenericSetup.utils import _resolveDottedName
 
 class DexterityFactory(Persistent, Factory):
@@ -36,10 +34,6 @@ class DexterityFactory(Persistent, Factory):
         return fti.description
 
     def __call__(self, *args, **kw):
-        
-        
-        import pdb ; pdb.set_trace( )
-        
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         
         klass = _resolveDottedName(fti.klass)

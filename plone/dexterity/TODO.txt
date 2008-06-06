@@ -19,11 +19,8 @@ Dexterity To-Do List
  plone.dexterity
  ---------------
  
-    - Known issues:
-        - Factory is not properly setting interfaces - alsoProvides() does not seem to stick
- 
     - Rectify atrocious lack of tests
-        - want to use mocker for most tests
+        - want to use `mocker` proxies for most tests
         - end-to-end integration tests for each type (see examples below)
  
     - FTI needs to provide view, edit actions as standard

@@ -15,7 +15,7 @@
 
         <div tal:repeat="item view/fields">
             <label tal:attributes="for item/id" 
-                   tal:content="for/title" />
+                   tal:content="item/title" />
             <div tal:content="item/value" />
         </div>
 

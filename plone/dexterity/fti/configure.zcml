@@ -56,5 +56,11 @@
              zope.app.container.interfaces.IObjectMovedEvent"
         handler=".events.fti_renamed"
         />
+    
+    <subscriber
+        for="..interfaces.IDexterityFTI
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".events.fti_modified"
+        />
         
 </configure>

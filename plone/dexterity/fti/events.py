@@ -1,3 +1,4 @@
+from zope.interface import noLongerProvides
 from zope.interface.declarations import Implements
 
 from zope.component.interfaces import IFactory
@@ -10,8 +11,13 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.app.container.interfaces import IAdding
 
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.interfaces import ITemporarySchema
+
 from plone.dexterity.factory import DexterityFactory
 from plone.dexterity.browser.add import AddViewFactory
+
+import plone.dexterity.schema
+from plone.dexterity import utils
 
 from Products.CMFCore.interfaces import ISiteRoot
 
@@ -70,3 +76,18 @@ def fti_renamed(object, event):
     
     unregister(event.objec)
     register(event.object)
+
+def fti_modified(object, event):
+    """When the FTI is modified, re-sync the schema
+    """
+    
+    fti = event.object
+    
+    schema_name = utils.portal_type_to_schema_name(fti.getId())
+    schema = getattr(plone.dexterity.schema.generated, schema_name)
+    
+    model = fti.lookup_model()
+    utils.sync_schema(model['schemata'][u""], schema, overwrite=True)
+    
+    if ITemporarySchema.providedBy(schema):
+        noLongerProvides(schema, ITemporarySchema)
