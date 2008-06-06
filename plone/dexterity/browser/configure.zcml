@@ -1,0 +1,23 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="plone.dexterity">
+  
+    <!-- Standard view -->
+    <browser:page
+        for="..interfaces.IDexterityContent"
+        name="view"
+        class=".view.DefaultView"
+        template="item.pt"
+        permission="zope2.View"
+        />
+
+    <!-- Standard edit view -->
+    <browser:page
+        for="..interfaces.IDexterityContent"
+        name="edit"
+        class=".edit.DefaultEditView"
+        permission="cmf.ModifyPortalContent"
+        />
+  
+</configure>

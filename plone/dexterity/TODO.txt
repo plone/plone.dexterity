@@ -1,0 +1,66 @@
+Dexterity To-Do List
+====================
+
+ General
+ -------
+ 
+    - Create a buildout with:
+        - plone.alterego
+        - plone.behavior
+        - plone.folder
+        - plone.supermodel
+        - plone.dexterity
+
+ plone.supermodel
+ ----------------
+ 
+    - Support for widget hints for z3c.forms
+
+ plone.dexterity
+ ---------------
+ 
+    - Known issues:
+        - Factory is not properly setting interfaces - alsoProvides() does not seem to stick
+ 
+    - Rectify atrocious lack of tests
+        - want to use mocker for most tests
+        - end-to-end integration tests for each type (see examples below)
+ 
+    - FTI needs to provide view, edit actions as standard
+    - FTI needs to provide view, edit, default view aliases as standard
+ 
+    - Factory needs to initialise instance security based on schema
+    - Add view needs to be protected by fti.add_permission dynamically
+    
+    - Support type and FTI migration
+    - Support runtime schema changes (including fields removed and changed)
+ 
+    - Use widget hints from plone.supermodel in add and edit forms
+    - Support fields from behaviors in add/edit forms
+    
+    - Need to cache model/schema more effectively
+ 
+    - Flesh out examples and possibly add convenience APIs for:
+        - Type installed with GS, no filesystem component
+        - Type installed with GS, filesystem interface
+        - Type installed with GS, filesystem interface and type class
+        - Type installed with GS, filesystem interface, type class and views
+ 
+ plone.app.dexterity
+ -------------------
+ 
+    - Better views for IDexterityItem and IDexterityContainer
+    - Provide optional standard Ploneish metadata fieldsets for add/edit forms
+    - Make content types support title-to-id, perhaps via behaviors
+    
+    - UI for building schemata
+    - UI for view customisation
+    
+ Integration concerns
+ --------------------
+ 
+    - Need a reference engine (plone.app.relations)
+    - Need working versioning with version-on-save (CMFEditions policy)
+    - Need working content staging (iterate needs to stop using AT references)
+    - Need working link integrity (ditto for plone.linkintegrity)
+    - Need inline validation of z3c.form forms

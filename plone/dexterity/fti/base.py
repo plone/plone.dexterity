@@ -1,0 +1,124 @@
+from zope.interface import implements, noLongerProvides
+from zope.lifecycleevent import modified
+
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.interfaces import ITemporarySchema
+
+import plone.dexterity.schema
+from plone.dexterity import utils
+
+from AccessControl import getSecurityManager
+from Products.CMFDynamicViewFTI import fti
+
+class DexterityFTI(fti.DynamicViewTypeInformation):
+    """A Dexterity FTI
+    """
+    
+    implements(IDexterityFTI)
+    meta_type = "Dexterity FTI"
+    
+    _properties = fti.DynamicViewTypeInformation._properties + (
+        { 'id': 'add_permission', 
+          'type': 'selection',
+          'select_variable': 'possible_permissions',
+          'mode': 'w',
+          'label': 'Add permission',
+          'description': 'Permission needed to be able to add content of this type'
+        },
+        { 'id': 'klass', 
+          'type': 'string',
+          'mode': 'w',
+          'label': 'Content type class',
+          'description': 'Dotted name to the class that contains the content type'
+        },
+        { 'id': 'behaviors', 
+          'type': 'lines',
+          'mode': 'w',
+          'label': 'Behaviors',
+          'description': 'Named of enabled behaviors type'
+        },
+    )
+    
+    add_permission = u""
+    klass = u""
+    behaviors = []
+    
+    def __init__(self, *args, **kwargs):
+        super(DexterityFTI, self).__init__(*args, **kwargs)
+        self.behaviors = [] # don't bleed
+    
+    # Tie the factory to the portal_type name - one less thing to have to set
+    @property
+    def factory(self):
+        return self.getId()
+    
+    def lookup_schema(self):
+        # TODO: Cache schema, invalidate when FTI modified
+
+        schema_name = utils.portal_type_to_schema_name(self.getId())
+        schema = getattr(plone.dexterity.schema.generated, schema_name)
+        
+        if ITemporarySchema.providedBy(schema):
+            try:
+                model = self.lookup_model()
+            except KeyError:
+                raise ValueError(u"Model for %s does not contain a default schema" % (self.getId()))
+            except Exception, e:
+                raise ValueError(u"Error loading model for %s: %s" % (self.getId(), str(e)))
+        
+            utils.sync_schema(model['schemata'][u""], schema)
+            noLongerProvides(schema, ITemporarySchema)
+        
+        return schema
+    
+    def lookup_model(self):
+        raise NotImplemented
+    
+    # Make sure we get an event when the FTI is modifieid
+    
+    def manage_editProperties(self, REQUEST=None):
+        """Gotta love Zope 2
+        """
+        page = super(DexterityFTI, self).manage_editProperties(REQUEST)
+        modified(self)
+        return page
+    
+    def manage_changeProperties(self, REQUEST=None, **kw):
+        """Gotta love Zope 2
+        """
+        page = super(DexterityFTI, self).manage_changeProperties(REQUEST, **kw)
+        modified(self)
+        return page
+        
+    # Allow us to specify a particular add permission rather than rely on ones
+    # stored in meta types that we don't have anyway
+    
+    def isConstructionAllowed(self, container):
+        if not self.add_permission:
+            return False
+        return getSecurityManager().checkPermission(self.add_permission, container)
+        
+
+def _fix_properties(class_, ignored=['product', 'content_meta_type', 'factory']):
+    """Remove properties with the given ids, and ensure that later properties
+    override earlier ones with the same id
+    """
+    properties = []
+    processed = set()
+    
+    for item in reversed(class_._properties):
+        item = item.copy()
+        
+        if item['id'] in processed:
+            continue
+        
+        # Ignore some fields
+        if item['id'] in ignored:
+            continue
+        
+        properties.append(item)
+        processed.add('id')
+    
+    class_._properties = tuple(reversed(properties))
+    
+_fix_properties(DexterityFTI)

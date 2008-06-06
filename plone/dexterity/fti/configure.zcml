@@ -1,0 +1,60 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:five="http://namespaces.zope.org/five"
+    i18n_domain="plone.dexterity">
+
+    <browser:page
+        for="zope.app.container.interfaces.IAdding"
+        name="plone.dexterity.dynamicfti"
+        template="addview.pt"
+        class=".addview.DynamicFTIAddView"
+        permission="cmf.ManagePortal"
+        />
+    <browser:page
+        for="zope.app.container.interfaces.IAdding"
+        name="plone.dexterity.concretefti"
+        template="addview.pt"
+        class=".addview.ConcreteFTIAddView"
+        permission="cmf.ManagePortal"
+        />
+        
+    <!-- Register the FTI classes -->
+    
+    <five:registerClass
+        class=".dynamic.DynamicFTI"
+        meta_type="Dynamic Dexterity FTI"
+        addview="plone.dexterity.dynamicfti"
+        permission="cmf.ManagePortal"
+        global="False"
+        />
+        
+    <five:registerClass
+        class=".concrete.ConcreteFTI"
+        meta_type="Concrete Dexterity FTI"
+        addview="plone.dexterity.concretefti"
+        permission="cmf.ManagePortal"
+        global="False"
+        />
+        
+    <!-- Register FTI add/remove/modify handlers -->
+    
+    <subscriber
+        for="..interfaces.IDexterityFTI
+             zope.app.container.interfaces.IObjectAddedEvent"
+        handler=".events.fti_added"
+        />
+        
+    <subscriber
+        for="..interfaces.IDexterityFTI
+             zope.app.container.interfaces.IObjectRemovedEvent"
+        handler=".events.fti_removed"
+        />
+        
+    <subscriber
+        for="..interfaces.IDexterityFTI
+             zope.app.container.interfaces.IObjectMovedEvent"
+        handler=".events.fti_renamed"
+        />
+        
+</configure>

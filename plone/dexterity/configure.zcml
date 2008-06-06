@@ -1,0 +1,51 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:five="http://namespaces.zope.org/five"
+    i18n_domain="plone.dexterity">
+
+    <include package="plone.behavior" />
+    <include package="plone.folder" />
+    <include package="plone.supermodel" />
+    <include package="plone.z3cform" />
+    
+    <include package=".browser" />
+    <include package=".fti" />
+    
+    <!-- Re-index content when it's modified -->
+    <subscriber
+        for=".interfaces.IDexterityContent
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".content.reindexOnModify"
+        />
+    
+    <!-- Support for dynamic schemata -->
+    
+    <utility
+        factory=".schema.DexteritySchemaPolicy"
+        name="dexterity"
+        />
+        
+    <utility
+        factory=".schema.SchemaModuleFactory"
+        name="plone.dexterity.schema.generated"
+        />
+
+    <!-- Support for plone.behavior behaviors -->
+    <adapter factory=".behavior.DexterityBehaviorAssignable" />
+
+    <!-- Register the content classes -->
+    <five:registerClass
+        class=".content.Item"
+        meta_type="Dexterity Item"
+        permission="cmf.AddPortalContent"
+        addview="dexterity.content"
+        />
+        
+    <five:registerClass
+        class=".content.Container"
+        meta_type="Dexterity Container"
+        permission="cmf.AddPortalContent"
+        addview="dexterity.content"
+        />
+        
+</configure>
