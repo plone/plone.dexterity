@@ -64,6 +64,8 @@ class DefaultAddView(base.FormWrapper):
         
         self.form = form
         self.portal_type = portal_type
+        
+        self.request['disable_border'] = True
     
     def render_form(self):
         return self.form(self.context.aq_inner, self.request, self.portal_type)()

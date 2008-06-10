@@ -27,6 +27,10 @@ setup(name='plone.dexterity',
           'setuptools',
           'plone.z3cform',
           'mocker',
+          'plone.folder',
+          'plone.supermodel',
+          'plone.alterego',
+          'plone.behavior',
           # -*- Extra requirements: -*-
       ],
       entry_points="""

@@ -33,7 +33,20 @@ class DynamicFTI(DexterityFTI):
     def __init__(self, *args, **kwargs):
         super(DynamicFTI, self).__init__(*args, **kwargs)
         
-        self.model_source = ""
+        self.model_source = self.model_source = """\
+<model>
+    <schema>
+        <field name="title" type="zope.schema.TextLine">
+            <title>Title</title>
+            <required>True</required>
+        </field>
+        <field name="description" type="zope.schema.Text">
+            <title>Description</title>
+            <required>False</required>
+        </field>
+    </schema>
+</model>
+"""
         self.model_file = ""
     
     def lookup_model(self):

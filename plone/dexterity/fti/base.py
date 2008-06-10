@@ -39,13 +39,47 @@ class DexterityFTI(fti.DynamicViewTypeInformation):
         },
     )
     
-    add_permission = u""
-    klass = u""
+    default_aliases = {'(Default)': '(selected layout)',
+                       'view': '@@view',
+                       'edit': '@@edit',
+                       'sharing': '@@sharing',}
+    
+    default_actions = [{'id': 'view', 
+                        'title': 'View', 
+                        'action': 'string:${object_url}',
+                        'permissions': ('View',)},
+                       {'id': 'edit', 
+                        'title': 'Edit', 
+                        'action': 'string:${object_url}/edit',
+                        'permissions': ('Modify portal content',)},
+                        ]
+    
+    immediate_view = 'edit'
+    default_view = 'view'
+    view_methods = ('view',)
+    add_permission = 'Add portal content'
     behaviors = []
+    klass = 'plone.dexterity.content.Item'
     
     def __init__(self, *args, **kwargs):
         super(DexterityFTI, self).__init__(*args, **kwargs)
-        self.behaviors = [] # don't bleed
+        
+        
+        
+        if 'aliases' not in kwargs:
+            self.setMethodAliases(self.default_aliases)
+            
+        if 'actions' not in kwargs:
+            for action in self.default_actions:
+                self.addAction(
+                      id=action['id']
+                    , name=action['title']
+                    , action=action['action']
+                    , condition=action.get('condition')
+                    , permission=action.get( 'permissions', () )
+                    , category=action.get('category', 'object')
+                    , visible=action.get('visible', True)
+                    )
     
     # Tie the factory to the portal_type name - one less thing to have to set
     @property
@@ -53,8 +87,6 @@ class DexterityFTI(fti.DynamicViewTypeInformation):
         return self.getId()
     
     def lookup_schema(self):
-        # TODO: Cache schema, invalidate when FTI modified
-
         schema_name = utils.portal_type_to_schema_name(self.getId())
         schema = getattr(plone.dexterity.schema.generated, schema_name)
         

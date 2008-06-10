@@ -65,7 +65,7 @@ def fti_removed(object, event):
     """When the FTI is removed, uninstall local coponents
     """
     
-    unregister(event.object.getId())
+    unregister(event.object)
 
 def fti_renamed(object, event):
     """When the FTI is modified, ensure local components are still valid
