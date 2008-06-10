@@ -64,22 +64,18 @@ class DexterityFTI(fti.DynamicViewTypeInformation):
     def __init__(self, *args, **kwargs):
         super(DexterityFTI, self).__init__(*args, **kwargs)
         
-        
-        
         if 'aliases' not in kwargs:
             self.setMethodAliases(self.default_aliases)
             
         if 'actions' not in kwargs:
             for action in self.default_actions:
-                self.addAction(
-                      id=action['id']
-                    , name=action['title']
-                    , action=action['action']
-                    , condition=action.get('condition')
-                    , permission=action.get( 'permissions', () )
-                    , category=action.get('category', 'object')
-                    , visible=action.get('visible', True)
-                    )
+                self.addAction(id=action['id'],
+                               name=action['title'],
+                               action=action['action'],
+                               condition=action.get('condition'),
+                               permission=action.get( 'permissions', ()),
+                               category=action.get('category', 'object'),
+                               visible=action.get('visible', True))
     
     # Tie the factory to the portal_type name - one less thing to have to set
     @property
