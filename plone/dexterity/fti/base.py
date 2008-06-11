@@ -83,21 +83,7 @@ class DexterityFTI(fti.DynamicViewTypeInformation):
         return self.getId()
     
     def lookup_schema(self):
-        schema_name = utils.portal_type_to_schema_name(self.getId())
-        schema = getattr(plone.dexterity.schema.generated, schema_name)
-        
-        if ITemporarySchema.providedBy(schema):
-            try:
-                model = self.lookup_model()
-            except KeyError:
-                raise ValueError(u"Model for %s does not contain a default schema" % (self.getId()))
-            except Exception, e:
-                raise ValueError(u"Error loading model for %s: %s" % (self.getId(), str(e)))
-        
-            utils.sync_schema(model['schemata'][u""], schema)
-            noLongerProvides(schema, ITemporarySchema)
-        
-        return schema
+        raise NotImplemented
     
     def lookup_model(self):
         raise NotImplemented

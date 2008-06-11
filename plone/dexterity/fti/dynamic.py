@@ -1,11 +1,18 @@
 import os.path
 
+from zope.interface import noLongerProvides
 from zope.interface import implements
 
 from plone.dexterity.interfaces import IDynamicFTI
+from plone.dexterity.interfaces import ITemporarySchema
 from plone.dexterity.fti.base import DexterityFTI, _fix_properties
 
+import plone.dexterity.schema
+from plone.dexterity import utils
+
 from plone.supermodel import load_string, load_file
+
+from Products.GenericSetup.utils import _resolveDottedName
 
 class DynamicFTI(DexterityFTI):
     """A Dexterity FTI that is managed entirely through-the-web
@@ -30,10 +37,7 @@ class DynamicFTI(DexterityFTI):
         },
     )
     
-    def __init__(self, *args, **kwargs):
-        super(DynamicFTI, self).__init__(*args, **kwargs)
-        
-        self.model_source = self.model_source = """\
+    model_source = """\
 <model>
     <schema>
         <field name="title" type="zope.schema.TextLine">
@@ -47,10 +51,29 @@ class DynamicFTI(DexterityFTI):
     </schema>
 </model>
 """
-        self.model_file = ""
+    model_file = ""
+    
+    def __init__(self, *args, **kwargs):
+        super(DynamicFTI, self).__init__(*args, **kwargs)
+    
+    def lookup_schema(self):
+        schema_name = utils.portal_type_to_schema_name(self.getId())
+        schema = getattr(plone.dexterity.schema.generated, schema_name)
+        
+        if ITemporarySchema.providedBy(schema):
+            try:
+                model = self.lookup_model()
+            except KeyError:
+                raise ValueError(u"Model for %s does not contain a default schema" % (self.getId()))
+            except Exception, e:
+                raise ValueError(u"Error loading model for %s: %s" % (self.getId(), str(e)))
+        
+            utils.sync_schema(model['schemata'][u""], schema)
+            noLongerProvides(schema, ITemporarySchema)
+        
+        return schema
     
     def lookup_model(self):
-        # TODO: Cache model, invalidate when FTI modified
         model = None
         
         if self.model_source:
@@ -62,16 +85,16 @@ class DynamicFTI(DexterityFTI):
             # We have a package and not an absolute Windows path
             if colons == 1 and self.model_file[1:3] != ':\\':
                 package, filename = self.model_file.split(':')
-                try:
-                    mod = __import__(package)
-                except ImportError:
-                    raise ValueError(u"Invalid package %s specified for model file in %s" % package, self.getId())
-                model_file = os.path.split(mod.__file__)[0]
+                mod = _resolveDottedName(package)
+                model_file = "%s/%s" % (os.path.split(mod.__file__)[0], filename,)
             else:
                 if not os.path.isabs(model_file):
                     raise ValueError(u"Model file name %s is not an absolute path and does not contain a package name in %s" % model_file, self.getId())
             
-            model = load_file(model_file, policy=u"dexterity")
+            if not os.path.isfile(model_file):
+                raise ValueError(u"Model file %s in %s cannot be found" % (model_file, self.getId(),))
+            
+            model = load_file(model_file, reload=True, policy=u"dexterity")
             
         return model
 

@@ -28,7 +28,7 @@ def portal_type_to_schema_name(portal_type, schema=u"", prefix=None):
 def schema_name_to_portal_type(schema_name):
     """Return a the portal_type part of a schema name
     """
-    return split(schema_name)[0]
+    return split(schema_name)[1]
 
 def split_schema_name(schema_name):
     """Return a tuple prefix, portal_type, schema_name

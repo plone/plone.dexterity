@@ -77,8 +77,8 @@ def fti_renamed(object, event):
     unregister(event.objec)
     register(event.object)
 
-def fti_modified(object, event):
-    """When the FTI is modified, re-sync the schema
+def dynamic_fti_modified(object, event):
+    """When a dynamic FTI is modified, re-sync the schema
     """
     
     fti = event.object

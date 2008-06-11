@@ -1,0 +1,13 @@
+<model>
+    <schema>
+        <field name="title" type="zope.schema.TextLine">
+            <title>Title</title>
+            <description>Title used in listings</description>
+            <required>True</required>
+        </field>
+        <field name="description" type="zope.schema.Text">
+            <title>Description</title>
+            <required>False</required>
+        </field>
+    </schema>
+</model>

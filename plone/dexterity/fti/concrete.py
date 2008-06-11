@@ -26,6 +26,14 @@ class ConcreteFTI(DexterityFTI):
     def __init__(self, *args, **kwargs):
         super(ConcreteFTI, self).__init__(*args, **kwargs)
 
+    def lookup_schema(self):
+        schema = getattr(self, '_v_schema', None)
+        if schema is not None:
+            return schema
+        
+        schema = self._v_schema = self.lookup_model()[u'schemata'][u'']
+        return schema
+
     def lookup_model(self):
         schema = _resolveDottedName(self.schema)
         if schema is None:

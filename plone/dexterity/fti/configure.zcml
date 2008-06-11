@@ -58,9 +58,9 @@
         />
     
     <subscriber
-        for="..interfaces.IDexterityFTI
+        for="..interfaces.IDynamicFTI
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-        handler=".events.fti_modified"
+        handler=".events.dynamic_fti_modified"
         />
         
 </configure>
