@@ -5,11 +5,21 @@ from Products.CMFCore.interfaces import ISiteRoot
 # TODO: Need a better encoding algorithm here. The output needs to be
 # valid Python identifiers.
 
+key = (
+    (' ', '_1_'),
+    ('.', '_2_'),
+    ('-', '_3_'),
+    )
+
 def encode(s):
-    return s.replace(' ', '_1_').replace('.', '_2_')
+    for k,v in key:
+        s = s.replace(k, v)
+    return s
     
 def decode(s):
-    return s.replace('_1_', ' ').replace('_2_', '.')
+    for k,v in key:
+        s = s.replace(v, k)
+    return s
 
 def join(*args):
     return '_0_'.join([encode(a) for a in args if a])
@@ -43,21 +53,23 @@ def split_schema_name(schema_name):
 
 def sync_schema(source, dest, overwrite=False):
     """Copy attributes from the source to the destination. If overwrite is
-    False, do not overwrite attributes that already exist.
+    False, do not overwrite attributes that already exist or delete ones
+    that don't exist in source.
     """
     
-    to_delete = set()
+    if overwrite:    
+        to_delete = set()
     
-    # Delete fields in dest, but not in source
-    for name, field in getFieldsInOrder(dest):
-        if name not in source:
-            to_delete.add(name)
+        # Delete fields in dest, but not in source
+        for name, field in getFieldsInOrder(dest):
+            if name not in source:
+                to_delete.add(name)
     
-    for name in to_delete:
-        delattr(dest, name)
-        del dest._InterfaceClass__attrs[name]
-        if hasattr(dest, '_v_attrs'):
-            del dest._v_attrs[name]
+        for name in to_delete:
+            # delattr(dest, name)
+            del dest._InterfaceClass__attrs[name]
+            if hasattr(dest, '_v_attrs'):
+                del dest._v_attrs[name]
 
     # Add fields that are in source, but not in dest
     
@@ -69,7 +81,7 @@ def sync_schema(source, dest, overwrite=False):
             clone.interface = dest
             clone.__name__ = name
             
-            setattr(dest, name, clone)
+            # setattr(dest, name, clone)
             dest._InterfaceClass__attrs[name] = clone
             if hasattr(dest, '_v_attrs'):
                 dest._v_attrs[name] = clone
