@@ -1,42 +1,60 @@
 Dexterity To-Do List
 ====================
 
- General
- -------
- 
-    - Create a buildout with:
-        - plone.alterego
-        - plone.behavior
-        - plone.folder
-        - plone.supermodel
-        - plone.dexterity
-
  plone.supermodel
  ----------------
  
-    - Support for widget hints for z3c.forms
+    - Support for widget hints for z3c.form forms
+    - Support other metadata via namespaces (?)
 
  plone.dexterity
  ---------------
- 
-    - Rectify atrocious lack of tests
-        - want to use `mocker` proxies for most tests
-        - end-to-end integration tests for each type (see examples below)
- 
-    - FTI needs to provide view, edit actions as standard
-    - FTI needs to provide view, edit, default view aliases as standard
- 
+  
+    General
+    ~~~~~~~
+  
+    - Improve test coverage
+    - Improve documentation
+  
+    Dynamic FTIs
+    ~~~~~~~~~~~~
+    
+    - Need to handle case where portal is renamed and/or FTI is renamed.
+      In both cases, the prefix+portal type name encoded in the schema name 
+      may cause problems. Ergo, we probably want a better way to map a named
+      schema (which may not exist yet) to an actual FTI instance for looking
+      up the model.
+  
+    Concrete FTIs
+    ~~~~~~~~~~~~~
+  
+    - Determine what to do with lookup_model() for concrete FTIs
+        - Do we want to support supplying a filename for e.g. widget hints?
+        - Should we make this an aspect of dynamic FTIs only?
+        
+    - Verify that when using concrete FTIs, we do not interrupt:
+        - Filesystem add views
+        - Filesystem factories
+        - Filesystem schemata
+    
+    Security
+    ~~~~~~~~
+    
     - Factory needs to initialise instance security based on schema
     - Add view needs to be protected by fti.add_permission dynamically
     
-    - Support type and FTI migration
-    - Support runtime schema changes (including fields removed and changed)
+    Views
+    ~~~~~
  
     - Use widget hints from plone.supermodel in add and edit forms
     - Support fields from behaviors in add/edit forms
     
-    - Need to cache model/schema more effectively
- 
+    Misc
+    ~~~~
+    
+    - Provide support for various types of migration when FTIs change, e.g.
+      swapping from one FTI to another or changing a model significantly.
+    
     - Flesh out examples and possibly add convenience APIs for:
         - Type installed with GS, no filesystem component
         - Type installed with GS, filesystem interface
@@ -52,12 +70,15 @@ Dexterity To-Do List
     
     - UI for building schemata
     - UI for view customisation
+        - Write out a "flat" template that includes all current fields
+        - Register with portal_view_customizations
     
  Integration concerns
  --------------------
  
-    - Need a reference engine (plone.app.relations)
-    - Need working versioning with version-on-save (CMFEditions policy)
-    - Need working content staging (iterate needs to stop using AT references)
-    - Need working link integrity (ditto for plone.linkintegrity)
-    - Need inline validation of z3c.form forms
+    - Need a reference engine, widget (plone.app.relations)
+    - Need versioning with version-on-save (CMFEditions policy)
+    - Need content staging (iterate needs to stop using AT references)
+    - Need link integrity (ditto for plone.linkintegrity)
+    - Need inline validation (have this for formlib, not z3c.form)
+    - Need inline editing (have this for formlib, not z3c.form)

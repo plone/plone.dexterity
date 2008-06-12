@@ -1,11 +1,7 @@
-from zope.interface import implements, noLongerProvides
+from zope.interface import implements
 from zope.lifecycleevent import modified
 
 from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.interfaces import ITemporarySchema
-
-import plone.dexterity.schema
-from plone.dexterity import utils
 
 from AccessControl import getSecurityManager
 from Products.CMFDynamicViewFTI import fti

@@ -1,10 +1,8 @@
 import os.path
 
-from zope.interface import noLongerProvides
 from zope.interface import implements
 
 from plone.dexterity.interfaces import IDynamicFTI
-from plone.dexterity.interfaces import ITemporarySchema
 from plone.dexterity.fti.base import DexterityFTI, _fix_properties
 
 import plone.dexterity.schema
@@ -58,20 +56,7 @@ class DynamicFTI(DexterityFTI):
     
     def lookup_schema(self):
         schema_name = utils.portal_type_to_schema_name(self.getId())
-        schema = getattr(plone.dexterity.schema.generated, schema_name)
-        
-        if ITemporarySchema.providedBy(schema):
-            try:
-                model = self.lookup_model()
-            except KeyError:
-                raise ValueError(u"Model for %s does not contain a default schema" % (self.getId()))
-            except Exception, e:
-                raise ValueError(u"Error loading model for %s: %s" % (self.getId(), str(e)))
-        
-            utils.sync_schema(model['schemata'][u""], schema)
-            noLongerProvides(schema, ITemporarySchema)
-        
-        return schema
+        return getattr(plone.dexterity.schema.generated, schema_name)
     
     def lookup_model(self):
         model = None

@@ -1,4 +1,3 @@
-from zope.interface import noLongerProvides
 from zope.interface.declarations import Implements
 
 from zope.component.interfaces import IFactory
@@ -11,7 +10,6 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.app.container.interfaces import IAdding
 
 from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.interfaces import ITemporarySchema
 
 from plone.dexterity.factory import DexterityFactory
 from plone.dexterity.browser.add import AddViewFactory
@@ -76,6 +74,10 @@ def fti_renamed(object, event):
     
     unregister(event.objec)
     register(event.object)
+    
+    # TODO: We will either need to keep a trace of the old FTI, or 
+    # we'll need to migrate all objects using this FTI, because instances 
+    # with the old schema name will no longer be able to find their FTI
 
 def dynamic_fti_modified(object, event):
     """When a dynamic FTI is modified, re-sync the schema
@@ -88,6 +90,3 @@ def dynamic_fti_modified(object, event):
     
     model = fti.lookup_model()
     utils.sync_schema(model['schemata'][u""], schema, overwrite=True)
-    
-    if ITemporarySchema.providedBy(schema):
-        noLongerProvides(schema, ITemporarySchema)

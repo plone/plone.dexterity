@@ -55,9 +55,6 @@ class IDexteritySchema(Interface):
     
 alsoProvides(IDexteritySchema, IContentType)
 
-class ITemporarySchema(Interface):
-    """Marker interface for partially constructed schemata
-    """
 class ITransientSchema(Interface):
     """Marker interface for transient schemata
     """
