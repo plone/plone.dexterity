@@ -46,7 +46,6 @@ class SchemaModuleFactory(object):
         module using setattr(). This means that the factory will not be
         invoked again.
         """
-        
         try:
             prefix, portal_type, schema_name = utils.split_schema_name(name)
         except ValueError:
