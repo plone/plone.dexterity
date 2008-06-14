@@ -1,7 +1,7 @@
 import new
 from threading import Lock
 
-from zope.interface import implements, Interface
+from zope.interface import implements
 from zope.interface.interface import InterfaceClass
 
 from zope.component import queryUtility
@@ -46,6 +46,7 @@ class SchemaModuleFactory(object):
         module using setattr(). This means that the factory will not be
         invoked again.
         """
+        
         try:
             prefix, portal_type, schema_name = utils.split_schema_name(name)
         except ValueError:
@@ -67,7 +68,7 @@ class SchemaModuleFactory(object):
         fti = queryUtility(IDexterityFTI, name=portal_type)
         if fti is None and name not in self._transient_schema_cache:
             self._transient_schema_cache[name] = schema
-        else:
+        elif fti is not None:
             try:
                 model = fti.lookup_model()
             except Exception, e:
@@ -79,10 +80,11 @@ class SchemaModuleFactory(object):
             # Save this schema in the module - this factory will not be
             # called again for this name
             
-            setattr(module, name, schema)
             if name in self._transient_schema_cache:
                 del self._transient_schema_cache[name]
-
+                
+            setattr(module, name, schema)
+            
         self._lock.release()
         return schema
 

@@ -24,6 +24,9 @@ Dexterity To-Do List
       may cause problems. Ergo, we probably want a better way to map a named
       schema (which may not exist yet) to an actual FTI instance for looking
       up the model.
+      
+        - perhaps we can keep "ghost FTI" utilities around until a new one
+          is registered for the same name?
   
     Concrete FTIs
     ~~~~~~~~~~~~~
