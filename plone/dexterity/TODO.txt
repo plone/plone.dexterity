@@ -1,12 +1,6 @@
 Dexterity To-Do List
 ====================
 
- plone.supermodel
- ----------------
- 
-    - Support for widget hints for z3c.form forms
-    - Support other metadata via namespaces (?)
-
  plone.dexterity
  ---------------
   
@@ -16,8 +10,8 @@ Dexterity To-Do List
     - Improve test coverage
     - Improve documentation
   
-    Dynamic FTIs
-    ~~~~~~~~~~~~
+    FTIs
+    ~~~~
     
     - Need to handle case where portal is renamed and/or FTI is renamed.
       In both cases, the prefix+portal type name encoded in the schema name 
@@ -28,18 +22,6 @@ Dexterity To-Do List
         - perhaps we can keep "ghost FTI" utilities around until a new one
           is registered for the same name?
   
-    Concrete FTIs
-    ~~~~~~~~~~~~~
-  
-    - Determine what to do with lookup_model() for concrete FTIs
-        - Do we want to support supplying a filename for e.g. widget hints?
-        - Should we make this an aspect of dynamic FTIs only?
-        
-    - Verify that when using concrete FTIs, we do not interrupt:
-        - Filesystem add views
-        - Filesystem factories
-        - Filesystem schemata
-    
     Security
     ~~~~~~~~
     
@@ -49,7 +31,7 @@ Dexterity To-Do List
     Views
     ~~~~~
  
-    - Use widget hints from plone.supermodel in add and edit forms
+    - Add plone.supermodel metadata handlers for widget hints
     - Support fields from behaviors in add/edit forms
     
     Misc

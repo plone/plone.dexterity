@@ -48,4 +48,39 @@
         addview="dexterity.content"
         />
         
+    <!-- Register FTI class -->
+    <five:registerClass
+        class=".fti.DexterityFTI"
+        meta_type="Dexterity FTI"
+        addview="plone.dexterity.fti"
+        permission="cmf.ManagePortal"
+        global="False"
+        />
+        
+    <!-- Register FTI add/remove/modify handlers -->
+    
+    <subscriber
+        for=".interfaces.IDexterityFTI
+             zope.app.container.interfaces.IObjectAddedEvent"
+        handler=".fti.fti_added"
+        />
+        
+    <subscriber
+        for=".interfaces.IDexterityFTI
+             zope.app.container.interfaces.IObjectRemovedEvent"
+        handler=".fti.fti_removed"
+        />
+        
+    <subscriber
+        for=".interfaces.IDexterityFTI
+             zope.app.container.interfaces.IObjectMovedEvent"
+        handler=".fti.fti_renamed"
+        />
+    
+    <subscriber
+        for=".interfaces.IDexterityFTI
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".fti.fti_modified"
+        />
+        
 </configure>

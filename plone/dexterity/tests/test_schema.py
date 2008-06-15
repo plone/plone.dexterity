@@ -10,6 +10,12 @@ from plone.dexterity import utils
 
 class TestSchemaModuleFactory(unittest.TestCase):
     
+    def test_transient_schema(self):
+        pass
+        
+    def test_threadsafe(self):
+        pass
+    
     def test_default_schema(self):
         factory = schema.SchemaModuleFactory()
         

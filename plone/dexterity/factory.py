@@ -52,14 +52,15 @@ class DexterityFactory(Persistent, Factory):
         # Get schema interface
 
         schema = fti.lookup_schema()
-        alsoProvides(obj, schema)
+        
+        if not schema.providedBy(obj):
+            alsoProvides(obj, schema)
 
-        # Initialise fields from the schema onto the type
-        for name, field in getFieldsInOrder(schema):
-            if not hasattr(obj, name):
-                field = field.bind(obj)
-                field.set(obj, field.default)
-                
+            # Initialise fields from the schema onto the type
+            for name, field in getFieldsInOrder(schema):
+                if not hasattr(obj, name):
+                    field = field.bind(obj)
+                    field.set(obj, field.default)
         
         # TODO: Initialise security
         

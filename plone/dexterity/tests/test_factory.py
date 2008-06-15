@@ -19,6 +19,9 @@ class TestFactory(unittest.TestCase):
     def test_create_initialises_schema(self):
         pass
     
+    def test_create_does_not_apply_schema_twice(self):
+        pass
+    
     def test_create_does_not_overwrite_attributes(self):
         pass
         
