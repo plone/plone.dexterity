@@ -12,6 +12,9 @@ from zope.schema import getFieldsInOrder
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityFactory
 
+from plone.dexterity.security import InstanceSecurityInfo
+
+from Acquisition import aq_base
 from Products.GenericSetup.utils import _resolveDottedName
 
 class DexterityFactory(Persistent, Factory):
@@ -56,13 +59,21 @@ class DexterityFactory(Persistent, Factory):
         if not schema.providedBy(obj):
             alsoProvides(obj, schema)
 
+            model = fti.lookup_model()
+            permission_settings = model['metadata'][u''].get('security', {})
+            
+            security = InstanceSecurityInfo()
+
             # Initialise fields from the schema onto the type
             for name, field in getFieldsInOrder(schema):
                 if not hasattr(obj, name):
                     field = field.bind(obj)
                     field.set(obj, field.default)
+                    
+                    read_permission = permission_settings.get(name, {}).get('read-permission', 'View')
+                    security.declareProtected(read_permission, name)
         
-        # TODO: Initialise security
+            security.apply(aq_base(obj))
         
         return obj
 

@@ -7,6 +7,7 @@ from zope.interface.interface import InterfaceClass
 from zope.component import queryUtility
 
 from plone.supermodel.parser import ISchemaPolicy
+from plone.supermodel.parser import IFieldMetadataHandler
 
 from plone.alterego.interfaces import IDynamicObjectFactory
 
@@ -73,7 +74,7 @@ class SchemaModuleFactory(object):
                 model = fti.lookup_model()
             except Exception, e:
                 self._lock.release()
-                raise ValueError(u"Error loading model for %s: %s" % (fti.getId(), str(e)))
+                raise
             
             utils.sync_schema(model['schemata'][schema_name], schema)
         
@@ -108,3 +109,48 @@ class DexteritySchemaPolicy(object):
         # when it's first used, we know the portal_type and site, and can
         # thus update it
         return '__tmp__' + schema_name
+        
+class SecuritySchema(object):
+    """Support the security: namespace in model definitions.
+    """
+    implements(IFieldMetadataHandler)
+    
+    namespace = 'http://namespaces.plone.org/dexterity/security'
+    prefix = 'security'
+    
+    def read(self, field_node, field, schema_metadata):
+        name = field.__name__
+        
+        read_permission = field_node.get('{%s}read-permission' % self.namespace)
+        write_permission = field_node.get('{%s}write-permission' % self.namespace)
+        
+        if read_permission:
+            schema_metadata.setdefault(name, {})['read-permission'] = read_permission
+        if write_permission:
+            schema_metadata.setdefault(name, {})['write-permission'] = write_permission
+
+    def write(self, field_node, schema, schema_metadata):
+        name = field.__name__
+        read_permission = schema_metadata.get(name, {}).get('read-permission', None)
+        write_permission = schema_metadata.get(name, {}).get('read-permission', None)
+        
+        if read_permission:
+            field_node.set('{%s}read-permission' % self.namespace, read_permission)
+        if write_permission:
+            field_node.set('{%s}write-permission' % self.namespace, write_permission)
+
+class WidgetSchema(object):
+    """Support the widget: namespace in model definitions.
+    """
+    implements(IFieldMetadataHandler)
+    
+    namespace = 'http://namespaces.plone.org/dexterity/widget'
+    prefix = 'widget'
+    
+    def read(self, field_node, field, schema_metadata):
+        # TODO: Read widget hints
+        pass
+
+    def write(self, field_node, field, schema_metadata):
+        # TODO: Write widget hints
+        pass

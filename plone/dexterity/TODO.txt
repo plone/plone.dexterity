@@ -10,6 +10,21 @@ Dexterity To-Do List
     - Improve test coverage
     - Improve documentation
   
+    Schema
+    ~~~~~~
+    
+    - Consider whether we want to be able to look up schema by adapter,
+      rather than asking the FTI directly.
+        - May be more useful to have a separate concept of a composite schema
+          since a schema provided by the type implies attribute access and a
+          "flat" namespace.
+        - Schema probably needs to be closely tied to model and FTI in almost
+          all cases.
+      
+    - Need to formalise "schema extender" functionality.
+        - Needs to tie in with fieldset support in forms
+        - Does this happen only at the form/view level?
+  
     FTIs
     ~~~~
     

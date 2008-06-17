@@ -29,6 +29,11 @@
         factory=".schema.SchemaModuleFactory"
         name="plone.dexterity.schema.generated"
         />
+        
+    <utility
+        factory=".schema.SecuritySchema"
+        name="security"
+        />
 
     <!-- Support for plone.behavior behaviors -->
     <adapter factory=".behavior.DexterityBehaviorAssignable" />
