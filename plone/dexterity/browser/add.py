@@ -15,9 +15,6 @@ from plone.dexterity import MessageFactory as _
 
 from Acquisition import aq_inner
 from AccessControl import Unauthorized
-from AccessControl import getSecurityManager
-
-# TODO: Add view needs to be protected by fti.add_permission dynamically
 
 class AddViewFactory(Persistent):
     """Factory for add views - will be registered as a local adapter factory
@@ -66,6 +63,16 @@ class DefaultAddView(base.FormWrapper):
         self.portal_type = portal_type
         
         self.request['disable_border'] = True
+    
+    def __call__(self):
+        context = aq_inner(self.context)
+        container = aq_inner(context.context)
+        
+        fti = getUtility(IDexterityFTI, name=self.portal_type)
+        if not fti.isConstructionAllowed(container):
+            raise Unauthorized("You are not allowed to access the add view for %s because you lack the permission %s" % (self.portal_type, fti.add_permission))
+
+        return super(DefaultAddView, self).__call__()
     
     def render_form(self):
         return self.form(self.context.aq_inner, self.request, self.portal_type)()
