@@ -339,4 +339,4 @@ def fti_modified(object, event):
         schema = getattr(plone.dexterity.schema.generated, schema_name)
     
         model = fti.lookup_model()
-        utils.sync_schema(model['schemata'][u""], schema, overwrite=True)
+        utils.sync_schema(model.schema, schema, overwrite=True)

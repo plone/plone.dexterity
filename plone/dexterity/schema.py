@@ -76,7 +76,7 @@ class SchemaModuleFactory(object):
                 self._lock.release()
                 raise
             
-            utils.sync_schema(model.schemata[schema_name], schema)
+            utils.sync_schema(model.schemata[schema_name].schema, schema)
         
             # Save this schema in the module - this factory will not be
             # called again for this name

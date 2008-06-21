@@ -8,14 +8,24 @@ Dexterity To-Do List
     ~~~~~~~
   
     [*] Improve test coverage
+
     [*] Improve documentation
+
+    [*] Flesh out examples and possibly add convenience APIs for:
+        - Type installed with GS, no filesystem component
+        - Type installed with GS, filesystem interface
+        - Type installed with GS, filesystem interface and type class
+        - Type installed with GS, filesystem interface, type class and views
   
     Schema and FTI
     ~~~~~~~~~~~~~~
 
     [*] Factory needs to initialise instance security based on schema
 
-  
+    [-] Support for multiple schemata is only partially worked out. For
+        example, the sync on FTI modified and the factory code only use
+        the default schema.
+
     [-] Consider whether we want to be able to look up schema by adapter,
         rather than asking the FTI directly.
         - May be more useful to have a separate concept of a composite schema
@@ -43,15 +53,11 @@ Dexterity To-Do List
     Misc
     ~~~~
     
+    [-] Need to properly support i18n in model file
+    
     [-] Provide support for various types of migration when FTIs change, e.g.
         swapping from one FTI to another or changing a model significantly.
-    
-    [-] Flesh out examples and possibly add convenience APIs for:
-        - Type installed with GS, no filesystem component
-        - Type installed with GS, filesystem interface
-        - Type installed with GS, filesystem interface and type class
-        - Type installed with GS, filesystem interface, type class and views
- 
+     
  plone.app.dexterity
  -------------------
  

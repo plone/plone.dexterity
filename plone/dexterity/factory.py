@@ -60,7 +60,7 @@ class DexterityFactory(Persistent, Factory):
             alsoProvides(obj, schema)
 
             model = fti.lookup_model()
-            permission_settings = model['metadata'][u''].get('security', {})
+            permission_settings = model.metadata.get('security', {})
             
             security = InstanceSecurityInfo()
 
