@@ -18,11 +18,11 @@ class IDexterityFTI(Interface):
         """
 
     def lookup_model():
-        """Return the model dict specified in either the model_source or
+        """Return the IModel specified in either the model_source or
         model_file (the former takes precedence). See plone.supermodel for
-        more information about the format of this.
+        more information about this type.
         
-        If neither a model_dict or a model_file is given, but a schema is
+        If neither a model_source or a model_file is given, but a schema is
         given, return a faux model that contains just this schema.
         """
 

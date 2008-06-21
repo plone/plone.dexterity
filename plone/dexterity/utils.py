@@ -3,7 +3,7 @@ from zope.component import getUtility
 from Products.CMFCore.interfaces import ISiteRoot
 
 # TODO: Need a better encoding algorithm here. The output needs to be
-# valid Python identifiers.
+# valid Python identifiers, and unique, but this isn't terribly pretty.
 
 key = (
     (' ', '_1_'),

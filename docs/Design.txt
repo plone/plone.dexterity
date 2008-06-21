@@ -1,4 +1,8 @@
+About this document
 ================
+
+This document explains the initial set of use cases and design thinking that influenced the way in which Dexterity is built. We will try to keep it relevant and up to date, but you should look at interface documentation and other documentation in the actual packages for details about how Dexterity works and how to work with it.
+
 About Dexterity
 ================
 
@@ -6,7 +10,8 @@ Dexterity is the code name for a new way of creating and managing content types 
 
 Dexterity does not explicitly aim to integrate with Archetypes - at least not at this stage. The intention is for the two to co-exist peacefully. Hopefully, Archetypes will be refactored to use many of the same technologies as Dexterity, such as plone.app.relations, zope.app.form widgets and so on, so that the choice between the two is largely an implementation detail.
 
-User story - creating content types -----------------------------------
+User story - creating content types
+-----------------------------------
 
 Plone gains a new control panel called "Content types and forms". Through this control panel, a non-developer can choose to create a new type. She will enter basic type properties, such as a title, whether the type is folderish and so on. She also selects any number of behaviours she wants to enable enable, such as locking, versioning, local role security, the ability to assign portlets, or title-to-id renaming.
 
@@ -152,31 +157,3 @@ To be considered in more detail
     
     -> most likely, this will be achieved by creating a custom permission and checking it explicitly in the FTI and/or factory.
 
-Code layout
------------
-
-We envisage the following packages:
-
- [ ] plone.app.dexerity -- Plone integration
-    -> Plone UI integration
-    -> Standard Ploneish view
-    -> TTW view customisation using portal_view_customizations
-    -> Standard edit forms (using z3c.form)
-        
- [x] plone.dexterity -- CMF compatible, does not depend on plone.app
-    -> FTI
-    -> Factory
-    -> Filesystem synchronisation
-    -> Migration
-    -> Local utility factories
-    -> ZCML directives (if any)
-
- [x] plone.behavior -- Abstraction of a "behaviour" registry
-    -> Behaviours registry
-    -> Utility functions to manage registered behaviours
-
- [x] plone.alterego -- Low-level support for dynamic schemata and dynamic interfaces
-    -> Dynamic type/schema definition
-
- [x] plone.supermodel -- Low-level XML-to-schema definition
-    -> XML parser

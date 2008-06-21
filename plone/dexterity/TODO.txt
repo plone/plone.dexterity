@@ -7,31 +7,28 @@ Dexterity To-Do List
     General
     ~~~~~~~
   
-    - Improve test coverage
-    - Improve documentation
+    [*] Improve test coverage
+    [*] Improve documentation
   
     Schema and FTI
     ~~~~~~~~~~~~~~
-    
-    - Consider whether we want to be able to look up schema by adapter,
-      rather than asking the FTI directly.
+
+    [*] Factory needs to initialise instance security based on schema
+
+  
+    [-] Consider whether we want to be able to look up schema by adapter,
+        rather than asking the FTI directly.
         - May be more useful to have a separate concept of a composite schema
           since a schema provided by the type implies attribute access and a
           "flat" namespace.
         - Schema probably needs to be closely tied to model and FTI in almost
           all cases.
       
-    - Need to formalise "schema extender" functionality.
-        - Needs to tie in with fieldset support in forms
-        - Does this happen only at the form/view level?
-  
-    - Factory needs to initialise instance security based on schema
-    
-    - Need to handle case where portal is renamed and/or FTI is renamed.
-      In both cases, the prefix+portal type name encoded in the schema name 
-      may cause problems. Ergo, we probably want a better way to map a named
-      schema (which may not exist yet) to an actual FTI instance for looking
-      up the model.
+    [-] Need to handle case where portal is renamed and/or FTI is renamed.
+        In both cases, the prefix+portal type name encoded in the schema name 
+        may cause problems. Ergo, we probably want a better way to map a named
+        schema (which may not exist yet) to an actual FTI instance for looking
+        up the model.
       
         - perhaps we can keep "ghost FTI" utilities around until a new one
           is registered for the same name?
@@ -39,16 +36,17 @@ Dexterity To-Do List
     Views
     ~~~~~
  
-    - Add plone.supermodel metadata handlers for widget hints
-    - Support fields from behaviors in add/edit forms
+    [-] Add plone.supermodel metadata handlers for widget hints
+    [-] Support fieldsets and field ordering in add/edit forms
+    [-] Support fields from behaviors in add/edit forms
     
     Misc
     ~~~~
     
-    - Provide support for various types of migration when FTIs change, e.g.
-      swapping from one FTI to another or changing a model significantly.
+    [-] Provide support for various types of migration when FTIs change, e.g.
+        swapping from one FTI to another or changing a model significantly.
     
-    - Flesh out examples and possibly add convenience APIs for:
+    [-] Flesh out examples and possibly add convenience APIs for:
         - Type installed with GS, no filesystem component
         - Type installed with GS, filesystem interface
         - Type installed with GS, filesystem interface and type class
@@ -57,12 +55,14 @@ Dexterity To-Do List
  plone.app.dexterity
  -------------------
  
-    - Better views for IDexterityItem and IDexterityContainer
-    - Provide optional standard Ploneish metadata fieldsets for add/edit forms
-    - Make content types support title-to-id, perhaps via behaviors
+    [-] Better views for IDexterityItem and IDexterityContainer
+    [-] Provide optional standard Ploneish metadata fieldsets for add/edit 
+        forms
+    [-] Make content types support title-to-id, perhaps via behaviors
     
-    - UI for building schemata
-    - UI for view customisation
+    [-] UI for managing types, importing, exporting etc.
+    [-] UI for building schemata
+    [-] UI for view customisation
         - Write out a "flat" template that includes all current fields
         - Register with portal_view_customizations
     

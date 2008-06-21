@@ -15,6 +15,7 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.app.container.interfaces import IAdding
 
 from plone.supermodel import load_string, load_file
+from plone.supermodel.model import Model, SchemaInfo
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity import utils
@@ -103,7 +104,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     behaviors = []
     klass = 'plone.dexterity.content.Item'
     model_source = """\
-<model>
+<model xmlns="http://namespaces.plone.org/supermodel/schema">
     <schema>
         <field name="title" type="zope.schema.TextLine">
             <title>Title</title>
@@ -175,8 +176,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             return load_file(model_file, reload=True, policy=u"dexterity")
         
         elif self.schema:
-            return {u'schemata': {u'': self.schema},
-                    u'metadata': {}}
+            return Model({u"": SchemaInfo(schema=self.lookup_schema())})
         
         raise ValueError("Neither model source, nor model file, nor schema is specified in FTI %s" % self.getId())
     
