@@ -26,7 +26,7 @@ setup(name='plone.dexterity',
       install_requires=[
           'setuptools',
           'plone.z3cform',
-          'mocker',
+          'plone.mocktestcase',
           'plone.folder',
           'plone.supermodel',
           'plone.alterego',

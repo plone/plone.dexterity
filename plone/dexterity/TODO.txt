@@ -7,10 +7,6 @@ Dexterity To-Do List
     General
     ~~~~~~~
   
-    [*] Improve test coverage
-
-    [*] Improve documentation
-
     [*] Flesh out examples and possibly add convenience APIs for:
         - Type installed with GS, no filesystem component
         - Type installed with GS, filesystem interface
@@ -46,9 +42,11 @@ Dexterity To-Do List
     Views
     ~~~~~
  
-    [-] Add plone.supermodel metadata handlers for widget hints
-    [-] Support fieldsets and field ordering in add/edit forms
-    [-] Support fields from behaviors in add/edit forms
+    [*] Add plone.supermodel metadata handlers for widget hints
+    
+    [*] Support fieldsets and externalised field ordering in add/edit forms
+    
+    [*] Support fields from behaviors in add/edit forms
     
     Misc
     ~~~~
@@ -63,8 +61,8 @@ Dexterity To-Do List
  
     [-] Better views for IDexterityItem and IDexterityContainer
     [-] Provide optional standard Ploneish metadata fieldsets for add/edit 
-        forms
-    [-] Make content types support title-to-id, perhaps via behaviors
+        forms (should be implemented as a behaviour)
+    [-] Make content types support title-to-id (again, should be a behaviour)
     
     [-] UI for managing types, importing, exporting etc.
     [-] UI for building schemata

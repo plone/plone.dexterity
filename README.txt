@@ -47,7 +47,7 @@ summarised as follows:
 
  Small over big
 
-    Mega-frameworks be damned. Dexterity concepts of a number of speciaised
+    Mega-frameworks be damned. Dexterity consists of a number of speciaised
     packages, each of which is independently tested and reusable. Furthermore,
     packages should has as few dependencies as possible, and should declare 
     their dependencies explicitly. This helps keep the design clean and the 
@@ -60,7 +60,7 @@ summarised as follows:
     end goal is to make it easy to get started, but also easy to progress from
     an initial prototype to a complex set of types and associated behaviours
     through step-wise learning and natural interaction patterns. Dexterity
-    aims to consider its uses - be they business analysts, light integrators
+    aims to consider its users - be they business analysts, light integrators
     or Python developers, and be they new or experienced - and cater to them
     explicitly with obvious, well-documented, natural interaction patterns.
 
@@ -98,15 +98,16 @@ makes up a "content type" in the Dexterity system.
     only one) and metadata associated with those schemata. A schema is just
     a series of fields that can be used to render add/edit forms and 
     introspect an object of the given type. The metadata storage is extensible
-    via the components architecture. Typical forms of metadata include UI
+    via the component architecture. Typical forms of metadata include UI
     hints such as specifying the type of widget to use when rendering a
     particular field, and per-field security settings.
     
     The model is typically described in XML, though at runtime it is an 
     instance of an object providing the IModel interface from 
-    plone.supermodel.
+    plone.supermodel. Schemata in the model are interfaces with zope.schema
+    fields.
     
-    The model can exist purely as data in the ZODB, if a type is created
+    The model can exist purely as data in the ZODB if a type is created
     through-the-web. Alternatively, it can be loaded from a file. The XML
     representation is intended to be human-readable and self-documenting.
     It is also designed with tools like ArchGenXML and Genesis in mind,
@@ -271,4 +272,5 @@ The most important packages are:
 Usage examples
 --------------
 
-    TODO: Describe examples
+    TODO: Describe examples from example.dexterity package when these are
+          finalised

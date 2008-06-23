@@ -2,7 +2,6 @@ from zope.interface import Interface, alsoProvides
 import zope.schema
 
 from zope.component.interfaces import IFactory
-from zope.app.content.interfaces import IContentType
 
 class IDexterityFTI(Interface):
     """The Factory Type Information for Dexterity content objects
@@ -60,8 +59,6 @@ class IDexterityFactory(IFactory):
 class IDexteritySchema(Interface):
     """Base class for Dexterity schemata
     """
-    
-alsoProvides(IDexteritySchema, IContentType)
 
 class ITransientSchema(Interface):
     """Marker interface for transient schemata

@@ -1,10 +1,12 @@
 import new
 from threading import Lock
 
-from zope.interface import implements
+from zope.interface import implements, alsoProvides
 from zope.interface.interface import InterfaceClass
 
 from zope.component import queryUtility
+
+from zope.app.content.interfaces import IContentType
 
 from plone.supermodel.parser import ISchemaPolicy
 from plone.supermodel.parser import IFieldMetadataHandler
@@ -65,6 +67,9 @@ class SchemaModuleFactory(object):
                 bases += (IDexteritySchema,)
         
             schema = InterfaceClass(name, bases, __module__=module.__name__)
+        
+            if is_default_schema:
+                alsoProvides(schema, IContentType)
         
         fti = queryUtility(IDexterityFTI, name=portal_type)
         if fti is None and name not in self._transient_schema_cache:

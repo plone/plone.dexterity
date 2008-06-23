@@ -24,4 +24,4 @@ class DefaultEditView(base.FormWrapper):
         portal_type = self.context.portal_type
         fti = getUtility(IDexterityFTI, name=portal_type)
         type_name = fti.title
-        label = _(u"Edit ${name}", mapping={'name': type_name})
+        return _(u"Edit ${name}", mapping={'name': type_name})

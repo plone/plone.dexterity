@@ -1,6 +1,6 @@
 import os.path
 
-from zope.interface import implements
+from zope.interface import Interface, implements
 from zope.interface.declarations import Implements
 
 from zope.component.interfaces import IFactory
@@ -155,7 +155,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
                 return schema
         
             schema = _resolveDottedName(self.schema)
-            if schema is not None:
+            if schema is None:
                 raise ValueError(u"Schema %s set for type %s cannot be resolved" % (self.schema, self.getId()))
             return schema
         
@@ -193,12 +193,11 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         modified(self)
         return page
     
-    def manage_changeProperties(self, REQUEST=None, **kw):
+    def manage_changeProperties(self, **kw):
         """Gotta love Zope 2
         """
-        page = super(DexterityFTI, self).manage_changeProperties(REQUEST, **kw)
+        super(DexterityFTI, self).manage_changeProperties(**kw)
         modified(self)
-        return page
         
     # Allow us to specify a particular add permission rather than rely on ones
     # stored in meta types that we don't have anyway
@@ -223,7 +222,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             model_file = "%s/%s" % (os.path.split(mod.__file__)[0], filename,)
         else:
             if not os.path.isabs(model_file):
-                raise ValueError(u"Model file name %s is not an absolute path and does not contain a package name in %s" % model_file, self.getId())
+                raise ValueError(u"Model file name %s is not an absolute path and does not contain a package name in %s" % (model_file, self.getId(),))
         
         if not os.path.isfile(model_file):
             raise ValueError(u"Model file %s in %s cannot be found" % (model_file, self.getId(),))
@@ -278,6 +277,9 @@ def register(fti):
     
     addview_factory = site_manager.adapters.lookup((Implements(IAdding), Implements(IBrowserRequest)), IBrowserView, name=fti.factory)
     if addview_factory is None:
+        addview_factory = site_manager.adapters.lookup((Implements(IAdding), Implements(IBrowserRequest)), Interface, name=fti.factory)
+        
+    if addview_factory is None:
         site_manager.registerAdapter(factory=AddViewFactory(portal_type),
                                      provided=IBrowserView,
                                      required=(IAdding, IBrowserRequest),
@@ -321,7 +323,7 @@ def fti_renamed(object, event):
     if event.oldParent is None or event.newParent is None or event.oldName == event.newName:
         return
     
-    unregister(event.objec)
+    unregister(event.object)
     register(event.object)
     
     # TODO: We will either need to keep a trace of the old FTI, or 

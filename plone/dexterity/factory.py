@@ -60,9 +60,11 @@ class DexterityFactory(Persistent, Factory):
             alsoProvides(obj, schema)
 
             model = fti.lookup_model()
-            permission_settings = model.metadata.get('security', {})
+            if model.metadata is not None:
+                permission_settings = model.metadata.get('security', {})
             
-            security = InstanceSecurityInfo()
+            # XXX: This security model does not seem to work properly
+            # security = InstanceSecurityInfo()
 
             # Initialise fields from the schema onto the type
             for name, field in getFieldsInOrder(schema):
@@ -70,10 +72,10 @@ class DexterityFactory(Persistent, Factory):
                     field = field.bind(obj)
                     field.set(obj, field.default)
                     
-                    read_permission = permission_settings.get(name, {}).get('read-permission', 'View')
-                    security.declareProtected(read_permission, name)
+                    # read_permission = permission_settings.get(name, {}).get('read-permission', 'View')
+                    # security.declareProtected(read_permission, name)
         
-            security.apply(aq_base(obj))
+            # security.apply(aq_base(obj))
         
         return obj
 

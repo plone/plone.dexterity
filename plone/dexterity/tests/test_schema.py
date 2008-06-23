@@ -1,15 +1,17 @@
 import unittest
-from plone.dexterity.tests import mocks
-
-from zope.component import provideUtility
+from plone.mocktestcase import MockTestCase
 
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
 import zope.schema
 
+from zope.app.content.interfaces import IContentType
+
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexteritySchema
+
+from plone.dexterity.fti import DexterityFTI
 
 from plone.dexterity import schema
 from plone.dexterity import utils
@@ -19,7 +21,7 @@ from plone.supermodel.utils import ns
 
 from elementtree import ElementTree
 
-class TestSchemaModuleFactory(mocks.MockTestCase):
+class TestSchemaModuleFactory(MockTestCase):
     
     def test_transient_schema(self):
         
@@ -30,6 +32,7 @@ class TestSchemaModuleFactory(mocks.MockTestCase):
         
         self.failUnless(isinstance(klass, InterfaceClass))
         self.failUnless(klass.isOrExtends(IDexteritySchema))
+        self.failUnless(IContentType.providedBy(klass))
         self.assertEquals(schema_name, klass.__name__)
         self.assertEquals('plone.dexterity.schema.generated', klass.__module__)
         self.assertEquals((), tuple(zope.schema.getFields(klass)))
@@ -42,10 +45,10 @@ class TestSchemaModuleFactory(mocks.MockTestCase):
         mock_model = Model({u"": SchemaInfo(IDummy)})
         
         # Mock FTI
-        fti_mock = self.mocker.mock()
+        fti_mock = self.mocker.mock(DexterityFTI)
         fti_mock.lookup_model()
         self.mocker.result(mock_model)
-        provideUtility(provides=IDexterityFTI, component=fti_mock, name='testtype')
+        self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
         
         self.mocker.replay()
         
@@ -56,6 +59,7 @@ class TestSchemaModuleFactory(mocks.MockTestCase):
         
         self.failUnless(isinstance(klass, InterfaceClass))
         self.failUnless(klass.isOrExtends(IDexteritySchema))
+        self.failUnless(IContentType.providedBy(klass))
         self.assertEquals(schema_name, klass.__name__)
         self.assertEquals('plone.dexterity.schema.generated', klass.__module__)
         self.assertEquals(('dummy',), tuple(zope.schema.getFieldNames(klass)))
@@ -71,10 +75,10 @@ class TestSchemaModuleFactory(mocks.MockTestCase):
                             u"named": SchemaInfo(INamedDummy)})
         
         # Mock FTI
-        fti_mock = self.mocker.mock()
+        fti_mock = self.mocker.mock(DexterityFTI)
         fti_mock.lookup_model()
         self.mocker.result(mock_model)
-        provideUtility(provides=IDexterityFTI, component=fti_mock, name='testtype')
+        self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
         
         self.mocker.replay()
         
@@ -85,6 +89,7 @@ class TestSchemaModuleFactory(mocks.MockTestCase):
         
         self.failUnless(isinstance(klass, InterfaceClass))
         self.failIf(klass.isOrExtends(IDexteritySchema)) # only default schema gets this
+        self.failIf(IContentType.providedBy(klass))
         self.assertEquals(schema_name, klass.__name__)
         self.assertEquals('plone.dexterity.schema.generated', klass.__module__)
         self.assertEquals(('named',), tuple(zope.schema.getFieldNames(klass)))
@@ -99,6 +104,7 @@ class TestSchemaModuleFactory(mocks.MockTestCase):
         klass = factory(schema_name, schema.generated)
         self.failUnless(isinstance(klass, InterfaceClass))
         self.failUnless(klass.isOrExtends(IDexteritySchema))
+        self.failUnless(IContentType.providedBy(klass))
         self.assertEquals(schema_name, klass.__name__)
         self.assertEquals('plone.dexterity.schema.generated', klass.__module__)
         self.assertEquals((), tuple(zope.schema.getFields(klass)))
@@ -108,6 +114,7 @@ class TestSchemaModuleFactory(mocks.MockTestCase):
         klass = factory(schema_name, schema.generated)
         self.failUnless(isinstance(klass, InterfaceClass))
         self.failUnless(klass.isOrExtends(IDexteritySchema))
+        self.failUnless(IContentType.providedBy(klass))
         self.assertEquals(schema_name, klass.__name__)
         self.assertEquals('plone.dexterity.schema.generated', klass.__module__)
         self.assertEquals((), tuple(zope.schema.getFields(klass)))
@@ -118,10 +125,10 @@ class TestSchemaModuleFactory(mocks.MockTestCase):
             dummy = zope.schema.TextLine(title=u"Dummy")
         mock_model = Model({u"": SchemaInfo(IDummy)})
         
-        fti_mock = self.mocker.mock()
+        fti_mock = self.mocker.mock(DexterityFTI)
         fti_mock.lookup_model()
         self.mocker.result(mock_model)
-        provideUtility(provides=IDexterityFTI, component=fti_mock, name='testtype')
+        self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
         
         self.mocker.replay()
         
@@ -129,6 +136,7 @@ class TestSchemaModuleFactory(mocks.MockTestCase):
         
         self.failUnless(isinstance(klass, InterfaceClass))
         self.failUnless(klass.isOrExtends(IDexteritySchema))
+        self.failUnless(IContentType.providedBy(klass))
         self.assertEquals(schema_name, klass.__name__)
         self.assertEquals('plone.dexterity.schema.generated', klass.__module__)
         

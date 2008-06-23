@@ -1,15 +1,14 @@
 import unittest
-from plone.dexterity.tests import mocks
+from plone.mocktestcase import MockTestCase
 
 from zope.interface import Interface
 from zope.schema import getFieldNamesInOrder
 from zope import schema
 
-from zope.component import provideUtility
 from plone.dexterity import utils
 from Products.CMFCore.interfaces import ISiteRoot
 
-class TestUtils(mocks.MockTestCase):
+class TestUtils(MockTestCase):
     
     def test_portal_type_to_schema_name_with_schema_and_prefix(self):
         self.assertEquals('prefix_0_type_0_schema',
@@ -22,10 +21,9 @@ class TestUtils(mocks.MockTestCase):
     def test_portal_type_to_schema_name_looks_up_portal_for_prefix(self):
         portal_mock = self.mocker.mock()
         self.expect(portal_mock.getId()).result('portalid')
+        self.mock_utility(portal_mock, ISiteRoot)
         
-        provideUtility(provides=ISiteRoot, component=portal_mock)
-        
-        self.mocker.replay()
+        self.replay()
         
         self.assertEquals('portalid_0_type',
             utils.portal_type_to_schema_name('type'))
