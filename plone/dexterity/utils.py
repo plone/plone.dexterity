@@ -56,7 +56,7 @@ def sync_schema(source, dest, overwrite=False):
     False, do not overwrite attributes that already exist or delete ones
     that don't exist in source.
     """
-    
+
     if overwrite:    
         to_delete = set()
     

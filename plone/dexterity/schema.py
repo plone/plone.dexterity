@@ -129,10 +129,10 @@ class SecuritySchema(object):
         if write_permission:
             schema_metadata.setdefault(name, {})['write-permission'] = write_permission
 
-    def write(self, field_node, schema, schema_metadata):
+    def write(self, field_node, field, schema_metadata):
         name = field.__name__
         read_permission = schema_metadata.get(name, {}).get('read-permission', None)
-        write_permission = schema_metadata.get(name, {}).get('read-permission', None)
+        write_permission = schema_metadata.get(name, {}).get('write-permission', None)
         
         if read_permission:
             field_node.set('{%s}read-permission' % self.namespace, read_permission)
