@@ -7,6 +7,8 @@ import os.path
 from zope.interface import Interface
 from zope.component import queryUtility, queryMultiAdapter
 
+import zope.schema
+
 from zope.component.interfaces import IFactory
 
 from zope.component import getGlobalSiteManager
@@ -39,7 +41,7 @@ from plone.dexterity.browser.add import AddViewFactory
 from plone.dexterity import utils
 from plone.dexterity.tests.schemata import ITestSchema
 
-from plone.supermodel.model import Model
+from plone.supermodel.model import Model, SchemaInfo
 
 from Products.CMFCore.interfaces import ISiteRoot
 
@@ -506,10 +508,68 @@ class TestFTIEvents(MockTestCase):
         self.assertNotEquals(None, site_manager_mock.adapters.lookup((Implements(IAdding), Implements(IBrowserRequest)), IBrowserView, name=portal_type))
         
     def test_dynamic_schema_refreshed_on_modify(self):
-        pass
+        portal_type = u"testtype"
+        fti = self.mocker.proxy(DexterityFTI(portal_type))
+        
+        class INew(Interface):
+            title = zope.schema.TextLine(title=u"title")
+        
+        model_dummy = Model({u"": SchemaInfo(INew)})
+        
+        self.expect(fti.lookup_model()).result(model_dummy)
+        container_dummy = self.create_dummy()
+        
+        site_dummy = self.create_dummy(getId = lambda: "site")
+        self.mock_utility(site_dummy, ISiteRoot)
+        
+        class IBlank(Interface):
+            pass
+        
+        
+        self.replay()
+        
+        # Set source interface
+        schema_name = utils.portal_type_to_schema_name(fti.getId())
+        setattr(plone.dexterity.schema.generated, schema_name, IBlank)
+                
+        # Sync this with schema
+        fti_modified(fti, ObjectModifiedEvent(fti))
+        
+        self.failUnless('title' in IBlank)
+        self.failUnless(IBlank['title'].title == u"title")
         
     def test_concrete_schema_not_refreshed_on_modify(self):
-        pass
+        portal_type = u"testtype"
+        fti = self.mocker.proxy(DexterityFTI(portal_type))
+        
+        class IBlank(Interface):
+            pass
+        
+        class INew(Interface):
+            title = zope.schema.TextLine(title=u"title")
+        
+        model_dummy = Model({u"": SchemaInfo(INew)})
+        self.expect(fti.lookup_model()).result(model_dummy).count(0, None)
+        container_dummy = self.create_dummy()
+        
+        site_dummy = self.create_dummy(getId = lambda: "site")
+        self.mock_utility(site_dummy, ISiteRoot)
+        
+        self.replay()
+        
+        # Set schema to something so that has_dynamic_schema is false
+        fti.schema = IBlank.__identifier__
+        assert not fti.has_dynamic_schema
+        
+        # Set source for dynamic FTI - should not be used
+        schema_name = utils.portal_type_to_schema_name(fti.getId())
+        setattr(plone.dexterity.schema.generated, schema_name, IBlank)
+                
+        # Sync should not happen now
+        
+        fti_modified(fti, ObjectModifiedEvent(fti))
+        
+        self.failIf('title' in IBlank)
     
 def test_suite():
     suite = unittest.TestSuite()
