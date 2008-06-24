@@ -1,6 +1,22 @@
 Dexterity To-Do List
 ====================
 
+ Areas that need ownership
+ -------------------------
+ 
+    [ ] Schema composition and fieldsets in forms, integration with 
+        plone.behavior
+    
+    [ ] Field-level security
+    
+    [ ] i18n support in schema
+    
+    [ ] Schema editor and Plone control panel
+    
+    [ ] Reference engine integration
+    
+    [ ] Versioning integration
+
  plone.dexterity
  ---------------
   
@@ -18,11 +34,11 @@ Dexterity To-Do List
 
     [*] Factory needs to initialise instance security based on schema
 
-    [-] Support for multiple schemata is only partially worked out. For
+    [ ] Support for multiple schemata is only partially worked out. For
         example, the sync on FTI modified and the factory code only use
         the default schema.
 
-    [-] Consider whether we want to be able to look up schema by adapter,
+    [ ] Consider whether we want to be able to look up schema by adapter,
         rather than asking the FTI directly.
         - May be more useful to have a separate concept of a composite schema
           since a schema provided by the type implies attribute access and a
@@ -30,7 +46,7 @@ Dexterity To-Do List
         - Schema probably needs to be closely tied to model and FTI in almost
           all cases.
       
-    [-] Need to handle case where portal is renamed and/or FTI is renamed.
+    [ ] Need to handle case where portal is renamed and/or FTI is renamed.
         In both cases, the prefix+portal type name encoded in the schema name 
         may cause problems. Ergo, we probably want a better way to map a named
         schema (which may not exist yet) to an actual FTI instance for looking
@@ -51,31 +67,31 @@ Dexterity To-Do List
     Misc
     ~~~~
     
-    [-] Need to properly support i18n in model file
+    [ ] Need to properly support i18n in model file
     
-    [-] Provide support for various types of migration when FTIs change, e.g.
+    [ ] Provide support for various types of migration when FTIs change, e.g.
         swapping from one FTI to another or changing a model significantly.
      
  plone.app.dexterity
  -------------------
  
-    [-] Better views for IDexterityItem and IDexterityContainer
-    [-] Provide optional standard Ploneish metadata fieldsets for add/edit 
+    [ ] Better views for IDexterityItem and IDexterityContainer
+    [ ] Provide optional standard Ploneish metadata fieldsets for add/edit 
         forms (should be implemented as a behaviour)
-    [-] Make content types support title-to-id (again, should be a behaviour)
+    [ ] Make content types support title-to-id (again, should be a behaviour)
     
-    [-] UI for managing types, importing, exporting etc.
-    [-] UI for building schemata
-    [-] UI for view customisation
+    [ ] UI for managing types, importing, exporting etc.
+    [ ] UI for building schemata
+    [ ] UI for view customisation
         - Write out a "flat" template that includes all current fields
         - Register with portal_view_customizations
     
  Integration concerns
  --------------------
  
-    - Need a reference engine, widget (plone.app.relations)
-    - Need versioning with version-on-save (CMFEditions policy)
-    - Need content staging (iterate needs to stop using AT references)
-    - Need link integrity (ditto for plone.linkintegrity)
+    - Need a reference engine, widget (plone.app.relations - fields/widgets)
+    - Need versioning with version-on-save (CMFEditions policy - behavior)
+    - Need content staging (iterate w/o AT references - behavior)
+    - Need link integrity (linkintegrity w/o AT references - behavior)
     - Need inline validation (have this for formlib, not z3c.form)
     - Need inline editing (have this for formlib, not z3c.form)
