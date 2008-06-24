@@ -10,3 +10,13 @@ class ITestSchema(Interface):
                         
     description = schema.Text(title=u"Description",
                               required=False)
+
+class ITaggedValueSchema(Interface):
+    """Schema used for testing tagged value filenames
+    """
+    
+ITaggedValueSchema.setTaggedValue('plone.supermodel.filename', '/path/to/dummy.xml')
+
+class IDerivedFromTaggedValueSchema(ITaggedValueSchema):
+    """Schema used for testing tagged value filenames
+    """

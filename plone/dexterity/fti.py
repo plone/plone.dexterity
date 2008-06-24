@@ -176,7 +176,20 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             return load_file(model_file, reload=True, policy=u"dexterity")
         
         elif self.schema:
-            return Model({u"": SchemaInfo(schema=self.lookup_schema())})
+            
+            # Attempt to load model file if it was tagged onto the schema
+            # interface or one of its bases
+            
+            schema = self.lookup_schema()
+            
+            for iface in [schema] + list(schema.getBases()):
+                model_file = iface.queryTaggedValue('plone.supermodel.filename')
+                if model_file is not None:
+                    return load_file(model_file, reload=False, policy=u"dexterity")
+            
+            # Otherwise, just return an empty model
+            
+            return Model({u"": SchemaInfo(schema=schema)})
         
         raise ValueError("Neither model source, nor model file, nor schema is specified in FTI %s" % self.getId())
     
