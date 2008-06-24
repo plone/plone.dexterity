@@ -24,10 +24,10 @@ Dexterity To-Do List
     ~~~~~~~
   
     [*] Flesh out examples and possibly add convenience APIs for:
-        - Type installed with GS, no filesystem component
-        - Type installed with GS, filesystem interface
-        - Type installed with GS, filesystem interface and type class
-        - Type installed with GS, filesystem interface, type class and views
+        [x] Type installed with GS, no filesystem component
+        [-] Type installed with GS, filesystem interface
+        [ ] Type installed with GS, filesystem interface and type class
+        [ ] Type installed with GS, filesystem interface, type class and views
   
     Schema and FTI
     ~~~~~~~~~~~~~~
@@ -58,7 +58,10 @@ Dexterity To-Do List
     Views
     ~~~~~
  
-    [*] Add plone.supermodel metadata handlers for widget hints
+    [*] Add, edit forms need better buttons
+    [*] Edit form should go to view after save
+ 
+    [*] Use 'widget' schema metadata in forms
     
     [*] Support fieldsets and externalised field ordering in add/edit forms
     

@@ -9,12 +9,13 @@ from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
+from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 
 from plone.folder.ordered import OrderedBTreeFolderBase
 
 # XXX: It'd be nice to reduce the number of base classes here
 
-class Item(PortalContent, DefaultDublinCoreImpl, Contained):
+class Item(BrowserDefaultMixin, PortalContent, DefaultDublinCoreImpl, Contained):
     """A non-containerish, CMFish item
     """
     
@@ -31,7 +32,7 @@ class Item(PortalContent, DefaultDublinCoreImpl, Contained):
         if id is not None:
             self.id = id
 
-class Container(CMFCatalogAware, OrderedBTreeFolderBase, PortalContent, DefaultDublinCoreImpl, Contained):
+class Container(BrowserDefaultMixin, CMFCatalogAware, OrderedBTreeFolderBase, PortalContent, DefaultDublinCoreImpl, Contained):
     """Base class for folderish items
     """
     

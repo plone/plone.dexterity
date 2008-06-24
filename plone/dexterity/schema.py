@@ -11,6 +11,8 @@ from zope.app.content.interfaces import IContentType
 from plone.supermodel.parser import ISchemaPolicy
 from plone.supermodel.parser import IFieldMetadataHandler
 
+from plone.supermodel.utils import ns
+
 from plone.alterego.interfaces import IDynamicObjectFactory
 
 from plone.dexterity.interfaces import IDexteritySchema
@@ -126,8 +128,8 @@ class SecuritySchema(object):
     def read(self, field_node, field, schema_metadata):
         name = field.__name__
         
-        read_permission = field_node.get('{%s}read-permission' % self.namespace)
-        write_permission = field_node.get('{%s}write-permission' % self.namespace)
+        read_permission = field_node.get(ns('read-permission', self.namespace))
+        write_permission = field_node.get(ns('write-permission', self.namespace))
         
         if read_permission:
             schema_metadata.setdefault(name, {})['read-permission'] = read_permission
@@ -140,9 +142,9 @@ class SecuritySchema(object):
         write_permission = schema_metadata.get(name, {}).get('write-permission', None)
         
         if read_permission:
-            field_node.set('{%s}read-permission' % self.namespace, read_permission)
+            field_node.set(ns('read-permission', self.namespace), read_permission)
         if write_permission:
-            field_node.set('{%s}write-permission' % self.namespace, write_permission)
+            field_node.set(ns('write-permission', self.namespace), write_permission)
 
 class WidgetSchema(object):
     """Support the widget: namespace in model definitions.
@@ -153,9 +155,13 @@ class WidgetSchema(object):
     prefix = 'widget'
     
     def read(self, field_node, field, schema_metadata):
-        # TODO: Read widget hints
-        pass
+        name = field.__name__
+        widget = field_node.get(ns('widget', self.namespace))        
+        if widget:
+            schema_metadata[name] = widget
 
     def write(self, field_node, field, schema_metadata):
-        # TODO: Write widget hints
-        pass
+        name = field.__name__
+        widget = schema_metadata.get(name, None)
+        if widget:
+            field_node.set(ns('widget', self.namespace), widget)

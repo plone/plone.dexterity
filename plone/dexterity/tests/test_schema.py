@@ -198,10 +198,60 @@ class TestSecuritySchema(unittest.TestCase):
         handler.write(field_node, field, metadata)
         self.assertEquals(None, field_node.get(ns("read-permission", self.namespace)))
         self.assertEquals(None, field_node.get(ns("write-permission", self.namespace)))
+        
+class TestWidgetSchema(unittest.TestCase):
+    
+    namespace = 'http://namespaces.plone.org/dexterity/widget'
+    
+    def test_read(self):
+        field_node = ElementTree.Element('field')
+        field_node.set(ns("widget", self.namespace), "SomeWidget")
+        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
+        metadata = {}
+        
+        handler = schema.WidgetSchema()
+        handler.read(field_node, field, metadata)
+        self.assertEquals({u'dummy': 'SomeWidget'}, metadata)
+    
+    def test_read_no_widget(self):
+        field_node = ElementTree.Element('field')
+        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
+        metadata = {}
 
+        handler = schema.WidgetSchema()
+        handler.read(field_node, field, metadata)
+        self.assertEquals({}, metadata)
+        
+    def test_write(self):
+        field_node = ElementTree.Element('field')
+        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
+        
+        metadata = {u'dummy': 'SomeWidget'}
+        handler = schema.WidgetSchema()
+        handler.write(field_node, field, metadata)
+        self.assertEquals("SomeWidget", field_node.get(ns("widget", self.namespace)))
+    
+    def test_write_no_widget(self):
+        field_node = ElementTree.Element('field')
+        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
+        
+        metadata = {u'dummy': {}}
+        handler = schema.WidgetSchema()
+        handler.write(field_node, field, metadata)
+        self.assertEquals(None, field_node.get(ns("widget", self.namespace)))
+
+    def test_write_no_metadata(self):
+        field_node = ElementTree.Element('field')
+        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
+        
+        metadata = {}
+        handler = schema.WidgetSchema()
+        handler.write(field_node, field, metadata)
+        self.assertEquals(None, field_node.get(ns("widget", self.namespace)))
         
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestSchemaModuleFactory))
     suite.addTest(unittest.makeSuite(TestSecuritySchema))
+    suite.addTest(unittest.makeSuite(TestWidgetSchema))
     return suite
