@@ -32,7 +32,7 @@ def serialize_schema(field_view, event):
             raise
             
         # synchronize changes to the model
-        sync_schema(schema, model.schemata[schema_name].schema, overwrite=True)
+        sync_schema(schema, model.lookup_schema(schema_name), overwrite=True)
         fti.model_source = serialize_model(model)
     else:
         raise "Changes to non-dynamic schemata not yet supported."

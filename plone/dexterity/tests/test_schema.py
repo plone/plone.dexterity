@@ -16,7 +16,7 @@ from plone.dexterity.fti import DexterityFTI
 from plone.dexterity import schema
 from plone.dexterity import utils
 
-from plone.supermodel.model import Model, SchemaInfo
+from plone.supermodel.model import Model
 from plone.supermodel.utils import ns
 
 from elementtree import ElementTree
@@ -42,7 +42,7 @@ class TestSchemaModuleFactory(MockTestCase):
         # Mock schema model
         class IDummy(Interface):
             dummy = zope.schema.TextLine(title=u"Dummy")
-        mock_model = Model({u"": SchemaInfo(IDummy)})
+        mock_model = Model({u"": IDummy})
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
@@ -71,8 +71,8 @@ class TestSchemaModuleFactory(MockTestCase):
             dummy = zope.schema.TextLine(title=u"Dummy")
         class INamedDummy(Interface):
             named = zope.schema.TextLine(title=u"Named")
-        mock_model = Model({u"": SchemaInfo(IDummy),
-                            u"named": SchemaInfo(INamedDummy)})
+        mock_model = Model({u"": IDummy,
+                            u"named": INamedDummy})
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
@@ -123,7 +123,7 @@ class TestSchemaModuleFactory(MockTestCase):
         
         class IDummy(Interface):
             dummy = zope.schema.TextLine(title=u"Dummy")
-        mock_model = Model({u"": SchemaInfo(IDummy)})
+        mock_model = Model({u"": IDummy})
         
         fti_mock = self.mocker.mock(DexterityFTI)
         fti_mock.lookup_model()

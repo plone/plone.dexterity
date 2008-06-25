@@ -2,6 +2,8 @@ import unittest
 from plone.mocktestcase import MockTestCase
 
 from zope.interface import Interface
+from zope.interface.interface import InterfaceClass
+
 import zope.schema
 
 from plone.dexterity.interfaces import IDexterityFTI
@@ -9,7 +11,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.factory import DexterityFactory
 
-from plone.supermodel.model import Model, SchemaInfo
+from plone.supermodel.model import Model, METADATA_KEY
 
 class IDummy(Interface):
     pass
@@ -75,7 +77,7 @@ class TestFactory(MockTestCase):
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
         # Schema
-        schema_mock = self.mocker.mock()
+        schema_mock = self.mocker.mock(InterfaceClass)
         self.expect(schema_mock.providedBy(obj_mock)).result(True)
         
         # FTI
@@ -105,7 +107,7 @@ class TestFactory(MockTestCase):
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
         # Schema
-        schema_mock = self.mocker.mock()
+        schema_mock = self.mocker.mock(InterfaceClass)
         self.expect(schema_mock.providedBy(obj_mock)).result(True)
         
         # FTI
@@ -146,8 +148,10 @@ class TestFactory(MockTestCase):
         self.expect(field2_mock.set(obj_mock, u"Field two"))
         
         # Schema
-        schema_mock = self.mocker.mock()
+        schema_mock = self.mocker.mock(InterfaceClass)
         self.expect(schema_mock.providedBy(obj_mock)).result(False) # -> need to initialise schema
+        self.expect(schema_mock.getBases()).result([]).count(0, None)
+        self.expect(schema_mock.queryTaggedValue(METADATA_KEY)).result(None).count(0, None)
         
         alsoProvides_mock = self.mocker.replace('zope.interface.alsoProvides')
         self.expect(alsoProvides_mock(obj_mock, schema_mock))
@@ -156,7 +160,7 @@ class TestFactory(MockTestCase):
         self.expect(getFieldsInOrder_mock(schema_mock)).result([('field1', field1_mock,), ('field2', field2_mock,)])
         
         # Dummy model
-        model_dummy = Model({u"": SchemaInfo(schema=schema_mock)})
+        model_dummy = Model({u"": schema_mock})
         
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
@@ -202,8 +206,10 @@ class TestFactory(MockTestCase):
         # self.expect(field2_mock.set(obj_dummy, u"Field two"))
         
         # Schema
-        schema_mock = self.mocker.mock()
+        schema_mock = self.mocker.mock(InterfaceClass)
         self.expect(schema_mock.providedBy(obj_dummy)).result(False) # -> need to initialise schema
+        self.expect(schema_mock.getBases()).result([]).count(0, None)
+        self.expect(schema_mock.queryTaggedValue(METADATA_KEY)).result(None).count(0, None)
         
         alsoProvides_mock = self.mocker.replace('zope.interface.alsoProvides')
         self.expect(alsoProvides_mock(obj_dummy, schema_mock))
@@ -212,7 +218,7 @@ class TestFactory(MockTestCase):
         self.expect(getFieldsInOrder_mock(schema_mock)).result([('field1', field1_mock,), ('field2', field2_mock,)])
         
         # Dummy model
-        model_dummy = Model({u"": SchemaInfo(schema=schema_mock)})
+        model_dummy = Model({u"": schema_mock})
         
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)

@@ -15,7 +15,7 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.app.container.interfaces import IAdding
 
 from plone.supermodel import load_string, load_file
-from plone.supermodel.model import Model, SchemaInfo
+from plone.supermodel.model import Model
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity import utils
@@ -189,7 +189,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             
             # Otherwise, just return an empty model
             
-            return Model({u"": SchemaInfo(schema=schema)})
+            return Model({u"": schema})
         
         raise ValueError("Neither model source, nor model file, nor schema is specified in FTI %s" % self.getId())
     

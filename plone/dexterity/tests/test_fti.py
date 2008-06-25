@@ -43,7 +43,7 @@ from plone.dexterity.tests.schemata import ITestSchema
 from plone.dexterity.tests.schemata import ITaggedValueSchema
 from plone.dexterity.tests.schemata import IDerivedFromTaggedValueSchema
 
-from plone.supermodel.model import Model, SchemaInfo
+from plone.supermodel.model import Model
 
 from Products.CMFCore.interfaces import ISiteRoot
 
@@ -548,7 +548,7 @@ class TestFTIEvents(MockTestCase):
         class INew(Interface):
             title = zope.schema.TextLine(title=u"title")
         
-        model_dummy = Model({u"": SchemaInfo(INew)})
+        model_dummy = Model({u"": INew})
         
         self.expect(fti.lookup_model()).result(model_dummy)
         container_dummy = self.create_dummy()
@@ -582,7 +582,7 @@ class TestFTIEvents(MockTestCase):
         class INew(Interface):
             title = zope.schema.TextLine(title=u"title")
         
-        model_dummy = Model({u"": SchemaInfo(INew)})
+        model_dummy = Model({u"": INew})
         self.expect(fti.lookup_model()).result(model_dummy).count(0, None)
         container_dummy = self.create_dummy()
         
