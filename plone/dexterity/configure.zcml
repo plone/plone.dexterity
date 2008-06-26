@@ -92,13 +92,5 @@
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".fti.fti_modified"
         />
-        
-    <!-- Register schema/field modify handlers -->
-    
-    <subscriber
-        for="plone.app.schemaeditor.interfaces.IFieldView
-             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-        handler=".schemaeditor.serialize_schema"
-        />
-        
+
 </configure>
