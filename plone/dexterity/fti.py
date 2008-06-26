@@ -15,7 +15,8 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.app.container.interfaces import IAdding
 
 from plone.supermodel import load_string, load_file
-from plone.supermodel.model import Model
+from plone.supermodel.model import Model, FILENAME_KEY
+from plone.supermodel.utils import sync_schema
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity import utils
@@ -183,11 +184,11 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             schema = self.lookup_schema()
             
             for iface in [schema] + list(schema.getBases()):
-                model_file = iface.queryTaggedValue('plone.supermodel.filename')
+                model_file = iface.queryTaggedValue(FILENAME_KEY)
                 if model_file is not None:
-                    return load_file(model_file, reload=False, policy=u"dexterity")
+                    return load_file(model_file, reload=False)
             
-            # Otherwise, just return an empty model
+            # Otherwise, return a model with just this interface
             
             return Model({u"": schema})
         
@@ -354,4 +355,4 @@ def fti_modified(object, event):
         schema = getattr(plone.dexterity.schema.generated, schema_name)
     
         model = fti.lookup_model()
-        utils.sync_schema(model.schema, schema, overwrite=True)
+        sync_schema(model.schema, schema, overwrite=True)

@@ -3,7 +3,8 @@
 from zope.component import queryUtility
 
 from plone.dexterity.interfaces import IDexteritySchema, IDexterityFTI
-from plone.dexterity.utils import split_schema_name, sync_schema
+from plone.dexterity.utils import split_schema_name
+from plone.supermodel.utils import sync_schema
 from plone.supermodel import serialize_model
 
 def serialize_schema(field_view, event):

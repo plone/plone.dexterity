@@ -1,6 +1,8 @@
 from zope.interface import Interface
 from zope import schema
 
+from plone.supermodel.model import FILENAME_KEY
+
 class ITestSchema(Interface):
     """Schema used for testing
     """
@@ -15,7 +17,7 @@ class ITaggedValueSchema(Interface):
     """Schema used for testing tagged value filenames
     """
     
-ITaggedValueSchema.setTaggedValue('plone.supermodel.filename', '/path/to/dummy.xml')
+ITaggedValueSchema.setTaggedValue(FILENAME_KEY, '/path/to/dummy.xml')
 
 class IDerivedFromTaggedValueSchema(ITaggedValueSchema):
     """Schema used for testing tagged value filenames

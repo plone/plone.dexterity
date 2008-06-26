@@ -183,7 +183,7 @@ class TestFTI(MockTestCase):
         model_dummy = Model()
         
         loadfile_mock = self.mocker.replace('plone.supermodel.load_file')
-        self.expect(loadfile_mock("/path/to/dummy.xml", reload=False, policy=u"dexterity")).result(model_dummy)
+        self.expect(loadfile_mock("/path/to/dummy.xml", reload=False)).result(model_dummy)
         
         self.replay()
 
@@ -199,7 +199,7 @@ class TestFTI(MockTestCase):
         model_dummy = Model()
         
         loadfile_mock = self.mocker.replace('plone.supermodel.load_file')
-        self.expect(loadfile_mock("/path/to/dummy.xml", reload=False, policy=u"dexterity")).result(model_dummy)
+        self.expect(loadfile_mock("/path/to/dummy.xml", reload=False)).result(model_dummy)
         
         self.replay()
 

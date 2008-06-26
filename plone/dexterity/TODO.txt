@@ -26,15 +26,12 @@ Dexterity To-Do List
     [-] Flesh out examples and possibly add convenience APIs for:
         [x] Type installed with GS, no filesystem component
         [x] Type installed with GS, filesystem interface
-        [ ] Type installed with GS, filesystem interface and views
+        [x] Type installed with GS, filesystem interface and views
         [ ] Type installed with GS, filesystem interface and type class
   
     Schema and FTI
     ~~~~~~~~~~~~~~
 
-    [*] The xml_schema() pattern is tricky, because the CA is not yet loaded
-        by the time the ZCML parser tries to import the module.
-        
     [*] Factory needs to initialise instance security based on schema
 
     [ ] Support for multiple schemata is only partially worked out. For

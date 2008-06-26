@@ -11,7 +11,7 @@ from zope.app.content.interfaces import IContentType
 from plone.supermodel.parser import ISchemaPolicy
 from plone.supermodel.parser import IFieldMetadataHandler
 
-from plone.supermodel.utils import ns
+from plone.supermodel.utils import ns, sync_schema
 
 from plone.alterego.interfaces import IDynamicObjectFactory
 
@@ -83,7 +83,7 @@ class SchemaModuleFactory(object):
                 self._lock.release()
                 raise
             
-            utils.sync_schema(model.lookup_schema(schema_name), schema)
+            sync_schema(model.lookup_schema(schema_name), schema)
         
             # Save this schema in the module - this factory will not be
             # called again for this name

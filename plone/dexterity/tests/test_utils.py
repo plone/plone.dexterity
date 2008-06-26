@@ -43,40 +43,6 @@ class TestUtils(MockTestCase):
             utils.split_schema_name('prefix_0_type'))
         self.assertEquals(('prefix', 'type one.two', '',),
             utils.split_schema_name('prefix_0_type_1_one_2_two'))
-        
-    def test_sync_schema(self):
-        
-        class ISource(Interface):
-            one = schema.TextLine(title=u"A") # order: 0
-            two = schema.Int(title=u"B")      # order: 1
-        
-        class IDest(Interface):
-            one = schema.TextLine(title=u"C") # order: 0
-            three = schema.Int(title=u"D")    # order: 1
-            
-        utils.sync_schema(ISource, IDest)
-        
-        self.assertEquals(u"C", IDest['one'].title)
-        
-        self.assertEquals(['one', 'two'], getFieldNamesInOrder(ISource))
-        self.assertEquals(['two', 'one', 'three'], getFieldNamesInOrder(IDest))
-    
-    def test_sync_schema_overwrite(self):
-        
-        class ISource(Interface):
-            one = schema.TextLine(title=u"A")
-            two = schema.Int(title=u"B")
-        
-        class IDest(Interface):
-            one = schema.TextLine(title=u"C")
-            three = schema.Int(title=u"D")
-            
-        utils.sync_schema(ISource, IDest, overwrite=True)
-        
-        self.assertEquals(u"A", IDest['one'].title)
-        
-        self.assertEquals(['one', 'two'], getFieldNamesInOrder(ISource))
-        self.assertEquals(['one', 'two'], getFieldNamesInOrder(IDest))
 
 def test_suite():
     suite = unittest.TestSuite()
