@@ -14,7 +14,7 @@ class DefaultEditForm(form.EditForm):
         portal_type = self.context.portal_type
         fti = getUtility(IDexterityFTI, name=portal_type)
         schema = fti.lookup_schema()
-        return field.Fields(schema)
+        return field.Fields(schema, omitReadOnly=True)
 
 class DefaultEditView(base.FormWrapper):
     form = DefaultEditForm

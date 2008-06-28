@@ -64,7 +64,7 @@ class TestAddView(MockTestCase):
         
         fields_dummy = object()
         fields_mock = self.mocker.replace('z3c.form.field.Fields')
-        self.expect(fields_mock(schema_mock)).result(fields_dummy)
+        self.expect(fields_mock(schema_mock, omitReadOnly=True)).result(fields_dummy)
         
         # FTI
         
@@ -231,7 +231,7 @@ class TestEditView(MockTestCase):
         
         fields_dummy = object()
         fields_mock = self.mocker.replace('z3c.form.field.Fields')
-        self.expect(fields_mock(schema_mock)).result(fields_dummy)
+        self.expect(fields_mock(schema_mock, omitReadOnly=True)).result(fields_dummy)
         
         # FTI
         

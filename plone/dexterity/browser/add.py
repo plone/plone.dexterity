@@ -40,7 +40,7 @@ class DefaultAddForm(adding.AddForm):
         # TODO: Support plone.behavior-provided fields
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         schema = fti.lookup_schema()        
-        return field.Fields(schema)    
+        return field.Fields(schema, omitReadOnly=True)
     
     def create(self, data):
         fti = getUtility(IDexterityFTI, name=self.portal_type)

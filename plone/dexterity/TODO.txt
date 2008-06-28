@@ -19,15 +19,12 @@ Dexterity To-Do List
 
  plone.dexterity
  ---------------
-  
-    General
+
+    Content
     ~~~~~~~
-  
-    [-] Flesh out examples and possibly add convenience APIs for:
-        [x] Type installed with GS, no filesystem component
-        [x] Type installed with GS, filesystem interface
-        [x] Type installed with GS, filesystem interface and views
-        [ ] Type installed with GS, filesystem interface and type class
+    
+    [*] Write class grokker to initialise custom classes that derive from
+        Item or Container.
   
     Schema and FTI
     ~~~~~~~~~~~~~~
