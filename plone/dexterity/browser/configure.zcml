@@ -28,5 +28,17 @@
         class=".fti.FTIAddView"
         permission="cmf.ManagePortal"
         />
+        
+    <!-- Resources for icons -->
+    
+    <browser:resource
+        name="plone.dexterity.item.gif"
+        file="icons/item_icon.gif"
+        />
+    
+    <browser:resource
+        name="plone.dexterity.container.gif"
+        file="icons/container_icon.gif"
+        />
   
 </configure>

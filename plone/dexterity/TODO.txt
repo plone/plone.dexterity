@@ -23,13 +23,13 @@ Dexterity To-Do List
     Content
     ~~~~~~~
     
-    [*] Write class grokker to initialise custom classes that derive from
-        Item or Container.
+    [*] Write tests for content class grokker
   
     Schema and FTI
     ~~~~~~~~~~~~~~
 
     [*] Factory needs to initialise instance security based on schema
+    [*] Class grokker needs to do the same
 
     [ ] Support for multiple schemata is only partially worked out. For
         example, the sync on FTI modified and the factory code only use

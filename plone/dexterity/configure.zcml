@@ -48,14 +48,14 @@
         class=".content.Item"
         meta_type="Dexterity Item"
         permission="cmf.AddPortalContent"
-        addview="dexterity.content"
+        icon="plone.dexterity.item.gif"
         />
         
     <five:registerClass
         class=".content.Container"
         meta_type="Dexterity Container"
         permission="cmf.AddPortalContent"
-        addview="dexterity.content"
+        icon="plone.dexterity.item.gif"
         />
         
     <!-- Register FTI class -->
