@@ -18,6 +18,9 @@ class InstanceSecurityInfo(SecurityInfo):
     """Allow setting of security on an instance, rather than a class
     """
     
+    # XXX: This doesn't seem to work as we'd expect - fields are accessible
+    # regardless of settings made using this class.
+    
     __roles__ = ACCESS_PRIVATE
 
     apply__roles__ = ACCESS_PRIVATE

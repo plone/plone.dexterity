@@ -23,8 +23,12 @@ Dexterity To-Do List
     Schema and FTI
     ~~~~~~~~~~~~~~
 
-    [*] Factory needs to initialise instance security based on schema
-    [*] Class grokker needs to do the same
+    [*] Factory and class grokker need to initialise field level security
+        based on schema
+        
+        - There is an attempt at this in security.py, but it doesn't seem to
+          make any difference. The usage is factory.py is currently commented
+          out.
 
     [ ] Finish support for multiple schemata in a model file. Schemata
         other than the default should be registered as adapters and use
