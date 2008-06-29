@@ -322,17 +322,26 @@ def fti_added(object, event):
     """When the FTI is created, install local components
     """
     
+    if not IDexterityFTI.providedBy(event.object):
+        return
+    
     register(event.object)
     
 def fti_removed(object, event):
     """When the FTI is removed, uninstall local coponents
     """
     
+    if not IDexterityFTI.providedBy(event.object):
+        return
+            
     unregister(event.object)
 
 def fti_renamed(object, event):
     """When the FTI is modified, ensure local components are still valid
     """
+    
+    if not IDexterityFTI.providedBy(event.object):
+        return
     
     if event.oldParent is None or event.newParent is None or event.oldName == event.newName:
         return
@@ -347,6 +356,9 @@ def fti_renamed(object, event):
 def fti_modified(object, event):
     """When an FTI is modified, re-sync the schema, if any
     """
+    
+    if not IDexterityFTI.providedBy(event.object):
+        return    
     
     fti = event.object
     
