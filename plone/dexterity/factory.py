@@ -44,7 +44,7 @@ class DexterityFactory(Persistent, Factory):
             raise ValueError("Content class %s set for type %s is not valid" % (fti.klass, self.portal_type))
         
         try:
-            obj = klass()
+            obj = klass(*args, **kw)
         except TypeError:
             raise ValueError("Content class %s set for type %s does not have a no-args constructor" % (fti.klass, self.portal_type))
         

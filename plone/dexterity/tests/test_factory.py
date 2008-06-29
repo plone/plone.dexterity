@@ -235,7 +235,36 @@ class TestFactory(MockTestCase):
         self.assertEquals(obj_dummy, returned)
         self.assertEquals(u"Field one", returned.field1) # set by field
         self.assertEquals(u"Object's second field", returned.field2) # untouched
+    
+    def test_factory_passes_args_and_kwargs(self):
         
+        # Object returned by class
+        obj_mock = self.mocker.mock()
+        self.expect(obj_mock.portal_type).result(u"testtype")
+        
+        # Class set by factory
+        klass_mock = self.mocker.mock()
+        self.expect(klass_mock(u"id", title=u"title")).result(obj_mock)
+        
+        # Resolver
+        resolver_mock = self.mocker.replace("Products.GenericSetup.utils._resolveDottedName")
+        self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
+        
+        # Schema
+        schema_mock = self.mocker.mock(InterfaceClass)
+        self.expect(schema_mock.providedBy(obj_mock)).result(True)
+        
+        # FTI
+        fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.klass).result("my.mocked.ContentTypeClass")
+        self.expect(fti_mock.lookup_schema()).result(schema_mock)
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        self.replay()
+        
+        factory = DexterityFactory(portal_type=u"testtype")
+        self.assertEquals(obj_mock, factory(u"id", title=u"title"))
+    
     def test_create_initializes_security(self):
         
         # TODO: This is not properly worked out yet
