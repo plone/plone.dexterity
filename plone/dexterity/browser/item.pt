@@ -13,11 +13,14 @@
 
         <p class="documentDescription" tal:content="context/Description" />
 
-        <div tal:repeat="item view/fields">
-            <label tal:attributes="for item/id" 
-                   tal:content="item/title" />
-            <div tal:content="item/value" />
-        </div>
+        <table class="listing vertical nosort">
+            <tbody>
+                <tr tal:repeat="item view/fields">
+                    <th tal:content="item/title" />
+                    <td tal:content="item/value" />
+                </tr>
+            </tbody>
+        </table>
 
 </metal:main>
 
