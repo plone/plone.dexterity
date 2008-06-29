@@ -15,34 +15,22 @@ Dexterity To-Do List
     
     [ ] Reference engine integration
     
-    [ ] Versioning integration
+    [ ] Versioning and staging integration
 
  plone.dexterity
  ---------------
 
-    Content
-    ~~~~~~~
-    
-    [*] Write tests for content class grokker
-  
     Schema and FTI
     ~~~~~~~~~~~~~~
 
     [*] Factory needs to initialise instance security based on schema
     [*] Class grokker needs to do the same
 
-    [ ] Support for multiple schemata is only partially worked out. For
-        example, the sync on FTI modified and the factory code only use
-        the default schema.
+    [ ] Finish support for multiple schemata in a model file. Schemata
+        other than the default should be registered as adapters and use
+        annotations for storage. The adapter should be generic so that we
+        do not need to sync schemata if they change.
 
-    [ ] Consider whether we want to be able to look up schema by adapter,
-        rather than asking the FTI directly.
-        - May be more useful to have a separate concept of a composite schema
-          since a schema provided by the type implies attribute access and a
-          "flat" namespace.
-        - Schema probably needs to be closely tied to model and FTI in almost
-          all cases.
-      
     [ ] Need to handle case where portal is renamed and/or FTI is renamed.
         In both cases, the prefix+portal type name encoded in the schema name 
         may cause problems. Ergo, we probably want a better way to map a named
@@ -56,14 +44,11 @@ Dexterity To-Do List
     ~~~~~
  
     [*] Add, edit forms need better buttons
-    
     [*] Edit form should go to view after save
- 
-    [*] Use 'widget' model metadata in forms
+    [*] Use 'widget' model metadata in forms to set up widgets
     
-    [*] Support fieldsets and externalised field ordering in add/edit forms
-    
-    [*] Support fields from behaviors in add/edit forms
+    [*] Support fieldsets and externalised field ordering in forms
+    [*] Support fields from behaviors in forms
     
     Misc
     ~~~~
