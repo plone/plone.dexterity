@@ -10,7 +10,7 @@ class DefaultEditForm(form.EditForm):
     
     @property
     def fields(self):
-        # TODO: Support plone.behavior-provided fields
+        # TODO: Support plone.behavior-provided fields, and fields from secondary schemata
         portal_type = self.context.portal_type
         fti = getUtility(IDexterityFTI, name=portal_type)
         schema = fti.lookup_schema()

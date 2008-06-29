@@ -37,7 +37,7 @@ class DefaultAddForm(adding.AddForm):
     
     @property
     def fields(self):
-        # TODO: Support plone.behavior-provided fields
+        # TODO: Support plone.behavior-provided fields, and fields from secondary schemata
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         schema = fti.lookup_schema()        
         return field.Fields(schema, omitReadOnly=True)
