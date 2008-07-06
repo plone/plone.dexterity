@@ -1,6 +1,7 @@
 import unittest
 from plone.mocktestcase import MockTestCase
 
+from zope.interface import Interface
 import zope.schema
 
 from plone.dexterity.interfaces import IDexterityFTI
@@ -15,6 +16,8 @@ from plone.dexterity.browser.edit import DefaultEditView
 from plone.dexterity.browser.view import DefaultView
 
 from plone.dexterity.fti import DexterityFTI
+
+from plone.supermodel.model import Model
 
 from AccessControl import Unauthorized
 
@@ -47,7 +50,7 @@ class TestAddView(MockTestCase):
         self.assertEquals(u"testtype", addview.__name__)
         self.assertEquals(u"testtype", addview.portal_type)
     
-    def test_form_fields(self):
+    def test_form_fields_no_metadata(self):
         
         # The 'fields' property on the form should look up the schema from
         # the FTI utility with the name given as the portal_type.
@@ -56,27 +59,28 @@ class TestAddView(MockTestCase):
         context_mock = self.mocker.mock()
         request_mock = self.mocker.mock()
         
-        # Schema
+        # Model and schema
         
-        schema_mock = self.mocker.mock()
+        class IDummy(Interface): pass
+        model_dummy = Model({u"": IDummy})
         
         # Form fields generator
         
-        fields_dummy = object()
+        fields_dummy = self.create_dummy()
         fields_mock = self.mocker.replace('z3c.form.field.Fields')
-        self.expect(fields_mock(schema_mock, omitReadOnly=True)).result(fields_dummy)
+        self.expect(fields_mock(IDummy, omitReadOnly=True)).result(fields_dummy)
         
         # FTI
         
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(schema_mock)
+        self.expect(fti_mock.lookup_model()).result(model_dummy)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
         
         form = DefaultAddForm(context_mock, request_mock, u"testtype")
         self.assertIs(fields_dummy, form.fields)
-        
+
     def test_form_create(self):
         
         # When asked to create an object, the form should look up the
@@ -99,7 +103,7 @@ class TestAddView(MockTestCase):
         
         # createObject and applyChanges
         
-        obj_dummy = object()
+        obj_dummy = self.create_dummy()
         data_dummy = {u"foo": u"bar"}
         
         createObject_mock = self.mocker.replace('zope.component.createObject')
@@ -212,7 +216,7 @@ class TestAddView(MockTestCase):
     
 class TestEditView(MockTestCase):
     
-    def test_form_fields(self):
+    def test_form_fields_no_metadata(self):
         
         # The 'fields' property on the form should look up the schema from
         # the FTI utility with the name given as the portal_type.
@@ -223,20 +227,21 @@ class TestEditView(MockTestCase):
         
         self.expect(context_mock.portal_type).result(u"testtype")
         
-        # Schema
+        # Model and schema
         
-        schema_mock = self.mocker.mock()
+        class IDummy(Interface): pass
+        model_dummy = Model({u"": IDummy})
         
         # Form fields generator
         
-        fields_dummy = object()
+        fields_dummy = self.create_dummy()
         fields_mock = self.mocker.replace('z3c.form.field.Fields')
-        self.expect(fields_mock(schema_mock, omitReadOnly=True)).result(fields_dummy)
+        self.expect(fields_mock(IDummy, omitReadOnly=True)).result(fields_dummy)
         
         # FTI
         
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(schema_mock)
+        self.expect(fti_mock.lookup_model()).result(model_dummy)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()

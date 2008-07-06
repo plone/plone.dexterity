@@ -14,8 +14,9 @@ from plone.dexterity.interfaces import IDexterityFactory
 
 from plone.dexterity.security import InstanceSecurityInfo
 
+from plone.dexterity.utils import resolve_dotted_name
+
 from Acquisition import aq_base
-from Products.GenericSetup.utils import _resolveDottedName
 
 class DexterityFactory(Persistent, Factory):
     """A factory for 
@@ -39,7 +40,7 @@ class DexterityFactory(Persistent, Factory):
     def __call__(self, *args, **kw):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         
-        klass = _resolveDottedName(fti.klass)
+        klass = resolve_dotted_name(fti.klass)
         if klass is None or not callable(klass):
             raise ValueError("Content class %s set for type %s is not valid" % (fti.klass, self.portal_type))
         

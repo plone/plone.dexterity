@@ -10,8 +10,11 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from z3c.form import form, field, button, group, subform, adding
 from plone.z3cform import base
 
+from z3c.form.interfaces import INPUT_MODE
+
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity import MessageFactory as _
+from plone.dexterity.utils import resolve_dotted_name
 
 from Acquisition import aq_inner
 from AccessControl import Unauthorized
@@ -37,10 +40,25 @@ class DefaultAddForm(adding.AddForm):
     
     @property
     def fields(self):
-        # TODO: Support plone.behavior-provided fields, and fields from secondary schemata
+        
+        # TODO: Support plone.behavior-provided fields
+        
         fti = getUtility(IDexterityFTI, name=self.portal_type)
-        schema = fti.lookup_schema()        
-        return field.Fields(schema, omitReadOnly=True)
+        model = fti.lookup_model()
+        
+        schema = model.schema
+        metadata = model.metadata
+        
+        fields = field.Fields(schema, omitReadOnly=True)
+        
+        widget_data = metadata.get('widget', {})
+        for field_name, widget_name in widget_data.items():
+            if field_name in fields:
+                widget_factory = resolve_dotted_name(widget_name)
+                if widget_factory is not None:
+                    fields[field_name].widgetFactory = widget_factory
+        
+        return fields
     
     def create(self, data):
         fti = getUtility(IDexterityFTI, name=self.portal_type)

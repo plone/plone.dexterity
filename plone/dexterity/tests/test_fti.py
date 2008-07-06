@@ -174,38 +174,6 @@ class TestFTI(MockTestCase):
         self.assertEquals(ITestSchema, model.schema)
         self.assertEquals({}, model.metadata)
 
-    def test_lookup_model_with_schema_only_and_tagged_value_file(self):
-        fti = DexterityFTI(u"testtype")
-        fti.schema = u"plone.dexterity.tests.schemata.ITaggedValueSchema"
-        fti.model_source = None
-        fti.model_file = None
-
-        model_dummy = Model()
-        
-        loadfile_mock = self.mocker.replace('plone.supermodel.load_file')
-        self.expect(loadfile_mock("/path/to/dummy.xml", reload=False)).result(model_dummy)
-        
-        self.replay()
-
-        model = fti.lookup_model()
-        self.assertIs(model_dummy, model)
-
-    def test_lookup_model_with_schema_only_and_tagged_value_file_in_bases(self):
-        fti = DexterityFTI(u"testtype")
-        fti.schema = u"plone.dexterity.tests.schemata.IDerivedFromTaggedValueSchema"
-        fti.model_source = None
-        fti.model_file = None
-
-        model_dummy = Model()
-        
-        loadfile_mock = self.mocker.replace('plone.supermodel.load_file')
-        self.expect(loadfile_mock("/path/to/dummy.xml", reload=False)).result(model_dummy)
-        
-        self.replay()
-
-        model = fti.lookup_model()
-        self.assertIs(model_dummy, model)
-
     def test_lookup_model_from_string_with_schema(self):
         fti = DexterityFTI(u"testtype")
         fti.schema = u"plone.dexterity.tests.schemata.ITestSchema" # effectively ignored

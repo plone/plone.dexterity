@@ -1,6 +1,10 @@
 from zope.component import getUtility
 from Products.CMFCore.interfaces import ISiteRoot
 
+from Products.GenericSetup.utils import _resolveDottedName
+
+_dotted_cache = {}
+
 # TODO: Need a better encoding algorithm here. The output needs to be
 # valid Python identifiers, and unique, but this isn't terribly pretty.
 
@@ -49,3 +53,11 @@ def split_schema_name(schema_name):
         return items[0], items[1], items[2]
     else:
         raise ValueError("Schema name %s is invalid" % schema_name)
+
+def resolve_dotted_name(dotted_name):
+    """Resolve a dotted name to a real object
+    """
+    global _dotted_cache
+    if dotted_name not in _dotted_cache:
+        _dotted_cache[dotted_name] = _resolveDottedName(dotted_name)
+    return _dotted_cache[dotted_name]

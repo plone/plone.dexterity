@@ -1,8 +1,4 @@
-import sys
-import os.path
-
 import martian
-from martian.error import GrokImportError
 
 from zope.interface import implementedBy
 from zope.schema import getFieldsInOrder

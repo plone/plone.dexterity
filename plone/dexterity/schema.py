@@ -156,7 +156,7 @@ class WidgetSchema(object):
     
     def read(self, field_node, field, schema_metadata):
         name = field.__name__
-        widget = field_node.get(ns('widget', self.namespace))        
+        widget = field_node.get(ns('factory', self.namespace))        
         if widget:
             schema_metadata[name] = widget
 
@@ -164,4 +164,4 @@ class WidgetSchema(object):
         name = field.__name__
         widget = schema_metadata.get(name, None)
         if widget:
-            field_node.set(ns('widget', self.namespace), widget)
+            field_node.set(ns('factory', self.namespace), widget)

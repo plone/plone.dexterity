@@ -205,7 +205,7 @@ class TestWidgetSchema(unittest.TestCase):
     
     def test_read(self):
         field_node = ElementTree.Element('field')
-        field_node.set(ns("widget", self.namespace), "SomeWidget")
+        field_node.set(ns("factory", self.namespace), "SomeWidget")
         field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
         metadata = {}
         
@@ -229,7 +229,7 @@ class TestWidgetSchema(unittest.TestCase):
         metadata = {u'dummy': 'SomeWidget'}
         handler = schema.WidgetSchema()
         handler.write(field_node, field, metadata)
-        self.assertEquals("SomeWidget", field_node.get(ns("widget", self.namespace)))
+        self.assertEquals("SomeWidget", field_node.get(ns("factory", self.namespace)))
     
     def test_write_no_widget(self):
         field_node = ElementTree.Element('field')
@@ -238,7 +238,7 @@ class TestWidgetSchema(unittest.TestCase):
         metadata = {u'dummy': {}}
         handler = schema.WidgetSchema()
         handler.write(field_node, field, metadata)
-        self.assertEquals(None, field_node.get(ns("widget", self.namespace)))
+        self.assertEquals(None, field_node.get(ns("factory", self.namespace)))
 
     def test_write_no_metadata(self):
         field_node = ElementTree.Element('field')
@@ -247,7 +247,7 @@ class TestWidgetSchema(unittest.TestCase):
         metadata = {}
         handler = schema.WidgetSchema()
         handler.write(field_node, field, metadata)
-        self.assertEquals(None, field_node.get(ns("widget", self.namespace)))
+        self.assertEquals(None, field_node.get(ns("factory", self.namespace)))
         
 def test_suite():
     suite = unittest.TestSuite()

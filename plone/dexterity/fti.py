@@ -27,7 +27,6 @@ from plone.dexterity.browser.add import AddViewFactory
 from AccessControl import getSecurityManager
 from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFDynamicViewFTI import fti as base
-from Products.GenericSetup.utils import _resolveDottedName
 
 import plone.dexterity.schema
 
@@ -151,11 +150,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         
         # If a specific schema is given, use it
         if self.schema:
-            schema = getattr(self, '_v_schema', None)
-            if schema is not None:
-                return schema
-        
-            schema = _resolveDottedName(self.schema)
+            schema = utils.resolve_dotted_name(self.schema)
             if schema is None:
                 raise ValueError(u"Schema %s set for type %s cannot be resolved" % (self.schema, self.getId()))
             return schema
@@ -177,19 +172,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             return load_file(model_file, reload=True, policy=u"dexterity")
         
         elif self.schema:
-            
-            # Attempt to load model file if it was tagged onto the schema
-            # interface or one of its bases
-            
             schema = self.lookup_schema()
-            
-            for iface in [schema] + list(schema.getBases()):
-                model_file = iface.queryTaggedValue(FILENAME_KEY)
-                if model_file is not None:
-                    return load_file(model_file, reload=False)
-            
-            # Otherwise, return a model with just this interface
-            
             return Model({u"": schema})
         
         raise ValueError("Neither model source, nor model file, nor schema is specified in FTI %s" % self.getId())
@@ -232,7 +215,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         # We have a package and not an absolute Windows path
         if colons == 1 and self.model_file[1:3] != ':\\':
             package, filename = self.model_file.split(':')
-            mod = _resolveDottedName(package)
+            mod = utils.resolve_dotted_name(package)
             model_file = "%s/%s" % (os.path.split(mod.__file__)[0], filename,)
         else:
             if not os.path.isabs(model_file):

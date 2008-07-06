@@ -14,8 +14,13 @@ Dexterity To-Do List
     [ ] Schema editor and Plone control panel
     
     [ ] Reference engine integration
+        - need field + widget
+        - may need to declare support for references
     
     [ ] Versioning and staging integration
+        - need CMFEditions policy for version-on-save
+        - need CMFDiffTool support for IContentType
+        - need iterate to use plone.app.relations instead of AT references
 
  plone.dexterity
  ---------------
@@ -29,11 +34,6 @@ Dexterity To-Do List
         - There is an attempt at this in security.py, but it doesn't seem to
           make any difference. The usage is factory.py is currently commented
           out.
-
-    [ ] Finish support for multiple schemata in a model file. Schemata
-        other than the default should be registered as adapters and use
-        annotations for storage. The adapter should be generic so that we
-        do not need to sync schemata if they change.
 
     [ ] Need to handle case where portal is renamed and/or FTI is renamed.
         In both cases, the prefix+portal type name encoded in the schema name 

@@ -73,7 +73,7 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_mock)
         
         # Resolver
-        resolver_mock = self.mocker.replace("Products.GenericSetup.utils._resolveDottedName")
+        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
         # Schema
@@ -103,7 +103,7 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_mock)
         
         # Resolver
-        resolver_mock = self.mocker.replace("Products.GenericSetup.utils._resolveDottedName")
+        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
         # Schema
@@ -132,7 +132,7 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_mock)
         
         # Resolver
-        resolver_mock = self.mocker.replace("Products.GenericSetup.utils._resolveDottedName")
+        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
         # Mock fields - we proxy a TextLine field since we don't care too much
@@ -190,7 +190,7 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_dummy)
         
         # Resolver
-        resolver_mock = self.mocker.replace("Products.GenericSetup.utils._resolveDottedName")
+        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
         # Mock fields - we proxy a TextLine field since we don't care too much
@@ -247,7 +247,7 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock(u"id", title=u"title")).result(obj_mock)
         
         # Resolver
-        resolver_mock = self.mocker.replace("Products.GenericSetup.utils._resolveDottedName")
+        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
         # Schema
