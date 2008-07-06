@@ -53,9 +53,13 @@ Dexterity To-Do List
             should be opt-in via marker interface on the schema or a property
             on the behavior registration itself.
         - Should consider supporting fields from other sources, by delegating
-            field discovery to named/subscription adapters.
+            field discovery to named/subscription adapters. At least, we
+            should support fields injected via global components. This is
+            not necessarily dexterity specific.
         - Should be able to order and group fields via named/subscription 
-            adapters. 
+            adapters.
+        - Need to be able to specify custom widgets for behavior-provided
+            fields.
     
     Misc
     ~~~~

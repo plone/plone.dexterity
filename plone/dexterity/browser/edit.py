@@ -1,7 +1,9 @@
 from zope.component import getUtility
 
 from z3c.form import form, field, button, group, subform
+
 from z3c.form.interfaces import INPUT_MODE
+from z3c.form.util import expandPrefix
 
 from plone.z3cform import base
 
@@ -23,18 +25,25 @@ class DefaultEditForm(form.EditForm):
         fti = getUtility(IDexterityFTI, name=portal_type)
         
         schema = fti.lookup_schema()
+        
         metadata = schema.queryTaggedValue(METADATA_KEY, {})
+        widget_data = metadata.get('widget', {}).copy()
         
         fields = field.Fields(schema, omitReadOnly=True)
         
+        # Add fields from behaviors and record their widget hints, if any
         for behavior_name in fti.behaviors:
             behavior_interface = resolve_dotted_name(behavior_name)
             if behavior_interface is not None:
                 fields += field.Fields(behavior_interface,
                                        omitReadOnly=True,
                                        prefix=behavior_name)
+                behavior_metadata = behavior_interface.queryTaggedValue(METADATA_KEY, {})
+                behavior_widget_data = behavior_metadata.get('widget', {})
+                for field_name, widget_name in behavior_widget_data.items():
+                    widget_data[expandPrefix(behavior_name) + field_name] = widget_name
         
-        widget_data = metadata.get('widget', {})
+        # Set widget factories if possible
         for field_name, widget_name in widget_data.items():
             if field_name in fields:
                 widget_factory = resolve_dotted_name(widget_name)
