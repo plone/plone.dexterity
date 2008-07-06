@@ -30,7 +30,9 @@ class DefaultEditForm(form.EditForm):
         for behavior_name in fti.behaviors:
             behavior_interface = resolve_dotted_name(behavior_name)
             if behavior_interface is not None:
-                fields += field.Fields(behavior_interface, omitReadOnly=True)
+                fields += field.Fields(behavior_interface,
+                                       omitReadOnly=True,
+                                       prefix=behavior_name)
         
         widget_data = metadata.get('widget', {})
         for field_name, widget_name in widget_data.items():
