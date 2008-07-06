@@ -1,5 +1,7 @@
 from zope.interface import implements
 
+from zope.annotation import IAttributeAnnotatable
+
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.interfaces import IDexterityContainer
@@ -18,7 +20,7 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
     """Base class for content, primarily to support isinstance() and the 
     grokker in directives.py
     """
-    implements(IDexterityContent)
+    implements(IDexterityContent, IAttributeAnnotatable)
     
     # portal_type must be set by factory or derived class
     portal_type = None

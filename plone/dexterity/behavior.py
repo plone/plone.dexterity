@@ -4,13 +4,14 @@ from zope.component import adapts, getUtility
 from plone.behavior.interfaces import IBehaviorAssignable
 
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.interfaces import IDexterityContent
 
 class DexterityBehaviorAssignable(object):
     """Support plone.behavior behaviors stored in the FTI
     """
     
     implements(IBehaviorAssignable)
-    adapts(IDexterityFTI)
+    adapts(IDexterityContent)
     
     def __init__(self, context):
         self.fti = getUtility(IDexterityFTI, name=context.portal_type)
