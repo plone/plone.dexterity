@@ -18,8 +18,7 @@ class DefaultEditForm(form.EditForm):
     
     @property
     def fields(self):
-        # TODO: Support plone.behavior-provided fields and custom widgets
-
+        
         portal_type = self.context.portal_type
         fti = getUtility(IDexterityFTI, name=portal_type)
         
@@ -27,6 +26,11 @@ class DefaultEditForm(form.EditForm):
         metadata = schema.queryTaggedValue(METADATA_KEY, {})
         
         fields = field.Fields(schema, omitReadOnly=True)
+        
+        for behavior_name in fti.behaviors:
+            behavior_interface = resolve_dotted_name(behavior_name)
+            if behavior_interface is not None:
+                fields += field.Fields(behavior_interface, omitReadOnly=True)
         
         widget_data = metadata.get('widget', {})
         for field_name, widget_name in widget_data.items():

@@ -41,7 +41,7 @@ Dexterity To-Do List
         schema (which may not exist yet) to an actual FTI instance for looking
         up the model.
       
-        - perhaps we can keep "ghost FTI" utilities around until a new one
+        - Perhaps we can keep "ghost FTI" utilities around until a new one
           is registered for the same name?
         
     Views
@@ -49,6 +49,13 @@ Dexterity To-Do List
  
     [*] Support fieldsets and externalised field ordering in forms
     [*] Support fields from behaviors in forms
+        - Currently, all behavior interfaces are queried for fields. This
+            should be opt-in via marker interface on the schema or a property
+            on the behavior registration itself.
+        - Should consider supporting fields from other sources, by delegating
+            field discovery to named/subscription adapters.
+        - Should be able to order and group fields via named/subscription 
+            adapters. 
     
     Misc
     ~~~~
