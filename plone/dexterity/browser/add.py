@@ -87,6 +87,11 @@ class DefaultAddForm(adding.AddForm):
         container = aq_parent(adding)
         self.request.response.redirect(container.absolute_url()) 
 
+    def updateActions(self):
+        super(DefaultAddForm, self).updateActions()
+        self.actions["save"].addClass("context")
+        self.actions["cancel"].addClass("standalone")
+
 class DefaultAddView(base.FormWrapper):
     
     def __init__(self, context, request, portal_type, form=None):

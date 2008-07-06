@@ -52,6 +52,11 @@ class DefaultEditForm(form.EditForm):
         IStatusMessage(self.request).addStatusMessage(_(u"Edit cancelled"), "info")
         self.request.response.redirect(self.context.absolute_url()) 
 
+    def updateActions(self):
+        super(DefaultEditForm, self).updateActions()
+        self.actions["save"].addClass("context")
+        self.actions["cancel"].addClass("standalone")
+
 class DefaultEditView(base.FormWrapper):
     form = DefaultEditForm
     

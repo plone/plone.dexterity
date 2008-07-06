@@ -47,9 +47,6 @@ Dexterity To-Do List
     Views
     ~~~~~
  
-    [*] Add, edit forms need better buttons
-    [*] Use 'widget' model metadata in forms to set up widgets
-    
     [*] Support fieldsets and externalised field ordering in forms
     [*] Support fields from behaviors in forms
     

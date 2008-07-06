@@ -4,6 +4,8 @@ from plone.mocktestcase import MockTestCase
 from zope.interface import Interface
 import zope.schema
 
+from z3c.form.field import Fields
+
 from plone.dexterity.interfaces import IDexterityFTI
 
 from plone.dexterity.browser.add import AddViewFactory
@@ -16,6 +18,8 @@ from plone.dexterity.browser.edit import DefaultEditView
 from plone.dexterity.browser.view import DefaultView
 
 from plone.dexterity.fti import DexterityFTI
+
+from plone.supermodel.model import METADATA_KEY
 
 from AccessControl import Unauthorized
 
@@ -77,6 +81,47 @@ class TestAddView(MockTestCase):
         
         form = DefaultAddForm(context_mock, request_mock, u"testtype")
         self.assertIs(fields_dummy, form.fields)
+    
+    def test_form_fields_with_widget_data(self):
+        
+        # The 'fields' property on the form should resolve widget hints from
+        # metadata
+        
+        # Context and request
+        context_mock = self.mocker.mock()
+        request_mock = self.mocker.mock()
+        
+        # Model and schema
+        
+        class IDummy(Interface):
+            foo = zope.schema.TextLine(title=u"foo")
+        IDummy.setTaggedValue(METADATA_KEY, {'widget': {'foo': 'some.widget'}})
+        
+        fields_dummy = Fields(IDummy)
+        
+        # Form fields generator
+        fields_factory_mock = self.mocker.replace('z3c.form.field.Fields')
+        self.expect(fields_factory_mock(IDummy, omitReadOnly=True)).result(fields_dummy)
+        
+        # Widget lookup
+        
+        widget_dummy = self.create_dummy()
+        widget_lookup_mock = self.mocker.replace('plone.dexterity.utils.resolve_dotted_name')
+        self.expect(widget_lookup_mock('some.widget')).result(widget_dummy)
+        
+        # FTI
+        
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookup_schema()).result(IDummy)
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        self.replay()
+        
+        form = DefaultAddForm(context_mock, request_mock, u"testtype")
+        fields = form.fields
+        
+        self.assertIs(fields_dummy, fields)
+        self.assertIs(widget_dummy, fields['foo'].widgetFactory['input'])
 
     def test_form_create(self):
         
@@ -244,7 +289,50 @@ class TestEditView(MockTestCase):
         
         form = DefaultEditForm(context_mock, request_mock)
         self.assertIs(fields_dummy, form.fields)
+    
+    def test_form_fields_with_widget_data(self):
         
+        # The 'fields' property on the form should resolve widget hints from
+        # metadata
+        
+        # Context and request
+        context_mock = self.mocker.mock()
+        request_mock = self.mocker.mock()
+        
+        self.expect(context_mock.portal_type).result(u"testtype")
+        
+        # Model and schema
+        
+        class IDummy(Interface):
+            foo = zope.schema.TextLine(title=u"foo")
+        IDummy.setTaggedValue(METADATA_KEY, {'widget': {'foo': 'some.widget'}})
+        
+        fields_dummy = Fields(IDummy)
+        
+        # Form fields generator
+        fields_factory_mock = self.mocker.replace('z3c.form.field.Fields')
+        self.expect(fields_factory_mock(IDummy, omitReadOnly=True)).result(fields_dummy)
+        
+        # Widget lookup
+        
+        widget_dummy = self.create_dummy()
+        widget_lookup_mock = self.mocker.replace('plone.dexterity.utils.resolve_dotted_name')
+        self.expect(widget_lookup_mock('some.widget')).result(widget_dummy)
+        
+        # FTI
+        
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookup_schema()).result(IDummy)
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        self.replay()
+        
+        form = DefaultEditForm(context_mock, request_mock)
+        fields = form.fields
+        
+        self.assertIs(fields_dummy, fields)
+        self.assertIs(widget_dummy, fields['foo'].widgetFactory['input'])
+    
     def test_label(self):
         
         # Edit view should take its label from the FTI title
