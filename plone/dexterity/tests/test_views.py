@@ -17,8 +17,6 @@ from plone.dexterity.browser.view import DefaultView
 
 from plone.dexterity.fti import DexterityFTI
 
-from plone.supermodel.model import Model
-
 from AccessControl import Unauthorized
 
 class TestAddView(MockTestCase):
@@ -62,7 +60,6 @@ class TestAddView(MockTestCase):
         # Model and schema
         
         class IDummy(Interface): pass
-        model_dummy = Model({u"": IDummy})
         
         # Form fields generator
         
@@ -73,7 +70,7 @@ class TestAddView(MockTestCase):
         # FTI
         
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_model()).result(model_dummy)
+        self.expect(fti_mock.lookup_schema()).result(IDummy)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -230,7 +227,6 @@ class TestEditView(MockTestCase):
         # Model and schema
         
         class IDummy(Interface): pass
-        model_dummy = Model({u"": IDummy})
         
         # Form fields generator
         
@@ -241,7 +237,7 @@ class TestEditView(MockTestCase):
         # FTI
         
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_model()).result(model_dummy)
+        self.expect(fti_mock.lookup_schema()).result(IDummy)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()

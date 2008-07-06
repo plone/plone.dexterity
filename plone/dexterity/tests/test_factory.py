@@ -159,14 +159,10 @@ class TestFactory(MockTestCase):
         getFieldsInOrder_mock = self.mocker.replace('zope.schema.getFieldsInOrder')
         self.expect(getFieldsInOrder_mock(schema_mock)).result([('field1', field1_mock,), ('field2', field2_mock,)])
         
-        # Dummy model
-        model_dummy = Model({u"": schema_mock})
-        
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.klass).result("my.mocked.ContentTypeClass")
         self.expect(fti_mock.lookup_schema()).result(schema_mock)
-        self.expect(fti_mock.lookup_model()).result(model_dummy)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -217,14 +213,10 @@ class TestFactory(MockTestCase):
         getFieldsInOrder_mock = self.mocker.replace('zope.schema.getFieldsInOrder')
         self.expect(getFieldsInOrder_mock(schema_mock)).result([('field1', field1_mock,), ('field2', field2_mock,)])
         
-        # Dummy model
-        model_dummy = Model({u"": schema_mock})
-        
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.klass).result("my.mocked.ContentTypeClass")
         self.expect(fti_mock.lookup_schema()).result(schema_mock)
-        self.expect(fti_mock.lookup_model()).result(model_dummy)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()

@@ -13,7 +13,8 @@ class IDexterityFTI(Interface):
         
         If a schema interface is specified, return this. Otherwise, look up
         the model from either the TTW model source string or a specified
-        model XML file, and return the unnamed schema from this.
+        model XML file, and build a schema from the unnamed schema
+        specified in this model.
         """
 
     def lookup_model():
@@ -23,6 +24,9 @@ class IDexterityFTI(Interface):
         
         If neither a model_source or a model_file is given, but a schema is
         given, return a faux model that contains just this schema.
+        
+        Note that model.schema is not necessarily going to be the same as
+        the schema returned by lookup_schema().
         """
 
     behaviors = zope.schema.List(title=u"Behaviors",

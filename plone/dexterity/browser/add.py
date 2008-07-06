@@ -16,8 +16,12 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity import MessageFactory as _
 from plone.dexterity.utils import resolve_dotted_name
 
-from Acquisition import aq_inner
+from plone.supermodel.model import METADATA_KEY
+
+from Acquisition import aq_inner, aq_parent
 from AccessControl import Unauthorized
+
+from Products.statusmessages.interfaces import IStatusMessage
 
 class AddViewFactory(Persistent):
     """Factory for add views - will be registered as a local adapter factory
@@ -44,10 +48,9 @@ class DefaultAddForm(adding.AddForm):
         # TODO: Support plone.behavior-provided fields
         
         fti = getUtility(IDexterityFTI, name=self.portal_type)
-        model = fti.lookup_model()
         
-        schema = model.schema
-        metadata = model.metadata
+        schema = fti.lookup_schema()
+        metadata = schema.queryTaggedValue(METADATA_KEY, {})
         
         fields = field.Fields(schema, omitReadOnly=True)
         
@@ -56,7 +59,7 @@ class DefaultAddForm(adding.AddForm):
             if field_name in fields:
                 widget_factory = resolve_dotted_name(widget_name)
                 if widget_factory is not None:
-                    fields[field_name].widgetFactory = widget_factory
+                    fields[field_name].widgetFactory[INPUT_MODE] = widget_factory
         
         return fields
     
@@ -65,6 +68,24 @@ class DefaultAddForm(adding.AddForm):
         content = createObject(fti.factory)
         form.applyChanges(self, content, data)
         return content
+        
+    @button.buttonAndHandler(_('Save'), name='save')
+    def handleAdd(self, action):
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+        obj = self.createAndAdd(data)
+        if obj is not None:
+            # mark only as finished if we get the new object
+            self._finishedAdd = True
+    
+    @button.buttonAndHandler(_(u'Cancel'), name='cancel')
+    def handleCancel(self, action):
+        IStatusMessage(self.request).addStatusMessage(_(u"Add New Item operation cancelled"), "info")
+        adding = aq_inner(self.context)
+        container = aq_parent(adding)
+        self.request.response.redirect(container.absolute_url()) 
 
 class DefaultAddView(base.FormWrapper):
     

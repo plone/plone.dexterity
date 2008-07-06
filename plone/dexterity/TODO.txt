@@ -48,7 +48,6 @@ Dexterity To-Do List
     ~~~~~
  
     [*] Add, edit forms need better buttons
-    [*] Edit form should go to view after save
     [*] Use 'widget' model metadata in forms to set up widgets
     
     [*] Support fieldsets and externalised field ordering in forms
