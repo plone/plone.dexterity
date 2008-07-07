@@ -47,6 +47,10 @@ Dexterity To-Do List
     Views
     ~~~~~
  
+    [*] Refactor the 'widget' metadata/schema namespace into a more generic
+        'form' one, that supports widget factories, hidden mode, omitting
+        fields and grouping into fieldsets.
+ 
     [*] Support fieldsets and externalised field ordering in forms
     [*] Support fields from behaviors in forms
     
@@ -65,9 +69,9 @@ Dexterity To-Do List
         -> IFieldProvider named adapters collect fields, set widget factories
         -> IFieldsetManager named adapters group and sort fields into Group's
         -> Form template renders groups as fieldsets
-        -> Schema fields need to support declarative widgets, and declarative
-            omission of fields (also in XML?)
-        -> Marker interface to declare behavior schema as a field provider
+        
+        -> Consider making grokkers for behaviors, with directives for field
+            provider support, widget hints and annotation factories.
         
     Misc
     ~~~~

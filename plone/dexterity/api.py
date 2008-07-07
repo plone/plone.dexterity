@@ -12,5 +12,9 @@ from plone.dexterity.content import Item, Container
 # custom classes
 from plone.dexterity.directives import add_permission, meta_type
 
+# Behavior interfaces can either be marked with or be adaptable to this
+# interface, in order to provide fields for the standard forms.
+from plone.dexterity.interfaces import IFormFieldProvider
+
 # Standard WYSIWYG widget for zope.schema.Text fields
 from plone.z3cform.wysiwyg.widget import WysiwygFieldWidget as WysiwygWidget

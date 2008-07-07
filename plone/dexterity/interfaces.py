@@ -67,6 +67,11 @@ class IDexteritySchema(Interface):
 class ITransientSchema(Interface):
     """Marker interface for transient schemata
     """
+    
+class IFormFieldProvider(Interface):
+    """Behavior interfaces will be adapted to this interface to get fields
+    for the add/edit forms.
+    """
 
 # Content
 

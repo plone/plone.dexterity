@@ -8,6 +8,8 @@ from z3c.form.util import expandPrefix
 from plone.z3cform import base
 
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.interfaces import IFormFieldProvider
+
 from plone.dexterity import MessageFactory as _
 
 from plone.dexterity.utils import resolve_dotted_name
@@ -34,14 +36,19 @@ class DefaultEditForm(form.EditForm):
         # Add fields from behaviors and record their widget hints, if any
         for behavior_name in fti.behaviors:
             behavior_interface = resolve_dotted_name(behavior_name)
-            if behavior_interface is not None:
-                fields += field.Fields(behavior_interface,
-                                       omitReadOnly=True,
-                                       prefix=behavior_name)
-                behavior_metadata = behavior_interface.queryTaggedValue(METADATA_KEY, {})
-                behavior_widget_data = behavior_metadata.get('widget', {})
-                for field_name, widget_name in behavior_widget_data.items():
-                    widget_data[expandPrefix(behavior_name) + field_name] = widget_name
+            if behavior_interface is None:
+                continue
+                
+            behavior_fields = IFormFieldProvider(behavior_interface, None)
+            if behavior_fields is None:
+                continue
+                
+            fields += field.Fields(behavior_fields, omitReadOnly=True, prefix=behavior_name)
+            
+            behavior_metadata = behavior_fields.queryTaggedValue(METADATA_KEY, {})
+            behavior_widget_data = behavior_metadata.get('widget', {})
+            for field_name, widget_name in behavior_widget_data.items():
+                widget_data[expandPrefix(behavior_name) + field_name] = widget_name
         
         # Set widget factories if possible
         for field_name, widget_name in widget_data.items():
