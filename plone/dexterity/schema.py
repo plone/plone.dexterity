@@ -155,7 +155,7 @@ class SecuritySchema(object):
             field_node.set(ns('write-permission', self.namespace), write_permission)
 
 class FormSchema(object):
-    """Support the ui: namespace in model definitions.
+    """Support the form: namespace in model definitions.
     """
     implements(IFieldMetadataHandler)
     

@@ -4,19 +4,21 @@ from zope.interface.interface import TAGGED_DATA
 
 from plone.supermodel.directives import Schema
 
+TEMP_KEY = '__form_directive_values__'
+
 class FormMetadataStorage(object):
     """Stores a value in the 'dexterity.form' metadata format.
     """
 
     def set(self, locals_, directive, value):
-        tags = locals_.setdefault(TAGGED_DATA, {}).setdefault(u"dexterity.form", {})
+        tags = locals_.setdefault(TAGGED_DATA, {}).setdefault(TEMP_KEY, {})
         tags.setdefault(directive.key, []).extend(value)
 
     def get(self, directive, component, default):
-        return component.queryTaggedValue(u"dexterity.form", {}).get(directive.key, default)
+        return component.queryTaggedValue(TEMP_KEY, {}).get(directive.key, default)
 
     def setattr(self, context, directive, value):
-        tags = context.queryTaggedValue(u"dexterity.form", {})
+        tags = context.queryTaggedValue(TEMP_KEY, {})
         tags.setdefault(directive.key, []).extend(value)
 
 FORM_METADATA = FormMetadataStorage()        
@@ -86,7 +88,25 @@ class SchemaGrokker(martian.InstanceGrokker):
     martian.directive(order_before)
     
     def execute(self, interface, config, **kw):
-        # The work's really done in the directives
-        return interface.extends(Schema)
+        
+        if not interface.extends(Schema):
+            return False
+            
+        # Copy from temporary to real value
+        directive_supplied = interface.queryTaggedValue(TEMP_KEY, None)
+        if directive_supplied is None:
+            return False
+        
+        real = interface.queryTaggedValue(u'dexterity.form', {})
+        for k, v in directive_supplied.items():
+            real.setdefault(k, []).extend(v)
+        
+        if not real:
+            return False
+            
+        interface.setTaggedValue(u'dexterity.form', real)
+        interface.setTaggedValue(TEMP_KEY, None)
+        
+        return True
 
 __all__ = ('omitted', 'mode', 'widget', 'fieldset', 'order_before',)

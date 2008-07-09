@@ -30,8 +30,6 @@ Dexterity To-Do List
     [*] Push fieldset support down to plone.supermodel and use a <fieldset />
         tag to group fields. Make it easier to order fieldsets and supply
         metadata like description.
-        
-    [*] Write tests for form schema grokkers
          
     [-] Factory and class grokker need to initialise field level security
         based on schema
@@ -53,6 +51,7 @@ Dexterity To-Do List
     ~~~~~
 
     [*] Properly test form widget construction code
+    [*] Performance test the widget construction code
     
     Misc
     ~~~~
