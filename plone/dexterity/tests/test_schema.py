@@ -151,107 +151,194 @@ class TestSecuritySchema(unittest.TestCase):
         field_node = ElementTree.Element('field')
         field_node.set(ns("read-permission", self.namespace), "Read perm")
         field_node.set(ns("write-permission", self.namespace), "Write perm")
-        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
-        metadata = {}
+        
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"dummy")
         
         handler = schema.SecuritySchema()
-        handler.read(field_node, field, metadata)
+        handler.read(field_node, IDummy, IDummy['dummy'])
+        
         self.assertEquals({u'dummy': {'read-permission': "Read perm",
-                                      'write-permission': "Write perm"}}, metadata)
+                                      'write-permission': "Write perm"}},
+                            IDummy.getTaggedValue(u"dexterity.security"))
     
     def test_read_no_permissions(self):
         field_node = ElementTree.Element('field')
-        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
-        metadata = {}
+        
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"dummy")
 
         handler = schema.SecuritySchema()
-        handler.read(field_node, field, metadata)
-        self.assertEquals({}, metadata)
+        handler.read(field_node, IDummy, IDummy['dummy'])
+        
+        self.failIf(u'dexterity.security' in IDummy.getTaggedValueTags())
         
     def test_write(self):
         field_node = ElementTree.Element('field')
-        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
         
-        metadata = {u'dummy': {'read-permission': "Read perm",
-                               'write-permission': "Write perm"}}
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"dummy")
+        
+        IDummy.setTaggedValue(u'dexterity.security',
+                                {u'dummy': {'read-permission': "Read perm",
+                                            'write-permission': "Write perm"}})
+                               
         handler = schema.SecuritySchema()
-        handler.write(field_node, field, metadata)
+        handler.write(field_node, IDummy, IDummy['dummy'])
+        
         self.assertEquals("Read perm", field_node.get(ns("read-permission", self.namespace)))
         self.assertEquals("Write perm", field_node.get(ns("write-permission", self.namespace)))
     
     def test_write_no_permissions(self):
         field_node = ElementTree.Element('field')
-        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
         
-        metadata = {u'dummy': {}}
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"dummy")
+        
+        IDummy.setTaggedValue(u'dexterity.security', {u'dummy': {}})
+        
         handler = schema.SecuritySchema()
-        handler.write(field_node, field, metadata)
+        handler.write(field_node, IDummy, IDummy['dummy'])
+        
         self.assertEquals(None, field_node.get(ns("read-permission", self.namespace)))
         self.assertEquals(None, field_node.get(ns("write-permission", self.namespace)))
 
     def test_write_no_metadata(self):
         field_node = ElementTree.Element('field')
-        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
         
-        metadata = {}
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"dummy")
+        
         handler = schema.SecuritySchema()
-        handler.write(field_node, field, metadata)
+        handler.write(field_node, IDummy, IDummy['dummy'])
+        
         self.assertEquals(None, field_node.get(ns("read-permission", self.namespace)))
         self.assertEquals(None, field_node.get(ns("write-permission", self.namespace)))
         
-class TestWidgetSchema(unittest.TestCase):
+class TestFormSchema(unittest.TestCase):
     
-    namespace = 'http://namespaces.plone.org/dexterity/widget'
+    namespace = 'http://namespaces.plone.org/dexterity/form'
     
     def test_read(self):
         field_node = ElementTree.Element('field')
-        field_node.set(ns("factory", self.namespace), "SomeWidget")
-        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
-        metadata = {}
+        field_node.set(ns("widget", self.namespace), "SomeWidget")
+        field_node.set(ns("mode", self.namespace), "hidden")
+        field_node.set(ns("omitted", self.namespace), "true")
+        field_node.set(ns("fieldset", self.namespace), "Some fieldset")
+        field_node.set(ns("before", self.namespace), "somefield")
         
-        handler = schema.WidgetSchema()
-        handler.read(field_node, field, metadata)
-        self.assertEquals({u'dummy': 'SomeWidget'}, metadata)
-    
-    def test_read_no_widget(self):
-        field_node = ElementTree.Element('field')
-        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
-        metadata = {}
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"dummy")
+        
+        handler = schema.FormSchema()
+        handler.read(field_node, IDummy, IDummy['dummy'])
+        
+        metadata = IDummy.getTaggedValue(u"dexterity.form")
+        
+        self.assertEquals({'widgets': [('dummy', 'SomeWidget')], 
+                           'omitted': [('dummy', 'true')],
+                           'modes': [('dummy', 'hidden')],
+                           'fieldsets': [('dummy', 'Some fieldset')],
+                           'before': [('dummy', 'somefield')]}, metadata)
 
-        handler = schema.WidgetSchema()
-        handler.read(field_node, field, metadata)
-        self.assertEquals({}, metadata)
+    def test_read_multiple(self):
+        field_node1 = ElementTree.Element('field')
+        field_node1.set(ns("widget", self.namespace), "SomeWidget")
+        field_node1.set(ns("mode", self.namespace), "hidden")
+        field_node1.set(ns("omitted", self.namespace), "true")
+        field_node1.set(ns("fieldset", self.namespace), "Some fieldset")
+        field_node1.set(ns("before", self.namespace), "somefield")
+        
+        field_node2 = ElementTree.Element('field')
+        field_node2.set(ns("mode", self.namespace), "display")
+        field_node2.set(ns("omitted", self.namespace), "yes")
+        
+        class IDummy(Interface):
+            dummy1 = zope.schema.TextLine(title=u"dummy1")
+            dummy2 = zope.schema.TextLine(title=u"dummy2")
+        
+        handler = schema.FormSchema()
+        handler.read(field_node1, IDummy, IDummy['dummy1'])
+        handler.read(field_node2, IDummy, IDummy['dummy2'])
+        
+        metadata = IDummy.getTaggedValue(u"dexterity.form")
+        
+        self.assertEquals({'widgets': [('dummy1', 'SomeWidget')], 
+                           'omitted': [('dummy1', 'true'), ('dummy2', 'yes')],
+                           'modes': [('dummy1', 'hidden'), ('dummy2', 'display')],
+                           'fieldsets': [('dummy1', 'Some fieldset')],
+                           'before': [('dummy1', 'somefield')]}, metadata)
+    
+    def test_read_no_data(self):
+        field_node = ElementTree.Element('field')
+        
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"dummy1")
+
+        handler = schema.FormSchema()
+        handler.read(field_node, IDummy, IDummy['dummy'])
+        
+        self.assertEquals(None, IDummy.queryTaggedValue(u'dexterity.form'))
         
     def test_write(self):
         field_node = ElementTree.Element('field')
-        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
         
-        metadata = {u'dummy': 'SomeWidget'}
-        handler = schema.WidgetSchema()
-        handler.write(field_node, field, metadata)
-        self.assertEquals("SomeWidget", field_node.get(ns("factory", self.namespace)))
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"dummy1")
+            
+        IDummy.setTaggedValue(u"dexterity.form", { 'widgets': [('dummy', 'SomeWidget')], 
+                                                   'omitted': [('dummy', 'true')],
+                                                   'modes': [('dummy', 'hidden')],
+                                                   'fieldsets': [('dummy', 'Some fieldset')],
+                                                   'before': [('dummy', 'somefield')]})
+        
+        handler = schema.FormSchema()
+        handler.write(field_node, IDummy, IDummy['dummy'])
+        
+        self.assertEquals("SomeWidget", field_node.get(ns("widget", self.namespace)))
+        self.assertEquals("true", field_node.get(ns("omitted", self.namespace)))
+        self.assertEquals("hidden", field_node.get(ns("mode", self.namespace)))
+        self.assertEquals("Some fieldset", field_node.get(ns("fieldset", self.namespace)))
+        self.assertEquals("somefield", field_node.get(ns("before", self.namespace)))
     
-    def test_write_no_widget(self):
+    def test_write_partial(self):
         field_node = ElementTree.Element('field')
-        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
         
-        metadata = {u'dummy': {}}
-        handler = schema.WidgetSchema()
-        handler.write(field_node, field, metadata)
-        self.assertEquals(None, field_node.get(ns("factory", self.namespace)))
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"dummy1")
+            
+        IDummy.setTaggedValue(u"dexterity.form", { 'widgets': [('dummy', 'SomeWidget')], 
+                                                   'omitted': [('dummy2', 'true')],
+                                                   'modes': [('dummy', 'display'), ('dummy2', 'hidden')],
+                                                   'before': []})
+        
+        handler = schema.FormSchema()
+        handler.write(field_node, IDummy, IDummy['dummy'])
+        
+        self.assertEquals("SomeWidget", field_node.get(ns("widget", self.namespace)))
+        self.assertEquals(None, field_node.get(ns("omitted", self.namespace)))
+        self.assertEquals("display", field_node.get(ns("mode", self.namespace)))
+        self.assertEquals(None, field_node.get(ns("fieldset", self.namespace)))
+        self.assertEquals(None, field_node.get(ns("before", self.namespace)))
 
-    def test_write_no_metadata(self):
+    def test_write_no_data(self):
         field_node = ElementTree.Element('field')
-        field = zope.schema.TextLine(title=u"dummy", __name__=u'dummy')
         
-        metadata = {}
-        handler = schema.WidgetSchema()
-        handler.write(field_node, field, metadata)
-        self.assertEquals(None, field_node.get(ns("factory", self.namespace)))
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"dummy1")
+            
+        handler = schema.FormSchema()
+        handler.write(field_node, IDummy, IDummy['dummy'])
+        
+        self.assertEquals(None, field_node.get(ns("widget", self.namespace)))
+        self.assertEquals(None, field_node.get(ns("omitted", self.namespace)))
+        self.assertEquals(None, field_node.get(ns("mode", self.namespace)))
+        self.assertEquals(None, field_node.get(ns("fieldset", self.namespace)))
+        self.assertEquals(None, field_node.get(ns("before", self.namespace)))
         
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestSchemaModuleFactory))
     suite.addTest(unittest.makeSuite(TestSecuritySchema))
-    suite.addTest(unittest.makeSuite(TestWidgetSchema))
+    suite.addTest(unittest.makeSuite(TestFormSchema))
     return suite

@@ -33,12 +33,12 @@
         
     <utility
         factory=".schema.SecuritySchema"
-        name="security"
+        name="dexterity.security"
         />
     
     <utility
-        factory=".schema.WidgetSchema"
-        name="widget"
+        factory=".schema.FormSchema"
+        name="dexterity.form"
         />
 
     <!-- Support for plone.behavior behaviors -->

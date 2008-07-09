@@ -11,7 +11,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.factory import DexterityFactory
 
-from plone.supermodel.model import Model, METADATA_KEY
+from plone.supermodel.model import Model
 
 class IDummy(Interface):
     pass
@@ -151,7 +151,7 @@ class TestFactory(MockTestCase):
         schema_mock = self.mocker.mock(InterfaceClass)
         self.expect(schema_mock.providedBy(obj_mock)).result(False) # -> need to initialise schema
         self.expect(schema_mock.getBases()).result([]).count(0, None)
-        self.expect(schema_mock.queryTaggedValue(METADATA_KEY)).result(None).count(0, None)
+        self.expect(schema_mock.queryTaggedValue(u"dexterity.security", {})).result(None).count(0, None)
         
         alsoProvides_mock = self.mocker.replace('zope.interface.alsoProvides')
         self.expect(alsoProvides_mock(obj_mock, schema_mock))
@@ -205,7 +205,7 @@ class TestFactory(MockTestCase):
         schema_mock = self.mocker.mock(InterfaceClass)
         self.expect(schema_mock.providedBy(obj_dummy)).result(False) # -> need to initialise schema
         self.expect(schema_mock.getBases()).result([]).count(0, None)
-        self.expect(schema_mock.queryTaggedValue(METADATA_KEY)).result(None).count(0, None)
+        self.expect(schema_mock.queryTaggedValue(u"dexterity.security", {})).result(None).count(0, None)
         
         alsoProvides_mock = self.mocker.replace('zope.interface.alsoProvides')
         self.expect(alsoProvides_mock(obj_dummy, schema_mock))

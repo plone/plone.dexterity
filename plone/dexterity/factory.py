@@ -16,8 +16,6 @@ from plone.dexterity.security import InstanceSecurityInfo
 
 from plone.dexterity.utils import resolve_dotted_name
 
-from plone.supermodel.model import METADATA_KEY
-
 from Acquisition import aq_base
 
 class DexterityFactory(Persistent, Factory):
@@ -62,9 +60,7 @@ class DexterityFactory(Persistent, Factory):
         if not schema.providedBy(obj):
             alsoProvides(obj, schema)
 
-            metadata = schema.queryTaggedValue(METADATA_KEY)
-            if metadata is not None:
-                permission_settings = metadata.get('security', {})
+            permission_settings = schema.queryTaggedValue(u'dexterity.security', {})
             
             # XXX: This security model does not seem to work properly
             # security = InstanceSecurityInfo()

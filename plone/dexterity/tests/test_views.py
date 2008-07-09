@@ -19,8 +19,6 @@ from plone.dexterity.browser.view import DefaultView
 
 from plone.dexterity.fti import DexterityFTI
 
-from plone.supermodel.model import METADATA_KEY
-
 from AccessControl import Unauthorized
 
 class TestAddView(MockTestCase):
@@ -52,76 +50,7 @@ class TestAddView(MockTestCase):
         self.assertEquals(u"testtype", addview.__name__)
         self.assertEquals(u"testtype", addview.portal_type)
     
-    def test_form_fields_no_metadata(self):
-        
-        # The 'fields' property on the form should look up the schema from
-        # the FTI utility with the name given as the portal_type.
-        
-        # Context and request
-        context_mock = self.mocker.mock()
-        request_mock = self.mocker.mock()
-        
-        # Model and schema
-        
-        class IDummy(Interface): pass
-        
-        # Form fields generator
-        
-        fields_dummy = self.create_dummy()
-        fields_mock = self.mocker.replace('z3c.form.field.Fields')
-        self.expect(fields_mock(IDummy, omitReadOnly=True)).result(fields_dummy)
-        
-        # FTI
-        
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(IDummy)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        
-        self.replay()
-        
-        form = DefaultAddForm(context_mock, request_mock, u"testtype")
-        self.assertIs(fields_dummy, form.fields)
-    
-    def test_form_fields_with_widget_data(self):
-        
-        # The 'fields' property on the form should resolve widget hints from
-        # metadata
-        
-        # Context and request
-        context_mock = self.mocker.mock()
-        request_mock = self.mocker.mock()
-        
-        # Model and schema
-        
-        class IDummy(Interface):
-            foo = zope.schema.TextLine(title=u"foo")
-        IDummy.setTaggedValue(METADATA_KEY, {'widget': {'foo': 'some.widget'}})
-        
-        fields_dummy = Fields(IDummy)
-        
-        # Form fields generator
-        fields_factory_mock = self.mocker.replace('z3c.form.field.Fields')
-        self.expect(fields_factory_mock(IDummy, omitReadOnly=True)).result(fields_dummy)
-        
-        # Widget lookup
-        
-        widget_dummy = self.create_dummy()
-        widget_lookup_mock = self.mocker.replace('plone.dexterity.utils.resolve_dotted_name')
-        self.expect(widget_lookup_mock('some.widget')).result(widget_dummy)
-        
-        # FTI
-        
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(IDummy)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        
-        self.replay()
-        
-        form = DefaultAddForm(context_mock, request_mock, u"testtype")
-        fields = form.fields
-        
-        self.assertIs(fields_dummy, fields)
-        self.assertIs(widget_dummy, fields['foo'].widgetFactory['input'])
+    # TODO: Add tests for field/widget setup code
 
     def test_form_create(self):
         
@@ -258,80 +187,7 @@ class TestAddView(MockTestCase):
     
 class TestEditView(MockTestCase):
     
-    def test_form_fields_no_metadata(self):
-        
-        # The 'fields' property on the form should look up the schema from
-        # the FTI utility with the name given as the portal_type.
-        
-        # Context and request
-        context_mock = self.mocker.mock()
-        request_mock = self.mocker.mock()
-        
-        self.expect(context_mock.portal_type).result(u"testtype")
-        
-        # Model and schema
-        
-        class IDummy(Interface): pass
-        
-        # Form fields generator
-        
-        fields_dummy = self.create_dummy()
-        fields_mock = self.mocker.replace('z3c.form.field.Fields')
-        self.expect(fields_mock(IDummy, omitReadOnly=True)).result(fields_dummy)
-        
-        # FTI
-        
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(IDummy)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        
-        self.replay()
-        
-        form = DefaultEditForm(context_mock, request_mock)
-        self.assertIs(fields_dummy, form.fields)
-    
-    def test_form_fields_with_widget_data(self):
-        
-        # The 'fields' property on the form should resolve widget hints from
-        # metadata
-        
-        # Context and request
-        context_mock = self.mocker.mock()
-        request_mock = self.mocker.mock()
-        
-        self.expect(context_mock.portal_type).result(u"testtype")
-        
-        # Model and schema
-        
-        class IDummy(Interface):
-            foo = zope.schema.TextLine(title=u"foo")
-        IDummy.setTaggedValue(METADATA_KEY, {'widget': {'foo': 'some.widget'}})
-        
-        fields_dummy = Fields(IDummy)
-        
-        # Form fields generator
-        fields_factory_mock = self.mocker.replace('z3c.form.field.Fields')
-        self.expect(fields_factory_mock(IDummy, omitReadOnly=True)).result(fields_dummy)
-        
-        # Widget lookup
-        
-        widget_dummy = self.create_dummy()
-        widget_lookup_mock = self.mocker.replace('plone.dexterity.utils.resolve_dotted_name')
-        self.expect(widget_lookup_mock('some.widget')).result(widget_dummy)
-        
-        # FTI
-        
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(IDummy)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        
-        self.replay()
-        
-        form = DefaultEditForm(context_mock, request_mock)
-        fields = form.fields
-        
-        self.assertIs(fields_dummy, fields)
-        self.assertIs(widget_dummy, fields['foo'].widgetFactory['input'])
+    # TODO: Add tests for field/widget setup code
     
     def test_label(self):
         

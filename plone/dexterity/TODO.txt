@@ -4,9 +4,6 @@ Dexterity To-Do List
  Areas that need ownership
  -------------------------
  
-    [ ] Schema composition and fieldsets in forms, integration with 
-        plone.behavior
-    
     [ ] Field-level security
     
     [ ] i18n support in schema
@@ -21,14 +18,21 @@ Dexterity To-Do List
         - need CMFEditions policy for version-on-save
         - need CMFDiffTool support for IContentType
         - need iterate to use plone.app.relations instead of AT references
+        
+    [ ] Transforms
 
  plone.dexterity
  ---------------
 
     Schema and FTI
     ~~~~~~~~~~~~~~
-
-    [*] Factory and class grokker need to initialise field level security
+    
+    [*] Push fieldset support down to plone.supermodel and use a <fieldset />
+        tag to group fields. Make it easier to order fieldsets.
+    
+    [*] Add schema grokker directives for form and security metadata
+         
+    [-] Factory and class grokker need to initialise field level security
         based on schema
         
         - There is an attempt at this in security.py, but it doesn't seem to
@@ -46,37 +50,13 @@ Dexterity To-Do List
         
     Views
     ~~~~~
- 
-    [*] Refactor the 'widget' metadata/schema namespace into a more generic
-        'form' one, that supports widget factories, hidden mode, omitting
-        fields and grouping into fieldsets.
- 
-    [*] Support fieldsets and externalised field ordering in forms
-    [*] Support fields from behaviors in forms
+
+    [*] Properly test form widget construction code
     
-        - Currently, all behavior interfaces are queried for fields. This
-            should be opt-in via marker interface on the schema or a property
-            on the behavior registration itself.
-        - Should consider supporting fields from other sources, by delegating
-            field discovery to named/subscription adapters. At least, we
-            should support fields injected via global components. This is
-            not necessarily dexterity specific.
-        - Should be able to order and group fields via named/subscription 
-            adapters.
-        - Need to be able to specify custom widgets for behavior-provided
-            fields.
-    
-        -> IFieldProvider named adapters collect fields, set widget factories
-        -> IFieldsetManager named adapters group and sort fields into Group's
-        -> Form template renders groups as fieldsets
-        
-        -> Consider making grokkers for behaviors, with directives for field
-            provider support, widget hints and annotation factories.
-        
     Misc
     ~~~~
     
-    [ ] Need to properly support i18n in model file
+    [-] Need to properly support i18n in model file
     
     [ ] Provide support for various types of migration when FTIs change, e.g.
         swapping from one FTI to another or changing a model significantly.
@@ -104,3 +84,4 @@ Dexterity To-Do List
     - Need link integrity (linkintegrity w/o AT references - behavior)
     - Need inline validation (have this for formlib, not z3c.form)
     - Need inline editing (have this for formlib, not z3c.form)
+    - Need transforms ala safe_html

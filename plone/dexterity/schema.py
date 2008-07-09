@@ -83,7 +83,7 @@ class SchemaModuleFactory(object):
                 self._lock.release()
                 raise
             
-            sync_schema(model.lookup_schema(schema_name), schema)
+            sync_schema(model.schemata[schema_name], schema)
         
             # Save this schema in the module - this factory will not be
             # called again for this name
@@ -125,43 +125,92 @@ class SecuritySchema(object):
     namespace = 'http://namespaces.plone.org/dexterity/security'
     prefix = 'security'
     
-    def read(self, field_node, field, schema_metadata):
+    def read(self, field_node, schema, field):
         name = field.__name__
         
         read_permission = field_node.get(ns('read-permission', self.namespace))
         write_permission = field_node.get(ns('write-permission', self.namespace))
         
+        permissions = schema.queryTaggedValue(u'dexterity.security', {})
+        
         if read_permission:
-            schema_metadata.setdefault(name, {})['read-permission'] = read_permission
+            permissions.setdefault(name, {})['read-permission'] = read_permission
         if write_permission:
-            schema_metadata.setdefault(name, {})['write-permission'] = write_permission
+            permissions.setdefault(name, {})['write-permission'] = write_permission
+            
+        if permissions:
+            schema.setTaggedValue(u'dexterity.security', permissions)
 
-    def write(self, field_node, field, schema_metadata):
+    def write(self, field_node, schema, field):
         name = field.__name__
-        read_permission = schema_metadata.get(name, {}).get('read-permission', None)
-        write_permission = schema_metadata.get(name, {}).get('write-permission', None)
+        
+        permissions = schema.queryTaggedValue(u'dexterity.security', {})
+        
+        read_permission = permissions.get(name, {}).get('read-permission', None)
+        write_permission = permissions.get(name, {}).get('write-permission', None)
         
         if read_permission:
             field_node.set(ns('read-permission', self.namespace), read_permission)
         if write_permission:
             field_node.set(ns('write-permission', self.namespace), write_permission)
 
-class WidgetSchema(object):
-    """Support the widget: namespace in model definitions.
+class FormSchema(object):
+    """Support the ui: namespace in model definitions.
     """
     implements(IFieldMetadataHandler)
     
-    namespace = 'http://namespaces.plone.org/dexterity/widget'
-    prefix = 'widget'
+    namespace = 'http://namespaces.plone.org/dexterity/form'
+    prefix = 'form'
     
-    def read(self, field_node, field, schema_metadata):
+    def read(self, field_node, schema, field):
         name = field.__name__
-        widget = field_node.get(ns('factory', self.namespace))        
+        
+        widget = field_node.get(ns('widget', self.namespace))
+        mode = field_node.get(ns('mode', self.namespace))
+        omitted = field_node.get(ns('omitted', self.namespace))
+        fieldset = field_node.get(ns('fieldset', self.namespace))
+        before = field_node.get(ns('before', self.namespace))
+        
+        settings = schema.queryTaggedValue(u'dexterity.form', {})
+        updated = False
+        
         if widget:
-            schema_metadata[name] = widget
+            settings.setdefault('widgets', []).append((name, widget))
+            updated = True
+        if mode:
+            settings.setdefault('modes', []).append((name, mode))
+            updated = True
+        if omitted:
+            settings.setdefault('omitted', []).append((name, omitted))
+            updated = True
+        if fieldset:
+            settings.setdefault('fieldsets', []).append((name, fieldset))
+            updated = True
+        if before:
+            settings.setdefault('before', []).append((name, before))
+            updated = True
+            
+        if updated:
+            schema.setTaggedValue(u'dexterity.form', settings)
 
-    def write(self, field_node, field, schema_metadata):
+    def write(self, field_node, schema, field):
         name = field.__name__
-        widget = schema_metadata.get(name, None)
+        
+        settings = schema.queryTaggedValue(u'dexterity.form', {})
+        
+        widget = [v for n,v in settings.get('widgets', []) if n == name]
+        mode = [v for n,v in settings.get('modes', []) if n == name]
+        omitted = [v for n,v in settings.get('omitted', []) if n == name]
+        fieldset = [v for n,v in settings.get('fieldsets', []) if n == name]
+        before = [v for n,v in settings.get('before', []) if n == name]
+        
         if widget:
-            field_node.set(ns('factory', self.namespace), widget)
+            field_node.set(ns('widget', self.namespace), widget[0])
+        if mode:
+            field_node.set(ns('mode', self.namespace), mode[0])
+        if omitted:
+            field_node.set(ns('omitted', self.namespace), omitted[0])
+        if fieldset:
+            field_node.set(ns('fieldset', self.namespace), fieldset[0])
+        if before:
+            field_node.set(ns('before', self.namespace), before[0])

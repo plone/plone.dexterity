@@ -172,7 +172,6 @@ class TestFTI(MockTestCase):
         model = fti.lookup_model()
         self.assertEquals(1, len(model.schemata))
         self.assertEquals(ITestSchema, model.schema)
-        self.assertEquals({}, model.metadata)
 
     def test_lookup_model_from_string_with_schema(self):
         fti = DexterityFTI(u"testtype")
