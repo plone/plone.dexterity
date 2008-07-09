@@ -31,6 +31,26 @@ setup(name='plone.dexterity',
           'plone.supermodel',
           'plone.alterego',
           'plone.behavior',
+          'grokcore.component',
+          
+          'zope.interface',
+          'zope.component',
+          'zope.schema',
+          'zope.annotation',
+          'zope.publisher',
+          'zope.app.container',
+          'zope.app.content',
+          'ZODB3',
+          
+          # 'Acquisition',
+          # 'AccessControl',
+          # 'Products.CMFCore',
+          # 'Products.CMFDefault',
+          # 'Products.CMFDynamicViewFTI',
+          # 'Products.GenericSetup',
+          # 'Products.Five',
+          # 'Products.statusmessages',
+
           # -*- Extra requirements: -*-
       ],
       entry_points="""
