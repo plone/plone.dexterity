@@ -21,11 +21,51 @@ Dexterity To-Do List
         
     [ ] Transforms
 
+ plone.supermodel
+ ----------------
+ 
+    [ ] We need field handlers/syntax for:
+
+        - Choice fields with static values
+        - Choice fields using vocabulary factories
+        - Dealing with the value_type of List, Tuple, Set, Frozenset fields
+            - Should support simple types, by giving dotted name of type
+            - Should support nested Choice fields
+
+        This will require a new handler class, since the generic handler
+        can't deal with this.
+
+        Example syntax:
+        
+            <field name="pickone" type="zope.schema.Choice">
+                <title>Please pick one</title>
+                <vocabulary>
+                    <element>Plone</element>
+                    <element>Drupal</element>
+                    <element>Alfresco</element>
+                </vocabulary>
+            </field>
+            
+            <field name="pickanother" type="zope.schema.Choice">
+                <title>Please another one</title>
+                <vocabulary>my.vocabulary.factory</vocabulary>
+            </field>
+            
+            <field name="pickseveral" type="zope.schema.List">
+                <title>Please select multiple</title>
+                <value_type type="zope.schema.Choice">
+                    <!-- Support full field definition here -->
+                <value_type>
+            </field>
+
  plone.dexterity
  ---------------
 
     Schema and FTI
     ~~~~~~~~~~~~~~
+         
+    [ ] Consider having a "subtypes" (marker interfaces) e.g. to support
+        specialised views/viewlets.
          
     [-] Factory and class grokker need to initialise field level security
         based on schema
@@ -49,8 +89,10 @@ Dexterity To-Do List
     [*] Properly test form widget construction code
     [*] Performance test the widget construction code
 
-    [ ] Somehow, we see a flashing 404 page in Kupu when it's first loaded
-        on an add form. Investigate why.
+    [ ] Kupu fields in add forms don't seem to save text
+    [ ] Kupu attempts to load 'emptypage', but on add views it can't acquire
+        this so we get a flashing 404. The fix probably needs to go into
+        kupu or plone.z3cform.
     
     Misc
     ~~~~
