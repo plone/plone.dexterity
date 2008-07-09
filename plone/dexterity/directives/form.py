@@ -2,7 +2,7 @@ import martian
 
 from zope.interface.interface import TAGGED_DATA
 
-from plone.supermodel.directives import Schema
+from plone.supermodel.directives import Schema, fieldset
 
 TEMP_KEY = '__form_directive_values__'
 
@@ -58,16 +58,6 @@ class widget(martian.Directive):
             items.append((field_name, widget))
         return items
         
-class fieldset(martian.Directive):
-    
-    scope = martian.CLASS
-    store = FORM_METADATA
-    
-    key = u"fieldsets"
-    
-    def factory(self, **kw):
-        return kw.items()
-        
 class order_before(martian.Directive):
     
     scope = martian.CLASS
@@ -84,7 +74,6 @@ class SchemaGrokker(martian.InstanceGrokker):
     martian.directive(omitted)
     martian.directive(mode)
     martian.directive(widget)
-    martian.directive(fieldset)
     martian.directive(order_before)
     
     def execute(self, interface, config, **kw):

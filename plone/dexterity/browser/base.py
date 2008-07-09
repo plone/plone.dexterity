@@ -15,6 +15,8 @@ from plone.z3cform.fieldsets.group import GroupFactory
 
 from plone.z3cform.fieldsets.utils import move
 
+from plone.supermodel.model import FIELDSETS_KEY
+
 def process_fields(form, schema, prefix=None):
     """Add the fields from the schema to the from, taking into account
     the hints in the dexterity.form tagged value.
@@ -27,6 +29,7 @@ def process_fields(form, schema, prefix=None):
             return field_name
     
     form_data = schema.queryTaggedValue(u'dexterity.form', {})
+    fieldsets = schema.queryTaggedValue(FIELDSETS_KEY, [])
     
     # Get metadata
     
@@ -39,11 +42,9 @@ def process_fields(form, schema, prefix=None):
     moves = dict([(_fn(field_name), value)
                     for field_name, value in form_data.get('moves', [])])
     
-    fieldsets = {}
     fieldset_fields = set()
-    for field_name, fieldset in form_data.get('fieldsets', []):
-        if field_name not in omitted:
-            fieldsets.setdefault(fieldset, []).append(_fn(field_name))
+    for fieldset in fieldsets:
+        for field_name in fieldset.fields:
             fieldset_fields.add(_fn(field_name))
     
     default_fieldset_fields = [_fn(f) for f, value in getFieldsInOrder(schema) 
@@ -51,7 +52,7 @@ def process_fields(form, schema, prefix=None):
                                     _fn(f) not in fieldset_fields and 
                                     _fn(f) not in omitted]
 
-    groups_by_label = dict([(g.label, g) for g in form.groups])
+    groups = dict([(getattr(g, '__name__', g.label), g) for g in form.groups])
     
     if prefix:
         all_fields = field.Fields(schema, prefix=prefix, omitReadOnly=True)
@@ -81,15 +82,18 @@ def process_fields(form, schema, prefix=None):
     
     # Set up fields for fieldsets
     
-    for fieldset, field_names in fieldsets.items():
+    for fieldset in fieldsets:
         
-        new_fields = all_fields.select(*field_names)
+        new_fields = all_fields.select(*[_fn(field_name) for field_name in fieldset.fields])
         process_widgets(new_fields)
         
-        if fieldset not in groups_by_label:
-            form.groups.append(GroupFactory(fieldset, new_fields))
+        if fieldset.__name__ not in groups:
+            form.groups.append(GroupFactory(fieldset.__name__,
+                                            label=fieldset.label,
+                                            description=fieldset.description,
+                                            fields=new_fields))
         else:
-            groups_by_label[fieldset].fields += new_fields
+            groups[fieldset.__name__].fields += new_fields
     
     # Process moves
     for field_name, before in moves.items():

@@ -123,7 +123,6 @@ class TestFormDirectives(MockTestCase):
             form.omitted('foo', 'bar')
             form.widget(foo='some.dummy.Widget', baz='other.Widget')
             form.mode(bar='hidden')
-            form.fieldset(foo='Secondary')
             form.order_before(baz='title')
             
             
@@ -138,8 +137,7 @@ class TestFormDirectives(MockTestCase):
         self.assertEquals({u'widgets': [('foo', 'some.dummy.Widget'), ('baz', 'other.Widget')],
                            u'omitted': [('foo', 'true'), ('bar', 'true')],
                            u'moves': [('baz', 'title')],
-                           u'modes': [('bar', 'hidden')],
-                           u'fieldsets': [('foo', 'Secondary')]}, 
+                           u'modes': [('bar', 'hidden')]},
                             IDummy.queryTaggedValue(u"dexterity.form"))
         
     def test_widget_supports_instances_and_strings(self):
@@ -188,8 +186,6 @@ class TestFormDirectives(MockTestCase):
             form.widget(baz='other.Widget')
             form.mode(bar='hidden')
             form.mode(foo='display')
-            form.fieldset(foo='Secondary')
-            form.fieldset(bar='Primary')
             form.order_before(baz='title')
             form.order_before(foo='body')
             
@@ -205,8 +201,7 @@ class TestFormDirectives(MockTestCase):
         self.assertEquals({u'widgets': [('foo', 'some.dummy.Widget'), ('baz', 'other.Widget')],
                            u'omitted': [('foo', 'true'), ('bar', 'true')],
                            u'moves': [('baz', 'title'), ('foo', 'body')],
-                           u'modes': [('bar', 'hidden'), ('foo', 'display')],
-                           u'fieldsets': [('foo', 'Secondary'), ('bar', 'Primary')]}, 
+                           u'modes': [('bar', 'hidden'), ('foo', 'display')]}, 
                             IDummy.queryTaggedValue(u"dexterity.form"))
 
 def test_suite():

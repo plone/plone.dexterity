@@ -224,7 +224,6 @@ class TestFormSchema(unittest.TestCase):
         field_node.set(ns("widget", self.namespace), "SomeWidget")
         field_node.set(ns("mode", self.namespace), "hidden")
         field_node.set(ns("omitted", self.namespace), "true")
-        field_node.set(ns("fieldset", self.namespace), "Some fieldset")
         field_node.set(ns("before", self.namespace), "somefield")
         
         class IDummy(Interface):
@@ -238,7 +237,6 @@ class TestFormSchema(unittest.TestCase):
         self.assertEquals({'widgets': [('dummy', 'SomeWidget')], 
                            'omitted': [('dummy', 'true')],
                            'modes': [('dummy', 'hidden')],
-                           'fieldsets': [('dummy', 'Some fieldset')],
                            'before': [('dummy', 'somefield')]}, metadata)
 
     def test_read_multiple(self):
@@ -246,7 +244,6 @@ class TestFormSchema(unittest.TestCase):
         field_node1.set(ns("widget", self.namespace), "SomeWidget")
         field_node1.set(ns("mode", self.namespace), "hidden")
         field_node1.set(ns("omitted", self.namespace), "true")
-        field_node1.set(ns("fieldset", self.namespace), "Some fieldset")
         field_node1.set(ns("before", self.namespace), "somefield")
         
         field_node2 = ElementTree.Element('field')
@@ -266,7 +263,6 @@ class TestFormSchema(unittest.TestCase):
         self.assertEquals({'widgets': [('dummy1', 'SomeWidget')], 
                            'omitted': [('dummy1', 'true'), ('dummy2', 'yes')],
                            'modes': [('dummy1', 'hidden'), ('dummy2', 'display')],
-                           'fieldsets': [('dummy1', 'Some fieldset')],
                            'before': [('dummy1', 'somefield')]}, metadata)
     
     def test_read_no_data(self):
@@ -289,7 +285,6 @@ class TestFormSchema(unittest.TestCase):
         IDummy.setTaggedValue(u"dexterity.form", { 'widgets': [('dummy', 'SomeWidget')], 
                                                    'omitted': [('dummy', 'true')],
                                                    'modes': [('dummy', 'hidden')],
-                                                   'fieldsets': [('dummy', 'Some fieldset')],
                                                    'before': [('dummy', 'somefield')]})
         
         handler = schema.FormSchema()
@@ -298,7 +293,6 @@ class TestFormSchema(unittest.TestCase):
         self.assertEquals("SomeWidget", field_node.get(ns("widget", self.namespace)))
         self.assertEquals("true", field_node.get(ns("omitted", self.namespace)))
         self.assertEquals("hidden", field_node.get(ns("mode", self.namespace)))
-        self.assertEquals("Some fieldset", field_node.get(ns("fieldset", self.namespace)))
         self.assertEquals("somefield", field_node.get(ns("before", self.namespace)))
     
     def test_write_partial(self):
@@ -318,7 +312,6 @@ class TestFormSchema(unittest.TestCase):
         self.assertEquals("SomeWidget", field_node.get(ns("widget", self.namespace)))
         self.assertEquals(None, field_node.get(ns("omitted", self.namespace)))
         self.assertEquals("display", field_node.get(ns("mode", self.namespace)))
-        self.assertEquals(None, field_node.get(ns("fieldset", self.namespace)))
         self.assertEquals(None, field_node.get(ns("before", self.namespace)))
 
     def test_write_no_data(self):
@@ -333,7 +326,6 @@ class TestFormSchema(unittest.TestCase):
         self.assertEquals(None, field_node.get(ns("widget", self.namespace)))
         self.assertEquals(None, field_node.get(ns("omitted", self.namespace)))
         self.assertEquals(None, field_node.get(ns("mode", self.namespace)))
-        self.assertEquals(None, field_node.get(ns("fieldset", self.namespace)))
         self.assertEquals(None, field_node.get(ns("before", self.namespace)))
         
 def test_suite():

@@ -26,10 +26,6 @@ Dexterity To-Do List
 
     Schema and FTI
     ~~~~~~~~~~~~~~
-    
-    [*] Push fieldset support down to plone.supermodel and use a <fieldset />
-        tag to group fields. Make it easier to order fieldsets and supply
-        metadata like description.
          
     [-] Factory and class grokker need to initialise field level security
         based on schema
@@ -52,6 +48,9 @@ Dexterity To-Do List
 
     [*] Properly test form widget construction code
     [*] Performance test the widget construction code
+
+    [ ] Somehow, we see a flashing 404 page in Kupu when it's first loaded
+        on an add form. Investigate why.
     
     Misc
     ~~~~

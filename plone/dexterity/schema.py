@@ -168,7 +168,6 @@ class FormSchema(object):
         widget = field_node.get(ns('widget', self.namespace))
         mode = field_node.get(ns('mode', self.namespace))
         omitted = field_node.get(ns('omitted', self.namespace))
-        fieldset = field_node.get(ns('fieldset', self.namespace))
         before = field_node.get(ns('before', self.namespace))
         
         settings = schema.queryTaggedValue(u'dexterity.form', {})
@@ -182,9 +181,6 @@ class FormSchema(object):
             updated = True
         if omitted:
             settings.setdefault('omitted', []).append((name, omitted))
-            updated = True
-        if fieldset:
-            settings.setdefault('fieldsets', []).append((name, fieldset))
             updated = True
         if before:
             settings.setdefault('before', []).append((name, before))
@@ -201,7 +197,6 @@ class FormSchema(object):
         widget = [v for n,v in settings.get('widgets', []) if n == name]
         mode = [v for n,v in settings.get('modes', []) if n == name]
         omitted = [v for n,v in settings.get('omitted', []) if n == name]
-        fieldset = [v for n,v in settings.get('fieldsets', []) if n == name]
         before = [v for n,v in settings.get('before', []) if n == name]
         
         if widget:
@@ -210,7 +205,5 @@ class FormSchema(object):
             field_node.set(ns('mode', self.namespace), mode[0])
         if omitted:
             field_node.set(ns('omitted', self.namespace), omitted[0])
-        if fieldset:
-            field_node.set(ns('fieldset', self.namespace), fieldset[0])
         if before:
             field_node.set(ns('before', self.namespace), before[0])
