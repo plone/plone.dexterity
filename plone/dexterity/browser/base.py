@@ -103,17 +103,11 @@ class DexterityExtensibleForm(ExtensibleForm):
     """Mixin class for Dexterity forms that support updatable fields
     """
     
-    def updateFields(self):
-    
-        self.fields = None
-        self.groups = []
-        
-        # Set up fields from the FTI
-        fti = getUtility(IDexterityFTI, name=self.portal_type)
-        
+    def updateFieldsFromSchema(self, fti):
         schema = fti.lookup_schema()
         process_fields(self, schema)
         
+    def updateFieldsFromBehaviors(self, fti):
         # Set up fields from behaviors
         for behavior_name in fti.behaviors:
             behavior_interface = resolve_dotted_name(behavior_name)
@@ -121,6 +115,14 @@ class DexterityExtensibleForm(ExtensibleForm):
                 behavior_schema = IFormFieldProvider(behavior_interface, None)
                 if behavior_schema is not None:
                     process_fields(self, behavior_schema, prefix=behavior_schema.__identifier__)
+    
+    def updateFields(self):
+        self.fields = None
+        self.groups = []
+        
+        fti = getUtility(IDexterityFTI, name=self.portal_type)
+        self.updateFieldsFromSchema(fti)
+        self.updateFieldsFromBehaviors(fti)
                 
         # Allow the regular adapters to update the fields
         super(DexterityExtensibleForm, self).updateFields()
