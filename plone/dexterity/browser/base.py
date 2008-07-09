@@ -15,8 +15,6 @@ from plone.z3cform.fieldsets.group import GroupFactory
 
 from plone.z3cform.fieldsets.utils import move
 
-
-
 def process_fields(form, schema, prefix=None):
     """Add the fields from the schema to the from, taking into account
     the hints in the dexterity.form tagged value.
