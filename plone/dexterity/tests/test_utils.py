@@ -20,12 +20,12 @@ class TestUtils(MockTestCase):
 
     def test_portal_type_to_schema_name_looks_up_portal_for_prefix(self):
         portal_mock = self.mocker.mock()
-        self.expect(portal_mock.getId()).result('portalid')
+        self.expect(portal_mock.getPhysicalPath()).result(('', 'foo', 'portalid'))
         self.mock_utility(portal_mock, ISiteRoot)
         
         self.replay()
         
-        self.assertEquals('portalid_0_type',
+        self.assertEquals('foo_4_portalid_0_type',
             utils.portal_type_to_schema_name('type'))
 
     def test_schema_name_to_portal_type(self):

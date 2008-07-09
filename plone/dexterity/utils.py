@@ -12,6 +12,7 @@ key = (
     (' ', '_1_'),
     ('.', '_2_'),
     ('-', '_3_'),
+    ('/', '_4_'),
     )
 
 def encode(s):
@@ -34,7 +35,7 @@ def portal_type_to_schema_name(portal_type, schema=u"", prefix=None):
     """Return a canonical interface name for a generated schema interface.
     """
     if prefix is None:
-        prefix = getUtility(ISiteRoot).getId()
+        prefix = '/'.join(getUtility(ISiteRoot).getPhysicalPath())[1:]
     
     return join(prefix, portal_type, schema)
         

@@ -73,7 +73,7 @@ class TestFTI(MockTestCase):
         fti = DexterityFTI(u"testtype")
         fti.schema = None # use dynamic schema
 
-        portal = self.create_dummy(getId=lambda:"site")
+        portal = self.create_dummy(getPhysicalPath=lambda:('', 'site'))
         self.mock_utility(portal, ISiteRoot)
 
         schema_name = utils.portal_type_to_schema_name(fti.getId())
@@ -520,7 +520,7 @@ class TestFTIEvents(MockTestCase):
         self.expect(fti.lookup_model()).result(model_dummy)
         container_dummy = self.create_dummy()
         
-        site_dummy = self.create_dummy(getId = lambda: "site")
+        site_dummy = self.create_dummy(getPhysicalPath = lambda: ('', 'siteid'))
         self.mock_utility(site_dummy, ISiteRoot)
         
         class IBlank(Interface):
@@ -553,7 +553,7 @@ class TestFTIEvents(MockTestCase):
         self.expect(fti.lookup_model()).result(model_dummy).count(0, None)
         container_dummy = self.create_dummy()
         
-        site_dummy = self.create_dummy(getId = lambda: "site")
+        site_dummy = self.create_dummy(getPhysicalPath = lambda: ('', 'siteid'))
         self.mock_utility(site_dummy, ISiteRoot)
         
         self.replay()
