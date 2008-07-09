@@ -96,6 +96,7 @@ def process_fields(form, schema, prefix=None):
         try:
             move(form, field_name, before=before)
         except KeyError:
+            # The 'before' field doesn't exist
             pass
 
 class DexterityExtensibleForm(ExtensibleForm):
