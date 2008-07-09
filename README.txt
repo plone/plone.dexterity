@@ -16,8 +16,8 @@ Dexterity wants to make some things really easy. These are:
    know programming.
    
  - As a business user, create a schema using visual or through-the-web tools,
-   and augment it with adapters, event handlers and other Python code written
-   on the filesystem by a Python programmer.
+   and augment it with adapters, event handlers, and other Python code
+   written on the filesystem by a Python programmer.
 
  - Create content types in filesystem code quickly and easily, without losing
    the ability to customise any aspect of the type and its operation later
