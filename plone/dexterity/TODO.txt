@@ -67,24 +67,16 @@ Dexterity To-Do List
     [ ] Consider support for subtypes (marker interfaces), e.g. to get custom
         view components declaratively.
         
-        - Will need a vocabulary of these for UI purposes
-        - This would only work on instantiation time so old instances would
-            need to be migrated.
-            
-        - Could change plone.behavior so that it relies on marker interfaces
-            instead of a custom adapter factory:
-            - behavior consists of marker interface, actual behavior interface
-                and adapter from former to latter
-            - behavior interface is marked with IBehaviorMarker for 
-                instrospection
-            - each behavior marker interface can be adapted to
-                IBehaviorInterface to get the real behavior interface
-        - Downside of this approach is again that we rely on persistent
-            markers.
-
-        - Could make this optional, so that behaviors still use a custom
-            adapter factory, but can specify a marker interface to be applied
-            to new types if required.
+        - Allow behaviors to register optional marker interfaces
+        - Use IObjectedCreatedEvent handler to apply to new instances
+         
+    [ ] Consider support for having one interface based on another
+    
+        - Use 'based-on' property on <schema /> tag (dotted name) in 
+            plone.supermodel, sets bases on interface
+        - Ensure bases can be synced by sync_schema
+        - Also support XInclude for simple shared XML snippets?
+        - In real interface, use multiple inheritance (no special support)
          
     [-] Factory and class grokker need to initialise field level security
         based on schema
@@ -104,6 +96,15 @@ Dexterity To-Do List
         
     Views
     ~~~~~
+    
+    [*] Re-evaluate how easy it is to customise the add + edit forms. 
+
+        - May want to move to a simple add view rather than one for IAdding.
+            This will require some overrides/changes to plone.app.contentmenu.
+        - It should be easy to subclass and override methods to update
+            widgets.
+        - It should be possible to use standard z3c.form fields and groups 
+            and have them extensible via ExtensibleForm.
 
     [*] Properly test form widget construction code
     [*] Performance test the widget construction code
