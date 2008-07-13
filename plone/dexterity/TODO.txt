@@ -1,6 +1,52 @@
 Dexterity To-Do List
 ====================
 
+ Immediate changes/upcoming refactoring
+ --------------------------------------
+
+    [ ] plone.dexterity: Make grokkers more like Grok
+    [ ] plone.dexterity: Make custom forms easier to write
+
+        - It should be easy to create add/edit form views by subclassing the
+            existing ones and overriding some methods or setting properties
+        - The plugging in of widgets from behaviors and the ordering/omission
+            logic should still work
+        - Should support Grok-like constructs where views in the same module
+            as a content class work on that class
+        - Be careful to make sure grokkers are not too magical - may want to
+            rip out the auto-creation of class variables to match schema
+            fields, for example
+        - Prefer to do form logic with forms not interface grokkers that
+            set tagged values, although for re-usable behavior schemata,
+            we'll probably still need the schema UI hints
+        - Grokkers should register the factory utility as a global utility
+        - View grokkers should register views as global components
+
+    [ ] plone.z3cform: Support simple add views (not registered for IAdding)
+    [ ] plone.dexterity: Make add view name an FTI property
+    
+        - This makes add views simpler
+        - Conventions should be standardised at the CMF level
+        - See hints from Yuppie on the CMF list about how to simplify the 
+            add() method
+
+    [ ] plone.behavior: Add support for behaviors that either are or
+            espouse marker interfaces to support "subtyping"
+            
+        - Prefer to keep the existing model for cases where we really just
+            want an adapter to avoid depending on persistent marker interface
+        - Should support markers via IObjectedCreatedEvent handler, e.g. to
+            support specific browser components
+
+    [ ] plone.supermodel: Support for interface bases
+    
+        - This supports a model of customisation whereby you extend another
+            interface and override/amend fields. Views and adapters registered
+            for the base interface will apply unless overridden.
+
+    [ ] plone.supermodel: Support for sequence and choice fields
+ 
+
  Areas that need ownership
  -------------------------
  
@@ -20,6 +66,9 @@ Dexterity To-Do List
         - need iterate to use plone.app.relations instead of AT references
         
     [ ] Transforms
+
+Detailed to-do items
+====================
 
  plone.supermodel
  ----------------
