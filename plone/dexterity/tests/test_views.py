@@ -108,10 +108,6 @@ class TestAddView(MockTestCase):
         self.expect(fti_mock.isConstructionAllowed(container_mock)).result(True)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
       
-        # Form
-        
-        form_mock = self.mocker.mock()
-      
         # Override base view's __call__ 
       
         # XXX: This should be doable with mocker
@@ -121,7 +117,7 @@ class TestAddView(MockTestCase):
           
         self.replay()
       
-        addview = DefaultAddView(context_mock, request_mock, u"testtype", form=form_mock)
+        addview = DefaultAddView(context_mock, request_mock, u"testtype")
         addview()
         
         # XXX: Clean up
@@ -148,13 +144,9 @@ class TestAddView(MockTestCase):
         self.expect(fti_mock.isConstructionAllowed(container_mock)).result(False) # -> Unauthorized
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
       
-        # Form
-        
-        form_mock = self.mocker.mock()
-        
         self.replay()
         
-        addview = DefaultAddView(context_mock, request_mock, u"testtype", form=form_mock)
+        addview = DefaultAddView(context_mock, request_mock, u"testtype")
         self.assertRaises(Unauthorized, addview)
        
     def test_label(self):
@@ -176,11 +168,9 @@ class TestAddView(MockTestCase):
       
         # Form
         
-        form_mock = self.mocker.mock()
-        
         self.replay()
         
-        addview = DefaultAddView(context_mock, request_mock, u"testtype", form=form_mock)
+        addview = DefaultAddView(context_mock, request_mock, u"testtype")
         label = addview.label
         self.assertEquals(u"Add ${name}", unicode(label))
         self.assertEquals(u"Test title", label.mapping['name'])

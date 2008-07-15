@@ -44,6 +44,8 @@ class DefaultAddForm(DexterityExtensibleForm, adding.AddForm):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         content = createObject(fti.factory)
         form.applyChanges(self, content, data)
+        for group in self.groups:
+            form.applyChanges(group, content, data)
         return content
         
     @button.buttonAndHandler(_('Save'), name='save')
@@ -70,17 +72,14 @@ class DefaultAddForm(DexterityExtensibleForm, adding.AddForm):
         self.actions["cancel"].addClass("standalone")
 
 class DefaultAddView(base.FormWrapper):
+    form = DefaultAddForm
     
-    def __init__(self, context, request, portal_type, form=None):
+    def __init__(self, context, request, portal_type):
         super(DefaultAddView, self).__init__(context, request)
         
         fti = getUtility(IDexterityFTI, name=portal_type)
         self.__name__ = fti.factory
-        
-        if form is None:
-            form = DefaultAddForm
-        
-        self.form = form
+
         self.portal_type = portal_type
         
         self.request['disable_border'] = True

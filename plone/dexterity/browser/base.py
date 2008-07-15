@@ -44,6 +44,13 @@ def process_fields(form, schema, prefix=None):
     moves = dict([(_fn(field_name), value)
                     for field_name, value in form_data.get('moves', [])])
     
+    already_processed = []
+    if form.fields is not None:
+        already_processed.extend(form.fields.keys())
+    for group in form.groups:
+        if group.fields is not None:
+            already_processed.extend(group.fields.keys())
+    
     fieldset_fields = set()
     for fieldset in fieldsets:
         for field_name in fieldset.fields:
@@ -80,7 +87,7 @@ def process_fields(form, schema, prefix=None):
     if form.fields is None:
         form.fields = new_fields
     else:
-        form.fields += new_fields
+        form.fields += new_fields.omit(*already_processed)
     
     # Set up fields for fieldsets
     
@@ -95,7 +102,7 @@ def process_fields(form, schema, prefix=None):
                                             description=fieldset.description,
                                             fields=new_fields))
         else:
-            groups[fieldset.__name__].fields += new_fields
+            groups[fieldset.__name__].fields += new_fields.omit(*already_processed)
     
     # Process moves
     for field_name, before in moves.items():
@@ -131,12 +138,14 @@ class DexterityExtensibleForm(ExtensibleForm):
         # set to a real set of fields
         if self.fields is _marker:
             self.fields = None
+        else:
+            self.fields = field.Fields(self.fields)
         
         # Copy groups to an instance variable and ensure that we have
         # the more mutable factories, rather than 'Group' subclasses
 
         self.groups = [GroupFactory(getattr(g, '__name__', g.label),
-                                    g.fields,
+                                    field.Fields(g.fields),
                                     g.label,
                                     getattr(g, 'description', None))
                         for g in self.groups]

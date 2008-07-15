@@ -1,7 +1,6 @@
 import os.path
 
-from zope.interface import Interface, implements
-from zope.interface.declarations import Implements
+from zope.interface import implements
 
 from zope.component.interfaces import IFactory
 from zope.component import getUtility, queryUtility
@@ -15,7 +14,7 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.app.container.interfaces import IAdding
 
 from plone.supermodel import load_string, load_file
-from plone.supermodel.model import Model, FILENAME_KEY
+from plone.supermodel.model import Model
 from plone.supermodel.utils import sync_schema
 
 from plone.dexterity.interfaces import IDexterityFTI
@@ -272,11 +271,16 @@ def register(fti):
     if factory_utility is None:
         site_manager.registerUtility(DexterityFactory(portal_type), IFactory, fti.factory)
     
-    addview_factory = site_manager.adapters.lookup((Implements(IAdding), Implements(IBrowserRequest)), IBrowserView, name=fti.factory)
-    if addview_factory is None:
-        addview_factory = site_manager.adapters.lookup((Implements(IAdding), Implements(IBrowserRequest)), Interface, name=fti.factory)
-        
-    if addview_factory is None:
+    have_addview = False
+    for sm in (site_manager,) + site_manager.__bases__:
+        addview_adapters = [a for a in sm.registeredAdapters() if 
+                                len(a.required) == 2 and 
+                                    a.required[0] == IAdding and a.name == fti.factory]
+        if len(addview_adapters) > 0:
+            have_addview = True
+            break
+
+    if not have_addview:
         site_manager.registerAdapter(factory=AddViewFactory(portal_type),
                                      provided=IBrowserView,
                                      required=(IAdding, IBrowserRequest),
