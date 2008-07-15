@@ -27,6 +27,8 @@ Dexterity To-Do List
     
         - This makes add views simpler
         - Conventions should be standardised at the CMF level
+        - Consider using a traverser, e.g. @@add/my.type returns a generic
+            add view for my.type
         - See hints from Yuppie on the CMF list about how to simplify the 
             add() method
 

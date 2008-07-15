@@ -17,6 +17,8 @@ from plone.z3cform.fieldsets.utils import move
 
 from plone.supermodel.model import FIELDSETS_KEY
 
+_marker = object()
+
 def process_fields(form, schema, prefix=None):
     """Add the fields from the schema to the from, taking into account
     the hints in the dexterity.form tagged value.
@@ -107,6 +109,9 @@ class DexterityExtensibleForm(ExtensibleForm):
     """Mixin class for Dexterity forms that support updatable fields
     """
     
+    fields = _marker
+    groups = []
+    
     def updateFieldsFromSchema(self, fti):
         schema = fti.lookup_schema()
         process_fields(self, schema)
@@ -121,8 +126,20 @@ class DexterityExtensibleForm(ExtensibleForm):
                     process_fields(self, behavior_schema, prefix=behavior_schema.__identifier__)
     
     def updateFields(self):
-        self.fields = None
-        self.groups = []
+        
+        # Keep an existing value if we've been subclassed and this has been
+        # set to a real set of fields
+        if self.fields is _marker:
+            self.fields = None
+        
+        # Copy groups to an instance variable and ensure that we have
+        # the more mutable factories, rather than 'Group' subclasses
+
+        self.groups = [GroupFactory(getattr(g, '__name__', g.label),
+                                    g.fields,
+                                    g.label,
+                                    getattr(g, 'description', None))
+                        for g in self.groups]
         
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         self.updateFieldsFromSchema(fti)
