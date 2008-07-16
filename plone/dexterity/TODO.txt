@@ -7,11 +7,12 @@ Dexterity To-Do List
     [ ] plone.dexterity: Make grokkers more like Grok
     [ ] plone.dexterity: Make custom forms easier to write
 
-        - See example.dexterity's FSPage type - we should make this shorter
+        - See example.dexterity's FSPage type (we should make this shorter)
         - Should support Grok-like constructs where views in the same module
-            as a content class work on that class
-        - Grokkers should register the factory utility as a global utility
-        - View grokkers should register views as global components
+            as a content class work on that class and are registered as
+            global views.
+        - Consider ways to make it easier to register custom add and edit
+            forms.
 
     [ ] plone.z3cform: Support simple add views (not registered for IAdding)
     [ ] plone.dexterity: Make add view name an FTI property

@@ -7,9 +7,17 @@ from zope import schema
 
 from zope.configuration.interfaces import IConfigurationContext
 
+from zope.component.interfaces import IFactory
+
+from plone.dexterity.browser.add import AddViewFactory
+
+from zope.publisher.interfaces.browser import IBrowserView
+from zope.publisher.interfaces.browser import IBrowserRequest
+from zope.app.container.interfaces import IAdding
+
 from grokcore.component.testing import grok, grok_component
 
-from plone.dexterity.directives.content import meta_type, add_permission
+from plone.dexterity.directives.content import meta_type, add_permission, portal_type
 from plone.dexterity.content import Item
 
 from plone.dexterity.directives import form
@@ -109,6 +117,48 @@ class TestContentDirectives(MockTestCase):
     def test_security_initialised(self):
         # TODO: Add tests here as part of security implementation
         pass
+        
+    def test_portal_type_registers_factory_and_addview(self):
+        
+        class Content(Item):
+            portal_type('my.type')
+        
+        provideUtility_mock = self.mocker.replace('zope.component.provideUtility')
+        self.expect(provideUtility_mock(self.match_provides(IFactory), IFactory, 'my.type'))
+    
+        provideAdapter_mock = self.mocker.replace('zope.component.provideAdapter')
+        self.expect(provideAdapter_mock(factory=self.match_type(AddViewFactory),
+                                        adapts=(IAdding, IBrowserRequest),
+                                        provides=IBrowserView,
+                                        name='my.type'))
+    
+        self.replay()
+        
+        grok_component('Content', Content)
+    
+    def test_portal_type_does_not_overwrite_factory_and_addview(self):
+        
+        class Content(Item):
+            portal_type('my.type')
+        
+        factory_dummy = self.create_dummy()
+        self.mock_utility(factory_dummy, IFactory, 'my.type')
+        
+        addview_dummy = self.create_dummy()
+        self.mock_adapter(addview_dummy, Interface, (IAdding, IBrowserRequest), 'my.type')
+        
+        provideUtility_mock = self.mocker.replace('zope.component.provideUtility')
+        self.expect(provideUtility_mock(mocker.ANY, IFactory, 'my.type')).count(0)
+    
+        provideAdapter_mock = self.mocker.replace('zope.component.provideAdapter')
+        self.expect(provideAdapter_mock(factory=mocker.ANY,
+                                        adapts=(IAdding, IBrowserRequest),
+                                        provides=mocker.ANY,
+                                        name='my.type')).count(0)
+    
+        self.replay()
+        
+        grok_component('Content', Content)
 
 class TestFormDirectives(MockTestCase):
 

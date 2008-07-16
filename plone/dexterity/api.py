@@ -13,7 +13,7 @@ from plone.dexterity.content import Item, Container
 
 # Directives for specifying a meta type and add permission if registering
 # custom classes
-from plone.dexterity.directives.content import add_permission, meta_type
+from plone.dexterity.directives.content import add_permission, meta_type, portal_type
 
 # Behavior interfaces can either be marked with or be adaptable to this
 # interface, in order to provide fields for the standard forms.
