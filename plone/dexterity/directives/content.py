@@ -1,5 +1,7 @@
 import martian
 
+from martian.error import GrokImportError
+
 from zope.interface import implementedBy
 from zope.schema import getFieldsInOrder
 
@@ -91,6 +93,10 @@ def register_content(class_, portal_type):
     # TODO: Complete this with the other security work
     
     if portal_type:
+        
+        class_portal_type = getattr(class_, 'portal_type', None)
+        if class_portal_type and class_portal_type != portal_type:
+            raise GrokImportError(u"Inconsistent portal_type for class %s" % class_)
     
         # 4. Register factory if not already registered
         factory = queryUtility(IFactory, name=portal_type)

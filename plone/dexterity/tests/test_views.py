@@ -32,9 +32,6 @@ class TestAddView(MockTestCase):
         # Context and request
         context_mock = self.mocker.mock()
         request_mock = self.mocker.mock()
-    
-        # Expect factory to disable editable border
-        request_mock['disable_border'] = True
         
         # Mock FTI to return factory
         
@@ -157,8 +154,6 @@ class TestAddView(MockTestCase):
         
         context_mock = self.mocker.mock()
         request_mock = self.mocker.mock()
-        
-        request_mock['disable_border'] = True
         
         # FTI
         

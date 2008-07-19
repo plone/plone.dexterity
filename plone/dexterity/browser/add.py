@@ -36,9 +36,11 @@ class AddViewFactory(Persistent):
         
 class DefaultAddForm(DexterityExtensibleForm, adding.AddForm):
     
-    def __init__(self, context, request, portal_type):
+    def __init__(self, context, request, portal_type=None):
         super(DefaultAddForm, self).__init__(context, request)
-        self.portal_type = portal_type
+        
+        if portal_type is not None:
+            self.portal_type = portal_type
     
     def create(self, data):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
@@ -74,17 +76,24 @@ class DefaultAddForm(DexterityExtensibleForm, adding.AddForm):
 class DefaultAddView(base.FormWrapper):
     form = DefaultAddForm
     
-    def __init__(self, context, request, portal_type):
+    def __init__(self, context, request, portal_type=None):
         super(DefaultAddView, self).__init__(context, request)
         
+        # We allow subclasses to sepcify a form where the portal_type is
+        # set on the form rather than passed in as an argument
+        if portal_type is None:
+            portal_type = getattr(self.form, 'portal_type', None)
+            
+        if portal_type is None:
+            raise ValueError("An add view must either be passed a portal_type, or have a form that specifies a portal_type") 
+
         fti = getUtility(IDexterityFTI, name=portal_type)
         self.__name__ = fti.factory
-
         self.portal_type = portal_type
-        
-        self.request['disable_border'] = True
     
     def __call__(self):
+        self.request['disable_border'] = True
+        
         context = aq_inner(self.context)
         container = aq_inner(context.context)
         

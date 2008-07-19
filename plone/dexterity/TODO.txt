@@ -11,8 +11,6 @@ Dexterity To-Do List
         - Should support Grok-like constructs where views in the same module
             as a content class work on that class and are registered as
             global views.
-        - Consider ways to make it easier to register custom add and edit
-            forms.
 
     [ ] plone.z3cform: Support simple add views (not registered for IAdding)
     [ ] plone.dexterity: Make add view name an FTI property
@@ -117,10 +115,10 @@ Detailed to-do items
         - Use 'based-on' property on <schema /> tag (dotted name) in 
             plone.supermodel, sets bases on interface
         - Ensure bases can be synced by sync_schema
+        - Ensure sync_schema stabilises order
         - Also support XInclude for simple shared XML snippets?
-        - In real interface, use multiple inheritance (no special support)
          
-    [-] Factory and class grokker need to initialise field level security
+    [ ] Factory and class grokker need to initialise field level security
         based on schema
         
         - There is an attempt at this in security.py, but it doesn't seem to
@@ -139,27 +137,17 @@ Detailed to-do items
     Views
     ~~~~~
     
-    [*] Re-evaluate how easy it is to customise the add + edit forms. 
+    [ ] Properly test form widget construction code
+    [ ] Performance test the widget construction code
 
-        - May want to move to a simple add view rather than one for IAdding.
-            This will require some overrides/changes to plone.app.contentmenu.
-        - It should be easy to subclass and override methods to update
-            widgets.
-        - It should be possible to use standard z3c.form fields and groups 
-            and have them extensible via ExtensibleForm.
-
-    [*] Properly test form widget construction code
-    [*] Performance test the widget construction code
-
-    [ ] Kupu fields in add forms don't seem to save text
-    [ ] Kupu attempts to load 'emptypage', but on add views it can't acquire
-        this so we get a flashing 404. The fix probably needs to go into
-        kupu or plone.z3cform.
+    [ ] Kupu fields try to acquire 'emptypage' from IAdding on add forms,
+        causing a 404. This is most easily fixed if we move away from IAdding
+        views towards simple views for add forms.
     
     Misc
     ~~~~
     
-    [-] Need to properly support i18n in model file
+    [ ] Need to properly support i18n in model file
     
     [ ] Provide support for various types of migration when FTIs change, e.g.
         swapping from one FTI to another or changing a model significantly.
