@@ -95,7 +95,9 @@ def register_content(class_, portal_type):
     if portal_type:
         
         class_portal_type = getattr(class_, 'portal_type', None)
-        if class_portal_type and class_portal_type != portal_type:
+        if not class_portal_type:
+            class_.portal_type = portal_type
+        elif class_portal_type and class_portal_type != portal_type:
             raise GrokImportError(u"Inconsistent portal_type for class %s" % class_)
     
         # 4. Register factory if not already registered

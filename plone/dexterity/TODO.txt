@@ -5,7 +5,7 @@ Dexterity To-Do List
  --------------------------------------
 
     [ ] plone.dexterity: Make grokkers more like Grok
-    [ ] plone.dexterity: Make custom forms easier to write
+    [ ] plone.dexterity: Make custom forms easier to write and register
 
         - See example.dexterity's FSPage type (we should make this shorter)
         - Should support Grok-like constructs where views in the same module
@@ -21,21 +21,13 @@ Dexterity To-Do List
         - See hints from Yuppie on the CMF list about how to simplify the 
             add() method
 
-    [ ] plone.behavior: Add support for behaviors that either are or
-            espouse marker interfaces to support "subtyping"
-            
-        - Prefer to keep the existing model for cases where we really just
-            want an adapter to avoid depending on persistent marker interface
-        - Should support markers via IObjectedCreatedEvent handler, e.g. to
-            support specific browser components
-
-    [ ] plone.supermodel: Support for interface bases
+    [*] plone.supermodel: Support for interface bases
     
         - This supports a model of customisation whereby you extend another
             interface and override/amend fields. Views and adapters registered
             for the base interface will apply unless overridden.
 
-    [ ] plone.supermodel: Support for sequence and choice fields
+    [*] plone.supermodel: Support for sequence and choice fields
  
 
  Areas that need ownership
@@ -64,7 +56,7 @@ Detailed to-do items
  plone.supermodel
  ----------------
  
-    [ ] We need field handlers/syntax for:
+    [*] We need field handlers/syntax for:
 
         - Choice fields with static values
         - Choice fields using vocabulary factories
@@ -104,13 +96,7 @@ Detailed to-do items
     Schema and FTI
     ~~~~~~~~~~~~~~
          
-    [ ] Consider support for subtypes (marker interfaces), e.g. to get custom
-        view components declaratively.
-        
-        - Allow behaviors to register optional marker interfaces
-        - Use IObjectedCreatedEvent handler to apply to new instances
-         
-    [ ] Consider support for having one interface based on another
+    [*] Consider support for having one interface based on another
     
         - Use 'based-on' property on <schema /> tag (dotted name) in 
             plone.supermodel, sets bases on interface
