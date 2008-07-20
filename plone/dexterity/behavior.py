@@ -1,6 +1,7 @@
 from zope.interface import implements
 from zope.component import adapts, getUtility
 
+from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
 
 from plone.dexterity.interfaces import IDexterityFTI
@@ -20,4 +21,5 @@ class DexterityBehaviorAssignable(object):
         return behavior_interface.__identifier__ in self.fti.behaviors
         
     def enumerate_behaviors(self):
-        return tuple(self.fti.behaviors)
+        for name in self.fti.behaviors:
+            yield getUtility(IBehavior, name=name)
