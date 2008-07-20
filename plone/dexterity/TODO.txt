@@ -33,13 +33,15 @@ Dexterity To-Do List
     [ ] Schema editor and Plone control panel
     
     [ ] Reference engine integration
-        - need field + widget
-        - may need to declare support for references
+        - need plone.app.relations field + widget
     
     [ ] Versioning and staging integration
         - need CMFEditions policy for version-on-save
-        - need CMFDiffTool support for IContentType
-        - need iterate to use plone.app.relations instead of AT references
+        - need CMFDiffTool support for IContentType and schema interfaces
+        - need plone.app.iterate to use plone.app.relations instead of 
+            AT references
+        - need plone.app.linkintegrity to use plone.app.relations instead of
+            AT references
         
     [ ] Transforms
 
@@ -51,7 +53,16 @@ Detailed to-do items
  
     [*] We need field handlers/syntax for:
 
-        - Min/max for IMinMax fields
+        - min, max for IMinMax fields (can be generalised)
+        - default on non-text fields (can be generalised)
+        - missing_value on non-text fields (can be generalised)
+        - value_type of collection fields (see below)
+        - key_type and value_type for IDict
+        - Datetime, Date, Timedelta fields (do not support IFromUnicode)
+        - Tuple, List, Set, Frozenset fields (see below)
+        
+        Support for choice and sequence fields will entail:
+        
         - Choice fields with static values
         - Choice fields using vocabulary factories
         - Dealing with the value_type of List, Tuple, Set, Frozenset fields
@@ -129,7 +140,7 @@ Detailed to-do items
  
     [ ] Better views for IDexterityItem and IDexterityContainer
     [ ] Provide optional standard Ploneish metadata fieldsets for add/edit 
-        forms (should be implemented as a behaviour)
+        forms (should be implemented as behaviours)
     [ ] Make content types support title-to-id (again, should be a behaviour)
     
     [ ] UI for managing types, importing, exporting etc.

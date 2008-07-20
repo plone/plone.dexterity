@@ -21,7 +21,7 @@ _marker = object()
 
 def process_fields(form, schema, prefix=None):
     """Add the fields from the schema to the from, taking into account
-    the hints in the dexterity.form tagged value.
+    the hints in the dexterity.form tagged value as well as fieldsets.
     """
     
     def _fn(field_name):
