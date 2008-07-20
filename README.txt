@@ -64,6 +64,12 @@ summarised as follows:
     or Python developers, and be they new or experienced - and cater to them
     explicitly with obvious, well-documented, natural interaction patterns.
 
+ Real code over generated code
+ 
+    Generated code is difficult to understand and difficult to debug when it
+    doesn't work as expected. There is rarely, if ever, any reason to scribble
+    methods or 'exec' strings of Python code.
+
  Zope 3 over Zope 2
 
     Although Dexterity does not pretend to work with non-CMF systems, as
@@ -137,22 +143,22 @@ makes up a "content type" in the Dexterity system.
     "Container" classes.
     
     Dexterity's content factory will initialise an object of one of these
-    classes with the fields in the type's unnamed schema, and will ensure
+    classes with the fields in the type's content schema, and will ensure
     that objects provide the relevant interfaces, including the schema
-    interface.
+    interface itself.
     
     The preferred way to add behaviour and logic to Dexterity content objects
     is via adapters. In this case, you will probably want a filesystem
-    version of the schema interface (this can still be loaded from XML, but
-    it will be a real interface with a real module path) that you can
-    register components against.
+    version of the schema interface (this can still be loaded from XML if you
+    wish, but it will have an interface with a real module path) that you
+    can register components against.
 
  The factory
  
     Dexterity content is constructed using a standard Zope 3 IFactory
-    named utility.
+    named utility. By convention the factory utility has the same name as the
+    portal_type of the content type.
     
-    By convention has the same name as the portal_type of the content type.
     When a Dexterity FTI is created, an appropriate factory will be registered
     as a local utility unless one with that name already exists.
     
@@ -204,8 +210,29 @@ makes up a "content type" in the Dexterity system.
  
  Behaviours
  
-    TODO: Describe this when the UI side is formalised and this is better
-          tested.
+    Behaviors are a way write make re-usable bits of functionality that can
+    be toggled on or off on a per-type basis. Examples may include common
+    metadata, or common functionality such as locking, tagging or ratings.
+    
+    Behaviors are implemented using the plone.behavior package. See its
+    documentation for more details about how to write your own behaviors.
+    
+    In Dexterity, behaviors can "inject" fields into the standard add and edit
+    forms, and may provide marker interfaces for newly created objects. See
+    the example.dexterity package for an example of a behavior that provides
+    form fields.
+    
+    In use, a behavior is essentially just an adapter that only appears to be
+    registered if the behavior is enabled in the FTI of the object being
+    adapted. Thus, if you have a behavior described by my.package.IMyBehavior,
+    you'll typically interact with this behavior by doing:
+    
+        my_behavior = IMyBehavior(context, None)
+        if my_behavior is not None:
+            ...
+    
+    The enabled behaviors for a given type are kept in the FTI, as a
+    list of dotted interface names.
 
 The Dexterity Ecosystem
 ------------------------
@@ -272,5 +299,6 @@ The most important packages are:
 Usage examples
 --------------
 
-    TODO: Describe examples from example.dexterity package when these are
-          finalised
+Take a look at the example.dexterity package, which can be found in the 
+Plone Collective (http://dev.plone.org/collective), for examples of various
+ways to use Dexterity.
