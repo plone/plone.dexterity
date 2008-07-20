@@ -84,7 +84,7 @@ class SchemaModuleFactory(object):
                 raise
             
             sync_schema(model.schemata[schema_name], schema)
-        
+
             # Save this schema in the module - this factory will not be
             # called again for this name
             

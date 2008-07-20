@@ -21,14 +21,7 @@ Dexterity To-Do List
         - See hints from Yuppie on the CMF list about how to simplify the 
             add() method
 
-    [*] plone.supermodel: Support for interface bases
-    
-        - This supports a model of customisation whereby you extend another
-            interface and override/amend fields. Views and adapters registered
-            for the base interface will apply unless overridden.
-
-    [*] plone.supermodel: Support for sequence and choice fields
- 
+    [*] plone.supermodel: Support for sequence and choice fields 
 
  Areas that need ownership
  -------------------------
@@ -58,6 +51,7 @@ Detailed to-do items
  
     [*] We need field handlers/syntax for:
 
+        - Min/max for IMinMax fields
         - Choice fields with static values
         - Choice fields using vocabulary factories
         - Dealing with the value_type of List, Tuple, Set, Frozenset fields
@@ -95,14 +89,6 @@ Detailed to-do items
 
     Schema and FTI
     ~~~~~~~~~~~~~~
-         
-    [*] Consider support for having one interface based on another
-    
-        - Use 'based-on' property on <schema /> tag (dotted name) in 
-            plone.supermodel, sets bases on interface
-        - Ensure bases can be synced by sync_schema
-        - Ensure sync_schema stabilises order
-        - Also support XInclude for simple shared XML snippets?
          
     [ ] Factory and class grokker need to initialise field level security
         based on schema
