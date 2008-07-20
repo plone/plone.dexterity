@@ -1,7 +1,7 @@
 from zope.component import getUtility
-from Products.CMFCore.interfaces import ISiteRoot
+from zope.dottedname.resolve import resolve
 
-from Products.GenericSetup.utils import _resolveDottedName
+from Products.CMFCore.interfaces import ISiteRoot
 
 _dotted_cache = {}
 
@@ -47,7 +47,7 @@ def schema_name_to_portal_type(schema_name):
 def split_schema_name(schema_name):
     """Return a tuple prefix, portal_type, schema_name
     """
-    items = split(schema_name) 
+    items = split(schema_name)
     if len(items) == 2:
         return items[0], items[1], u""
     elif len(items) == 3:
@@ -60,5 +60,5 @@ def resolve_dotted_name(dotted_name):
     """
     global _dotted_cache
     if dotted_name not in _dotted_cache:
-        _dotted_cache[dotted_name] = _resolveDottedName(dotted_name)
+        _dotted_cache[dotted_name] = resolve(dotted_name)
     return _dotted_cache[dotted_name]
