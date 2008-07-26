@@ -2,7 +2,7 @@ from zope.component import getUtility
 
 from z3c.form import form, button
 
-from plone.z3cform import base
+from plone.z3cform import layout
 
 from plone.dexterity.interfaces import IDexterityFTI
 
@@ -38,7 +38,7 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
         self.actions["save"].addClass("context")
         self.actions["cancel"].addClass("standalone")
 
-class DefaultEditView(base.FormWrapper):
+class DefaultEditView(layout.FormWrapper):
     form = DefaultEditForm
     
     @property

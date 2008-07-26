@@ -8,7 +8,7 @@ from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
 
 from z3c.form import form, button, adding
-from plone.z3cform import base
+from plone.z3cform import layout
 
 from plone.dexterity.interfaces import IDexterityFTI
 
@@ -73,7 +73,7 @@ class DefaultAddForm(DexterityExtensibleForm, adding.AddForm):
         self.actions["save"].addClass("context")
         self.actions["cancel"].addClass("standalone")
 
-class DefaultAddView(base.FormWrapper):
+class DefaultAddView(layout.FormWrapper):
     form = DefaultAddForm
     
     def __init__(self, context, request, portal_type=None):
