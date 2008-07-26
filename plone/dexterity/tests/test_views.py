@@ -108,9 +108,9 @@ class TestAddView(MockTestCase):
         # Override base view's __call__ 
       
         # XXX: This should be doable with mocker
-        import plone.z3cform.base
-        old_call = plone.z3cform.base.FormWrapper.__call__
-        plone.z3cform.base.FormWrapper.__call__ = lambda self: ''
+        import plone.z3cform.layout
+        old_call = plone.z3cform.layout.FormWrapper.__call__
+        plone.z3cform.layout.FormWrapper.__call__ = lambda self: ''
           
         self.replay()
       
@@ -118,7 +118,7 @@ class TestAddView(MockTestCase):
         addview()
         
         # XXX: Clean up
-        plone.z3cform.base.FormWrapper.__call__ = old_call
+        plone.z3cform.layout.FormWrapper.__call__ = old_call
         
     def test_call_raises_unauthorized_if_not_allowed(self):
         
