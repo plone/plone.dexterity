@@ -37,9 +37,6 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
         super(DefaultEditForm, self).updateActions()
         self.actions["save"].addClass("context")
         self.actions["cancel"].addClass("standalone")
-
-class DefaultEditView(layout.FormWrapper):
-    form = DefaultEditForm
     
     @property
     def label(self):
@@ -47,3 +44,5 @@ class DefaultEditView(layout.FormWrapper):
         fti = getUtility(IDexterityFTI, name=portal_type)
         type_name = fti.title
         return _(u"Edit ${name}", mapping={'name': type_name})
+        
+DefaultEditView = layout.wrap_form(DefaultEditForm)
