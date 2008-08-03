@@ -31,7 +31,8 @@ setup(name='plone.dexterity',
           'plone.supermodel',
           'plone.alterego',
           'plone.behavior',
-          'grokcore.component',
+
+          'five.grok',
           
           'zope.interface',
           'zope.component',
