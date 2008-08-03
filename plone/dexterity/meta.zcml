@@ -3,10 +3,15 @@
     xmlns:grok="http://namespaces.zope.org/grok"
     i18n_domain="plone.dexterity">
 
-    <include package="plone.behavior" />
-
-    <!-- Load ZCML from Grok and grok our grokkers -->
-    <include package="grokcore.component" file="meta.zcml" />
+    <include package="plone.behavior" file="meta.zcml" />
+    
+    <!-- Depend on five.grok - includes grokcore.component & friends -->
+    <include package="five.grok" file="meta.zcml" />
+    
+    <!-- Depend on plone.supermodel's grokkers -->
+    <include package="plone.supermodel" file="meta.zcml" />
+    
+    <!-- Register our own grokkers -->
     <grok:grok package=".directives" />
-
+    
 </configure>

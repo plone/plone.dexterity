@@ -4,24 +4,22 @@ Dexterity To-Do List
  Immediate changes/upcoming refactoring
  --------------------------------------
 
-    [ ] plone.dexterity: Make grokkers more like Grok
-    [ ] plone.dexterity: Make custom forms easier to write and register
-
-        - See example.dexterity's FSPage type (we should make this shorter)
-        - Should support Grok-like constructs where views in the same module
-            as a content class work on that class and are registered as
-            global views.
-
-    [ ] plone.z3cform: Support simple add views (not registered for IAdding)
-    [ ] plone.dexterity: Make add view name an FTI property
+    [ ] plone.z3cform: Support grokkers for page, add and edit forms
     
-        - Conventions should be standardised at CMF level
-        - Consider using a traverser, e.g. ../@@add/my.type returns a generic
-            add view for my.type
+        - Model on existing Grok formlib support
+        - Remove need for explicit wrappers
+
+    [*] plone.z3cform: Support simple add views (not registered for IAdding)
+    [*] plone.dexterity: Make add view name an FTI property
+    
+        - Follow CMF trunk conventions by making FTI expose the add view
+            as an action
+        - Use a traverser to find the view, e.g. ../@@add/my.type returns
+            the add view for my.type
         - See hints from Yuppie on the CMF list about how to simplify the 
             add() method
 
-    [*] plone.supermodel: Support for sequence and choice fields 
+    [ ] plone.supermodel: Support for sequence and choice fields 
 
  Areas that need ownership
  -------------------------
@@ -123,7 +121,7 @@ Detailed to-do items
     [ ] Properly test form widget construction code
     [ ] Performance test the widget construction code
 
-    [ ] Kupu fields try to acquire 'emptypage' from IAdding on add forms,
+    [*] Kupu fields try to acquire 'emptypage' from IAdding on add forms,
         causing a 404. This is most easily fixed if we move away from IAdding
         views towards simple views for add forms.
     

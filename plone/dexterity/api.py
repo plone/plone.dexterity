@@ -18,3 +18,7 @@ from plone.dexterity.directives.content import add_permission, meta_type, portal
 # Behavior interfaces can either be marked with or be adaptable to this
 # interface, in order to provide fields for the standard forms.
 from plone.dexterity.interfaces import IFormFieldProvider
+
+# Base classes for forms
+from plone.dexterity.browser.add import DefaultAddForm
+from plone.dexterity.browser.edit import DefaultEditForm

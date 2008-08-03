@@ -3,6 +3,8 @@
     xmlns:five="http://namespaces.zope.org/five"
     i18n_domain="plone.dexterity">
 
+    <include package="five.grok" />
+
     <include package="plone.behavior" />
     <include package="plone.folder" />
     <include package="plone.supermodel" />
