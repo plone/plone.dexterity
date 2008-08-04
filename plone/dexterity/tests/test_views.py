@@ -180,10 +180,8 @@ class TestEditView(MockTestCase):
         
         # Context and request
         
-        context_mock = self.mocker.mock()
-        request_mock = self.mocker.mock()
-        
-        self.expect(context_mock.portal_type).result(u"testtype")
+        context_mock = self.create_dummy(portal_type=u'testtype')
+        request_mock = self.create_dummy()
         
         # FTI
         
@@ -195,7 +193,7 @@ class TestEditView(MockTestCase):
         
         self.replay()
         
-        editview = DefaultEditView(context_mock, request_mock)
+        editview = DefaultEditForm(context_mock, request_mock)
         label = editview.label
         self.assertEquals(u"Edit ${name}", unicode(label))
         self.assertEquals(u"Test title", label.mapping['name'])
