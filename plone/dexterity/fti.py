@@ -215,7 +215,9 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         if colons == 1 and self.model_file[1:3] != ':\\':
             package, filename = self.model_file.split(':')
             mod = utils.resolve_dotted_name(package)
-            model_file = "%s/%s" % (os.path.split(mod.__file__)[0], filename,)
+             # let / work as path separator on all platforms
+            filename = filename.replace('/', os.path.sep)
+            model_file = os.path.join(os.path.split(mod.__file__)[0], filename)
         else:
             if not os.path.isabs(model_file):
                 raise ValueError(u"Model file name %s is not an absolute path and does not contain a package name in %s" % (model_file, self.getId(),))
