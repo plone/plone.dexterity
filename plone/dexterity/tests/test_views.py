@@ -33,6 +33,8 @@ class TestAddView(MockTestCase):
         context_mock = self.mocker.mock()
         request_mock = self.mocker.mock()
         
+        self.expect(context_mock.aq_inner).result(context_mock)
+        
         # Mock FTI to return factory
         
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
@@ -95,6 +97,7 @@ class TestAddView(MockTestCase):
         context_mock = self.mocker.mock()
         request_mock = self.mocker.mock()
         
+        self.expect(context_mock.aq_inner).result(context_mock)
         self.expect(context_mock.context).result(container_mock)
         
         request_mock['disable_border'] = True
@@ -131,6 +134,7 @@ class TestAddView(MockTestCase):
         context_mock = self.mocker.mock()
         request_mock = self.mocker.mock()
         
+        self.expect(context_mock.aq_inner).result(context_mock)
         self.expect(context_mock.context).result(container_mock)
         
         request_mock['disable_border'] = True
@@ -154,6 +158,8 @@ class TestAddView(MockTestCase):
         
         context_mock = self.mocker.mock()
         request_mock = self.mocker.mock()
+        
+        self.expect(context_mock.aq_inner).result(context_mock)
         
         # FTI
         
