@@ -20,5 +20,5 @@ from plone.dexterity.directives.content import add_permission, meta_type, portal
 from plone.dexterity.interfaces import IFormFieldProvider
 
 # Base classes for forms
-from plone.dexterity.browser.add import DefaultAddForm
-from plone.dexterity.browser.edit import DefaultEditForm
+from plone.dexterity.browser.add import DefaultAddForm as AddForm
+from plone.dexterity.browser.edit import DefaultEditForm as EditForm
