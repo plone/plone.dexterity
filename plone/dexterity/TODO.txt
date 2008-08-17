@@ -4,31 +4,22 @@ Dexterity To-Do List
  Immediate changes/upcoming refactoring
  --------------------------------------
 
-    [ ] plone.z3cform: Support grokkers for page, add and edit forms
-    
-        - Model on existing Grok formlib support
-        - Remove need for explicit wrappers
-
-    [*] plone.z3cform: Support simple add views (not registered for IAdding)
-    [*] plone.dexterity: Make add view name an FTI property
-    
-        - Follow CMF trunk conventions by making FTI expose the add view
-            as an action
-        - Use a traverser to find the view, e.g. ../@@add/my.type returns
-            the add view for my.type
-        - See hints from Yuppie on the CMF list about how to simplify the 
-            add() method
+    [ ] plone.z3cform: delegate layout lookup to an adapter
+        - plone.app.z3cform should provide a Ploneish template
+        - avoid rendering of <h3 /> for form header
 
     [ ] plone.supermodel: Support for sequence and choice fields 
 
  Areas that need ownership
- -------------------------
- 
+ ------------------------- 
+    
+    [ ] i18n support in schema (hannosch?)
+
+    [ ] Transforms (hannosch?)
+
+    [ ] Schema editor and Plone control panel (davisagli?)
+
     [ ] Field-level security
-    
-    [ ] i18n support in schema
-    
-    [ ] Schema editor and Plone control panel
     
     [ ] Reference engine integration
         - need plone.app.relations field + widget
@@ -40,8 +31,6 @@ Dexterity To-Do List
             AT references
         - need plone.app.linkintegrity to use plone.app.relations instead of
             AT references
-        
-    [ ] Transforms
 
 Detailed to-do items
 ====================
@@ -121,10 +110,6 @@ Detailed to-do items
     [ ] Properly test form widget construction code
     [ ] Performance test the widget construction code
 
-    [*] Kupu fields try to acquire 'emptypage' from IAdding on add forms,
-        causing a 404. This is most easily fixed if we move away from IAdding
-        views towards simple views for add forms.
-    
     Misc
     ~~~~
     

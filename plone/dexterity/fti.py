@@ -9,9 +9,6 @@ from zope.lifecycleevent import modified
 
 from zope.app.component.hooks import getSiteManager
 
-from zope.publisher.interfaces.browser import IBrowserView
-from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.app.container.interfaces import IAdding
 
 from plone.supermodel import load_string, load_file
 from plone.supermodel.model import Model
@@ -21,7 +18,6 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity import utils
 
 from plone.dexterity.factory import DexterityFactory
-from plone.dexterity.browser.add import AddViewFactory
 
 from AccessControl import getSecurityManager
 from Products.CMFCore.interfaces import ISiteRoot
@@ -29,11 +25,75 @@ from Products.CMFDynamicViewFTI import fti as base
 
 import plone.dexterity.schema
 
-class DexterityFTI(base.DynamicViewTypeInformation):
+from Products.CMFCore.interfaces import IAction
+from Products.CMFCore.Expression import Expression
+
+class AddViewActionCompat(object):
+    """Mixin class for forward compatibility with CMF trunk, where add views
+    are kept as actions in the FTI
+    
+    NOTE: We likely need to remove this when we move to CMF 2.2
+    """
+    
+    implements(IAction)
+    
+    add_view_expr = ''
+    
+    #
+    #   'IAction' interface methods
+    #
+
+    def getInfoData(self):
+        """ Get the data needed to create an ActionInfo.
+        """
+        lazy_keys = ['available', 'allowed']
+        lazy_map = {}
+
+        lazy_map['id'] = self.getId()
+        lazy_map['category'] = 'folder/add'
+        lazy_map['title'] = self.Title()
+        lazy_map['description'] = self.Description()
+        if self.add_view_expr:
+            lazy_map['url'] = self.add_view_expr_object
+            lazy_keys.append('url')
+        else:
+            lazy_map['url'] = ''
+        if self.content_icon:
+            lazy_map['icon'] = Expression('string:${portal_url}/%s'
+                                          % self.content_icon)
+            lazy_keys.append('icon')
+        else:
+            lazy_map['icon'] = ''
+        lazy_map['visible'] = True
+        lazy_map['available'] = self._checkAvailable
+        lazy_map['allowed'] = self._checkAllowed
+
+        return (lazy_map, lazy_keys)
+
+    def _setPropValue(self, id, value):
+        self._wrapperCheck(value)
+        if isinstance(value, list):
+            value = tuple(value)
+        setattr(self, id, value)
+        if value and id.endswith('_expr'):
+            setattr(self, '%s_object' % id, Expression(value))
+
+    def _checkAvailable(self, ec):
+        """ Check if the action is available in the current context.
+        """
+        return ec.contexts['folder'].getTypeInfo().allowType(self.getId())
+
+    def _checkAllowed(self, ec):
+        """ Check if the action is allowed in the current context.
+        """
+        return self.isConstructionAllowed(ec.contexts['folder'])
+
+class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     """A Dexterity FTI
     """
     
     implements(IDexterityFTI)
+
     meta_type = "Dexterity FTI"
     
     _properties = base.DynamicViewTypeInformation._properties + (
@@ -43,6 +103,14 @@ class DexterityFTI(base.DynamicViewTypeInformation):
           'mode': 'w',
           'label': 'Add permission',
           'description': 'Permission needed to be able to add content of this type'
+        },
+        {'id': 'add_view_name',
+         'type': 'string', 
+         'mode': 'w',
+         'label': 'Name of the add form view',
+         'description': 'Used to construct the URL to the add form. ' +
+                        'Defaults to "@@add-<typename>" if not set. ' +
+                        'There is a fallback default add view as well.'
         },
         { 'id': 'klass', 
           'type': 'string',
@@ -96,6 +164,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
                         'permissions': ('Modify portal content',)},
                         ]
     
+    add_view_name = ''
     immediate_view = 'edit'
     default_view = 'view'
     view_methods = ('view',)
@@ -134,7 +203,37 @@ class DexterityFTI(base.DynamicViewTypeInformation):
                                permission=action.get( 'permissions', ()),
                                category=action.get('category', 'object'),
                                visible=action.get('visible', True))
-    
+        
+        # CMF (2.2+, but we've backported it) the property add_view_expr is
+        # used to construct an action in the 'folder/add' category. The
+        # portal_types tool loops over all FTIs and lets them provide such
+        # actions.
+        # 
+        # For Dexterity, we use a standard pattern where an add view is
+        # registered, e.g. 'add-my.type'. The action URL for an FTI with id
+        # 'my.type' is always
+        # 
+        #   string:${folder_url}/@@add-dexterity-content/my.type
+        # 
+        # The @@add-dexterity-content view is a publish traverse view that
+        # looks up the FTI with name my.type to locate the type's add view.
+        # 
+        # We store the type's add view in a property called 'add_view_name'. 
+        # By default, this is empty. In this case, the traverser will attempt
+        # to look up a view called @@add-my.type, falling back on a default
+        # view (@@dexterity-default-addview) that introspects the FTI if a 
+        # specific view is not registered.
+        # 
+        # The point if this whole dance is that it is possible to customise a
+        # type and re-use its add view. Add views are registered for
+        # IFolderish, and should have a 'form' attribute (a form class).
+        # The traverser will set addview._form.portal_type to be the
+        # traversed-to type name. This the add form is aware of what type to
+        # add without this having to be hardcoded.
+        
+        if not self.add_view_expr:
+            self._setPropValue('add_view_expr', "string:${folder_url}/@@add-dexterity-content/%s" % self.getId())
+
     @property
     def factory(self):
         """Tie the factory to the portal_type name - one less thing to have to set
@@ -227,7 +326,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         
         return model_file
 
-def _fix_properties(class_, ignored=['product', 'content_meta_type', 'factory']):
+def _fix_properties(class_, ignored=['product', 'content_meta_type', 'factory', 'add_view_expr']):
     """Remove properties with the given ids, and ensure that later properties
     override earlier ones with the same id
     """
@@ -272,22 +371,7 @@ def register(fti):
     factory_utility = queryUtility(IFactory, name=fti.factory)
     if factory_utility is None:
         site_manager.registerUtility(DexterityFactory(portal_type), IFactory, fti.factory)
-    
-    have_addview = False
-    for sm in (site_manager,) + site_manager.__bases__:
-        addview_adapters = [a for a in sm.registeredAdapters() if 
-                                len(a.required) == 2 and 
-                                    a.required[0] == IAdding and a.name == fti.factory]
-        if len(addview_adapters) > 0:
-            have_addview = True
-            break
 
-    if not have_addview:
-        site_manager.registerAdapter(factory=AddViewFactory(portal_type),
-                                     provided=IBrowserView,
-                                     required=(IAdding, IBrowserRequest),
-                                     name=fti.factory,)
-        
 def unregister(fti):
     """Helper method to:
     
@@ -305,7 +389,6 @@ def unregister(fti):
     
     site_manager.unregisterUtility(provided=IDexterityFTI, name=portal_type)
     site_manager.unregisterUtility(provided=IFactory, name=fti.factory)
-    site_manager.unregisterAdapter(provided=IBrowserView, required=(IAdding, IBrowserRequest), name=fti.factory)
         
 def fti_added(object, event):
     """When the FTI is created, install local components
@@ -337,6 +420,9 @@ def fti_renamed(object, event):
     
     unregister(event.object)
     register(event.object)
+
+    # Ensure that the add view URL is in sync
+    event.object._setPropValue('add_view_expr', "string:${folder_url}/@@add-dexterity-content/%s" % event.newName)
     
     # TODO: We will either need to keep a trace of the old FTI, or 
     # we'll need to migrate all objects using this FTI, because instances 

@@ -3,6 +3,7 @@
     xmlns:grok="http://namespaces.zope.org/grok"
     i18n_domain="plone.dexterity">
 
+    <!-- Include ZCML directive from plone.behavior -->
     <include package="plone.behavior" file="meta.zcml" />
     
     <!-- Depend on five.grok - includes grokcore.component & friends -->

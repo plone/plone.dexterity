@@ -5,17 +5,11 @@ from martian.error import GrokImportError
 from zope.interface import implementedBy
 from zope.schema import getFieldsInOrder
 
-from zope.component import getGlobalSiteManager, queryUtility
-from zope.component import provideUtility, provideAdapter
+from zope.component import queryUtility
+from zope.component import provideUtility
 
 from zope.component.interfaces import IFactory
 from zope.component.factory import Factory
-
-from plone.dexterity.browser.add import AddViewFactory
-
-from zope.publisher.interfaces.browser import IBrowserView
-from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.app.container.interfaces import IAdding
 
 from plone.supermodel.directives import Schema
 from plone.dexterity.content import DexterityContent
@@ -93,6 +87,8 @@ def register_content(class_, portal_type):
     # TODO: Complete this with the other security work
     
     if portal_type:
+
+        # 4. Set portal type if not set
         
         class_portal_type = getattr(class_, 'portal_type', None)
         if not class_portal_type:
@@ -100,19 +96,9 @@ def register_content(class_, portal_type):
         elif class_portal_type and class_portal_type != portal_type:
             raise GrokImportError(u"Inconsistent portal_type for class %s" % class_)
     
-        # 4. Register factory if not already registered
+        # 5. Register factory if not already registered
         factory = queryUtility(IFactory, name=portal_type)
         if factory is None:
             provideUtility(Factory(class_), IFactory, portal_type)
     
-        # 5. Register add view if not already registered
-        sm = getGlobalSiteManager()
-        addview_adapters = [a for a in sm.registeredAdapters() if 
-                                len(a.required) == 2 and a.required[0] == IAdding and a.name == portal_type]
-        if len(addview_adapters) == 0:
-            provideAdapter(factory=AddViewFactory(portal_type),
-                           adapts=(IAdding, IBrowserRequest,),
-                           provides=IBrowserView,
-                           name=portal_type)
-
 __all__ = ('portal_type', 'meta_type', 'add_permission',)

@@ -12,6 +12,20 @@
         permission="zope2.View"
         />
 
+    <!-- Standard add view traverser - see add.py for details-->
+    <browser:page
+        for="Products.CMFCore.interfaces.IFolderish"
+        name="add-dexterity-content"
+        class=".add.AddTraverser"
+        permission="cmf.AddPortalContent"
+        />
+    <browser:page
+        for="Products.CMFCore.interfaces.IFolderish"
+        name="dexterity-default-addview"
+        class=".add.DefaultAddView"
+        permission="cmf.AddPortalContent"
+        />
+
     <!-- Standard edit view -->
     <browser:page
         for="..interfaces.IDexterityContent"

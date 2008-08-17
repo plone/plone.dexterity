@@ -5,7 +5,7 @@ from plone.mocktestcase import MockTestCase
 import os.path
 
 from zope.interface import Interface
-from zope.component import queryUtility, queryMultiAdapter
+from zope.component import queryUtility
 
 import zope.schema
 
@@ -20,7 +20,6 @@ from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
 
 from zope.app.component.hooks import setSite, setHooks
-from zope.app.container.interfaces import IAdding
 
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.lifecycleevent import ObjectModifiedEvent
@@ -36,12 +35,8 @@ from plone.dexterity.fti import fti_added, fti_removed, fti_renamed, fti_modifie
 
 from plone.dexterity.factory import DexterityFactory
 
-from plone.dexterity.browser.add import AddViewFactory
-
 from plone.dexterity import utils
 from plone.dexterity.tests.schemata import ITestSchema
-from plone.dexterity.tests.schemata import ITaggedValueSchema
-from plone.dexterity.tests.schemata import IDerivedFromTaggedValueSchema
 
 from plone.supermodel.model import Model
 
@@ -254,6 +249,10 @@ class TestFTI(MockTestCase):
         container_dummy = self.create_dummy()
         self.assertEquals(False, fti.isConstructionAllowed(container_dummy))
     
+    def test_add_view_url_set_on_creation(self):
+        fti = DexterityFTI(u"testtype")
+        self.assertEquals('string:${folder_url}/@@add-dexterity-content/testtype', fti.add_view_expr)
+    
 class TestFTIEvents(MockTestCase):
 
     # These tests are a bit verbose, but the basic premise is pretty simple.
@@ -279,12 +278,7 @@ class TestFTIEvents(MockTestCase):
         self.expect(site_manager_mock.registerUtility(
                     mocker.MATCH(lambda x: isinstance(x, DexterityFactory) and x.portal_type == portal_type), 
                     IFactory, portal_type)).passthrough()
-        self.expect(site_manager_mock.registerAdapter(
-                    factory=mocker.MATCH(lambda x: isinstance(x, AddViewFactory) and x.portal_type == portal_type),
-                    provided=IBrowserView,
-                    required=(IAdding, IBrowserRequest),
-                    name=portal_type,)).passthrough()
-        
+
         self.replay()
         
         fti_added(fti, ObjectAddedEvent(fti, container_dummy, fti.getId()))
@@ -295,13 +289,11 @@ class TestFTIEvents(MockTestCase):
         
         self.assertNotEquals(None, queryUtility(IDexterityFTI, name=portal_type))
         self.assertNotEquals(None, queryUtility(IFactory, name=portal_type))
-        self.assertNotEquals(None, site_manager_mock.adapters.lookup((Implements(IAdding), Implements(IBrowserRequest)), IBrowserView, name=portal_type))
     
     def test_components_not_registered_on_add_if_exist(self):
         portal_type = u"testtype"
         fti = DexterityFTI(portal_type)
         container_dummy = self.create_dummy()
-        addview_dummy = self.create_dummy()
         
         # Mock the lookup of the site and the site manager at the site root
         dummy_site = self.create_dummy()
@@ -311,11 +303,10 @@ class TestFTIEvents(MockTestCase):
         getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock)
 
-        # Register FTI utility, factory utility and addview
+        # Register FTI utility and factory utility
         
         self.mock_utility(fti, IDexterityFTI, name=portal_type)
         self.mock_utility(DexterityFactory(portal_type), IFactory, name=portal_type)
-        self.mock_adapter(addview_dummy, IBrowserView, (IAdding, IBrowserRequest,), name=portal_type)
         
         # We expect that all components are registered, so do not expect any registrations
         
@@ -323,45 +314,6 @@ class TestFTIEvents(MockTestCase):
         self.expect(site_manager_mock.registerUtility(
                     mocker.MATCH(lambda x: isinstance(x, DexterityFactory) and x.portal_type == portal_type), 
                     IFactory, portal_type)).passthrough().count(0)
-        self.expect(site_manager_mock.registerAdapter(
-                    factory=mocker.MATCH(lambda x: isinstance(x, AddViewFactory) and x.portal_type == portal_type),
-                    provided=IBrowserView,
-                    required=(IAdding, IBrowserRequest),
-                    name=portal_type,)).passthrough().count(0)
-        
-        self.replay()
-        
-        fti_added(fti, ObjectAddedEvent(fti, container_dummy, fti.getId()))
-    
-    def test_addview_not_registered_on_add_if_addview_registered_providing_interface(self):
-        portal_type = u"testtype"
-        fti = DexterityFTI(portal_type)
-        container_dummy = self.create_dummy()
-        addview_dummy = self.create_dummy()
-        
-        # Mock the lookup of the site and the site manager at the site root
-        dummy_site = self.create_dummy()
-        self.mock_utility(dummy_site, ISiteRoot)
-        
-        site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
-        self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock)
-
-        # Register addview - others we'll still expect as local components
-        
-        self.mock_adapter(addview_dummy, Interface, (IAdding, IBrowserRequest,), name=portal_type)
-        
-        # We expect that all components are registered, so do not expect any registrations
-        
-        self.expect(site_manager_mock.registerUtility(fti, IDexterityFTI, portal_type)).passthrough()
-        self.expect(site_manager_mock.registerUtility(
-                    mocker.MATCH(lambda x: isinstance(x, DexterityFactory) and x.portal_type == portal_type), 
-                    IFactory, portal_type)).passthrough()
-        self.expect(site_manager_mock.registerAdapter(
-                    factory=mocker.MATCH(lambda x: isinstance(x, AddViewFactory) and x.portal_type == portal_type),
-                    provided=IBrowserView,
-                    required=(IAdding, IBrowserRequest),
-                    name=portal_type,)).passthrough().count(0)
         
         self.replay()
         
@@ -385,7 +337,6 @@ class TestFTIEvents(MockTestCase):
         
         self.expect(site_manager_mock.unregisterUtility(provided=IDexterityFTI, name=portal_type)).passthrough()
         self.expect(site_manager_mock.unregisterUtility(provided=IFactory, name=portal_type)).passthrough()
-        self.expect(site_manager_mock.unregisterAdapter(provided=IBrowserView, required=(IAdding, IBrowserRequest), name=portal_type)).passthrough()
         
         self.replay()
         
@@ -401,7 +352,6 @@ class TestFTIEvents(MockTestCase):
         
         self.assertEquals(None, queryUtility(IDexterityFTI, name=portal_type))
         self.assertEquals(None, queryUtility(IFactory, name=portal_type))
-        self.assertEquals(None, site_manager_mock.adapters.lookup((Implements(IAdding), Implements(IBrowserRequest)), IBrowserView, name=portal_type))
 
     def test_components_unregistered_on_delete_does_not_error_with_no_components(self):
         portal_type = u"testtype"
@@ -421,7 +371,6 @@ class TestFTIEvents(MockTestCase):
         
         self.expect(site_manager_mock.unregisterUtility(provided=IDexterityFTI, name=portal_type)).passthrough()
         self.expect(site_manager_mock.unregisterUtility(provided=IFactory, name=portal_type)).passthrough()
-        self.expect(site_manager_mock.unregisterAdapter(provided=IBrowserView, required=(IAdding, IBrowserRequest), name=portal_type)).passthrough()
         
         self.replay()
         
@@ -431,7 +380,6 @@ class TestFTIEvents(MockTestCase):
         portal_type = u"testtype"
         fti = DexterityFTI(portal_type)
         container_dummy = self.create_dummy()
-        addview_dummy = self.create_dummy()
         
         # Mock the lookup of the site and the site manager at the site root
         dummy_site = self.create_dummy()
@@ -441,19 +389,17 @@ class TestFTIEvents(MockTestCase):
         getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock)
         
-        # Register FTI utility, factory utility and addview
+        # Register FTI utility and factory utility
         
         self.mock_utility(fti, IDexterityFTI, name=portal_type)
         self.mock_utility(DexterityFactory(portal_type), IFactory, name=portal_type)
-        self.mock_adapter(addview_dummy, IBrowserView, (IAdding, IBrowserRequest,), name=portal_type)
         
         # We expect to always be able to unregister without error, even if the
         # component exists
         
         self.expect(site_manager_mock.unregisterUtility(provided=IDexterityFTI, name=portal_type)).passthrough()
         self.expect(site_manager_mock.unregisterUtility(provided=IFactory, name=portal_type)).passthrough()
-        self.expect(site_manager_mock.unregisterAdapter(provided=IBrowserView, required=(IAdding, IBrowserRequest), name=portal_type)).passthrough()
-        
+
         self.replay()
         
         fti_removed(fti, ObjectRemovedEvent(fti, container_dummy, fti.getId()))
@@ -464,7 +410,6 @@ class TestFTIEvents(MockTestCase):
         
         self.assertNotEquals(None, queryUtility(IDexterityFTI, name=portal_type))
         self.assertNotEquals(None, queryUtility(IFactory, name=portal_type))
-        self.assertNotEquals(None, getGlobalSiteManager().adapters.lookup((Implements(IAdding), Implements(IBrowserRequest)), IBrowserView, name=portal_type))
     
     def test_components_reregistered_on_rename(self):
         portal_type = u"testtype"
@@ -483,19 +428,15 @@ class TestFTIEvents(MockTestCase):
         
         self.expect(site_manager_mock.unregisterUtility(provided=IDexterityFTI, name=portal_type)).passthrough()
         self.expect(site_manager_mock.unregisterUtility(provided=IFactory, name=portal_type)).passthrough()
-        self.expect(site_manager_mock.unregisterAdapter(provided=IBrowserView, required=(IAdding, IBrowserRequest), name=portal_type)).passthrough()
         
         # Then look for re-registration of global components
         self.expect(site_manager_mock.registerUtility(fti, IDexterityFTI, portal_type)).passthrough()
         self.expect(site_manager_mock.registerUtility(
                     mocker.MATCH(lambda x: isinstance(x, DexterityFactory) and x.portal_type == portal_type), 
                     IFactory, portal_type)).passthrough()
-        self.expect(site_manager_mock.registerAdapter(
-                    factory=mocker.MATCH(lambda x: isinstance(x, AddViewFactory) and x.portal_type == portal_type),
-                    provided=IBrowserView,
-                    required=(IAdding, IBrowserRequest),
-                    name=portal_type,)).passthrough()
-        
+
+        self.assertEquals('string:${folder_url}/@@add-dexterity-content/testtype', fti.add_view_expr)
+
         self.replay()
         
         fti_renamed(fti, ObjectMovedEvent(fti, container_dummy, fti.getId(), container_dummy, u"newtype"))
@@ -506,8 +447,9 @@ class TestFTIEvents(MockTestCase):
         
         self.assertNotEquals(None, queryUtility(IDexterityFTI, name=portal_type))
         self.assertNotEquals(None, queryUtility(IFactory, name=portal_type))
-        self.assertNotEquals(None, site_manager_mock.adapters.lookup((Implements(IAdding), Implements(IBrowserRequest)), IBrowserView, name=portal_type))
         
+        self.assertEquals('string:${folder_url}/@@add-dexterity-content/newtype', fti.add_view_expr)
+     
     def test_dynamic_schema_refreshed_on_modify(self):
         portal_type = u"testtype"
         fti = self.mocker.proxy(DexterityFTI(portal_type))
@@ -525,7 +467,6 @@ class TestFTIEvents(MockTestCase):
         
         class IBlank(Interface):
             pass
-        
         
         self.replay()
         

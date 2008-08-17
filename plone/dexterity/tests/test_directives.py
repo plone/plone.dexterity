@@ -6,25 +6,28 @@ from zope.configuration.config import ConfigurationExecutionError
 from martian.error import GrokImportError
 
 from zope.interface import implements, Interface
-from zope import schema
+import zope.schema
 
 from zope.configuration.interfaces import IConfigurationContext
 
 from zope.component.interfaces import IFactory
 
-from plone.dexterity.browser.add import AddViewFactory
-
-from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.app.container.interfaces import IAdding
 
 from grokcore.component.testing import grok, grok_component
+import five.grok
 
 from plone.dexterity.directives.content import meta_type, add_permission, portal_type
 from plone.dexterity.content import Item
 
-from plone.dexterity.directives import form
+from plone.dexterity.directives import schema
 from plone.supermodel.directives import Schema
+
+from plone.dexterity.directives import form
+
+from zope.publisher.interfaces.browser import IDefaultBrowserLayer
+from Products.CMFCore.interfaces import IFolderish
 
 class DummyWidget(object):
     pass
@@ -75,7 +78,7 @@ class TestContentDirectives(MockTestCase):
         
         class IContent(Schema):
             
-            foo = schema.TextLine(title=u"Foo", default=u"bar")
+            foo = zope.schema.TextLine(title=u"Foo", default=u"bar")
         
         class Content(Item):
             implements(IContent)
@@ -90,7 +93,7 @@ class TestContentDirectives(MockTestCase):
         
         class IContent(Schema):
             
-            foo = schema.TextLine(title=u"Foo", default=u"bar")
+            foo = zope.schema.TextLine(title=u"Foo", default=u"bar")
         
         class Content(Item):
             implements(IContent)
@@ -106,7 +109,7 @@ class TestContentDirectives(MockTestCase):
         
         class IContent(Interface):
             
-            foo = schema.TextLine(title=u"Foo", default=u"bar")
+            foo = zope.schema.TextLine(title=u"Foo", default=u"bar")
         
         class Content(Item):
             implements(IContent)
@@ -128,12 +131,6 @@ class TestContentDirectives(MockTestCase):
         
         provideUtility_mock = self.mocker.replace('zope.component.provideUtility')
         self.expect(provideUtility_mock(self.match_provides(IFactory), IFactory, 'my.type'))
-    
-        provideAdapter_mock = self.mocker.replace('zope.component.provideAdapter')
-        self.expect(provideAdapter_mock(factory=self.match_type(AddViewFactory),
-                                        adapts=(IAdding, IBrowserRequest),
-                                        provides=IBrowserView,
-                                        name='my.type'))
     
         self.replay()
         
@@ -165,13 +162,7 @@ class TestContentDirectives(MockTestCase):
         
         provideUtility_mock = self.mocker.replace('zope.component.provideUtility')
         self.expect(provideUtility_mock(self.match_provides(IFactory), IFactory, 'my.type'))
-    
-        provideAdapter_mock = self.mocker.replace('zope.component.provideAdapter')
-        self.expect(provideAdapter_mock(factory=self.match_type(AddViewFactory),
-                                        adapts=(IAdding, IBrowserRequest),
-                                        provides=IBrowserView,
-                                        name='my.type'))
-    
+
         self.replay()
         
         grok_component('Content', Content)
@@ -200,25 +191,25 @@ class TestContentDirectives(MockTestCase):
         
         grok_component('Content', Content)
 
-class TestFormDirectives(MockTestCase):
+class TestSchemaDirectives(MockTestCase):
 
     def setUp(self):
-        super(TestFormDirectives, self).setUp()
-        grok('plone.dexterity.directives.form')
+        super(TestSchemaDirectives, self).setUp()
+        grok('plone.dexterity.directives.schema')
 
-    def test_form_directives_store_tagged_values(self):
+    def test_schema_directives_store_tagged_values(self):
         
         class IDummy(Schema):
             
-            form.omitted('foo', 'bar')
-            form.widget(foo='some.dummy.Widget', baz='other.Widget')
-            form.mode(bar='hidden')
-            form.order_before(baz='title')
+            schema.omitted('foo', 'bar')
+            schema.widget(foo='some.dummy.Widget', baz='other.Widget')
+            schema.mode(bar='hidden')
+            schema.order_before(baz='title')
             
             
-            foo = schema.TextLine(title=u"Foo")
-            bar = schema.TextLine(title=u"Bar")
-            baz = schema.TextLine(title=u"Baz")
+            foo = zope.schema.TextLine(title=u"Foo")
+            bar = zope.schema.TextLine(title=u"Bar")
+            baz = zope.schema.TextLine(title=u"Baz")
             
         self.replay()
         
@@ -234,11 +225,11 @@ class TestFormDirectives(MockTestCase):
         
         class IDummy(Schema):
             
-            form.widget(foo=DummyWidget)
+            schema.widget(foo=DummyWidget)
             
-            foo = schema.TextLine(title=u"Foo")
-            bar = schema.TextLine(title=u"Bar")
-            baz = schema.TextLine(title=u"Baz")
+            foo = zope.schema.TextLine(title=u"Foo")
+            bar = zope.schema.TextLine(title=u"Bar")
+            baz = zope.schema.TextLine(title=u"Baz")
             
         self.replay()
         
@@ -247,14 +238,14 @@ class TestFormDirectives(MockTestCase):
         self.assertEquals({u'widgets': [('foo', 'plone.dexterity.tests.test_directives.DummyWidget')]}, 
                             IDummy.queryTaggedValue(u"dexterity.form"))
         
-    def test_form_directives_extend_existing_tagged_values(self):
+    def test_schema_directives_extend_existing_tagged_values(self):
         
         class IDummy(Schema):
-            form.widget(foo='some.dummy.Widget')
+            schema.widget(foo='some.dummy.Widget')
             
-            foo = schema.TextLine(title=u"Foo")
-            bar = schema.TextLine(title=u"Bar")
-            baz = schema.TextLine(title=u"Baz")
+            foo = zope.schema.TextLine(title=u"Foo")
+            bar = zope.schema.TextLine(title=u"Bar")
+            baz = zope.schema.TextLine(title=u"Baz")
             
         IDummy.setTaggedValue(u'dexterity.form', {u'widgets': [('alpha', 'some.Widget')]})
             
@@ -270,19 +261,19 @@ class TestFormDirectives(MockTestCase):
         
         class IDummy(Schema):
             
-            form.omitted('foo')
-            form.omitted('bar')
-            form.widget(foo='some.dummy.Widget')
-            form.widget(baz='other.Widget')
-            form.mode(bar='hidden')
-            form.mode(foo='display')
-            form.order_before(baz='title')
-            form.order_before(foo='body')
+            schema.omitted('foo')
+            schema.omitted('bar')
+            schema.widget(foo='some.dummy.Widget')
+            schema.widget(baz='other.Widget')
+            schema.mode(bar='hidden')
+            schema.mode(foo='display')
+            schema.order_before(baz='title')
+            schema.order_before(foo='body')
             
             
-            foo = schema.TextLine(title=u"Foo")
-            bar = schema.TextLine(title=u"Bar")
-            baz = schema.TextLine(title=u"Baz")
+            foo = zope.schema.TextLine(title=u"Foo")
+            bar = zope.schema.TextLine(title=u"Bar")
+            baz = zope.schema.TextLine(title=u"Baz")
             
         self.replay()
         
@@ -294,8 +285,151 @@ class TestFormDirectives(MockTestCase):
                            u'modes': [('bar', 'hidden'), ('foo', 'display')]}, 
                             IDummy.queryTaggedValue(u"dexterity.form"))
 
+class TestFormDirectives(MockTestCase):
+
+    def setUp(self):
+        super(TestFormDirectives, self).setUp()
+        grok('plone.dexterity.directives.form')
+        
+    def test_addform_grokker_bails_without_portal_type(self):
+        
+        class AddForm(form.AddForm):
+            pass
+        
+        self.replay()
+        
+        self.assertEquals(False, grok_component('AddForm', AddForm))
+
+    def test_addform_registers_page_with_portal_type(self):
+        
+        class AddForm(form.AddForm):
+            portal_type('my.type')
+        
+        wrapped = self.create_dummy()
+        
+        wrap_form_mock = self.mocker.replace('plone.z3cform.layout.wrap_form')
+        self.expect(wrap_form_mock(AddForm)).result(wrapped)
+        
+        page_mock = self.mocker.replace('Products.Five.browser.metaconfigure.page')
+        self.expect(page_mock(mocker.ANY, 
+                              name='add-my.type',
+                              permission='cmf.AddPortalContent',
+                              for_=IFolderish,
+                              layer=IDefaultBrowserLayer,
+                              class_=wrapped))
+        
+        self.replay()
+        
+        self.assertEquals(True, grok_component('AddForm', AddForm))
+
+    def test_addform_registers_page_with_custom_name_and_layer(self):
+        
+        class ILayer(IDefaultBrowserLayer):
+            pass
+        
+        class AddForm(form.AddForm):
+            portal_type('my.type')
+            five.grok.name('add-foo')
+            five.grok.layer(ILayer)
+            five.grok.require('my.permission')
+        
+        wrapped = self.create_dummy()
+        
+        wrap_form_mock = self.mocker.replace('plone.z3cform.layout.wrap_form')
+        self.expect(wrap_form_mock(AddForm)).result(wrapped)
+        
+        page_mock = self.mocker.replace('Products.Five.browser.metaconfigure.page')
+        self.expect(page_mock(mocker.ANY, 
+                              name='add-foo',
+                              permission='my.permission',
+                              for_=IFolderish,
+                              layer=ILayer,
+                              class_=wrapped))
+        
+        self.replay()
+        
+        self.assertEquals(True, grok_component('AddForm', AddForm))
+
+    def test_edit_form_bails_without_context(self):
+        
+        class EditForm(form.AddForm):
+            pass
+        
+        self.replay()
+        
+        self.assertEquals(False, grok_component('EditForm', EditForm))
+
+    def test_edit_form_bails_without_interface_as_context(self):
+        
+        class Foo(object):
+            pass
+        
+        class EditForm(form.AddForm):
+            five.grok.context(Foo)
+        
+        self.replay()
+        
+        self.assertEquals(False, grok_component('EditForm', EditForm))
+
+    def test_editform_with_defaults(self):
+        
+        class IDummyContent(Interface):
+            pass
+        
+        class EditForm(form.EditForm):
+            five.grok.context(IDummyContent)
+        
+        wrapped = self.create_dummy()
+        
+        wrap_form_mock = self.mocker.replace('plone.z3cform.layout.wrap_form')
+        self.expect(wrap_form_mock(EditForm)).result(wrapped)
+        
+        page_mock = self.mocker.replace('Products.Five.browser.metaconfigure.page')
+        self.expect(page_mock(mocker.ANY, 
+                              name='edit',
+                              permission='cmf.ModifyPortalContent',
+                              for_=IDummyContent,
+                              layer=IDefaultBrowserLayer,
+                              class_=wrapped))
+        
+        self.replay()
+        
+        self.assertEquals(True, grok_component('EditForm', EditForm))
+        
+    def test_editform_with_custom_layer_name_permission(self):
+        
+        class IDummyContent(Interface):
+            pass
+        
+        class ILayer(IDefaultBrowserLayer):
+            pass
+        
+        class EditForm(form.EditForm):
+            five.grok.context(IDummyContent)
+            five.grok.name('edith')
+            five.grok.require('my.permission')
+            five.grok.layer(ILayer)
+        
+        wrapped = self.create_dummy()
+        
+        wrap_form_mock = self.mocker.replace('plone.z3cform.layout.wrap_form')
+        self.expect(wrap_form_mock(EditForm)).result(wrapped)
+        
+        page_mock = self.mocker.replace('Products.Five.browser.metaconfigure.page')
+        self.expect(page_mock(mocker.ANY, 
+                              name='edith',
+                              permission='my.permission',
+                              for_=IDummyContent,
+                              layer=ILayer,
+                              class_=wrapped))
+        
+        self.replay()
+        
+        self.assertEquals(True, grok_component('EditForm', EditForm))
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestContentDirectives))
+    suite.addTest(unittest.makeSuite(TestSchemaDirectives))
     suite.addTest(unittest.makeSuite(TestFormDirectives))
     return suite

@@ -1,46 +1,43 @@
-from persistent import Persistent
 from zope.interface import implements
-from zope.component import adapts, getUtility, createObject
+from zope.component import getUtility, queryMultiAdapter, createObject
 
-from zope.app.container.interfaces import IAdding
-
-from zope.publisher.interfaces.browser import IBrowserView
-from zope.publisher.interfaces.browser import IBrowserRequest
-
-from z3c.form import form, button, adding
+from z3c.form import form, button
 from plone.z3cform import layout
 
-from plone.dexterity.interfaces import IDexterityFTI
+from zope.app.container.interfaces import INameChooser
+from zope.publisher.interfaces import IPublishTraverse
 
-from plone.dexterity import MessageFactory as _
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.i18n import MessageFactory as _
 
 from plone.dexterity.browser.base import DexterityExtensibleForm
 
-from Acquisition import aq_inner, aq_parent
+from zExceptions import NotFound
+from Acquisition import aq_inner
 from AccessControl import Unauthorized
+
+from Products.Five.browser import BrowserView
 
 from Products.statusmessages.interfaces import IStatusMessage
 
-class AddViewFactory(Persistent):
-    """Factory for add views - will be registered as a local adapter factory
+class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
+    """Standard add form. This is capable of rendering the fields of
+    any Dexterity type. It needs to know the portal_type, which can be set
+    as a class variable, in the constructor or by the view. The standard
+    pattern is to use the @@add-dexterity-content traverser - see below.
     """
     
-    implements(IBrowserView)
-    adapts(IAdding, IBrowserRequest)
-    
-    def __init__(self, portal_type):
-        self.portal_type = portal_type
-        
-    def __call__(self, context, request):
-        return DefaultAddView(context, request, self.portal_type)
-        
-class DefaultAddForm(DexterityExtensibleForm, adding.AddForm):
+    portal_type = None
     
     def __init__(self, context, request, portal_type=None):
         super(DefaultAddForm, self).__init__(context, request)
         
         if portal_type is not None:
             self.portal_type = portal_type
+            
+        self.request['disable_border'] = True
+    
+    # API
     
     def create(self, data):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
@@ -49,7 +46,33 @@ class DefaultAddForm(DexterityExtensibleForm, adding.AddForm):
         for group in self.groups:
             form.applyChanges(group, content, data)
         return content
+
+    def add(self, object):
+        fti = getUtility(IDexterityFTI, name=self.portal_type)
         
+        container = aq_inner(self.context)
+        container_fti = container.getTypeInfo()
+        
+        # Validate that the object is addable
+        
+        if not fti.isConstructionAllowed(container):
+            raise Unauthorized('Cannot create %s' % self.portal_type)
+
+        if container_fti is not None and not container_fti.allowType(self.portal_type):
+            raise ValueError('Disallowed subobject type: %s' % self.portal_type)
+
+        name = INameChooser(container).chooseName(getattr(object, 'id', None), object)
+        object.id = name
+        
+        # XXX: When we move to CMF 2.2, an event handler will take care of this
+        object.notifyWorkflowCreated()
+        container._setObject(name, object)
+
+    def nextURL(self):
+        return self.context.absolute_url()
+    
+    # Buttons
+    
     @button.buttonAndHandler(_('Save'), name='save')
     def handleAdd(self, action):
         data, errors = self.extractData()
@@ -60,54 +83,75 @@ class DefaultAddForm(DexterityExtensibleForm, adding.AddForm):
         if obj is not None:
             # mark only as finished if we get the new object
             self._finishedAdd = True
+            IStatusMessage(self.request).addStatusMessage(_(u"Changes saved"), "info")
     
     @button.buttonAndHandler(_(u'Cancel'), name='cancel')
     def handleCancel(self, action):
         IStatusMessage(self.request).addStatusMessage(_(u"Add New Item operation cancelled"), "info")
-        adding = aq_inner(self.context)
-        container = aq_parent(adding)
-        self.request.response.redirect(container.absolute_url()) 
+        container = aq_inner(self.context)
+        self.request.response.redirect(self.nextURL()) 
 
     def updateActions(self):
         super(DefaultAddForm, self).updateActions()
         self.actions["save"].addClass("context")
         self.actions["cancel"].addClass("standalone")
 
-class DefaultAddView(layout.FormWrapper):
-    form = DefaultAddForm
-    
-    def __init__(self, context, request, portal_type=None):
-        super(DefaultAddView, self).__init__(context, request)
-        
-        # We allow subclasses to sepcify a form where the portal_type is
-        # set on the form rather than passed in as an argument
-        if portal_type is None:
-            portal_type = getattr(self.form, 'portal_type', None)
-            
-        if portal_type is None:
-            raise ValueError("An add view must either be passed a portal_type, or have a form that specifies a portal_type") 
-
-        fti = getUtility(IDexterityFTI, name=portal_type)
-        self.__name__ = fti.factory
-        self.portal_type = portal_type
-    
-    def __call__(self):
-        self.request['disable_border'] = True
-        
-        context = aq_inner(self.context)
-        container = aq_inner(context.context)
-        
-        fti = getUtility(IDexterityFTI, name=self.portal_type)
-        if not fti.isConstructionAllowed(container):
-            raise Unauthorized("You are not allowed to access the add view for %s because you lack the permission %s" % (self.portal_type, fti.add_permission))
-
-        return super(DefaultAddView, self).__call__()
-    
-    def render_form(self):
-        return self.form(self.context.aq_inner, self.request, self.portal_type)()
-    
     @property
     def label(self):
-        fti = getUtility(IDexterityFTI, name=self.portal_type)
+        portal_type = self.portal_type
+        fti = getUtility(IDexterityFTI, name=portal_type)
         type_name = fti.title
         return _(u"Add ${name}", mapping={'name': type_name})
+
+DefaultAddView = layout.wrap_form(DefaultAddForm)
+
+class AddTraverser(BrowserView):
+    """A traverser that can locate and initialise add forms that need to be
+    aware of the portal type they are adding.
+    
+    This is registered as @@add-dexterity-content.
+    
+    The idea is that when we traverse to e.g.
+    
+        http://example.com/some/folder/@@add-dexterity-content/my.type
+        
+    the traverser looks up the FTI for my.type. If this has an 'add_view_name'
+    property set, then it will attempt to look up the view with this name.
+    If it does not, it will attempt to look up an add view called
+    @@add-my.type, which is the default name when registering custom add 
+    forms. If this is not found, it will fall back on the default add form,
+    @@dexterity-default-addview.
+    
+    If the obtained view has an attribute 'portal_type', it is set to
+    'my.type'; if it has an attribute 'form' which in turn has an attribute
+    'portal_type', then view.form.portal_type is set to 'my.type'.
+    
+    This way, the add view or a form that it wraps will be able to know
+    which portal type to add.
+    """
+    implements(IPublishTraverse)
+    
+    def publishTraverse(self, request, name):
+        context = aq_inner(self.context)
+        
+        fti = getUtility(IDexterityFTI, name=name)
+        add_view_name = fti.add_view_name or "add-%s" % name
+        
+        if add_view_name.startswith('@@'):
+            add_view_name = add_view_name[2:]
+        
+        view = queryMultiAdapter((context, request), name=add_view_name)
+        if view is None:
+            view = queryMultiAdapter((context, request), name=u"dexterity-default-addview")
+
+        if view is None:
+            raise NotFound(u"Cannot find add view for %s" % name)
+        
+        # XXX: This is depending on plone.z3cform internals too much
+        if hasattr(view, '_form') and hasattr(view._form, 'portal_type'):
+            view._form.portal_type = name
+        
+        if hasattr(view, 'portal_type'):
+            view.portal_type = name
+
+        return view.__of__(context)
