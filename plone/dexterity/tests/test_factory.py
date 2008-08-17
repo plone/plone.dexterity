@@ -120,6 +120,36 @@ class TestFactory(MockTestCase):
         
         factory = DexterityFactory(portal_type=u"testtype")
         self.assertEquals(obj_mock, factory())
+
+    def test_create_sets_portal_type_if_wrong(self):
+        
+        # Object returned by class
+        obj_mock = self.mocker.mock()
+        self.expect(obj_mock.portal_type).result('othertype') # -> need to fix portal_type
+        obj_mock.portal_type = u"testtype"
+        
+        # Class set by factory
+        klass_mock = self.mocker.mock()
+        self.expect(klass_mock()).result(obj_mock)
+        
+        # Resolver
+        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
+        self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
+        
+        # Schema
+        schema_mock = self.mocker.mock(InterfaceClass)
+        self.expect(schema_mock.providedBy(obj_mock)).result(True)
+        
+        # FTI
+        fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.klass).result("my.mocked.ContentTypeClass")
+        self.expect(fti_mock.lookup_schema()).result(schema_mock)
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        self.replay()
+        
+        factory = DexterityFactory(portal_type=u"testtype")
+        self.assertEquals(obj_mock, factory())
     
     def test_create_initialises_schema_if_not_provided(self):
         

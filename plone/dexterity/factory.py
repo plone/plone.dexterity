@@ -50,7 +50,7 @@ class DexterityFactory(Persistent, Factory):
             raise ValueError("Error whilst constructing content for %s using class %s: %s" % (self.portal_type, fti.klass, str(e)))
         
         # Set portal_type if not set
-        if not getattr(obj, 'portal_type', None):
+        if getattr(obj, 'portal_type', '') != self.portal_type:
             obj.portal_type = self.portal_type
 
         # Get schema interface
