@@ -60,20 +60,13 @@ class DexterityFactory(Persistent, Factory):
         if not schema.providedBy(obj):
             alsoProvides(obj, schema)
 
-            permission_settings = schema.queryTaggedValue(u'dexterity.security', {})
-            
             # XXX: This security model does not seem to work properly
+            # permission_settings = schema.queryTaggedValue(u'dexterity.security', {})
             # security = InstanceSecurityInfo()
-
-            # Initialise fields from the schema onto the type
-            for name, field in getFieldsInOrder(schema):
-                if not hasattr(obj, name):
-                    field = field.bind(obj)
-                    field.set(obj, field.default)
-                    
-                    # read_permission = permission_settings.get(name, {}).get('read-permission', 'View')
-                    # security.declareProtected(read_permission, name)
-        
+            # # Initialise fields from the schema onto the type
+            # for name, field in getFieldsInOrder(schema):
+            #     read_permission = permission_settings.get(name, {}).get('read-permission', 'View')
+            #     security.declareProtected(read_permission, name)
             # security.apply(aq_base(obj))
         
         return obj
