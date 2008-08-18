@@ -3,11 +3,7 @@ Dexterity To-Do List
 
  Immediate changes/upcoming refactoring
  --------------------------------------
-
-    [ ] plone.z3cform: delegate layout lookup to an adapter
-        - plone.app.z3cform should provide a Ploneish template
-        - avoid rendering of <h3 /> for form header
-
+ 
     [ ] plone.supermodel: Support for sequence and choice fields 
 
  Areas that need ownership
@@ -19,9 +15,9 @@ Dexterity To-Do List
 
     [ ] Schema editor and Plone control panel (davisagli?)
 
-    [ ] Field-level security
+    [ ] Field-level security (alecm?)
     
-    [ ] Reference engine integration
+    [ ] Reference engine integration (alecm?)
         - need plone.app.relations field + widget
     
     [ ] Versioning and staging integration

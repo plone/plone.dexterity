@@ -227,7 +227,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
         # The point if this whole dance is that it is possible to customise a
         # type and re-use its add view. Add views are registered for
         # IFolderish, and should have a 'form' attribute (a form class).
-        # The traverser will set addview._form.portal_type to be the
+        # The traverser will set addview.form_instance.portal_type to be the
         # traversed-to type name. This the add form is aware of what type to
         # add without this having to be hardcoded.
         

@@ -57,7 +57,7 @@ class TestAddView(MockTestCase):
         
         class AddView(BrowserView):
             def __init__(self, context, request):
-                self._form = Form()
+                self.form_instance = Form()
                 self.portal_type = u"foo"
 
         self.mock_adapter(DefaultAddView, Interface, (IFolderish, IBrowserRequest), name=u"dexterity-default-addview")
@@ -69,7 +69,7 @@ class TestAddView(MockTestCase):
         addview = traverser.publishTraverse(request, name="testtype")
         
         self.failUnless(isinstance(addview, AddView))
-        self.assertEquals("testtype", addview._form.portal_type)
+        self.assertEquals("testtype", addview.form_instance.portal_type)
         self.assertEquals("testtype", addview.portal_type)
         
     def test_traverser_falls_back_on_default_addview(self):
@@ -99,7 +99,7 @@ class TestAddView(MockTestCase):
         addview = traverser.publishTraverse(request, name="testtype")
         
         self.failUnless(isinstance(addview, DefaultAddView))
-        self.assertEquals("testtype", addview._form.portal_type)
+        self.assertEquals("testtype", addview.form_instance.portal_type)
 
     def test_traverser_falls_back_on_default_addview_if_addview_set_but_invalid(self):
         # Context and request
@@ -128,7 +128,7 @@ class TestAddView(MockTestCase):
         addview = traverser.publishTraverse(request, name="testtype")
         
         self.failUnless(isinstance(addview, DefaultAddView))
-        self.assertEquals("testtype", addview._form.portal_type)
+        self.assertEquals("testtype", addview.form_instance.portal_type)
     
     def test_form_create(self):
         

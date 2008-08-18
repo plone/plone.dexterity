@@ -148,8 +148,8 @@ class AddTraverser(BrowserView):
             raise NotFound(u"Cannot find add view for %s" % name)
         
         # XXX: This is depending on plone.z3cform internals too much
-        if hasattr(view, '_form') and hasattr(view._form, 'portal_type'):
-            view._form.portal_type = name
+        if hasattr(view, 'form_instance') and hasattr(view.form_instance, 'portal_type'):
+            view.form_instance.portal_type = name
         
         if hasattr(view, 'portal_type'):
             view.portal_type = name
