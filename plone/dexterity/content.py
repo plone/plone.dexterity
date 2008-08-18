@@ -1,4 +1,5 @@
 from zope.interface import implements
+from zope.component import queryUtility
 
 from zope.annotation import IAttributeAnnotatable
 
@@ -7,6 +8,7 @@ from grokcore.component.interfaces import IContext
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.interfaces import IDexterityContainer
+from plone.dexterity.interfaces import IDexterityFTI
 
 from zope.app.container.contained import Contained
 
@@ -26,6 +28,23 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
     
     # portal_type must be set by factory or derived class
     portal_type = None
+    
+    def __getattr__(self, name):
+        
+        # attribute was not found; try to look it up in the schema and return
+        # a default
+        
+        fti = self.__dict__.get('_v_fti_utility', None)
+        if fti is None:
+            self._v_fti_utility = fti = queryUtility(IDexterityFTI, name=self.portal_type)
+        if fti is not None:
+            schema = fti.lookup_schema()
+            if schema is not None:
+                field = schema.get(name, None)
+                if field is not None:
+                    return field.default
+        
+        raise AttributeError(name)
 
 # XXX: It'd be nice to reduce the number of base classes here
 
