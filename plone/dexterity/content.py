@@ -27,7 +27,7 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
     implements(IDexterityContent, IAttributeAnnotatable, IContext)
     
     # portal_type must be set by factory or derived class
-    meta_type = portal_type = None
+    portal_type = None
     
     def __getattr__(self, name):
         

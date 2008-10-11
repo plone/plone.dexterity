@@ -48,21 +48,9 @@ class TestContentDirectives(MockTestCase):
         
         grok_component('Content', Content)
         
-    def test_register_class_with_meta_type_and_default_add_permission(self):
+    def test_no_register_class_without_add_permission(self):
         class Content(Item):
             meta_type = "ContentMT"
-        
-        registerClass_mock = self.mocker.replace('Products.Five.fiveconfigure.registerClass')
-        self.expect(registerClass_mock(self.match_provides(IConfigurationContext), 
-                                        Content, "ContentMT", u"cmf.AddPortalContent"))
-
-        self.replay()
-        
-        grok_component('Content', Content)
-
-    def test_no_register_class_without_meta_type(self):
-        class Content(Item):
-            pass
         
         registerClass_mock = self.mocker.replace('Products.Five.fiveconfigure.registerClass')
         self.expect(registerClass_mock(mocker.ANY, Content, mocker.ANY, mocker.ANY)).count(0)
@@ -70,21 +58,6 @@ class TestContentDirectives(MockTestCase):
         self.replay()
         
         grok_component('Content', Content)
-
-    def test_schema_interfaces_initalised(self):
-        
-        class IContent(Schema):
-            
-            foo = zope.schema.TextLine(title=u"Foo", default=u"bar")
-        
-        class Content(Item):
-            implements(IContent)
-        
-        self.replay()
-
-        self.failIf(hasattr(Content, "foo"))
-        grok_component('Content', Content)
-        self.assertEquals(u"bar", Content.foo)
     
     def test_schema_interface_initialisation_does_not_overwrite(self):
         

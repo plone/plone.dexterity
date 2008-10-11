@@ -19,7 +19,7 @@ class add_permission(martian.Directive):
     """
     scope = martian.CLASS
     store = martian.ONCE
-    default = u"cmf.AddPortalContent"
+    default = None
     validate = martian.validateText
     
     def factory(self, permission):
@@ -36,8 +36,10 @@ class ContentGrokker(martian.ClassGrokker):
         # will probably not need this.
         
         meta_type = getattr(class_, 'meta_type', None)
-        if meta_type is not None:
+        if add_permission is not None:
             registerClass(config, class_, meta_type, add_permission)
+        
+        # TODO: Give a meta type
         
         config.action(
                 discriminator=('plone.dexterity.content', class_,),
@@ -50,19 +52,7 @@ class ContentGrokker(martian.ClassGrokker):
         
 def register_content(class_):
 
-    # 2. Initialise properties from schema to their default values if 
-    # they are not already on the class.
-    for iface in implementedBy(class_).flattened():
-        if iface.extends(Schema):
-            for name, field in getFieldsInOrder(iface):
-                if not hasattr(class_, name):
-                    setattr(class_, name, field.default)
-
-    # 3. Initialise security
-    
-    # TODO: Complete this with the other security work
-    
-    # 4. Register factory if not already registered
+    # Register factory if not already registered
     portal_type = getattr(class_, 'portal_type', None)
     if portal_type:
         factory = queryUtility(IFactory, name=portal_type)
