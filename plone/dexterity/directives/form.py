@@ -33,21 +33,19 @@ class EditForm(edit.DefaultEditForm):
 class AddFormGrokker(martian.ClassGrokker):
     martian.component(AddForm)
     
-    martian.directive(plone.dexterity.directives.content.portal_type)
     martian.directive(grokcore.view.layer, default=IDefaultBrowserLayer)
     martian.directive(grokcore.component.name, default=None)
     martian.directive(grokcore.security.require, name='permission', default='cmf.AddPortalContent')
     
-    def execute(self, form, config, portal_type, layer, name, permission):
+    def execute(self, form, config, layer, name, permission):
         
-        if not portal_type:
+        if not getattr(form, 'portal_type', None):
             return False
         
-        form.portal_type = portal_type
         factory = layout.wrap_form(form)
         
         if not name:
-            name = "add-%s" % portal_type
+            name = "add-%s" % form.portal_type
         
         factory.__name__ = name
         

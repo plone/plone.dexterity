@@ -2,9 +2,6 @@ import unittest
 import mocker
 from plone.mocktestcase import MockTestCase
 
-from zope.configuration.config import ConfigurationExecutionError
-from martian.error import GrokImportError
-
 from zope.interface import implements, Interface
 import zope.schema
 
@@ -18,7 +15,7 @@ from zope.app.container.interfaces import IAdding
 from grokcore.component.testing import grok, grok_component
 import five.grok
 
-from plone.dexterity.directives.content import meta_type, add_permission, portal_type
+from plone.dexterity.directives.content import add_permission
 from plone.dexterity.content import Item
 
 from plone.dexterity.directives import schema
@@ -40,7 +37,7 @@ class TestContentDirectives(MockTestCase):
 
     def test_register_class_with_meta_type_and_add_permission(self):
         class Content(Item):
-            meta_type("ContentMT")
+            meta_type = "ContentMT"
             add_permission(u"mock.AddPermission")
         
         registerClass_mock = self.mocker.replace('Products.Five.fiveconfigure.registerClass')
@@ -51,9 +48,9 @@ class TestContentDirectives(MockTestCase):
         
         grok_component('Content', Content)
         
-    def test_no_register_class_with_meta_type_and_default_add_permission(self):
+    def test_register_class_with_meta_type_and_default_add_permission(self):
         class Content(Item):
-            meta_type("ContentMT")
+            meta_type = "ContentMT"
         
         registerClass_mock = self.mocker.replace('Products.Five.fiveconfigure.registerClass')
         self.expect(registerClass_mock(self.match_provides(IConfigurationContext), 
@@ -124,41 +121,10 @@ class TestContentDirectives(MockTestCase):
         # TODO: Add tests here as part of security implementation
         pass
         
-    def test_portal_type_sets_portal_type(self):
-        
-        class Content(Item):
-            portal_type('my.type')
-        
-        provideUtility_mock = self.mocker.replace('zope.component.provideUtility')
-        self.expect(provideUtility_mock(self.match_provides(IFactory), IFactory, 'my.type'))
-    
-        self.replay()
-        
-        self.assertNotEquals('my.type', Content.portal_type)
-        grok_component('Content', Content)
-        self.assertEquals('my.type', Content.portal_type)
-
-    def test_portal_type_fails_if_portal_type_inconsistent(self):
-        
-        class Content(Item):
-            portal_type('my.type')
-            portal_type = 'other.type'
-        
-        self.replay()
-        
-        self.assertEquals('other.type', Content.portal_type)
-        try:
-            grok_component('Content', Content)
-        except ConfigurationExecutionError, e:
-            self.assertEquals(e.etype, GrokImportError)
-        else:
-            self.fail()
-        
-    
     def test_portal_type_registers_factory_and_addview(self):
         
         class Content(Item):
-            portal_type('my.type')
+            portal_type = 'my.type'
         
         provideUtility_mock = self.mocker.replace('zope.component.provideUtility')
         self.expect(provideUtility_mock(self.match_provides(IFactory), IFactory, 'my.type'))
@@ -170,7 +136,7 @@ class TestContentDirectives(MockTestCase):
     def test_portal_type_does_not_overwrite_factory_and_addview(self):
         
         class Content(Item):
-            portal_type('my.type')
+            portal_type = 'my.type'
         
         factory_dummy = self.create_dummy()
         self.mock_utility(factory_dummy, IFactory, 'my.type')
@@ -303,7 +269,7 @@ class TestFormDirectives(MockTestCase):
     def test_addform_registers_page_with_portal_type(self):
         
         class AddForm(form.AddForm):
-            portal_type('my.type')
+            portal_type = 'my.type'
         
         wrapped = self.create_dummy()
         
@@ -328,7 +294,7 @@ class TestFormDirectives(MockTestCase):
             pass
         
         class AddForm(form.AddForm):
-            portal_type('my.type')
+            portal_type = 'my.type'
             five.grok.name('add-foo')
             five.grok.layer(ILayer)
             five.grok.require('my.permission')
