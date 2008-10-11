@@ -16,7 +16,6 @@ from plone.supermodel.utils import ns, sync_schema
 from plone.alterego.interfaces import IDynamicObjectFactory
 
 from plone.dexterity.interfaces import IDexteritySchema
-from plone.dexterity.interfaces import ITransientSchema
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity import utils
 
@@ -83,7 +82,7 @@ class SchemaModuleFactory(object):
                 self._lock.release()
                 raise
             
-            sync_schema(model.schemata[schema_name], schema)
+            sync_schema(model.schemata[schema_name], schema, sync_bases=True)
 
             # Save this schema in the module - this factory will not be
             # called again for this name
@@ -109,7 +108,7 @@ class DexteritySchemaPolicy(object):
         return 'plone.dexterity.schema.transient'
         
     def bases(self, schema_name, tree):
-        return (ITransientSchema,)
+        return ()
         
     def name(self, schema_name, tree):
         # We use a temporary name whilst the interface is being generated;

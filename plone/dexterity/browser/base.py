@@ -9,6 +9,8 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IFormFieldProvider
 
 from plone.dexterity.utils import resolve_dotted_name
+from plone.dexterity.utils import merged_tagged_value_dict
+from plone.dexterity.utils import merged_tagged_value_list
 
 from plone.z3cform.fieldsets.extensible import ExtensibleForm
 from plone.z3cform.fieldsets.group import GroupFactory
@@ -30,8 +32,8 @@ def process_fields(form, schema, prefix=None):
         else:
             return field_name
     
-    form_data = schema.queryTaggedValue(u'dexterity.form', {})
-    fieldsets = schema.queryTaggedValue(FIELDSETS_KEY, [])
+    form_data = merged_tagged_value_dict(schema, u'dexterity.form')
+    fieldsets = merged_tagged_value_list(schema, FIELDSETS_KEY)
     
     # Get metadata
     
@@ -76,7 +78,8 @@ def process_fields(form, schema, prefix=None):
         for field_name in new_fields:
             widget_name = widgets.get(field_name, None)
             if widget_name is not None:
-                widget_factory = resolve_dotted_name(widget_name)
+                if isinstance(widget_name, basestring):
+                    widget_factory = resolve_dotted_name(widget_name)
                 if widget_factory is not None:
                     new_fields[field_name].widgetFactory[INPUT_MODE] = widget_factory
             if field_name in modes:
