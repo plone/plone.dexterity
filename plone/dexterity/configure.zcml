@@ -74,6 +74,7 @@
         meta_type="Dexterity FTI"
         addview="plone.dexterity.fti"
         permission="cmf.ManagePortal"
+        icon="plone.dexterity.fti.gif"
         global="False"
         />
         

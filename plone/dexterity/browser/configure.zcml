@@ -54,5 +54,10 @@
         name="plone.dexterity.container.gif"
         file="icons/container_icon.gif"
         />
-  
+
+    <browser:resource
+        name="plone.dexterity.fti.gif"
+        file="icons/typeinfo.gif"
+        />  
+
 </configure>
