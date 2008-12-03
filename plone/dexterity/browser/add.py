@@ -28,6 +28,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     """
     
     portal_type = None
+    obj_url = None
     
     def __init__(self, context, request, portal_type=None):
         super(DefaultAddForm, self).__init__(context, request)
@@ -61,15 +62,20 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         if container_fti is not None and not container_fti.allowType(self.portal_type):
             raise ValueError('Disallowed subobject type: %s' % self.portal_type)
 
-        name = INameChooser(container).chooseName(getattr(object, 'id', None), object)
+        name = INameChooser(container).chooseName(None, object)
         object.id = name
         
         # XXX: When we move to CMF 2.2, an event handler will take care of this
         object.notifyWorkflowCreated()
         container._setObject(name, object)
+        
+        self.obj_url = container.absolute_url() + '/' + name
 
     def nextURL(self):
-        return self.context.absolute_url()
+        if self.obj_url is not None:
+            return self.obj_url
+        else:
+            return self.context.absolute_url()
     
     # Buttons
     
