@@ -1,15 +1,11 @@
 import martian
 
-from zope.interface import implementedBy
-from zope.schema import getFieldsInOrder
-
 from zope.component import queryUtility
 from zope.component import provideUtility
 
 from zope.component.interfaces import IFactory
 from zope.component.factory import Factory
 
-from plone.supermodel.directives import Schema
 from plone.dexterity.content import DexterityContent
 
 from Products.Five.fiveconfigure import registerClass
@@ -31,7 +27,6 @@ class ContentGrokker(martian.ClassGrokker):
     martian.directive(add_permission)
     
     def execute(self, class_, config, add_permission, **kw):
-        
         # 1. Register class if a meta type was specified. Most types
         # will probably not need this.
         

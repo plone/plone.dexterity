@@ -137,7 +137,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
           'mode': 'w',
           'label': 'Model source',
           'description': "XML source for the type's model. Note that this takes " +
-                         "precendence over any model file."
+                         "precedence over any model file."
         },
         { 'id': 'model_file', 
           'type': 'string',
