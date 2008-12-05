@@ -1,4 +1,4 @@
-from zope.interface import Interface, alsoProvides
+from zope.interface import Interface
 import zope.schema
 
 from zope.component.interfaces import IFactory
@@ -62,11 +62,6 @@ class IDexterityFactory(IFactory):
 
 class IDexteritySchema(Interface):
     """Base class for Dexterity schemata
-    """
-
-class IFormFieldProvider(Interface):
-    """Behavior interfaces will be adapted to this interface to get fields
-    for the add/edit forms.
     """
 
 # Content

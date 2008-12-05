@@ -3,8 +3,6 @@ from zope.component import queryUtility
 
 from zope.annotation import IAttributeAnnotatable
 
-from grokcore.component.interfaces import IContext
-
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.interfaces import IDexterityContainer
@@ -21,10 +19,9 @@ from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 from plone.folder.ordered import OrderedBTreeFolderBase
 
 class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
-    """Base class for content, primarily to support isinstance() and the 
-    grokker in directives.py
+    """Base class for Dexterity content
     """
-    implements(IDexterityContent, IAttributeAnnotatable, IContext)
+    implements(IDexterityContent, IAttributeAnnotatable)
     
     # portal_type must be set by factory or derived class
     portal_type = None

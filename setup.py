@@ -23,17 +23,18 @@ setup(name='plone.dexterity',
       namespace_packages=['plone'],
       include_package_data=True,
       zip_safe=False,
+      tests_require=[
+        'plone.mocktestcase',
+      ],
       install_requires=[
           'setuptools',
           'plone.z3cform',
-          'plone.mocktestcase',
           'plone.folder',
           'plone.supermodel',
           'plone.alterego',
           'plone.behavior',
+          'plone.autoform',
 
-          'five.grok',
-          
           'zope.interface',
           'zope.component',
           'zope.schema',

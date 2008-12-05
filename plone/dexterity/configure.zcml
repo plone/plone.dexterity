@@ -3,8 +3,6 @@
     xmlns:five="http://namespaces.zope.org/five"
     i18n_domain="plone.dexterity">
 
-    <include package="five.grok" />
-
     <include package="plone.behavior" />
     <include package="plone.folder" />
     <include package="plone.supermodel" />
@@ -36,11 +34,6 @@
     <utility
         factory=".schema.SecuritySchema"
         name="dexterity.security"
-        />
-    
-    <utility
-        factory=".schema.FormSchema"
-        name="dexterity.form"
         />
 
     <!-- Support for plone.behavior behaviors -->

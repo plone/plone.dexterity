@@ -168,8 +168,8 @@ class TestAddView(MockTestCase):
         request = TestRequest()
 
         self.expect(container._setObject(u"newid", obj))
+        self.expect(container.absolute_url()).result("http://nohost/plone/container")
         
-        self.expect(obj.id).result(None)
         obj.id = u"newid"
         self.expect(obj.notifyWorkflowCreated())
 

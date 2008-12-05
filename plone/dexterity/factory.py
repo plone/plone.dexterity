@@ -7,16 +7,14 @@ from zope.interface.declarations import Implements
 from zope.component import getUtility
 from zope.component.factory import Factory
 
-from zope.schema import getFieldsInOrder
-
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityFactory
 
-from plone.dexterity.security import InstanceSecurityInfo
-
 from plone.dexterity.utils import resolve_dotted_name
 
-from Acquisition import aq_base
+# from Acquisition import aq_base
+# from zope.schema import getFieldsInOrder
+# from plone.dexterity.security import InstanceSecurityInfo
 
 class DexterityFactory(Persistent, Factory):
     """A factory for 

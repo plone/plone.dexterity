@@ -1,11 +1,9 @@
 from zope.component import getUtility
 
 from z3c.form import form, button
-
 from plone.z3cform import layout
 
 from plone.dexterity.interfaces import IDexterityFTI
-
 from plone.dexterity.i18n import MessageFactory as _
 
 from plone.dexterity.browser.base import DexterityExtensibleForm

@@ -284,12 +284,22 @@ The most important packages are:
     dictionary-style semantics for managing content items inside the folder.
     The standard Dexterity 'Container' type uses plone.folder as its base.
  
+ plone.autoform (CMF)
+ 
+    Contains helper functions to construct forms based on tagged values stored
+    on schema interfaces.
+ 
  plone.dexterity (CMF)
  
     This package defines the FTI and content classes, provides basic views
     (with forms based on z3c.form), handles security and so on. It also
     provides components to orchestrate the various functionality provided
     by the packages above in order to bring the Dexterity system together.
+ 
+ plone.directives.dexterity (CMF)
+ 
+    Adds convention-over-configuration support for plone.supermodel schemata
+    and Dexterity content and forms.
  
  plone.app.dexterity (Plone)
  

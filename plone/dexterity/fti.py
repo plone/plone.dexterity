@@ -9,7 +9,6 @@ from zope.lifecycleevent import modified
 
 from zope.app.component.hooks import getSiteManager
 
-
 from plone.supermodel import load_string, load_file
 from plone.supermodel.model import Model
 from plone.supermodel.utils import sync_schema
