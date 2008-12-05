@@ -1,7 +1,7 @@
 from zope.interface import Interface
 from zope import schema
 
-from plone.supermodel.model import FILENAME_KEY
+from plone.supermodel.interfaces import FILENAME_KEY
 
 class ITestSchema(Interface):
     """Schema used for testing
