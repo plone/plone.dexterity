@@ -42,11 +42,15 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     
     def create(self, data):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
-        content = createObject(fti.factory)
+        
+        container = aq_inner(self.context)
+        # acquisition wrap to satisfy things like
+        # vocabularies depending on tools
+        content = createObject(fti.factory).__of__(container)
         form.applyChanges(self, content, data)
         for group in self.groups:
             form.applyChanges(group, content, data)
-        return content
+        return content.aq_base
 
     def add(self, object):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
