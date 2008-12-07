@@ -13,7 +13,8 @@ from plone.dexterity.i18n import MessageFactory as _
 from plone.dexterity.browser.base import DexterityExtensibleForm
 
 from zExceptions import NotFound
-from Acquisition import aq_inner
+from Acquisition import aq_inner, aq_base
+from Acquisition.interfaces import IAcquirer
 from AccessControl import Unauthorized
 
 from Products.Five.browser import BrowserView
@@ -44,13 +45,17 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         
         container = aq_inner(self.context)
-        # acquisition wrap to satisfy things like
-        # vocabularies depending on tools
-        content = createObject(fti.factory).__of__(container)
+        content = createObject(fti.factory)
+        
+        # acquisition wrap to satisfy things like vocabularies depending on tools
+        if IAcquirer.providedBy(content):
+            content = content.__of__(container)
+
         form.applyChanges(self, content, data)
         for group in self.groups:
             form.applyChanges(group, content, data)
-        return content.aq_base
+
+        return aq_base(content)
 
     def add(self, object):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
