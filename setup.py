@@ -5,7 +5,7 @@ version = '1.0a1'
 
 setup(name='plone.dexterity',
       version=version,
-      description="CMF compatible integration of TTW-editable types",
+      description="Flexible CMF content",
       long_description=open("README.txt").read() + "\n" +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
       # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
@@ -17,8 +17,8 @@ setup(name='plone.dexterity',
       keywords='',
       author='Martin Aspeli',
       author_email='optilude@gmail.com',
-      url='http://plone.org',
-      license='GPL',
+      url='http://code.google.com/p/dexterity',
+      license='LGPL',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['plone'],
       include_package_data=True,

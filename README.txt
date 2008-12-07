@@ -288,6 +288,11 @@ The most important packages are:
  
     Contains helper functions to construct forms based on tagged values stored
     on schema interfaces.
+    
+ plone.directives.form (CMF)
+ 
+    Adds convention-over-configuration support for plone.supermodel schemata
+    and plone.autoform form hints.
  
  plone.dexterity (CMF)
  
@@ -298,9 +303,9 @@ The most important packages are:
  
  plone.directives.dexterity (CMF)
  
-    Adds convention-over-configuration support for plone.supermodel schemata
-    and Dexterity content and forms.
- 
+    Adds convention-over-configuration support for Dexterity content and 
+    add/edit forms.
+    
  plone.app.dexterity (Plone)
  
     This package contains all Plone-specific aspects of Dexterity, including
