@@ -23,7 +23,7 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
     """
     implements(IDexterityContent, IAttributeAnnotatable)
     
-    # portal_type must be set by factory or derived class
+    # portal_type is set by the add view and/or factory
     portal_type = None
     
     def __getattr__(self, name):

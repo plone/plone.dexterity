@@ -103,14 +103,6 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
           'label': 'Add permission',
           'description': 'Permission needed to be able to add content of this type'
         },
-        {'id': 'add_view_name',
-         'type': 'string', 
-         'mode': 'w',
-         'label': 'Name of the add form view',
-         'description': 'Used to construct the URL to the add form. ' +
-                        'Defaults to "@@add-<typename>" if not set. ' +
-                        'There is a fallback default add view as well.'
-        },
         { 'id': 'klass', 
           'type': 'string',
           'mode': 'w',
@@ -163,8 +155,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
                         'permissions': ('Modify portal content',)},
                         ]
     
-    add_view_name = ''
-    immediate_view = 'edit'
+    immediate_view = 'view'
     default_view = 'view'
     view_methods = ('view',)
     add_permission = 'Add portal content'
@@ -203,41 +194,29 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
                                category=action.get('category', 'object'),
                                visible=action.get('visible', True))
         
-        # CMF (2.2+, but we've backported it) the property add_view_expr is
+        # Default factory name to be the FTI name
+        if not self.factory:
+            self.factory = self.getId()
+        
+        # In CMF (2.2+, but we've backported it) the property add_view_expr is
         # used to construct an action in the 'folder/add' category. The
         # portal_types tool loops over all FTIs and lets them provide such
         # actions.
         # 
-        # For Dexterity, we use a standard pattern where an add view is
-        # registered, e.g. 'add-my.type'. The action URL for an FTI with id
-        # 'my.type' is always
+        # By convention, the expression is string:${folder_url}/++add++my.type
         # 
-        #   string:${folder_url}/@@add-dexterity-content/my.type
+        # The ++add++ traverser will find the FTI with name my.type, and then
+        # looks up an adapter for (context, request, fti) with a name equal
+        # to fti.factory, falling back on an unnamed adapter. The result is
+        # assumed to be an add view.
         # 
-        # The @@add-dexterity-content view is a publish traverse view that
-        # looks up the FTI with name my.type to locate the type's add view.
-        # 
-        # We store the type's add view in a property called 'add_view_name'. 
-        # By default, this is empty. In this case, the traverser will attempt
-        # to look up a view called @@add-my.type, falling back on a default
-        # view (@@dexterity-default-addview) that introspects the FTI if a 
-        # specific view is not registered.
-        # 
-        # The point if this whole dance is that it is possible to customise a
-        # type and re-use its add view. Add views are registered for
-        # IFolderish, and should have a 'form' attribute (a form class).
-        # The traverser will set addview.form_instance.portal_type to be the
-        # traversed-to type name. This the add form is aware of what type to
-        # add without this having to be hardcoded.
-        
-        if not self.add_view_expr:
-            self._setPropValue('add_view_expr', "string:${folder_url}/@@add-dexterity-content/%s" % self.getId())
+        # Dexterity provides a default (unnamed) adapter for any IFolderish
+        # context, request and IDexterityFTI that can construct an add view
+        # for any Dexterity schema.
 
-    @property
-    def factory(self):
-        """Tie the factory to the portal_type name - one less thing to have to set
-        """
-        return self.getId()
+        if not self.add_view_expr:
+            add_view_expr = kwargs.get('add_view_expr', "string:${folder_url}/++add++%s" % self.getId())
+            self._setPropValue('add_view_expr', add_view_expr)
     
     @property
     def has_dynamic_schema(self):
@@ -325,7 +304,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
         
         return model_file
 
-def _fix_properties(class_, ignored=['product', 'content_meta_type', 'factory', 'add_view_expr']):
+def _fix_properties(class_, ignored=['product', 'content_meta_type', 'add_view_expr']):
     """Remove properties with the given ids, and ensure that later properties
     override earlier ones with the same id
     """
@@ -371,7 +350,7 @@ def register(fti):
     if factory_utility is None:
         site_manager.registerUtility(DexterityFactory(portal_type), IFactory, fti.factory)
 
-def unregister(fti):
+def unregister(fti, old_name=None):
     """Helper method to:
     
         - unregister the FTI local utility
@@ -384,7 +363,7 @@ def unregister(fti):
     
     site_manager = getSiteManager(site)
     
-    portal_type = fti.getId()
+    portal_type = old_name or fti.getId()
     
     site_manager.unregisterUtility(provided=IDexterityFTI, name=portal_type)
     site_manager.unregisterUtility(provided=IFactory, name=fti.factory)
@@ -417,12 +396,9 @@ def fti_renamed(object, event):
     if event.oldParent is None or event.newParent is None or event.oldName == event.newName:
         return
     
-    unregister(event.object)
+    unregister(event.object, event.oldName)
     register(event.object)
 
-    # Ensure that the add view URL is in sync
-    event.object._setPropValue('add_view_expr', "string:${folder_url}/@@add-dexterity-content/%s" % event.newName)
-    
     # TODO: We will either need to keep a trace of the old FTI, or 
     # we'll need to migrate all objects using this FTI, because instances 
     # with the old schema name will no longer be able to find their FTI
@@ -430,6 +406,9 @@ def fti_renamed(object, event):
 def fti_modified(object, event):
     """When an FTI is modified, re-sync the schema, if any
     """
+    
+    # TODO: Make sure that we don't get orphan factory utilities if
+    # the 'factory' property is changed.
     
     if not IDexterityFTI.providedBy(event.object):
         return    

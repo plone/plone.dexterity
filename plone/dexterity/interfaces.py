@@ -52,7 +52,12 @@ class IDexterityFTI(Interface):
                                           readonly=True)
     
 class IDexterityFactory(IFactory):
-    """A factory that can create Dexterity objects
+    """A factory that can create Dexterity objects.
+    
+    This factory will create an object by looking up the klass property of
+    the FTI with the given portal type. It will also set the portal_type 
+    on the instance and mark the instance as providing the schema interface
+    if it does not do so already.
     """
     
     portal_type = zope.schema.TextLine(title=u"Portal type name",

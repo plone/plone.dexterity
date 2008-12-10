@@ -8,21 +8,15 @@ from plone.dexterity.interfaces import IDexterityFTI
 
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
-from plone.dexterity.browser.add import AddTraverser
-
 from plone.dexterity.browser.edit import DefaultEditForm
-
 from plone.dexterity.browser.view import DefaultView
 
+from plone.dexterity.content import Item, Container
 from plone.dexterity.fti import DexterityFTI
 
 from zope.publisher.browser import TestRequest as TestRequestBase
-from zope.publisher.interfaces.browser import IBrowserRequest
-from Products.CMFCore.interfaces import IFolderish
 from zope.app.container.interfaces import INameChooser
 
-from OFS.SimpleItem import SimpleItem
-from Products.Five.browser import BrowserView
 from AccessControl import Unauthorized
 
 class TestRequest(TestRequestBase):
@@ -34,106 +28,20 @@ class TestRequest(TestRequestBase):
 
 class TestAddView(MockTestCase):
     
-    def test_traverser_looks_up_fti_addview(self):
+    def test_addview_sets_form_portal_type(self):
         
-        # Context and request
-        
-        class Context(SimpleItem):
-            implements(IFolderish)
-        
-        context = Context()
+        context = Container(u"container")
         request = TestRequest()
+        fti = DexterityFTI(u"testtype")
         
-        # FTI - returns dummy addview name
+        addview = DefaultAddView(context, request, fti)
         
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.add_view_name).result(u"add-testtype")
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        
-        # Mock add view
-        
-        class Form(object):
-            portal_type = u"dummy"
-        
-        class AddView(BrowserView):
-            def __init__(self, context, request):
-                self.form_instance = Form()
-                self.portal_type = u"foo"
-
-        self.mock_adapter(DefaultAddView, Interface, (IFolderish, IBrowserRequest), name=u"dexterity-default-addview")
-        self.mock_adapter(AddView, Interface, (IFolderish, IBrowserRequest), name=u"add-testtype")
-        
-        self.replay()
-        
-        traverser = AddTraverser(context, request)
-        addview = traverser.publishTraverse(request, name="testtype")
-        
-        self.failUnless(isinstance(addview, AddView))
-        self.assertEquals("testtype", addview.form_instance.portal_type)
-        self.assertEquals("testtype", addview.portal_type)
-        
-    def test_traverser_falls_back_on_default_addview(self):
-        # Context and request
-        
-        class Context(SimpleItem):
-            implements(IFolderish)
-        
-        context = Context()
-        request = self.mocker.proxy(TestRequest())
-        
-        request['disable_border'] = True
-        
-        # FTI - returns dummy addview name
-        
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.add_view_name).result(u"")
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        
-        # Mock add view
-        
-        self.mock_adapter(DefaultAddView, Interface, (IFolderish, IBrowserRequest), name=u"dexterity-default-addview")
-        
-        self.replay()
-        
-        traverser = AddTraverser(context, request)
-        addview = traverser.publishTraverse(request, name="testtype")
-        
-        self.failUnless(isinstance(addview, DefaultAddView))
-        self.assertEquals("testtype", addview.form_instance.portal_type)
-
-    def test_traverser_falls_back_on_default_addview_if_addview_set_but_invalid(self):
-        # Context and request
-        
-        class Context(SimpleItem):
-            implements(IFolderish)
-        
-        context = Context()
-        request = self.mocker.proxy(TestRequest())
-        
-        request['disable_border'] = True
-        
-        # FTI - returns dummy addview name
-        
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.add_view_name).result(u"add-non-existent")
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        
-        # Mock add view
-        
-        self.mock_adapter(DefaultAddView, Interface, (IFolderish, IBrowserRequest), name=u"dexterity-default-addview")
-        
-        self.replay()
-        
-        traverser = AddTraverser(context, request)
-        addview = traverser.publishTraverse(request, name="testtype")
-        
-        self.failUnless(isinstance(addview, DefaultAddView))
-        self.assertEquals("testtype", addview.form_instance.portal_type)
+        self.assertEquals(u"testtype", addview.form_instance.portal_type)
     
     def test_form_create(self):
         
         # Context and request
-        context = self.create_dummy()
+        context = Container(u"container")
         request = TestRequest()
         
         # FTI - returns dummy factory name
@@ -143,11 +51,12 @@ class TestAddView(MockTestCase):
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         # The form we're testing
-        form = DefaultAddForm(context, request, u"testtype")
+        form = DefaultAddForm(context, request)
+        form.portal_type = u"testtype"
         
         # createObject and applyChanges
         
-        obj_dummy = self.create_dummy()
+        obj_dummy = Item(id="dummy")
         data_dummy = {u"foo": u"bar"}
         
         createObject_mock = self.mocker.replace('zope.component.createObject')
@@ -159,6 +68,7 @@ class TestAddView(MockTestCase):
         self.replay()
         
         self.assertEquals(obj_dummy, form.create(data_dummy))
+        self.assertEquals("testtype", obj_dummy.portal_type)
     
     def test_add(self):
         
@@ -167,7 +77,8 @@ class TestAddView(MockTestCase):
         obj = self.mocker.mock()
         request = TestRequest()
 
-        self.expect(container._setObject(u"newid", obj))
+        self.expect(container._setObject(u"newid", obj)).result(u"newid")
+        self.expect(container._getOb(u"newid")).result(obj)
         self.expect(container.absolute_url()).result("http://nohost/plone/container")
         
         obj.id = u"newid"
@@ -197,7 +108,8 @@ class TestAddView(MockTestCase):
 
         self.replay()
         
-        form = DefaultAddForm(container, request, u"testtype")
+        form = DefaultAddForm(container, request)
+        form.portal_type = u"testtype"
         form.add(obj)
         
     def test_add_raises_unauthorized_if_construction_not_allowed(self):
@@ -219,7 +131,9 @@ class TestAddView(MockTestCase):
 
         self.replay()
         
-        form = DefaultAddForm(container, request, u"testtype")
+        form = DefaultAddForm(container, request)
+        form.portal_type = u"testtype"
+        
         self.assertRaises(Unauthorized, form.add, obj)
 
     def test_add_raises_value_error_if_type_not_addable(self):
@@ -242,7 +156,9 @@ class TestAddView(MockTestCase):
 
         self.replay()
         
-        form = DefaultAddForm(container, request, u"testtype")
+        form = DefaultAddForm(container, request)
+        form.portal_type = u"testtype"
+        
         self.assertRaises(ValueError, form.add, obj)
            
     def test_label(self):
@@ -266,14 +182,14 @@ class TestAddView(MockTestCase):
         
         self.replay()
         
-        addform = DefaultAddForm(context_mock, request_mock, u"testtype")
+        addform = DefaultAddForm(context_mock, request_mock)
+        addform.portal_type = u"testtype"
+        
         label = addform.label
         self.assertEquals(u"Add ${name}", unicode(label))
         self.assertEquals(u"Test title", label.mapping['name'])
     
 class TestEditView(MockTestCase):
-    
-    # TODO: Add tests for field/widget setup code
     
     def test_label(self):
         

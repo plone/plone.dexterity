@@ -17,7 +17,7 @@ from plone.dexterity.utils import resolve_dotted_name
 # from plone.dexterity.security import InstanceSecurityInfo
 
 class DexterityFactory(Persistent, Factory):
-    """A factory for 
+    """A factory for Dexterity content. 
     """
     
     implements(IDexterityFactory)
@@ -47,7 +47,8 @@ class DexterityFactory(Persistent, Factory):
         except TypeError, e:
             raise ValueError("Error whilst constructing content for %s using class %s: %s" % (self.portal_type, fti.klass, str(e)))
         
-        # Set portal_type if not set
+        # Set portal_type if not set, but avoid creating an instance variable
+        # if possible
         if getattr(obj, 'portal_type', '') != self.portal_type:
             obj.portal_type = self.portal_type
 

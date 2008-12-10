@@ -14,11 +14,6 @@ from zope.component.interfaces import IFactory
 from zope.component import getGlobalSiteManager
 from zope.component.persistentregistry import PersistentComponents
 
-from zope.interface.declarations import Implements
-
-from zope.publisher.interfaces.browser import IBrowserView
-from zope.publisher.interfaces.browser import IBrowserRequest
-
 from zope.app.component.hooks import setSite, setHooks
 
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
@@ -251,7 +246,18 @@ class TestFTI(MockTestCase):
     
     def test_add_view_url_set_on_creation(self):
         fti = DexterityFTI(u"testtype")
-        self.assertEquals('string:${folder_url}/@@add-dexterity-content/testtype', fti.add_view_expr)
+        self.assertEquals('string:${folder_url}/++add++testtype', fti.add_view_expr)
+
+    def test_factory_set_on_creation(self):
+        fti = DexterityFTI(u"testtype")
+        self.assertEquals('testtype', fti.factory)
+
+    def test_addview_and_factory_not_overridden_on_creation(self):
+        fti = DexterityFTI(u"testtype",
+                           add_view_expr="string:${folder_url}/@@my-addview",
+                           factory="my.factory")
+        self.assertEquals('string:${folder_url}/@@my-addview', fti.add_view_expr)
+        self.assertEquals('my.factory', fti.factory)
     
 class TestFTIEvents(MockTestCase):
 
@@ -435,7 +441,7 @@ class TestFTIEvents(MockTestCase):
                     mocker.MATCH(lambda x: isinstance(x, DexterityFactory) and x.portal_type == portal_type), 
                     IFactory, portal_type)).passthrough()
 
-        self.assertEquals('string:${folder_url}/@@add-dexterity-content/testtype', fti.add_view_expr)
+        self.assertEquals('string:${folder_url}/++add++testtype', fti.add_view_expr)
 
         self.replay()
         
@@ -447,8 +453,6 @@ class TestFTIEvents(MockTestCase):
         
         self.assertNotEquals(None, queryUtility(IDexterityFTI, name=portal_type))
         self.assertNotEquals(None, queryUtility(IFactory, name=portal_type))
-        
-        self.assertEquals('string:${folder_url}/@@add-dexterity-content/newtype', fti.add_view_expr)
      
     def test_dynamic_schema_refreshed_on_modify(self):
         portal_type = u"testtype"

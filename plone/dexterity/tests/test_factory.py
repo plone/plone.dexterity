@@ -211,11 +211,6 @@ class TestFactory(MockTestCase):
         
         factory = DexterityFactory(portal_type=u"testtype")
         self.assertEquals(obj_mock, factory(u"id", title=u"title"))
-    
-    def test_create_initializes_security(self):
-        
-        # TODO: This is not properly worked out yet
-        pass
 
 def test_suite():
     suite = unittest.TestSuite()

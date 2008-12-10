@@ -26,7 +26,10 @@ class DexterityExtensibleForm(AutoExtensibleForm):
     def additional_schemata(self):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         for behavior_name in fti.behaviors:
-            behavior_interface = resolve_dotted_name(behavior_name)
+            try:
+                behavior_interface = resolve_dotted_name(behavior_name)
+            except ValueError:
+                continue
             if behavior_interface is not None:
                 behavior_schema = IFormFieldProvider(behavior_interface, None)
                 if behavior_schema is not None:
