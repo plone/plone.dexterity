@@ -15,7 +15,7 @@
     <!-- Standard add view and form - invoked from ++add++ traverser -->
     <adapter
         for="Products.CMFCore.interfaces.IFolderish
-             zope.publisher.interfaces.browser.IBrowserRequest
+             Products.CMFDefault.interfaces.ICMFDefaultSkin
              ..interfaces.IDexterityFTI"
         provides="zope.publisher.interfaces.browser.IBrowserPage"
         factory=".add.DefaultAddView"
