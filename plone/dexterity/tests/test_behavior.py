@@ -16,6 +16,12 @@ class IOne(Interface):
 class ITwo(Interface):
     pass
 
+class IThree(Interface):
+    pass
+
+class IFour(IThree):
+    pass
+
 class TestBehavior(MockTestCase):
     
     def test_supports(self):
@@ -23,9 +29,15 @@ class TestBehavior(MockTestCase):
         # Context mock
         context_dummy = self.create_dummy(portal_type=u"testtype")
         
+        # Behavior mock
+        behavior_dummy_1 = self.create_dummy(interface = IOne)
+        self.mock_utility(behavior_dummy_1, IBehavior, name=IOne.__identifier__)
+        behavior_dummy_4 = self.create_dummy(interface = IFour)
+        self.mock_utility(behavior_dummy_4, IBehavior, name=IFour.__identifier__)
+        
         # FTI mock
         fti = DexterityFTI(u"testtype")
-        fti.behaviors = [IOne.__identifier__]
+        fti.behaviors = [IOne.__identifier__, IFour.__identifier__]
         self.mock_utility(fti, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -34,8 +46,9 @@ class TestBehavior(MockTestCase):
         
         self.assertEquals(True, assignable.supports(IOne))
         self.assertEquals(False, assignable.supports(ITwo))
-        
-        
+        self.assertEquals(True, assignable.supports(IThree))
+        self.assertEquals(True, assignable.supports(IFour))
+
     def test_enumerate(self):
         
         # Context mock

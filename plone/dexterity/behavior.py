@@ -16,9 +16,12 @@ class DexterityBehaviorAssignable(object):
     
     def __init__(self, context):
         self.fti = getUtility(IDexterityFTI, name=context.portal_type)
-        
+    
     def supports(self, behavior_interface):
-        return behavior_interface.__identifier__ in self.fti.behaviors
+        for behavior in self.enumerate_behaviors():
+            if behavior_interface in behavior.interface._implied:
+                return True
+        return False
         
     def enumerate_behaviors(self):
         for name in self.fti.behaviors:
