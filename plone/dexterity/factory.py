@@ -1,7 +1,6 @@
 from persistent import Persistent
 
 from zope.interface import implements
-from zope.interface import alsoProvides
 from zope.interface.declarations import Implements
 
 from zope.component import getUtility
@@ -52,22 +51,6 @@ class DexterityFactory(Persistent, Factory):
         if getattr(obj, 'portal_type', '') != self.portal_type:
             obj.portal_type = self.portal_type
 
-        # Get schema interface
-
-        schema = fti.lookup_schema()
-        
-        if not schema.providedBy(obj):
-            alsoProvides(obj, schema)
-
-            # XXX: This security model does not seem to work properly
-            # permission_settings = schema.queryTaggedValue(u'dexterity.security', {})
-            # security = InstanceSecurityInfo()
-            # # Initialise fields from the schema onto the type
-            # for name, field in getFieldsInOrder(schema):
-            #     read_permission = permission_settings.get(name, {}).get('read-permission', 'View')
-            #     security.declareProtected(read_permission, name)
-            # security.apply(aq_base(obj))
-        
         return obj
 
     def getInterfaces(self):

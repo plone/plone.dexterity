@@ -2,16 +2,11 @@ import unittest
 from plone.mocktestcase import MockTestCase
 
 from zope.interface import Interface
-from zope.interface.interface import InterfaceClass
-
-import zope.schema
 
 from plone.dexterity.interfaces import IDexterityFTI
 
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.factory import DexterityFactory
-
-from plone.supermodel.model import Model
 
 class IDummy(Interface):
     pass
@@ -57,9 +52,7 @@ class TestFactory(MockTestCase):
     #   - name is resolved to a callable
     #   - callable is called to get an object
     #   - portal_type is set if not set already
-    #   - schema is looked up from FTI
-    #   - if schema is provided by object, object is returned
-    #   - otherwise, schema is set on the object, using alsoProvides
+
     
     def test_create_with_schema_already_provided_and_portal_type_set(self):
         
@@ -75,14 +68,9 @@ class TestFactory(MockTestCase):
         resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
-        # Schema
-        schema_mock = self.mocker.mock(InterfaceClass)
-        self.expect(schema_mock.providedBy(obj_mock)).result(True)
-        
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.klass).result("my.mocked.ContentTypeClass")
-        self.expect(fti_mock.lookup_schema()).result(schema_mock)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -105,14 +93,9 @@ class TestFactory(MockTestCase):
         resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
-        # Schema
-        schema_mock = self.mocker.mock(InterfaceClass)
-        self.expect(schema_mock.providedBy(obj_mock)).result(True)
-        
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.klass).result("my.mocked.ContentTypeClass")
-        self.expect(fti_mock.lookup_schema()).result(schema_mock)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -135,14 +118,9 @@ class TestFactory(MockTestCase):
         resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
-        # Schema
-        schema_mock = self.mocker.mock(InterfaceClass)
-        self.expect(schema_mock.providedBy(obj_mock)).result(True)
-        
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.klass).result("my.mocked.ContentTypeClass")
-        self.expect(fti_mock.lookup_schema()).result(schema_mock)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -164,18 +142,9 @@ class TestFactory(MockTestCase):
         resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
-        # Schema
-        schema_mock = self.mocker.mock(InterfaceClass)
-        self.expect(schema_mock.providedBy(obj_mock)).result(False) # -> need to initialise schema
-        
-        # alsoProvides
-        alsoProvides_mock = self.mocker.replace('zope.interface.alsoProvides')
-        self.expect(alsoProvides_mock(obj_mock, schema_mock))
-        
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.klass).result("my.mocked.ContentTypeClass")
-        self.expect(fti_mock.lookup_schema()).result(schema_mock)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -196,15 +165,10 @@ class TestFactory(MockTestCase):
         # Resolver
         resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
-        
-        # Schema
-        schema_mock = self.mocker.mock(InterfaceClass)
-        self.expect(schema_mock.providedBy(obj_mock)).result(True)
-        
+                
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.klass).result("my.mocked.ContentTypeClass")
-        self.expect(fti_mock.lookup_schema()).result(schema_mock)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()

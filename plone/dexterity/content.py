@@ -1,4 +1,9 @@
 from zope.interface import implements
+from zope.interface.declarations import Implements
+from zope.interface.declarations import implementedBy
+from zope.interface.declarations import getObjectSpecification
+from zope.interface.declarations import ObjectSpecificationDescriptor
+
 from zope.component import queryUtility
 
 from zope.annotation import IAttributeAnnotatable
@@ -18,10 +23,41 @@ from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 
 from plone.folder.ordered import OrderedBTreeFolderBase
 
+class FTIAwareSpecification(ObjectSpecificationDescriptor):
+    """A __providedBy__ decorator that returns the interfaces provided by
+    the object, plus the schema interface set in the FTI.
+    """
+
+    def _get_schema(self, inst):
+        portal_type = getattr(inst, 'portal_type', None)
+        if portal_type is not None:
+            fti = queryUtility(IDexterityFTI, name=portal_type)
+            try:
+                return fti.lookup_schema()
+            except (ValueError, AttributeError,):
+                pass
+        return None
+
+    def __get__(self, inst, cls=None):
+        if inst is None:
+            return getObjectSpecification(cls)
+        
+        schema = self._get_schema(inst)
+        
+        spec = getattr(inst, '__provides__', None)
+        if spec is None:
+            spec = implementedBy(cls)
+        
+        if schema is not None and schema not in spec:
+            spec = Implements(schema) + spec
+        
+        return spec
+
 class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
     """Base class for Dexterity content
     """
     implements(IDexterityContent, IAttributeAnnotatable)
+    __providedBy__ = FTIAwareSpecification()
     
     # portal_type is set by the add view and/or factory
     portal_type = None
@@ -50,7 +86,10 @@ class Item(BrowserDefaultMixin, DexterityContent):
     """
     
     implements(IDexterityItem)
+    __providedBy__ = FTIAwareSpecification()
+    
     isPrincipiaFolderish = 0
+    
     
     def __init__(self, id=None, **kwargs):
         PortalContent.__init__(self, id, **kwargs)
@@ -64,6 +103,8 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, OrderedBTreeFolderBase, De
     """
     
     implements(IDexterityContainer)
+    __providedBy__ = FTIAwareSpecification()
+    
     isPrincipiaFolderish = 1
 
     def __init__(self, id=None, **kwargs):
