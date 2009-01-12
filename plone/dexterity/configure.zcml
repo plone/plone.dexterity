@@ -37,7 +37,7 @@
         />
         
     <!-- Schema cache -->
-    <adapter factory=".schema.invalidate_schema" />
+    <subscriber handler=".schema.invalidate_schema" />
 
     <!-- Support for plone.behavior behaviors -->
     <adapter factory=".behavior.DexterityBehaviorAssignable" />
