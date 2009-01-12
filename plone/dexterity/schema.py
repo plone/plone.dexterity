@@ -4,6 +4,7 @@ from threading import Lock
 from zope.interface import implements, alsoProvides
 from zope.interface.interface import InterfaceClass
 
+from zope.component import adapter
 from zope.component import queryUtility
 
 from zope.app.content.interfaces import IContentType
@@ -17,7 +18,11 @@ from plone.alterego.interfaces import IDynamicObjectFactory
 
 from plone.dexterity.interfaces import IDexteritySchema
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.interfaces import ISchemaInvalidatedEvent
+
+from plone.dexterity.utils import synchronized
 from plone.dexterity import utils
+
 
 from plone.alterego import dynamic
 
@@ -25,15 +30,59 @@ from plone.alterego import dynamic
 generated = dynamic.create('plone.dexterity.schema.generated')
 transient = new.module("transient")
 
+# Schema cache
+
+class SchemaCache(object):
+    """Simple schema cache
+    """
+    
+    lock = Lock()
+    cache = {}
+
+    @synchronized(lock)
+    def get(self, portal_type):
+        cached = self.cache.get(portal_type, None)
+        if cached is None:
+            fti = queryUtility(IDexterityFTI, name=portal_type)
+            if fti is not None:
+                cached = self.cache[portal_type] = fti.lookup_schema()
+        return cached
+    
+    @synchronized(lock)
+    def invalidate(self, portal_type):
+        self.cache[portal_type] = None
+
+    @synchronized(lock)
+    def clear(self):
+        self.cache.clear()
+
+schema_cache = SchemaCache()
+
+class SchemaInvalidatedEvent(object):
+    implements(ISchemaInvalidatedEvent)
+    
+    def __init__(self, portal_type):
+        self.portal_type = portal_type
+
+@adapter(ISchemaInvalidatedEvent)
+def invalidate_schema(event):
+    if event.portal_type:
+        schema_cache.invalidate(event.portal_type)
+    else:
+        schema_cache.clear()
+
+# Dynamic module factory
+
 class SchemaModuleFactory(object):
     """Create dynamic schema interfaces on the fly
     """
     
     implements(IDynamicObjectFactory)
     
-    _lock = Lock()
+    lock = Lock()
     _transient_schema_cache = {}
     
+    @synchronized(lock)
     def __call__(self, name, module):
         """Someone tried to load a dynamic interface that has not yet been
         created yet. We will attempt to load it from the FTI if we can. If
@@ -55,8 +104,6 @@ class SchemaModuleFactory(object):
             prefix, portal_type, schema_name = utils.split_schema_name(name)
         except ValueError:
             return None
-        
-        self._lock.acquire()
         
         if name in self._transient_schema_cache:
             schema = self._transient_schema_cache[name]
@@ -91,8 +138,7 @@ class SchemaModuleFactory(object):
                 del self._transient_schema_cache[name]
                 
             setattr(module, name, schema)
-            
-        self._lock.release()
+
         return schema
 
 class DexteritySchemaPolicy(object):
@@ -114,7 +160,9 @@ class DexteritySchemaPolicy(object):
         # when it's first used, we know the portal_type and site, and can
         # thus update it
         return '__tmp__' + schema_name
-        
+
+# plone.supermodel handlers
+
 class SecuritySchema(object):
     """Support the security: namespace in model definitions.
     """

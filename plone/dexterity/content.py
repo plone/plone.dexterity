@@ -13,6 +13,8 @@ from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.interfaces import IDexterityContainer
 from plone.dexterity.interfaces import IDexterityFTI
 
+from plone.dexterity.schema import schema_cache
+
 from zope.app.container.contained import Contained
 
 from Products.CMFCore.PortalContent import PortalContent
@@ -31,9 +33,8 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
     def _get_schema(self, inst):
         portal_type = getattr(inst, 'portal_type', None)
         if portal_type is not None:
-            fti = queryUtility(IDexterityFTI, name=portal_type)
             try:
-                return fti.lookup_schema()
+                return schema_cache.get(portal_type)
             except (ValueError, AttributeError,):
                 pass
         return None

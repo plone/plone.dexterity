@@ -35,6 +35,9 @@
         factory=".schema.SecuritySchema"
         name="dexterity.security"
         />
+        
+    <!-- Schema cache -->
+    <adapter factory=".schema.invalidate_schema" />
 
     <!-- Support for plone.behavior behaviors -->
     <adapter factory=".behavior.DexterityBehaviorAssignable" />

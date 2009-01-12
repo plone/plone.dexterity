@@ -69,6 +69,17 @@ class IDexteritySchema(Interface):
     """Base class for Dexterity schemata
     """
 
+# Schema cache
+
+class ISchemaInvalidatedEvent(Interface):
+    """Event fired when the schema cache should be invalidated.
+    
+    If the portal_type is not given, all schemata will be cleared from the
+    cache.
+    """
+    
+    portal_type = zope.schema.TextLine(title=u"FTI name", required=False)
+
 # Content
 
 class IDexterityContent(Interface):

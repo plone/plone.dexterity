@@ -5,6 +5,8 @@ from zope.interface import implements
 from zope.component.interfaces import IFactory
 from zope.component import getUtility, queryUtility
 
+from zope.event import notify
+
 from zope.lifecycleevent import modified
 
 from zope.app.component.hooks import getSiteManager
@@ -23,6 +25,8 @@ from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFDynamicViewFTI import fti as base
 
 import plone.dexterity.schema
+
+from plone.dexterity.schema import SchemaInvalidatedEvent
 
 from Products.CMFCore.interfaces import IAction
 from Products.CMFCore.Expression import Expression
@@ -367,6 +371,8 @@ def unregister(fti, old_name=None):
     
     site_manager.unregisterUtility(provided=IDexterityFTI, name=portal_type)
     site_manager.unregisterUtility(provided=IFactory, name=fti.factory)
+    
+    notify(SchemaInvalidatedEvent(portal_type))
         
 def fti_added(object, event):
     """When the FTI is created, install local components
@@ -411,13 +417,16 @@ def fti_modified(object, event):
     # the 'factory' property is changed.
     
     if not IDexterityFTI.providedBy(event.object):
-        return    
+        return
     
     fti = event.object
+    portal_type = fti.getId()
     
     if fti.has_dynamic_schema:    
-        schema_name = utils.portal_type_to_schema_name(fti.getId())
+        schema_name = utils.portal_type_to_schema_name(portal_type)
         schema = getattr(plone.dexterity.schema.generated, schema_name)
     
         model = fti.lookup_model()
         sync_schema(model.schema, schema, overwrite=True)
+        
+    notify(SchemaInvalidatedEvent(portal_type))
