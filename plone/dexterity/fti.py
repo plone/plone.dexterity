@@ -405,10 +405,6 @@ def fti_renamed(object, event):
     unregister(event.object, event.oldName)
     register(event.object)
 
-    # TODO: We will either need to keep a trace of the old FTI, or 
-    # we'll need to migrate all objects using this FTI, because instances 
-    # with the old schema name will no longer be able to find their FTI
-
 def fti_modified(object, event):
     """When an FTI is modified, re-sync the schema, if any
     """
