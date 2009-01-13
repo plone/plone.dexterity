@@ -8,6 +8,7 @@ import zope.schema
 from plone.dexterity.interfaces import IDexterityFTI
 
 from plone.dexterity.fti import DexterityFTI
+from plone.dexterity.schema import schema_cache
 from plone.dexterity.content import DexterityContent, Item
 
 class TestContent(MockTestCase):
@@ -37,6 +38,7 @@ class TestContent(MockTestCase):
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
+        schema_cache.clear()
         
         # Schema as looked up in FTI is now provided by item
         self.assertEquals(False, ISchema.implementedBy(MyItem))
@@ -54,10 +56,11 @@ class TestContent(MockTestCase):
         
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema).count(3)
+        self.expect(fti_mock.lookup_schema()).result(ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
+        schema_cache.clear()
         
         self.assertEquals(u"foo_default", content.foo)
         self.assertEquals(None, content.bar)

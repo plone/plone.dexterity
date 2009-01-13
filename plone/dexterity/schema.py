@@ -33,7 +33,27 @@ transient = new.module("transient")
 # Schema cache
 
 class SchemaCache(object):
-    """Simple schema cache
+    """Simple schema cache. 
+    
+    This cache will store a Python object reference to the schema, as returned
+    by fti.lookup_schema(), for any number of portal types. The value will
+    be cached until the server is restarted or the cache is invalidated or
+    cleared.
+    
+    You should only use this if you require bare-metal speed. For almost all
+    operations, it's safer and easier to do:
+    
+        >>> fti = getUtility(IDexterityFTI, name=portal_type)
+        >>> schema = fti.lookup_schema()
+    
+    The lookup_schema() call is probably as fast as this cache. However, if
+    you need to avoid the utility lookup, you can use the cache like so:
+    
+        >>> from plone.dexterity.schema import schema_cache
+        >>> my_schema = schema_cache.get(portal_type)
+        
+    Invalidate the cache by calling invalidate() (for one portal_type) or
+    clear() (for all cached values), or simply raise a SchemaInvalidatedEvent.
     """
     
     lock = Lock()
