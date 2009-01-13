@@ -13,6 +13,9 @@ from plone.dexterity.content import DexterityContent, Item
 
 class TestContent(MockTestCase):
     
+    def setUp(self):
+        schema_cache.clear()
+    
     def test_provided_by(self):
 
         # Dummy type
@@ -38,7 +41,6 @@ class TestContent(MockTestCase):
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
-        schema_cache.clear()
         
         # Schema as looked up in FTI is now provided by item
         self.assertEquals(False, ISchema.implementedBy(MyItem))
@@ -60,7 +62,6 @@ class TestContent(MockTestCase):
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
-        schema_cache.clear()
         
         self.assertEquals(u"foo_default", content.foo)
         self.assertEquals(None, content.bar)
