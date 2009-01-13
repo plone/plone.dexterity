@@ -65,7 +65,10 @@ class SchemaCache(object):
         if cached is None:
             fti = queryUtility(IDexterityFTI, name=portal_type)
             if fti is not None:
-                cached = self.cache[portal_type] = fti.lookup_schema()
+                try:
+                    cached = self.cache[portal_type] = fti.lookup_schema()
+                except (AttributeError, ValueError), e:
+                    pass
         return cached
     
     @synchronized(lock)
