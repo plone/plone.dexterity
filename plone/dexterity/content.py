@@ -55,6 +55,10 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         return None
 
 class AttributeValidator(Explicit):
+    """Decide whether attributes should be accessible. This is set as the
+    __allow_access_to_unprotected_subobjects__ variable in Dexterity's content
+    classes.
+    """
     
     def __call__(self, name, value):
 
