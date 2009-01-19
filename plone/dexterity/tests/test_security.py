@@ -218,6 +218,21 @@ class TestAttributeProtection(MockTestCase):
         self.assertTrue(item.__allow_access_to_unprotected_subobjects__('foo', u"bar"))
         self.assertTrue(item.__allow_access_to_unprotected_subobjects__('random', u"stuff"))
 
+    def test_empty_name(self):
+        
+        # Mock FTI
+        fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.lookup_schema()).count(0)
+        self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
+
+        # Content item
+        item = Item('test')
+        item.portal_type = u"testtype"
+        
+        self.mocker.replay()
+        
+        self.assertTrue(item.__allow_access_to_unprotected_subobjects__('', u"foo"))
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestAttributeProtection))
