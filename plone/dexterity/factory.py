@@ -11,10 +11,6 @@ from plone.dexterity.interfaces import IDexterityFactory
 
 from plone.dexterity.utils import resolve_dotted_name
 
-# from Acquisition import aq_base
-# from zope.schema import getFieldsInOrder
-# from plone.dexterity.security import InstanceSecurityInfo
-
 class DexterityFactory(Persistent, Factory):
     """A factory for Dexterity content. 
     """
