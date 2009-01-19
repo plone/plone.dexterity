@@ -77,7 +77,7 @@ class AttributeValidator(Explicit):
         if name not in info:
             return 1
         
-        perm = info['name'].get('read-permission', None)
+        perm = info[name].get('read-permission', None)
         if perm is None:
             return 1
         
