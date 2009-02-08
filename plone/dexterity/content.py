@@ -23,7 +23,7 @@ from Products.CMFCore.utils import _checkPermission as checkPerm
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 
-from plone.folder.ordered import OrderedBTreeFolderBase
+from plone.folder.ordered import CMFOrderedBTreeFolderBase
 
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
     """A __providedBy__ decorator that returns the interfaces provided by
@@ -142,7 +142,7 @@ class Item(BrowserDefaultMixin, DexterityContent):
         if id is not None:
             self.id = id
 
-class Container(BrowserDefaultMixin, CMFCatalogAware, OrderedBTreeFolderBase, DexterityContent):
+class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
     """Base class for folderish items
     """
     
@@ -153,7 +153,7 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, OrderedBTreeFolderBase, De
     isPrincipiaFolderish = 1
 
     def __init__(self, id=None, **kwargs):
-        OrderedBTreeFolderBase.__init__(self, id, **kwargs)
+        CMFOrderedBTreeFolderBase.__init__(self, id, **kwargs)
         DefaultDublinCoreImpl.__init__(self, **kwargs)
         
         if id is not None:
