@@ -40,6 +40,9 @@ class TestContent(MockTestCase):
         self.expect(fti_mock.lookup_schema()).result(ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
+        # We would've accidentally kicked this one before
+        del item._v__providedBy__
+        
         self.replay()
         
         # Schema as looked up in FTI is now provided by item

@@ -31,8 +31,12 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
     """
 
     def __get__(self, inst, cls=None):
+        
         if inst is None:
             return getObjectSpecification(cls)
+        
+        if hasattr(inst, '_v__providedBy__'):
+            return inst._v__providedBy__
         
         schema = self._get_schema(inst)
         
@@ -43,6 +47,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         if schema is not None and schema not in spec:
             spec = Implements(schema) + spec
         
+        inst._v__providedBy__ = spec
         return spec
 
     def _get_schema(self, inst):
