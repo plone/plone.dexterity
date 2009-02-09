@@ -58,6 +58,7 @@ class SchemaCache(object):
     
     lock = Lock()
     cache = {}
+    counter_values = {}
 
     @synchronized(lock)
     def get(self, portal_type):
@@ -70,10 +71,21 @@ class SchemaCache(object):
                 except (AttributeError, ValueError), e:
                     pass
         return cached
+        
+    @synchronized(lock)
+    def counter(self, portal_type):
+        counter = self.counter_values.get(portal_type, None)
+        if counter is None:
+            counter = self.counter_values[portal_type] = 0
+        return counter
     
     @synchronized(lock)
     def invalidate(self, portal_type):
         self.cache[portal_type] = None
+        if portal_type in self.counter_values:
+            self.counter_values[portal_type] += 1
+        else:
+            self.counter_values[portal_type] = 0
 
     @synchronized(lock)
     def clear(self):
