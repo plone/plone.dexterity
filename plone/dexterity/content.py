@@ -1,10 +1,14 @@
 from Acquisition import Explicit, aq_parent
 
+from zope.component import queryUtility
+
 from zope.interface import implements
 from zope.interface.declarations import Implements
 from zope.interface.declarations import implementedBy
 from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import ObjectSpecificationDescriptor
+
+from zope.security.interfaces import IPermission
 
 from zope.annotation import IAttributeAnnotatable
 
@@ -16,14 +20,18 @@ from plone.dexterity.schema import schema_cache
 
 from zope.app.container.contained import Contained
 
+from AccessControl import getSecurityManager
+
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
-from Products.CMFCore.utils import _checkPermission as checkPerm
 
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
+
+from plone.autoform.interfaces import READ_PERMISSIONS_KEY
+from plone.supermodel.utils import merged_tagged_value_dict
 
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
     """A __providedBy__ decorator that returns the interfaces provided by
@@ -53,7 +61,6 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         spec = getattr(inst, '__provides__', None)
         if spec is None:
             spec = implementedBy(cls)
-        
         
         # Add the schema from the FTI
         
@@ -95,17 +102,14 @@ class AttributeValidator(Explicit):
         if schema is None:
             return 1
         
-        info = schema.queryTaggedValue(u'dexterity.security', {})
+        info = merged_tagged_value_dict(schema, READ_PERMISSIONS_KEY)
         
         if name not in info:
             return 1
         
-        perm = info[name].get('read-permission', None)
-        if perm is None:
-            return 1
-        
-        if checkPerm(perm, context):
-            return 1
+        permission = queryUtility(IPermission, name=info[name])
+        if permission is not None:
+            return getSecurityManager().checkPermission(permission.title, context)
         
         return 0
     

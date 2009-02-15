@@ -17,9 +17,6 @@ from plone.dexterity import schema
 from plone.dexterity import utils
 
 from plone.supermodel.model import Model
-from plone.supermodel.utils import ns
-
-from elementtree import ElementTree
 
 class TestSchemaModuleFactory(MockTestCase):
     
@@ -143,80 +140,7 @@ class TestSchemaModuleFactory(MockTestCase):
         # Now we get the fields from the FTI's model
         self.assertEquals(('dummy',), tuple(zope.schema.getFieldNames(klass)))
 
-class TestSecuritySchema(unittest.TestCase):
-    
-    namespace = 'http://namespaces.plone.org/dexterity/security'
-    
-    def test_read(self):
-        field_node = ElementTree.Element('field')
-        field_node.set(ns("read-permission", self.namespace), "Read perm")
-        field_node.set(ns("write-permission", self.namespace), "Write perm")
-        
-        class IDummy(Interface):
-            dummy = zope.schema.TextLine(title=u"dummy")
-        
-        handler = schema.SecuritySchema()
-        handler.read(field_node, IDummy, IDummy['dummy'])
-        
-        self.assertEquals({u'dummy': {'read-permission': "Read perm",
-                                      'write-permission': "Write perm"}},
-                            IDummy.getTaggedValue(u"dexterity.security"))
-    
-    def test_read_no_permissions(self):
-        field_node = ElementTree.Element('field')
-        
-        class IDummy(Interface):
-            dummy = zope.schema.TextLine(title=u"dummy")
-
-        handler = schema.SecuritySchema()
-        handler.read(field_node, IDummy, IDummy['dummy'])
-        
-        self.failIf(u'dexterity.security' in IDummy.getTaggedValueTags())
-        
-    def test_write(self):
-        field_node = ElementTree.Element('field')
-        
-        class IDummy(Interface):
-            dummy = zope.schema.TextLine(title=u"dummy")
-        
-        IDummy.setTaggedValue(u'dexterity.security',
-                                {u'dummy': {'read-permission': "Read perm",
-                                            'write-permission': "Write perm"}})
-                               
-        handler = schema.SecuritySchema()
-        handler.write(field_node, IDummy, IDummy['dummy'])
-        
-        self.assertEquals("Read perm", field_node.get(ns("read-permission", self.namespace)))
-        self.assertEquals("Write perm", field_node.get(ns("write-permission", self.namespace)))
-    
-    def test_write_no_permissions(self):
-        field_node = ElementTree.Element('field')
-        
-        class IDummy(Interface):
-            dummy = zope.schema.TextLine(title=u"dummy")
-        
-        IDummy.setTaggedValue(u'dexterity.security', {u'dummy': {}})
-        
-        handler = schema.SecuritySchema()
-        handler.write(field_node, IDummy, IDummy['dummy'])
-        
-        self.assertEquals(None, field_node.get(ns("read-permission", self.namespace)))
-        self.assertEquals(None, field_node.get(ns("write-permission", self.namespace)))
-
-    def test_write_no_metadata(self):
-        field_node = ElementTree.Element('field')
-        
-        class IDummy(Interface):
-            dummy = zope.schema.TextLine(title=u"dummy")
-        
-        handler = schema.SecuritySchema()
-        handler.write(field_node, IDummy, IDummy['dummy'])
-        
-        self.assertEquals(None, field_node.get(ns("read-permission", self.namespace)))
-        self.assertEquals(None, field_node.get(ns("write-permission", self.namespace)))
-        
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestSchemaModuleFactory))
-    suite.addTest(unittest.makeSuite(TestSecuritySchema))
     return suite

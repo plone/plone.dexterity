@@ -30,12 +30,7 @@
         factory=".schema.SchemaModuleFactory"
         name="plone.dexterity.schema.generated"
         />
-        
-    <utility
-        factory=".schema.SecuritySchema"
-        name="dexterity.security"
-        />
-        
+                
     <!-- Schema cache -->
     <subscriber handler=".schema.invalidate_schema" />
 

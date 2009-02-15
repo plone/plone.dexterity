@@ -4,12 +4,17 @@ from plone.mocktestcase import MockTestCase
 from zope.interface import Interface
 import zope.schema
 
+from zope.security.interfaces import IPermission
+from zope.security.permission import Permission
+
 from plone.dexterity.schema import schema_cache
 
 from plone.dexterity.content import Item, Container
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.fti import DexterityFTI
+
+from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 
 class TestAttributeProtection(MockTestCase):
 
@@ -21,14 +26,17 @@ class TestAttributeProtection(MockTestCase):
         # Mock schema model
         class ITestSchema(Interface):
             test = zope.schema.TextLine(title=u"Test")
-        ITestSchema.setTaggedValue(u'dexterity.security', dict(test={'read-permission': 'View'},
-                                                               foo={'read-permission': 'View foo'}))
+        ITestSchema.setTaggedValue(READ_PERMISSIONS_KEY, dict(test='zope2.View', foo='foo.View'))
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookup_schema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
+
+        # Mock permissions
+        self.mock_utility(Permission(u'zope2.View', u"View"), IPermission, u'zope2.View')
+        self.mock_utility(Permission(u'foo.View', u"View foo"), IPermission, u'foo.View')
 
         # Content item
         item = Item('test')
@@ -37,9 +45,12 @@ class TestAttributeProtection(MockTestCase):
         item.foo = u"bar"
         
         # Check permission
-        checkPermission_mock = self.mocker.replace('Products.CMFCore.utils._checkPermission')
-        self.expect(checkPermission_mock('View', item)).result(False)
-        self.expect(checkPermission_mock('View foo', item)).result(True)
+        
+        securityManager_mock = self.mocker.mock()
+        self.expect(securityManager_mock.checkPermission("View", item)).result(False)
+        self.expect(securityManager_mock.checkPermission("View foo", item)).result(True)
+        getSecurityManager_mock = self.mocker.replace('AccessControl.getSecurityManager')
+        self.expect(getSecurityManager_mock()).result(securityManager_mock).count(2)
 
         self.mocker.replay()
         
@@ -54,14 +65,17 @@ class TestAttributeProtection(MockTestCase):
         # Mock schema model
         class ITestSchema(Interface):
             test = zope.schema.TextLine(title=u"Test")
-        ITestSchema.setTaggedValue(u'dexterity.security', dict(test={'read-permission': 'View'},
-                                                               foo={'read-permission': 'View foo'}))
+        ITestSchema.setTaggedValue(READ_PERMISSIONS_KEY, dict(test='zope2.View', foo='foo.View'))
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookup_schema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
+
+        # Mock permissions
+        self.mock_utility(Permission(u'zope2.View', u"View"), IPermission, u'zope2.View')
+        self.mock_utility(Permission(u'foo.View', u"View foo"), IPermission, u'foo.View')
 
         # Content item
         container = Container('test')
@@ -70,9 +84,11 @@ class TestAttributeProtection(MockTestCase):
         container.foo = u"bar"
         
         # Check permission
-        checkPermission_mock = self.mocker.replace('Products.CMFCore.utils._checkPermission')
-        self.expect(checkPermission_mock('View', container)).result(False)
-        self.expect(checkPermission_mock('View foo', container)).result(True)
+        securityManager_mock = self.mocker.mock()
+        self.expect(securityManager_mock.checkPermission("View", container)).result(False)
+        self.expect(securityManager_mock.checkPermission("View foo", container)).result(True)
+        getSecurityManager_mock = self.mocker.replace('AccessControl.getSecurityManager')
+        self.expect(getSecurityManager_mock()).result(securityManager_mock).count(2)
 
         self.mocker.replay()
         
@@ -87,8 +103,7 @@ class TestAttributeProtection(MockTestCase):
         # Mock schema model
         class ITestSchema(Interface):
             test = zope.schema.TextLine(title=u"Test")
-        ITestSchema.setTaggedValue(u'dexterity.security', dict(test={'read-permission': 'View'},
-                                                               foo={'read-permission': 'View foo'}))
+        ITestSchema.setTaggedValue(READ_PERMISSIONS_KEY, dict(test='zope2.View', foo='foo.View'))
         
         class Foo(Item):
             pass
@@ -99,6 +114,10 @@ class TestAttributeProtection(MockTestCase):
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
+        # Mock permissions
+        self.mock_utility(Permission(u'zope2.View', u"View"), IPermission, u'zope2.View')
+        self.mock_utility(Permission(u'foo.View', u"View foo"), IPermission, u'foo.View')
+
         # Content item
         item = Foo('test')
         item.portal_type = u"testtype"
@@ -106,9 +125,11 @@ class TestAttributeProtection(MockTestCase):
         item.foo = u"bar"
         
         # Check permission
-        checkPermission_mock = self.mocker.replace('Products.CMFCore.utils._checkPermission')
-        self.expect(checkPermission_mock('View', item)).result(False)
-        self.expect(checkPermission_mock('View foo', item)).result(True)
+        securityManager_mock = self.mocker.mock()
+        self.expect(securityManager_mock.checkPermission("View", item)).result(False)
+        self.expect(securityManager_mock.checkPermission("View foo", item)).result(True)
+        getSecurityManager_mock = self.mocker.replace('AccessControl.getSecurityManager')
+        self.expect(getSecurityManager_mock()).result(securityManager_mock).count(2)
 
         self.mocker.replay()
         
@@ -150,14 +171,16 @@ class TestAttributeProtection(MockTestCase):
         # Mock schema model
         class ITestSchema(Interface):
             test = zope.schema.TextLine(title=u"Test")
-        ITestSchema.setTaggedValue(u'dexterity.security', dict(test={'write-permission': 'Write test'},
-                                                               foo={'read-permission': 'View foo'}))
+        ITestSchema.setTaggedValue(READ_PERMISSIONS_KEY, dict(foo='foo.View'))
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookup_schema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
+
+        # Mock permissions
+        self.mock_utility(Permission(u'foo.View', u"View foo"), IPermission, u'foo.View')
 
         # Content item
         item = Item('test')
@@ -166,8 +189,10 @@ class TestAttributeProtection(MockTestCase):
         item.foo = u"bar"
         
         # Check permission
-        checkPermission_mock = self.mocker.replace('Products.CMFCore.utils._checkPermission')
-        self.expect(checkPermission_mock('View foo', item)).result(True)
+        securityManager_mock = self.mocker.mock()
+        self.expect(securityManager_mock.checkPermission("View foo", item)).result(True)
+        getSecurityManager_mock = self.mocker.replace('AccessControl.getSecurityManager')
+        self.expect(getSecurityManager_mock()).result(securityManager_mock).count(1)
 
         self.mocker.replay()
         
