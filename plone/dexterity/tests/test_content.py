@@ -54,10 +54,6 @@ class TestContent(MockTestCase):
         self.assertEquals(False, ISchema.implementedBy(MyItem))
         
         # Schema as looked up in FTI is now provided by item ...
-        self.assertEquals(False, ISchema.providedBy(item))
-        
-        # ... once we've invalidated the cache
-        schema_cache.invalidate('testtype')
         self.assertEquals(True, ISchema.providedBy(item))
         
         # If the _v_ attribute cache does not work, then we'd expect to have
