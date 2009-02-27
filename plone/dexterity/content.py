@@ -70,7 +70,12 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         
         # Cache the results and return
         
-        if portal_type is not None:
+        # NOTE: The schema may be none if we can't find a schema for this
+        # type. This could happen if we're called before traversal, for
+        # example. In this case, don't cache, as we need to catch the schema
+        # the next time around.
+        
+        if portal_type is not None and schema is not None:
             inst._v__providedBy__ = inst._p_mtime, schema_cache.counter(portal_type), spec
         
         return spec
