@@ -1,7 +1,7 @@
 from zope.component import getUtility
 
 from plone.autoform.interfaces import IFormFieldProvider
-from plone.autoform.formbase import AutoExtensibleForm
+from plone.autoform.form import AutoExtensibleForm
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import resolve_dotted_name

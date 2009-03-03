@@ -2,14 +2,12 @@ import unittest
 from plone.mocktestcase import MockTestCase
 
 from zope.interface import implements, Interface
-import zope.schema
 
 from plone.dexterity.interfaces import IDexterityFTI
 
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.browser.edit import DefaultEditForm
-from plone.dexterity.browser.view import DefaultView
 
 from plone.dexterity.content import Item, Container
 from plone.dexterity.fti import DexterityFTI
@@ -215,87 +213,8 @@ class TestEditView(MockTestCase):
         self.assertEquals(u"Edit ${name}", unicode(label))
         self.assertEquals(u"Test title", label.mapping['name'])
     
-class TestDefaultView(MockTestCase):
-    
-    def test_fields(self):
-        
-        # Context and request
-        
-        context_dummy = self.create_dummy(portal_type=u"testtype", 
-                                          field1=u"Field one",
-                                          field2=u"Field two")
-        request_mock = self.mocker.mock()
-        
-        # Schema
-        schema_dummy = self.create_dummy()
-
-        # Fields
-        field1_mock = self.mocker.proxy(zope.schema.TextLine(__name__="field1", title=u"Field 1"))
-        self.expect(field1_mock.bind(context_dummy)).result(field1_mock)
-        
-        field2_mock = self.mocker.proxy(zope.schema.TextLine(__name__="field2", title=u"Field 2"))
-        self.expect(field2_mock.bind(context_dummy)).result(field2_mock)
-        
-        # Field enumeration
-        getFieldsInOrder_mock = self.mocker.replace('zope.schema.getFieldsInOrder')
-        self.expect(getFieldsInOrder_mock(schema_dummy)).result([('field1', field1_mock,), ('field2', field2_mock,)])
-        
-        
-        # FTI
-        fti_mock = self.mocker.mock(DexterityFTI)
-        self.expect(fti_mock.lookup_schema()).result(schema_dummy)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        
-        self.replay()
-        
-        view = DefaultView(context_dummy, request_mock)
-        
-        fields = list(view.fields(ignored=[]))
-        
-        self.assertEquals(
-        [{'title': u'Field 1', 'id': 'field1', 'value': u"Field one", 'description': u''},
-         {'title': u'Field 2', 'id': 'field2', 'value': u"Field two", 'description': u''}], fields)
-        
-    def test_ignored(self):
-        
-        # Context and request
-        
-        context_dummy = self.create_dummy(portal_type=u"testtype", 
-                                          field1=u"Field one",
-                                          field2=u"Field two")
-        request_mock = self.mocker.mock()
-        
-        # Schema
-        schema_dummy = self.create_dummy()
-
-        # Fields
-        field1_mock = self.mocker.proxy(zope.schema.TextLine(__name__="field1", title=u"Field 1"))
-        
-        field2_mock = self.mocker.proxy(zope.schema.TextLine(__name__="field2", title=u"Field 2"))
-        self.expect(field2_mock.bind(context_dummy)).result(field2_mock)
-        
-        # Field enumeration
-        getFieldsInOrder_mock = self.mocker.replace('zope.schema.getFieldsInOrder')
-        self.expect(getFieldsInOrder_mock(schema_dummy)).result([('field1', field1_mock,), ('field2', field2_mock,)])
-        
-        
-        # FTI
-        fti_mock = self.mocker.mock(DexterityFTI)
-        self.expect(fti_mock.lookup_schema()).result(schema_dummy)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        
-        self.replay()
-        
-        view = DefaultView(context_dummy, request_mock)
-        
-        fields = list(view.fields(ignored=['field1']))
-        
-        self.assertEquals(
-        [{'title': u'Field 2', 'id': 'field2', 'value': u"Field two", 'description': u''}], fields)
-    
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestAddView))
     suite.addTest(unittest.makeSuite(TestEditView))
-    suite.addTest(unittest.makeSuite(TestDefaultView))
     return suite

@@ -13,11 +13,11 @@
 
         <p class="documentDescription" tal:content="context/Description" />
 
-        <div tal:repeat="item view/fields">
-            <label tal:content="item/title" />
-            <div tal:content="structure item/value" />
+        <div tal:repeat="widget view/widgets/values">
+            <label tal:content="widget/label" />
+            <div tal:content="structure widget/render" />
         </div>
-
+        
 </metal:main>
 
 </body>
