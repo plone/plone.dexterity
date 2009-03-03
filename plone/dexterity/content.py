@@ -148,7 +148,7 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
             if field is not None:
                 return field.default
         
-        raise AttributeError(name)
+        return super(DexterityContent, self).__getattr__(name)
 
 # XXX: It'd be nice to reduce the number of base classes here
 
@@ -168,6 +168,9 @@ class Item(BrowserDefaultMixin, DexterityContent):
         
         if id is not None:
             self.id = id
+    
+    # Use our own magic __getattr__, rather than that from the folder implementation
+    __getattr__ = DexterityContent.__getattr__
 
 class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
     """Base class for folderish items
@@ -185,6 +188,9 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
         
         if id is not None:
             self.id = id
+            
+    # Use our own magic __getattr__, rather than that from the folder implementation
+    __getattr__ = DexterityContent.__getattr__
 
 def reindexOnModify(content, event):
     """When an object is modified, re-index it in the catalog
