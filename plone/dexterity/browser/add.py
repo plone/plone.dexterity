@@ -50,11 +50,6 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         if hasattr(content, '_setPortalTypeName'):
             content._setPortalTypeName(fti.getId())
         
-        # avoid some iffy circular dependencies with the __name__ attribute,
-        # until we can set a real id in add(), below
-        if getattr(content, 'id', None) is None:
-            content.id = '__tmp__'
-        
         # Acquisition wrap temporarily to satisfy things like vocabularies
         # depending on tools
         if IAcquirer.providedBy(content):
