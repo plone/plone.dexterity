@@ -1,13 +1,16 @@
 import unittest
 from plone.mocktestcase import MockTestCase
 
-from zope.interface import implements, Interface
+from zope.interface import implements, Interface, alsoProvides
+
+from plone.autoform.interfaces import IFormFieldProvider
 
 from plone.dexterity.interfaces import IDexterityFTI
 
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.browser.edit import DefaultEditForm
+from plone.dexterity.browser.view import DefaultView
 
 from plone.dexterity.content import Item, Container
 from plone.dexterity.fti import DexterityFTI
@@ -23,6 +26,20 @@ class TestRequest(TestRequestBase):
     """
     def __setitem__(self, key, value):
         pass
+
+class ISchema(Interface):
+    pass
+
+class IBehaviorOne(Interface):
+    pass
+alsoProvides(IBehaviorOne, IFormFieldProvider)
+
+class IBehaviorTwo(Interface):
+    pass
+alsoProvides(IBehaviorTwo, IFormFieldProvider)
+
+class IBehaviorThree(Interface):
+    pass
 
 class TestAddView(MockTestCase):
     
@@ -186,6 +203,32 @@ class TestAddView(MockTestCase):
         label = addform.label
         self.assertEquals(u"Add ${name}", unicode(label))
         self.assertEquals(u"Test title", label.mapping['name'])
+
+    def test_schema_lookup(self):
+        
+        # Context and request
+        
+        context_mock = self.create_dummy(portal_type=u'testtype')
+        request_mock = TestRequest()
+        
+        # FTI
+        
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookup_schema()).result(ISchema)
+        self.expect(fti_mock.behaviors).result((IBehaviorOne.__identifier__, 
+                                                IBehaviorTwo.__identifier__, 
+                                                IBehaviorThree.__identifier__))
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+      
+        # Form
+        
+        self.replay()
+        
+        view = DefaultAddForm(context_mock, request_mock)
+        view.portal_type = u"testtype"
+        
+        self.assertEquals(ISchema, view.schema)
+        self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additional_schemata,))
     
 class TestEditView(MockTestCase):
     
@@ -196,7 +239,7 @@ class TestEditView(MockTestCase):
         # Context and request
         
         context_mock = self.create_dummy(portal_type=u'testtype')
-        request_mock = self.create_dummy()
+        request_mock = TestRequest()
         
         # FTI
         
@@ -209,12 +252,72 @@ class TestEditView(MockTestCase):
         self.replay()
         
         editview = DefaultEditForm(context_mock, request_mock)
+        
+        # emulate update()
+        editview.portal_type = u"testtype"
+        
         label = editview.label
         self.assertEquals(u"Edit ${name}", unicode(label))
         self.assertEquals(u"Test title", label.mapping['name'])
+
+    def test_schema_lookup(self):
+        
+        # Context and request
+        
+        context_mock = self.create_dummy(portal_type=u'testtype')
+        request_mock = TestRequest()
+        
+        # FTI
+        
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookup_schema()).result(ISchema)
+        self.expect(fti_mock.behaviors).result((IBehaviorOne.__identifier__, 
+                                                IBehaviorTwo.__identifier__, 
+                                                IBehaviorThree.__identifier__))
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+      
+        # Form
+        
+        self.replay()
+        
+        view = DefaultEditForm(context_mock, request_mock)
+        
+        # emulate update()
+        view.portal_type = u"testtype"
+        
+        self.assertEquals(ISchema, view.schema)
+        self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additional_schemata,))
+
+class TestDefaultView(MockTestCase):
     
+    def test_schema_lookup(self):
+        
+        # Context and request
+        
+        context_mock = self.create_dummy(portal_type=u'testtype')
+        request_mock = self.create_dummy()
+        
+        # FTI
+        
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookup_schema()).result(ISchema)
+        self.expect(fti_mock.behaviors).result((IBehaviorOne.__identifier__, 
+                                                IBehaviorTwo.__identifier__, 
+                                                IBehaviorThree.__identifier__))
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+      
+        # Form
+        
+        self.replay()
+        
+        view = DefaultView(context_mock, request_mock)
+        
+        self.assertEquals(ISchema, view.schema)
+        self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additional_schemata,))
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestAddView))
     suite.addTest(unittest.makeSuite(TestEditView))
+    suite.addTest(unittest.makeSuite(TestDefaultView))
     return suite
