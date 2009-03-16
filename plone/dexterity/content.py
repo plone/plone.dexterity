@@ -44,6 +44,8 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
             return getObjectSpecification(cls)
         
         cache = getattr(inst, '_v__providedBy__', None)
+        
+        direct_spec = getattr(inst, '__provides__', None)
         portal_type = getattr(inst, 'portal_type', None)
         
         fti_counter = -1
@@ -52,15 +54,18 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         
         # See if we have a valid cache
         if cache is not None and portal_type is not None:
-            cached_mtime, cached_fti_counter, cached_spec = cache
-            if not inst._p_changed and inst._p_mtime == cached_mtime and fti_counter == cached_fti_counter:
+            cached_mtime, cached_fti_counter, cached_direct_spec, cached_spec = cache
+            if inst._p_mtime == cached_mtime and \
+                    fti_counter == cached_fti_counter and \
+                    direct_spec is cached_direct_spec:
                 return cached_spec
         
         # Get interfaces directly provided by the instance
         
-        spec = getattr(inst, '__provides__', None)
-        if spec is None:
+        if direct_spec is None:
             spec = implementedBy(cls)
+        else:
+            spec = direct_spec
         
         # Add the schema from the FTI
         
@@ -76,7 +81,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         # the next time around.
         
         if portal_type is not None and schema is not None:
-            inst._v__providedBy__ = inst._p_mtime, schema_cache.counter(portal_type), spec
+            inst._v__providedBy__ = inst._p_mtime, schema_cache.counter(portal_type), direct_spec, spec
         
         return spec
 
