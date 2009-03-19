@@ -12,6 +12,9 @@ from zope.security.interfaces import IPermission
 
 from zope.annotation import IAttributeAnnotatable
 
+from plone.behavior.interfaces import IBehavior
+
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.interfaces import IDexterityContainer
@@ -67,11 +70,29 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         else:
             spec = direct_spec
         
-        # Add the schema from the FTI
+        # Add the schema from the FTI and behaviors
         
+        dynamically_provided = []
         schema = self._get_schema(inst)
+        
         if schema is not None and schema not in spec:
-            spec = Implements(schema) + spec
+            dynamically_provided.append(schema)
+        
+        # We can't do this here without getting infinite recursion!
+        # assignable = IBehaviorAssignable(inst, None)
+        
+        portal_type = getattr(inst, 'portal_type', None)
+        if portal_type is not None:
+            fti = queryUtility(IDexterityFTI, name=portal_type)
+            if fti is not None:
+                for behavior_name in fti.behaviors:
+                    behavior = queryUtility(IBehavior, name=behavior_name)
+                    if behavior is not None and behavior.subtype is not None \
+                            and behavior.subtype not in spec:
+                        dynamically_provided.append(behavior.subtype)
+        
+        if dynamically_provided:
+            spec = Implements(*dynamically_provided) + spec
         
         # Cache the results and return
         

@@ -36,13 +36,6 @@
     <!-- Support for plone.behavior behaviors -->
     <adapter factory=".behavior.DexterityBehaviorAssignable" />
 
-    <!-- Support for behavior subtyping -->
-    <subscriber
-        for=".interfaces.IDexterityContent
-             zope.lifecycleevent.interfaces.IObjectCreatedEvent"
-        handler="plone.behavior.subtypes.apply_subtypes"
-        />
-
     <!-- Register the content classes -->
     <five:registerClass
         class=".content.Item"
