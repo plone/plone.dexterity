@@ -228,7 +228,7 @@ class TestContent(MockTestCase):
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
         self.expect(fti_mock.lookup_schema()).result(ISchema).count(1)
-        self.expect(fti_mock.behaviors).result(['behavior1', 'behavior2']).count(2)
+        self.expect(fti_mock.behaviors).result(['behavior1', 'behavior2']).count(1)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()

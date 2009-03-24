@@ -9,10 +9,10 @@ from zope.component import queryUtility
 
 from zope.app.content.interfaces import IContentType
 
-from plone.supermodel.parser import ISchemaPolicy
-from plone.supermodel.parser import IFieldMetadataHandler
+from plone.behavior.interfaces import IBehavior
 
-from plone.supermodel.utils import ns, sync_schema
+from plone.supermodel.parser import ISchemaPolicy
+from plone.supermodel.utils import sync_schema
 
 from plone.alterego.interfaces import IDynamicObjectFactory
 
@@ -22,7 +22,6 @@ from plone.dexterity.interfaces import ISchemaInvalidatedEvent
 
 from plone.dexterity.utils import synchronized
 from plone.dexterity import utils
-
 
 from plone.alterego import dynamic
 
@@ -58,6 +57,7 @@ class SchemaCache(object):
     
     lock = Lock()
     cache = {}
+    subtypes_cache = {}
     counter_values = {}
 
     @synchronized(lock)
@@ -70,6 +70,20 @@ class SchemaCache(object):
                     cached = self.cache[portal_type] = fti.lookup_schema()
                 except (AttributeError, ValueError), e:
                     pass
+        return cached
+    
+    @synchronized(lock)
+    def subtypes(self, portal_type):
+        cached = self.subtypes_cache.get(portal_type, None)
+        if cached is None:
+            subtypes = []
+            fti = queryUtility(IDexterityFTI, name=portal_type)
+            if fti is not None:
+                for behavior_name in fti.behaviors:
+                    behavior = queryUtility(IBehavior, name=behavior_name)
+                    if behavior is not None and behavior.subtype is not None:
+                        subtypes.append(behavior.subtype)
+                cached = self.subtypes_cache[portal_type] = tuple(subtypes)
         return cached
         
     @synchronized(lock)
@@ -90,6 +104,7 @@ class SchemaCache(object):
     @synchronized(lock)
     def clear(self):
         self.cache.clear()
+        self.subtypes_cache.clear()
 
 schema_cache = SchemaCache()
 
