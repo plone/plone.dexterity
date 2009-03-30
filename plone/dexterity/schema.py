@@ -1,5 +1,7 @@
 import new
+
 from threading import Lock
+from plone.synchronize import synchronized
 
 from zope.interface import implements, alsoProvides
 from zope.interface.interface import InterfaceClass
@@ -20,9 +22,7 @@ from plone.dexterity.interfaces import IDexteritySchema
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import ISchemaInvalidatedEvent
 
-from plone.dexterity.utils import synchronized
 from plone.dexterity import utils
-
 from plone.alterego import dynamic
 
 # Dynamic modules

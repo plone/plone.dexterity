@@ -28,6 +28,8 @@ setup(name='plone.dexterity',
       ],
       install_requires=[
           'setuptools',
+          'plone.synchronize',
+          
           'plone.z3cform',
           'plone.folder',
           'plone.supermodel',
