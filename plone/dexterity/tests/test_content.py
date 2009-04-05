@@ -2,6 +2,7 @@ import unittest
 from plone.mocktestcase import MockTestCase
 
 from zope.interface import Interface, alsoProvides
+from zope.component import provideAdapter
 
 import zope.schema
 
@@ -14,10 +15,15 @@ from plone.dexterity.content import Item, Container
 from plone.behavior.interfaces import IBehavior
 from plone.behavior.registration import BehaviorRegistration
 
+from plone.folder.default import DefaultOrdering
+from zope.annotation.attribute import AttributeAnnotations
+
 class TestContent(MockTestCase):
     
     def setUp(self):
         schema_cache.clear()
+        provideAdapter(DefaultOrdering)
+        provideAdapter(AttributeAnnotations)
 
     def test_provided_by_item(self):
 
@@ -254,9 +260,7 @@ class TestContent(MockTestCase):
         
         self.assertEquals(True, IMarker.providedBy(item))
         self.assertEquals(True, ISubtype.providedBy(item))
-        self.assertEquals(True, ISchema.providedBy(item))
-        
-        
+        self.assertEquals(True, ISchema.providedBy(item))        
     
     def test_getattr_consults_schema_item(self):
         
@@ -301,7 +305,40 @@ class TestContent(MockTestCase):
         self.assertEquals(None, content.bar)
         self.assertEquals(u"id", content.id)
         self.assertRaises(AttributeError, getattr, content, 'baz')
+
+    def test_getattr_on_container_returns_children(self):
         
+        content = Container()
+        content.id = u"id"
+        content.portal_type = u"testtype"
+        
+        content['foo'] = Item('foo')
+        content['quux'] = Item('quux')
+        
+        class ISchema(Interface):
+            foo = zope.schema.TextLine(title=u"foo", default=u"foo_default")
+            bar = zope.schema.TextLine(title=u"bar")
+        
+        # FTI mock
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookup_schema()).result(ISchema)
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        self.replay()
+        
+        # Schema field masks contained item
+        self.assertEquals(u"foo_default", content.foo)
+        
+        # But we can still obtain an item
+        self.failUnless(isinstance(content['foo'], Item))
+        self.assertEquals('foo', content['foo'].id)
+        
+        # And if the item isn't masked by an attribute, we can still getattr it
+        self.failUnless(isinstance(content['quux'], Item))
+        self.assertEquals('quux', content['quux'].id)
+        
+        self.failUnless(isinstance(getattr(content, 'quux'), Item))
+        self.assertEquals('quux', getattr(content, 'quux').id)
 
 def test_suite():
     suite = unittest.TestSuite()

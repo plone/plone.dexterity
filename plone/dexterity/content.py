@@ -189,7 +189,7 @@ class Item(BrowserDefaultMixin, DexterityContent):
         if id is not None:
             self.id = id
     
-    # Use our own magic __getattr__, rather than that from the folder implementation
+    # Be explicit about which __getattr__ to use
     __getattr__ = DexterityContent.__getattr__
 
 class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
@@ -208,9 +208,20 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
         
         if id is not None:
             self.id = id
-            
-    # Use our own magic __getattr__, rather than that from the folder implementation
-    __getattr__ = DexterityContent.__getattr__
+    
+    def __getattr__(self, name):
+        
+        # attribute was not found; try to look it up in the schema and return
+        # a default
+        
+        schema = schema_cache.get(self.portal_type)
+        if schema is not None:
+            field = schema.get(name, None)
+            if field is not None:
+                return field.default
+        
+        # Be specific about the implementation we use
+        return CMFOrderedBTreeFolderBase.__getattr__(self, name)
 
 def reindexOnModify(content, event):
     """When an object is modified, re-index it in the catalog
