@@ -61,6 +61,9 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
 
         return aq_base(content)
 
+    def chooseName(self, container, object):
+        return INameChooser(container).chooseName(None, object)
+
     def add(self, object):
         
         fti = getUtility(IDexterityFTI, name=self.portal_type)
@@ -76,7 +79,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         if container_fti is not None and not container_fti.allowType(self.portal_type):
             raise ValueError('Disallowed subobject type: %s' % self.portal_type)
 
-        name = INameChooser(container).chooseName(None, object)
+        name = self.chooseName(container, object)
         object.id = name
         
         new_name = container._setObject(name, object)
