@@ -9,24 +9,26 @@
 
 <metal:main fill-slot="main">
 
-        <h1 class="documentFirstHeading" tal:content="context/Title" /> 
+    <h1 class="documentFirstHeading" tal:content="context/Title" /> 
 
-        <p class="documentDescription" tal:content="context/Description" />
+    <p class="documentDescription" tal:content="context/Description" />
 
-        <div class="field" tal:repeat="widget view/widgets/values">
+    <div class="field" tal:repeat="widget view/widgets/values">
+        <tal:block condition="python:widget.__name__ not in ('IBasic.title', 'IBasic.description', 'title', 'description',)">
+            <label tal:content="widget/label" />
+            <br />
+            <div tal:content="structure widget/render" />
+        </tal:block>
+    </div>
+    
+    <fieldset tal:repeat="group view/groups">
+        <legend tal:content="group/label" />
+        <div class="field" tal:repeat="widget group/widgets/values">
             <label tal:content="widget/label" />
             <br />
             <div tal:content="structure widget/render" />
         </div>
-        
-        <fieldset tal:repeat="group view/groups">
-            <legend tal:content="group/label" />
-            <div class="field" tal:repeat="widget group/widgets/values">
-                <label tal:content="widget/label" />
-                <br />
-                <div tal:content="structure widget/render" />
-            </div>
-        </fieldset>
+    </fieldset>
 
 </metal:main>
 
