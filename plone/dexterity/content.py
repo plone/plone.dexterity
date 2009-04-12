@@ -201,6 +201,9 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
     
     isPrincipiaFolderish = 1
+    
+    # make sure CMFCatalogAware's manage_options don't take precedence
+    manage_options = CMFOrderedBTreeFolderBase.manage_options
 
     def __init__(self, id=None, **kwargs):
         CMFOrderedBTreeFolderBase.__init__(self, id, **kwargs)

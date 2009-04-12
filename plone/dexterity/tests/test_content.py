@@ -339,6 +339,15 @@ class TestContent(MockTestCase):
         
         self.failUnless(isinstance(getattr(content, 'quux'), Item))
         self.assertEquals('quux', getattr(content, 'quux').id)
+    
+    def test_ZMI_manage_options(self):
+        """
+        Make sure we get the expected tabs in the ZMI
+        """
+        self.assertEquals(set([o['label'] for o in Container.manage_options]),
+            set(['Contents', 'View', 'Properties', 'Security', 'Define Permissions', 'Undo', 'Ownership', 'Interfaces', 'Find']))
+        self.assertEquals(set([o['label'] for o in Item.manage_options]),
+            set(['Dublin Core', 'Edit', 'View', 'Workflows', 'Undo', 'Ownership', 'Interfaces', 'Security']))
 
 def test_suite():
     suite = unittest.TestSuite()
