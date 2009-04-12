@@ -23,6 +23,7 @@ from zope.app.container.contained import Contained
 from AccessControl import getSecurityManager
 
 from Products.CMFCore.PortalContent import PortalContent
+from Products.CMFCore.PortalFolder import PortalFolderBase
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
@@ -203,7 +204,7 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
     isPrincipiaFolderish = 1
     
     # make sure CMFCatalogAware's manage_options don't take precedence
-    manage_options = CMFOrderedBTreeFolderBase.manage_options
+    manage_options = PortalFolderBase.manage_options
 
     def __init__(self, id=None, **kwargs):
         CMFOrderedBTreeFolderBase.__init__(self, id, **kwargs)

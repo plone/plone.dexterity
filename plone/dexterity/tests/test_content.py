@@ -344,10 +344,10 @@ class TestContent(MockTestCase):
         """
         Make sure we get the expected tabs in the ZMI
         """
-        self.assertEquals(set([o['label'] for o in Container.manage_options]),
-            set(['Contents', 'View', 'Properties', 'Security', 'Define Permissions', 'Undo', 'Ownership', 'Interfaces', 'Find']))
-        self.assertEquals(set([o['label'] for o in Item.manage_options]),
-            set(['Dublin Core', 'Edit', 'View', 'Workflows', 'Undo', 'Ownership', 'Interfaces', 'Security']))
+        self.assertEquals([o['label'] for o in Container.manage_options],
+            ['Contents', 'Components', 'View', 'Properties', 'Security', 'Define Permissions', 'Undo', 'Ownership', 'Interfaces', 'Find', 'Workflows'])
+        self.assertEquals([o['label'] for o in Item.manage_options],
+            ['Dublin Core', 'Edit', 'View', 'Workflows', 'Undo', 'Ownership', 'Interfaces', 'Security'])
 
 def test_suite():
     suite = unittest.TestSuite()
