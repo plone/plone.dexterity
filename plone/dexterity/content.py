@@ -233,5 +233,8 @@ def reindexOnModify(content, event):
     
     if event.object is not content:
         return
-        
-    content.reindexObject(idxs=getattr(event, 'descriptions', []))
+    
+    # NOTE: We are not using event.descriptions because the field names may
+    # not match index names.
+    
+    content.reindexObject()
