@@ -3,16 +3,14 @@ from zope.component import getUtility, createObject
 from z3c.form import form, button
 from plone.z3cform import layout
 
-from zope.app.container.interfaces import INameChooser
-
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.i18n import MessageFactory as _
 
 from plone.dexterity.browser.base import DexterityExtensibleForm
+from plone.dexterity.utils import add_object_to_container
 
 from Acquisition import aq_inner, aq_base
 from Acquisition.interfaces import IAcquirer
-from AccessControl import Unauthorized
 
 from Products.statusmessages.interfaces import IStatusMessage
 
@@ -61,35 +59,14 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
 
         return aq_base(content)
 
-    def chooseName(self, container, object):
-        return INameChooser(container).chooseName(None, object)
-
     def add(self, object):
         
         fti = getUtility(IDexterityFTI, name=self.portal_type)
-        
         container = aq_inner(self.context)
-        container_fti = container.getTypeInfo()
-        
-        # Validate that the object is addable
-        
-        if not fti.isConstructionAllowed(container):
-            raise Unauthorized('Cannot create %s' % self.portal_type)
-
-        if container_fti is not None and not container_fti.allowType(self.portal_type):
-            raise ValueError('Disallowed subobject type: %s' % self.portal_type)
-
-        name = self.chooseName(container, object)
-        object.id = name
-        
-        new_name = container._setObject(name, object)
-        
-        # XXX: When we move to CMF 2.2, an event handler will take care of this
-        wrapped_object = container._getOb(new_name)
-        wrapped_object.notifyWorkflowCreated()
+        new_object = add_object_to_container(container, object)
         
         immediate_view = fti.immediate_view or 'view'
-        self.immediate_view = "%s/%s/%s" % (container.absolute_url(), new_name, immediate_view,)
+        self.immediate_view = "%s/%s/%s" % (container.absolute_url(), new_object.id, immediate_view,)
 
     def nextURL(self):
         if self.immediate_view is not None:

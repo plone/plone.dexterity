@@ -1,6 +1,10 @@
+from Acquisition import aq_base
+from Acquisition import aq_inner
+from AccessControl import Unauthorized
 from zope.component import getUtility
+from zope.app.container.interfaces import INameChooser
 from zope.dottedname.resolve import resolve
-
+from plone.dexterity.interfaces import IDexterityFTI
 from Products.CMFCore.interfaces import ISiteRoot
 
 # Not thread safe, but downside of a write conflict is very small
@@ -67,3 +71,37 @@ def split_schema_name(schema_name):
         return items[0], items[1], items[2]
     else:
         raise ValueError("Schema name %s is invalid" % schema_name)
+
+
+def add_object_to_container(container, object, check_constraints=True):
+    """Add an object to a container.
+
+    The portal_type must already be set correctly. If check_constraints
+    is False no check for addable content types is done. The new object,
+    wrapped in its new acquisition context, is returned.
+    """
+    if not hasattr(aq_base(object), "portal_type"):
+        raise ValueError("object must have its portal_type set")
+
+    container = aq_inner(container)
+    if check_constraints:
+        container_fti = container.getTypeInfo()
+
+        fti = getUtility(IDexterityFTI, name=object.portal_type)
+        if not fti.isConstructionAllowed(container):
+            raise Unauthorized("Cannot create %s" % object.portal_type)
+        
+        if container_fti is not None and not container_fti.allowType(object.portal_type):
+            raise ValueError("Disallowed subobject type: %s" % object.portal_type)
+
+    name = INameChooser(container).chooseName(None, object)
+    object.id = name
+
+    new_name = container._setObject(name, object)
+
+    # XXX: When we move to CMF 2.2, an event handler will take care of this
+    wrapped_object = container._getOb(new_name)
+    wrapped_object.notifyWorkflowCreated()
+
+    return wrapped_object
+
