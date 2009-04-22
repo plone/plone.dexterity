@@ -2,6 +2,7 @@ from Acquisition import aq_base
 from Acquisition import aq_inner
 from AccessControl import Unauthorized
 from zope.component import getUtility
+from zope.component import createObject
 from zope.app.container.interfaces import INameChooser
 from zope.dottedname.resolve import resolve
 from plone.dexterity.interfaces import IDexterityFTI
@@ -73,6 +74,22 @@ def split_schema_name(schema_name):
         raise ValueError("Schema name %s is invalid" % schema_name)
 
 
+def create_object(portal_type, **kw):
+    fti = getUtility(IDexterityFTI, name=portal_type)
+    content = createObject(fti.factory)
+
+    # Note: The factory may have done this already, but we want to be sure
+    # that the created type has the right portal type. It is possible
+    # to re-define a type through the web that uses the factory from an
+    # existing type, but wants a unique portal_type!
+    content.portal_type = fti.getId()
+
+    for (key,value) in kw.items():
+        setattr(content, key, value)
+
+    return content
+
+
 def add_object_to_container(container, object, check_constraints=True):
     """Add an object to a container.
 
@@ -104,4 +121,9 @@ def add_object_to_container(container, object, check_constraints=True):
     wrapped_object.notifyWorkflowCreated()
 
     return wrapped_object
+
+
+def create_object_in_container(container, portal_type, check_constraints=True, **kw):
+    content = create_object(portal_type, **kw)
+    return add_object_to_container(container, content, check_constraints=check_constraints)
 
