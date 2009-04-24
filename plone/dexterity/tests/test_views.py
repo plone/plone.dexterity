@@ -97,6 +97,10 @@ class TestAddView(MockTestCase):
         self.expect(container.absolute_url()).result("http://nohost/plone/container")
         
         obj.id = u"newid"
+        
+        self.expect(obj.id).result(u"newid")
+        self.expect(obj.portal_type).result("testtype").count(0,None)
+        
         self.expect(obj.notifyWorkflowCreated())
 
         # New object's FTI
@@ -144,6 +148,8 @@ class TestAddView(MockTestCase):
         
         self.expect(container.getTypeInfo()).result(container_fti_mock)
 
+        self.expect(obj.portal_type).result("testtype").count(0,None)
+
         self.replay()
         
         form = DefaultAddForm(container, request)
@@ -156,6 +162,8 @@ class TestAddView(MockTestCase):
         container = self.mocker.mock()
         obj = self.mocker.mock()
         request = TestRequest()
+
+        self.expect(obj.portal_type).result("testtype").count(0,None)
 
         # New object's FTI
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
