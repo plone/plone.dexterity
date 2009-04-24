@@ -25,7 +25,7 @@ from zope.app.container.contained import ObjectRemovedEvent
 
 from plone.dexterity.interfaces import IDexterityFTI
 
-from plone.dexterity.fti import DexterityFTI
+from plone.dexterity.fti import DexterityFTI, DexterityFTIModificationDescription
 from plone.dexterity.fti import fti_added, fti_removed, fti_renamed, fti_modified
 
 from plone.dexterity.factory import DexterityFactory
@@ -187,27 +187,45 @@ class TestFTI(MockTestCase):
         fti.model_file = None
         
         self.assertRaises(ValueError, fti.lookup_model)
-        
-    def test_fires_modified_event_on_edit_properties(self):
+    
+    
+    def test_fires_modified_event_on_update_property_if_changed(self):
         fti = DexterityFTI(u"testtype")
         
+        fti.title = u"Old title"
+        fti.global_allow = False
+        
         notify_mock = self.mocker.replace('zope.event.notify')
-        self.expect(notify_mock(self.match_provides(IObjectModifiedEvent)))
+        self.expect(notify_mock(mocker.MATCH(lambda x: IObjectModifiedEvent.providedBy(x) \
+                                                        and len(x.descriptions) == 1 \
+                                                        and x.descriptions[0].attribute == 'title' \
+                                                        and x.descriptions[0].old_value == "Old title")))
         
         self.replay()
         
-        fti.manage_editProperties(REQUEST={})
-        
-    def test_fires_modified_event_on_change_properties(self):
+        fti._updateProperty('title', "New title") # fires event caught above
+        fti._updateProperty('allow_discussion', False) # does not fire
+            
+    def test_fires_modified_event_on_change_properties_per_changed_property(self):
         fti = DexterityFTI(u"testtype")
+        fti.title = "Old title"
+        fti.allow_discussion = False
+        fti.global_allow = True
         
         notify_mock = self.mocker.replace('zope.event.notify')
-        self.expect(notify_mock(self.match_provides(IObjectModifiedEvent)))
-        
+        self.expect(notify_mock(mocker.MATCH(lambda x: IObjectModifiedEvent.providedBy(x) \
+                                                        and len(x.descriptions) == 1 \
+                                                        and x.descriptions[0].attribute == 'title' \
+                                                        and x.descriptions[0].old_value == "Old title")))
+                                                        
+        self.expect(notify_mock(mocker.MATCH(lambda x: IObjectModifiedEvent.providedBy(x) \
+                                                        and len(x.descriptions) == 1 \
+                                                        and x.descriptions[0].attribute == 'global_allow' \
+                                                        and x.descriptions[0].old_value == True)))
         self.replay()
         
-        fti.manage_changeProperties()
-        
+        fti.manage_changeProperties(title="New title", allow_discussion=False, global_allow=False)
+
     def test_checks_permission_in_is_construction_allowed_true(self):
         fti = DexterityFTI(u"testtype")
         fti.add_permission = "Some add permission"
@@ -280,10 +298,10 @@ class TestFTIEvents(MockTestCase):
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock)
         
         # We expect that no components are registered , so look for all registrations
-        self.expect(site_manager_mock.registerUtility(fti, IDexterityFTI, portal_type)).passthrough()
+        self.expect(site_manager_mock.registerUtility(fti, IDexterityFTI, portal_type, info='plone.dexterity.dynamic')).passthrough()
         self.expect(site_manager_mock.registerUtility(
                     mocker.MATCH(lambda x: isinstance(x, DexterityFactory) and x.portal_type == portal_type), 
-                    IFactory, portal_type)).passthrough()
+                    IFactory, portal_type, info='plone.dexterity.dynamic')).passthrough()
 
         self.replay()
         
@@ -376,7 +394,6 @@ class TestFTIEvents(MockTestCase):
         # components do not exists (as here)
         
         self.expect(site_manager_mock.unregisterUtility(provided=IDexterityFTI, name=portal_type)).passthrough()
-        self.expect(site_manager_mock.unregisterUtility(provided=IFactory, name=portal_type)).passthrough()
         
         self.replay()
         
@@ -401,10 +418,11 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(DexterityFactory(portal_type), IFactory, name=portal_type)
         
         # We expect to always be able to unregister without error, even if the
-        # component exists
+        # component exists. The factory is only unregistered if it was registered
+        # with info='plone.dexterity.dynamic'.
         
         self.expect(site_manager_mock.unregisterUtility(provided=IDexterityFTI, name=portal_type)).passthrough()
-        self.expect(site_manager_mock.unregisterUtility(provided=IFactory, name=portal_type)).passthrough()
+        
 
         self.replay()
         
@@ -432,14 +450,13 @@ class TestFTIEvents(MockTestCase):
         
         # First look for unregistration of all local components
         
-        self.expect(site_manager_mock.unregisterUtility(provided=IDexterityFTI, name=portal_type)).passthrough()
-        self.expect(site_manager_mock.unregisterUtility(provided=IFactory, name=portal_type)).passthrough()
+        self.expect(site_manager_mock.unregisterUtility(provided=IDexterityFTI, name=portal_type)).passthrough()        
         
         # Then look for re-registration of global components
-        self.expect(site_manager_mock.registerUtility(fti, IDexterityFTI, portal_type)).passthrough()
+        self.expect(site_manager_mock.registerUtility(fti, IDexterityFTI, portal_type, info='plone.dexterity.dynamic')).passthrough()
         self.expect(site_manager_mock.registerUtility(
                     mocker.MATCH(lambda x: isinstance(x, DexterityFactory) and x.portal_type == portal_type), 
-                    IFactory, portal_type)).passthrough()
+                    IFactory, portal_type, info='plone.dexterity.dynamic')).passthrough()
 
         self.assertEquals('string:${folder_url}/++add++testtype', fti.add_view_expr)
 
@@ -454,7 +471,7 @@ class TestFTIEvents(MockTestCase):
         self.assertNotEquals(None, queryUtility(IDexterityFTI, name=portal_type))
         self.assertNotEquals(None, queryUtility(IFactory, name=portal_type))
      
-    def test_dynamic_schema_refreshed_on_modify(self):
+    def test_dynamic_schema_refreshed_on_modify_model_file(self):
         portal_type = u"testtype"
         fti = self.mocker.proxy(DexterityFTI(portal_type))
         
@@ -479,12 +496,42 @@ class TestFTIEvents(MockTestCase):
         setattr(plone.dexterity.schema.generated, schema_name, IBlank)
                 
         # Sync this with schema
-        fti_modified(fti, ObjectModifiedEvent(fti))
+        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('model_file', '')))
+        
+        self.failUnless('title' in IBlank)
+        self.failUnless(IBlank['title'].title == u"title")
+    
+    def test_dynamic_schema_refreshed_on_modify_model_source(self):
+        portal_type = u"testtype"
+        fti = self.mocker.proxy(DexterityFTI(portal_type))
+        
+        class INew(Interface):
+            title = zope.schema.TextLine(title=u"title")
+        
+        model_dummy = Model({u"": INew})
+        
+        self.expect(fti.lookup_model()).result(model_dummy)
+        container_dummy = self.create_dummy()
+        
+        site_dummy = self.create_dummy(getPhysicalPath = lambda: ('', 'siteid'))
+        self.mock_utility(site_dummy, ISiteRoot)
+        
+        class IBlank(Interface):
+            pass
+        
+        self.replay()
+        
+        # Set source interface
+        schema_name = utils.portal_type_to_schema_name(fti.getId())
+        setattr(plone.dexterity.schema.generated, schema_name, IBlank)
+                
+        # Sync this with schema
+        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('model_source', '')))
         
         self.failUnless('title' in IBlank)
         self.failUnless(IBlank['title'].title == u"title")
         
-    def test_concrete_schema_not_refreshed_on_modify(self):
+    def test_concrete_schema_not_refreshed_on_modify_schema(self):
         portal_type = u"testtype"
         fti = self.mocker.proxy(DexterityFTI(portal_type))
         
@@ -513,10 +560,101 @@ class TestFTIEvents(MockTestCase):
                 
         # Sync should not happen now
         
-        fti_modified(fti, ObjectModifiedEvent(fti))
+        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('schema', '')))
         
         self.failIf('title' in IBlank)
     
+    def test_old_factory_unregistered_after_name_changed_if_dynamic(self):
+        portal_type = u"testtype"
+        fti = DexterityFTI(portal_type)
+        
+        # Mock the lookup of the site and the site manager at the site root
+        dummy_site = self.create_dummy()
+        self.mock_utility(dummy_site, ISiteRoot)
+        
+        site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
+        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
+        
+        # Pretend like we have a utility registered
+        
+        reg1 = self.create_dummy()
+        reg1.provided = IFactory
+        reg1.name = 'old-factory'
+        reg1.info = 'plone.dexterity.dynamic'
+        
+        self.expect(site_manager_mock.registeredUtilities()).result([reg1])
+        
+        # Expect this to get removed
+        self.expect(site_manager_mock.unregisterUtility(provided=IFactory, name='old-factory'))
+        
+        # And a new one to be created with the new factory name
+        self.expect(site_manager_mock.registerUtility(
+                    mocker.MATCH(lambda x: isinstance(x, DexterityFactory) and x.portal_type == portal_type),
+                    IFactory, 'new-factory', info='plone.dexterity.dynamic')).passthrough()
+        
+        self.replay()
+        fti.factory = 'new-factory'
+        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'old-factory')))
+    
+    def test_new_factory_not_registered_after_name_changed_if_exists(self):
+        portal_type = u"testtype"
+        fti = DexterityFTI(portal_type)
+        
+        # Mock the lookup of the site and the site manager at the site root
+        dummy_site = self.create_dummy()
+        self.mock_utility(dummy_site, ISiteRoot)
+        
+        site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
+        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
+        
+        # Create a global default for the new name
+        self.mock_utility(DexterityFactory(portal_type), IFactory, name='new-factory')
+        
+        # Factory should not be registered again
+        self.expect(site_manager_mock.registerUtility(
+                    mocker.MATCH(lambda x: isinstance(x, DexterityFactory) and x.portal_type == portal_type),
+                    IFactory, 'new-factory', info='plone.dexterity.dynamic')).passthrough().count(0)
+        
+        self.replay()
+        fti.factory = 'new-factory'
+        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'old-factory')))        
+
+    def test_old_factory_not_unregistered_if_not_created_by_dexterity(self):
+        portal_type = u"testtype"
+        fti = DexterityFTI(portal_type)
+        
+        # Mock the lookup of the site and the site manager at the site root
+        dummy_site = self.create_dummy()
+        self.mock_utility(dummy_site, ISiteRoot)
+        
+        site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
+        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
+        
+        # Pretend like we have a utility registered
+        
+        reg1 = self.create_dummy()
+        reg1.provided = IFactory
+        reg1.name = 'old-factory'
+        reg1.info = None
+        
+        self.expect(site_manager_mock.registeredUtilities()).result([reg1])
+        
+        # This should not be removed, since we didn't create it
+        self.expect(site_manager_mock.unregisterUtility(provided=IFactory, name='old-factory')).count(0)
+        
+        # A new one may still be created, however
+        self.expect(site_manager_mock.registerUtility(
+                    mocker.MATCH(lambda x: isinstance(x, DexterityFactory) and x.portal_type == portal_type),
+                    IFactory, 'new-factory', info='plone.dexterity.dynamic')).passthrough()
+        
+        
+        self.replay()
+        fti.factory = 'new-factory'
+        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'old-factory')))
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestFTI))

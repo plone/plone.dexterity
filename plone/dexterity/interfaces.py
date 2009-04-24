@@ -1,4 +1,6 @@
-from zope.interface import Interface
+from zope.interface import Interface, Attribute
+from zope.lifecycleevent.interfaces import IModificationDescription
+
 import zope.schema
 
 from zope.component.interfaces import IFactory
@@ -50,7 +52,14 @@ class IDexterityFTI(Interface):
     
     has_dynamic_schema = zope.schema.Bool(title=u"Whether or not the FTI uses a dynamic schema.",
                                           readonly=True)
+
+class IDexterityFTIModificationDescription(IModificationDescription):
+    """Descriptor passed with an IObjectModifiedEvent for a Dexterity FTI.
+    """
     
+    attribute = zope.schema.ASCII(title=u"Name of the attribute that was modified")
+    old_value = Attribute("Old value")
+
 class IDexterityFactory(IFactory):
     """A factory that can create Dexterity objects.
     

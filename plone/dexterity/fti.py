@@ -16,6 +16,7 @@ from plone.supermodel.model import Model
 from plone.supermodel.utils import sync_schema
 
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.interfaces import IDexterityFTIModificationDescription
 from plone.dexterity import utils
 
 from plone.dexterity.factory import DexterityFactory
@@ -30,6 +31,13 @@ from plone.dexterity.schema import SchemaInvalidatedEvent
 
 from Products.CMFCore.interfaces import IAction
 from Products.CMFCore.Expression import Expression
+
+class DexterityFTIModificationDescription(object):
+    implements(IDexterityFTIModificationDescription)
+    
+    def __init__(self, attribute, old_value):
+        self.attribute = attribute
+        self.old_value = old_value
 
 class AddViewActionCompat(object):
     """Mixin class for forward compatibility with CMF trunk, where add views
@@ -261,20 +269,20 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     # Base class overrides
     # 
     
-    # Make sure we get an event when the FTI is modifieid
+    # Make sure we get an event when the FTI is modified
     
-    def manage_editProperties(self, REQUEST=None):
-        """Gotta love Zope 2
+    def _updateProperty(self, id, value):
+        """Allow property to be updated, and fire a modified event. We do this
+        on a per-property basis and invalidate selectively based on the id of
+        the property that was changed.
         """
-        page = super(DexterityFTI, self).manage_editProperties(REQUEST)
-        modified(self)
-        return page
-    
-    def manage_changeProperties(self, **kw):
-        """Gotta love Zope 2
-        """
-        super(DexterityFTI, self).manage_changeProperties(**kw)
-        modified(self)
+        
+        old_value = getattr(self, id, None)
+        super(DexterityFTI, self)._updateProperty(id, value)
+        new_value = getattr(self, id, None)
+        
+        if old_value != new_value:
+            modified(self, DexterityFTIModificationDescription(id, old_value))
         
     # Allow us to specify a particular add permission rather than rely on ones
     # stored in meta types that we don't have anyway
@@ -348,11 +356,11 @@ def register(fti):
     
     fti_utility = queryUtility(IDexterityFTI, name=portal_type)
     if fti_utility is None:
-        site_manager.registerUtility(fti, IDexterityFTI, portal_type)
+        site_manager.registerUtility(fti, IDexterityFTI, portal_type, info='plone.dexterity.dynamic')
         
     factory_utility = queryUtility(IFactory, name=fti.factory)
     if factory_utility is None:
-        site_manager.registerUtility(DexterityFactory(portal_type), IFactory, fti.factory)
+        site_manager.registerUtility(DexterityFactory(portal_type), IFactory, fti.factory, info='plone.dexterity.dynamic')
 
 def unregister(fti, old_name=None):
     """Helper method to:
@@ -370,7 +378,10 @@ def unregister(fti, old_name=None):
     portal_type = old_name or fti.getId()
     
     site_manager.unregisterUtility(provided=IDexterityFTI, name=portal_type)
-    site_manager.unregisterUtility(provided=IFactory, name=fti.factory)
+    
+    if [f for f in site_manager.registeredUtilities()
+                if (f.provided, f.name, f.info) == (IFactory, fti.factory, 'plone.dexterity.dynamic')]:
+        site_manager.unregisterUtility(provided=IFactory, name=fti.factory)
     
     notify(SchemaInvalidatedEvent(portal_type))
         
@@ -406,23 +417,53 @@ def fti_renamed(object, event):
     register(event.object)
 
 def fti_modified(object, event):
-    """When an FTI is modified, re-sync the schema, if any
+    """When an FTI is modified, re-sync and invalidate the schema, if 
+    necessary.
     """
-    
-    # TODO: Make sure that we don't get orphan factory utilities if
-    # the 'factory' property is changed.
     
     if not IDexterityFTI.providedBy(event.object):
         return
     
+    # TODO: Make sure that we don't get orphan factory utilities if
+    # the 'factory' property is changed.
+    
     fti = event.object
     portal_type = fti.getId()
     
-    if fti.has_dynamic_schema:    
-        schema_name = utils.portal_type_to_schema_name(portal_type)
-        schema = getattr(plone.dexterity.schema.generated, schema_name)
+    mod = {}
+    for desc in event.descriptions:
+        if IDexterityFTIModificationDescription.providedBy(desc):
+            mod[desc.attribute] = desc.old_value
     
-        model = fti.lookup_model()
-        sync_schema(model.schema, schema, overwrite=True)
+    # If the factory utility name was modified, we may get an orphan if one 
+    # was registered as a local utility to begin with. If so, remove the
+    # orphan.
+    
+    if 'factory' in mod:
+        old_factory = mod['factory']
         
-    notify(SchemaInvalidatedEvent(portal_type))
+        site = getUtility(ISiteRoot)
+        site_manager = getSiteManager(site)
+        
+        # Remove a previously registered local factory if required
+        if [f for f in site_manager.registeredUtilities()
+                if (f.provided, f.name, f.info) == (IFactory, old_factory, 'plone.dexterity.dynamic')]:
+            site_manager.unregisterUtility(provided=IFactory, name=old_factory)
+        
+        # Register a new local factory if one doesn't exist already
+        new_factory_utility = queryUtility(IFactory, name=fti.factory)
+        if new_factory_utility is None:
+            site_manager.registerUtility(DexterityFactory(portal_type), IFactory, fti.factory, info='plone.dexterity.dynamic')
+        
+    # Determine if we need to invalidate the schema at all
+    if 'behaviors' in mod or 'schema' in mod or 'model_source' in mod or 'model_file' in mod:
+        
+        # Determine if we need to re-sync a dynamic schema
+        if fti.has_dynamic_schema and ('model_source' in mod or 'model_file' in mod):
+            schema_name = utils.portal_type_to_schema_name(portal_type)
+            schema = getattr(plone.dexterity.schema.generated, schema_name)
+    
+            model = fti.lookup_model()
+            sync_schema(model.schema, schema, overwrite=True)
+        
+        notify(SchemaInvalidatedEvent(portal_type))
