@@ -23,12 +23,10 @@ setup(name='plone.dexterity',
       namespace_packages=['plone'],
       include_package_data=True,
       zip_safe=False,
-      tests_require=[
-        'plone.mocktestcase',
-      ],
       install_requires=[
           'setuptools',
           'plone.synchronize',
+          'plone.mocktestcase',
           
           'plone.z3cform',
           'plone.folder',
