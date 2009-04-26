@@ -173,12 +173,7 @@ class SchemaModuleFactory(object):
         if fti is None and name not in self._transient_schema_cache:
             self._transient_schema_cache[name] = schema
         elif fti is not None:
-            try:
-                model = fti.lookup_model()
-            except Exception, e:
-                self._lock.release()
-                raise
-            
+            model = fti.lookup_model()            
             sync_schema(model.schemata[schema_name], schema, sync_bases=True)
 
             # Save this schema in the module - this factory will not be
