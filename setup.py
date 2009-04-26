@@ -38,11 +38,12 @@ setup(name='plone.dexterity',
           'zope.interface',
           'zope.component',
           'zope.schema',
+          'zope.location',
           'zope.dottedname',
           'zope.annotation',
           'zope.publisher',
           'zope.deferredimport',
-          'zope.app.container',
+          'zope.app.container',   # XXX: Should move to zope.container in the future
           'zope.app.content',
           'ZODB3',
           

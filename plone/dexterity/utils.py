@@ -3,10 +3,12 @@ from Acquisition import aq_inner
 from AccessControl import Unauthorized
 from zope.component import getUtility
 from zope.component import createObject
-from zope.app.container.interfaces import INameChooser
 from zope.dottedname.resolve import resolve
 from plone.dexterity.interfaces import IDexterityFTI
 from Products.CMFCore.interfaces import ISiteRoot
+
+# XXX: Should move to zope.container in the future
+from zope.app.container.interfaces import INameChooser
 
 # Not thread safe, but downside of a write conflict is very small
 _dotted_cache = {}
