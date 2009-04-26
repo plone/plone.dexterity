@@ -18,6 +18,8 @@ from plone.behavior.registration import BehaviorRegistration
 from plone.folder.default import DefaultOrdering
 from zope.annotation.attribute import AttributeAnnotations
 
+from Acquisition import aq_base
+
 class TestContent(MockTestCase):
     
     def setUp(self):
@@ -341,14 +343,61 @@ class TestContent(MockTestCase):
         self.assertEquals('quux', getattr(content, 'quux').id)
     
     def test_ZMI_manage_options(self):
-        """
-        Make sure we get the expected tabs in the ZMI
-        """
+        # Make sure we get the expected tabs in the ZMI
         self.assertEquals([o['label'] for o in Container.manage_options],
             ['Contents', 'Components', 'View', 'Properties', 'Security', 'Define Permissions', 'Undo', 'Ownership', 'Interfaces', 'Find', 'Workflows'])
         self.assertEquals([o['label'] for o in Item.manage_options],
             ['Dublin Core', 'Edit', 'View', 'Workflows', 'Undo', 'Ownership', 'Interfaces', 'Security'])
 
+    def test_folder_parent_pointers(self):
+        
+        c = Container('container')
+        c['id1'] = Item('id1')
+        
+        self.assertEquals('id1', c['id1'].__name__)
+        self.failUnless(aq_base(c['id1'].__parent__) is c)
+    
+    def test_name_and_id_in_sync(self):
+        
+        i = Item()
+        self.assertEquals('', i.id)
+        self.assertEquals('', i.getId())
+        self.assertEquals(u'', i.__name__)
+        
+        i = Item()
+        i.id = "foo"
+        self.assertEquals('foo', i.id)
+        self.assertEquals('foo', i.getId())
+        self.assertEquals(u'foo', i.__name__)
+        
+        i = Item()
+        i.__name__ = u"foo"
+        self.assertEquals('foo', i.id)
+        self.assertEquals('foo', i.getId())
+        self.assertEquals(u'foo', i.__name__)
+        
+    def test_name_unicode_id_str(self):
+        
+        i = Item()
+        
+        try:
+            i.__name__ = '\xc3\xb8'.decode('utf-8')
+        except UnicodeEncodeError:
+            pass
+        else:
+            self.fail()
+        
+        i.__name__ = u"o"
+        
+        self.assertEquals(u"o", i.__name__)
+        self.assertEquals("o", i.id)
+        self.assertEquals("o", i.getId())
+        
+        self.failUnless(isinstance(i.__name__, unicode))
+        self.failUnless(isinstance(i.id, str))
+        self.failUnless(isinstance(i.getId(), str))
+        
+    
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestContent))

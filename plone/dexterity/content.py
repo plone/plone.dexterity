@@ -171,7 +171,19 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
                 return field.default
         
         return super(DexterityContent, self).__getattr__(name)
+    
+    # Let __name__ and id be identical. Note that id must be ASCII in Zope 2,
+    # but __name__ should be unicode. Note that setting the name to something
+    # that can't be encoded to ASCII will throw a UnicodeEncodeError
 
+    def _get__name__(self):
+        return unicode(self.id)
+    def _set__name__(self, value):
+        if isinstance(value, unicode):
+            value = str(value) # may throw, but that's OK - id must be ASCII
+        self.id = value
+    __name__ = property(_get__name__, _set__name__)
+    
 # XXX: It'd be nice to reduce the number of base classes here
 
 class Item(BrowserDefaultMixin, DexterityContent):
