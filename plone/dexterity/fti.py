@@ -21,6 +21,7 @@ from plone.dexterity import utils
 
 from plone.dexterity.factory import DexterityFactory
 
+from Acquisition import aq_base
 from AccessControl import getSecurityManager
 from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFDynamicViewFTI import fti as base
@@ -348,7 +349,8 @@ def register(fti):
          - register a local factory utility
          - register an add view
     """
-    
+
+    fti = aq_base(fti) # remove acquisition wrapper
     site = getUtility(ISiteRoot)
     site_manager = getSiteManager(site)
     
