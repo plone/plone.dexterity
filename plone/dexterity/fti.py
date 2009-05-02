@@ -233,7 +233,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     
     @property
     def has_dynamic_schema(self):
-        return not bool(self.schema)
+        return not(self.schema)
     
     def lookup_schema(self):
         
@@ -461,7 +461,8 @@ def fti_modified(object, event):
     if 'behaviors' in mod or 'schema' in mod or 'model_source' in mod or 'model_file' in mod:
         
         # Determine if we need to re-sync a dynamic schema
-        if fti.has_dynamic_schema and ('model_source' in mod or 'model_file' in mod):
+        if (fti.model_source or fti.model_file) and ('model_source' in mod or 'model_file' in mod):
+            
             schema_name = utils.portal_type_to_schema_name(portal_type)
             schema = getattr(plone.dexterity.schema.generated, schema_name)
     
