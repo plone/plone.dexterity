@@ -43,6 +43,7 @@ setup(name='plone.dexterity',
           'zope.annotation',
           'zope.publisher',
           'zope.deferredimport',
+          'zope.security',
           'zope.app.container',   # XXX: Should move to zope.container in the future
           'zope.app.content',
           'ZODB3',

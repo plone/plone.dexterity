@@ -3,9 +3,12 @@ import os.path
 from zope.interface import implements
 
 from zope.component.interfaces import IFactory
-from zope.component import getUtility, queryUtility
+from zope.component import getUtility, queryUtility, getAllUtilitiesRegisteredFor
 
 from zope.event import notify
+
+from zope.security.interfaces import IPermission
+from zope.security import checkPermission
 
 from zope.lifecycleevent import modified
 
@@ -22,7 +25,6 @@ from plone.dexterity import utils
 from plone.dexterity.factory import DexterityFactory
 
 from Acquisition import aq_base
-from AccessControl import getSecurityManager
 from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFDynamicViewFTI import fti as base
 
@@ -111,7 +113,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     _properties = base.DynamicViewTypeInformation._properties + (
         { 'id': 'add_permission', 
           'type': 'selection',
-          'select_variable': 'possible_permissions',
+          'select_variable': 'possible_permission_ids',
           'mode': 'w',
           'label': 'Add permission',
           'description': 'Permission needed to be able to add content of this type'
@@ -171,7 +173,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     immediate_view = 'view'
     default_view = 'view'
     view_methods = ('view',)
-    add_permission = 'Add portal content'
+    add_permission = 'cmf.AddPortalContent'
     behaviors = []
     klass = 'plone.dexterity.content.Item'
     model_source = """\
@@ -291,11 +293,19 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     def isConstructionAllowed(self, container):
         if not self.add_permission:
             return False
-        return getSecurityManager().checkPermission(self.add_permission, container)
+        return checkPermission(self.add_permission, container)
         
     #
     # Helper methods
     # 
+
+    def possible_permission_ids(self):
+        """Get a vocabulary of Zope 3 permission ids
+        """
+        permission_names = set()
+        for permission in getAllUtilitiesRegisteredFor(IPermission):
+            permission_names.add(permission.id)
+        return sorted(permission_names)
 
     def _abs_model_file(self):
         colons = self.model_file.count(':')

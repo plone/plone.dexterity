@@ -228,14 +228,11 @@ class TestFTI(MockTestCase):
 
     def test_checks_permission_in_is_construction_allowed_true(self):
         fti = DexterityFTI(u"testtype")
-        fti.add_permission = "Some add permission"
+        fti.add_permission = "demo.Permission"
         container_dummy = self.create_dummy()
         
-        security_manager_mock = self.mocker.mock()
-        self.expect(security_manager_mock.checkPermission("Some add permission", container_dummy)).result(True)
-        
-        getSecurityManager_mock = self.mocker.replace('AccessControl.getSecurityManager')
-        self.expect(getSecurityManager_mock()).result(security_manager_mock)
+        checkPermission_mock = self.mocker.replace('zope.security.checkPermission')
+        self.expect(checkPermission_mock("demo.Permission", container_dummy)).result(True)
         
         self.replay()
         
@@ -243,14 +240,11 @@ class TestFTI(MockTestCase):
     
     def test_checks_permission_in_is_construction_allowed_false(self):
         fti = DexterityFTI(u"testtype")
-        fti.add_permission = "Some add permission"
+        fti.add_permission = "demo.Permission"
         container_dummy = self.create_dummy()
         
-        security_manager_mock = self.mocker.mock()
-        self.expect(security_manager_mock.checkPermission("Some add permission", container_dummy)).result(False)
-        
-        getSecurityManager_mock = self.mocker.replace('AccessControl.getSecurityManager')
-        self.expect(getSecurityManager_mock()).result(security_manager_mock)
+        checkPermission_mock = self.mocker.replace('zope.security.checkPermission')
+        self.expect(checkPermission_mock("demo.Permission", container_dummy)).result(False)
         
         self.replay()
         
