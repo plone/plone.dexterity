@@ -8,7 +8,6 @@ from zope.component import getUtility, queryUtility, getAllUtilitiesRegisteredFo
 from zope.event import notify
 
 from zope.security.interfaces import IPermission
-from zope.security import checkPermission
 
 from zope.lifecycleevent import modified
 
@@ -25,6 +24,8 @@ from plone.dexterity import utils
 from plone.dexterity.factory import DexterityFactory
 
 from Acquisition import aq_base
+from AccessControl import getSecurityManager
+
 from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFDynamicViewFTI import fti as base
 
@@ -293,7 +294,12 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     def isConstructionAllowed(self, container):
         if not self.add_permission:
             return False
-        return checkPermission(self.add_permission, container)
+        
+        permission = queryUtility(IPermission, name=self.add_permission)
+        if permission is None:
+            return False
+        
+        return getSecurityManager().checkPermission(permission.title, container)
         
     #
     # Helper methods

@@ -7,6 +7,8 @@ import os.path
 from zope.interface import Interface
 from zope.component import queryUtility
 
+from zope.security.interfaces import IPermission
+
 import zope.schema
 
 from zope.component.interfaces import IFactory
@@ -231,8 +233,17 @@ class TestFTI(MockTestCase):
         fti.add_permission = "demo.Permission"
         container_dummy = self.create_dummy()
         
-        checkPermission_mock = self.mocker.replace('zope.security.checkPermission')
-        self.expect(checkPermission_mock("demo.Permission", container_dummy)).result(True)
+        permission_dummy = self.create_dummy()
+        permission_dummy.id = 'demo.Permission'
+        permission_dummy.title = 'Some add permission'
+        
+        self.mock_utility(permission_dummy, IPermission, name=u"demo.Permission")
+        
+        security_manager_mock = self.mocker.mock() 
+        self.expect(security_manager_mock.checkPermission("Some add permission", container_dummy)).result(True) 
+         
+        getSecurityManager_mock = self.mocker.replace('AccessControl.getSecurityManager') 
+        self.expect(getSecurityManager_mock()).result(security_manager_mock) 
         
         self.replay()
         
@@ -243,11 +254,26 @@ class TestFTI(MockTestCase):
         fti.add_permission = "demo.Permission"
         container_dummy = self.create_dummy()
         
-        checkPermission_mock = self.mocker.replace('zope.security.checkPermission')
-        self.expect(checkPermission_mock("demo.Permission", container_dummy)).result(False)
+        permission_dummy = self.create_dummy()
+        permission_dummy.id = 'demo.Permission'
+        permission_dummy.title = 'Some add permission'
+        
+        self.mock_utility(permission_dummy, IPermission, name=u"demo.Permission")
+        
+        security_manager_mock = self.mocker.mock() 
+        self.expect(security_manager_mock.checkPermission("Some add permission", container_dummy)).result(False) 
+         
+        getSecurityManager_mock = self.mocker.replace('AccessControl.getSecurityManager') 
+        self.expect(getSecurityManager_mock()).result(security_manager_mock) 
         
         self.replay()
         
+        self.assertEquals(False, fti.isConstructionAllowed(container_dummy))
+    
+    def test_no_permission_utility_means_no_construction(self):
+        fti = DexterityFTI(u"testtype")
+        fti.add_permission = 'demo.Permission' # not an IPermission utility
+        container_dummy = self.create_dummy()
         self.assertEquals(False, fti.isConstructionAllowed(container_dummy))
     
     def test_no_permission_means_no_construction(self):
