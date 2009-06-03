@@ -196,13 +196,20 @@ class TestContent(MockTestCase):
         class MyItem(Item):
             pass
         
+        # Fake data manager
+        class FauxDataManager(object):
+            def setstate(self, obj): pass
+            def oldstate(self, obj, tid): pass
+            def register(self, obj): pass
+
+        
         # Dummy instance
         item = MyItem(id=u'id')
         item.portal_type = 'testtype'
         
         # Without a persistence jar, the _p_changed check doesn't work. In
         # this case, the cache is a bit slower.
-        # item._p_jar = FauxDataManager()
+        item._p_jar = FauxDataManager()
         
         # Dummy schema
         class ISchema(Interface):
@@ -262,7 +269,107 @@ class TestContent(MockTestCase):
         
         self.assertEquals(True, IMarker.providedBy(item))
         self.assertEquals(True, ISubtype.providedBy(item))
-        self.assertEquals(True, ISchema.providedBy(item))        
+        self.assertEquals(True, ISchema.providedBy(item))      
+
+    def test_provided_by_behavior_subtype_invalidation(self):
+        
+        # Dummy type
+        class MyItem(Item):
+            pass
+        
+        # Fake data manager
+        class FauxDataManager(object):
+            def setstate(self, obj): pass
+            def oldstate(self, obj, tid): pass
+            def register(self, obj): pass
+
+        
+        # Dummy instance
+        item = MyItem(id=u'id')
+        item.portal_type = 'testtype'
+        
+        # Without a persistence jar, the _p_changed check doesn't work. In
+        # this case, the cache is a bit slower.
+        item._p_jar = FauxDataManager()
+        
+        # Dummy schema
+        class ISchema(Interface):
+            foo = zope.schema.TextLine(title=u"foo", default=u"foo_default")
+            bar = zope.schema.TextLine(title=u"bar")
+        
+        # Schema is not implemented by class or provided by instance
+        self.assertEquals(False, ISchema.implementedBy(MyItem))
+        self.assertEquals(False, ISchema.providedBy(item))
+        
+        # Behaviors - one with a subtype and one without
+        
+        class IBehavior1(Interface):
+            pass
+        
+        class IBehavior2(Interface):
+            pass
+        
+        class IBehavior3(Interface):
+            pass
+        
+        class ISubtype1(Interface):
+            pass
+        
+        class ISubtype2(Interface):
+            pass
+        
+        behavior1 = BehaviorRegistration(u"Behavior1", "", IBehavior1, None, None)
+        behavior2 = BehaviorRegistration(u"Behavior2", "", IBehavior2, ISubtype1, None)
+        behavior3 = BehaviorRegistration(u"Behavior3", "", IBehavior3, ISubtype2, None)
+        
+        self.mock_utility(behavior1, IBehavior, name="behavior1")
+        self.mock_utility(behavior2, IBehavior, name="behavior2")
+        self.mock_utility(behavior3, IBehavior, name="behavior3")
+        
+        # FTI mock
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookup_schema()).result(ISchema).count(2) # twice, since we invalidate
+        
+        # First time around, we have only these behaviors
+        self.expect(fti_mock.behaviors).result(['behavior1', 'behavior2']).count(1)
+        
+        # Second time around, we add another one
+        self.expect(fti_mock.behaviors).result(['behavior1', 'behavior2', 'behavior3']).count(1)
+        
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        self.replay()
+        
+        self.assertEquals(False, ISchema.implementedBy(MyItem))
+        
+        # Schema as looked up in FTI is now provided by item ...
+        self.assertEquals(True, ISubtype1.providedBy(item))
+        self.assertEquals(False, ISubtype2.providedBy(item))
+        self.assertEquals(True, ISchema.providedBy(item))
+        
+        # If the _v_ attribute cache does not work, then we'd expect to have
+        # to look up the schema more than once (since we invalidated)
+        # the cache. This is not the case, as evidenced by .count(1) above.
+        self.assertEquals(True, ISubtype1.providedBy(item))
+        self.assertEquals(False, ISubtype2.providedBy(item))
+        self.assertEquals(True, ISchema.providedBy(item))
+        
+        # If we now invalidate the schema cache, we should get the second set
+        # of behaviors
+        schema_cache.invalidate('testtype')
+        
+        # Schema as looked up in FTI is now provided by item ...
+        
+        self.assertEquals(True, ISubtype1.providedBy(item))
+        self.assertEquals(True, ISubtype2.providedBy(item))
+        self.assertEquals(True, ISchema.providedBy(item))
+        
+        # If the _v_ attribute cache does not work, then we'd expect to have
+        # to look up the schema more than once (since we invalidated)
+        # the cache. This is not the case, as evidenced by .count(1) above.
+        self.assertEquals(True, ISubtype1.providedBy(item))
+        self.assertEquals(True, ISubtype2.providedBy(item))
+        self.assertEquals(True, ISchema.providedBy(item))
     
     def test_getattr_consults_schema_item(self):
         

@@ -96,6 +96,7 @@ class SchemaCache(object):
     @synchronized(lock)
     def invalidate(self, portal_type):
         self.cache[portal_type] = None
+        self.subtypes_cache[portal_type] = None
         if portal_type in self.counter_values:
             self.counter_values[portal_type] += 1
         else:
