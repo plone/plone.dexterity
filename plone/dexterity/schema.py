@@ -81,8 +81,8 @@ class SchemaCache(object):
             if fti is not None:
                 for behavior_name in fti.behaviors:
                     behavior = queryUtility(IBehavior, name=behavior_name)
-                    if behavior is not None and behavior.subtype is not None:
-                        subtypes.append(behavior.subtype)
+                    if behavior is not None and behavior.marker is not None:
+                        subtypes.append(behavior.marker)
                 cached = self.subtypes_cache[portal_type] = tuple(subtypes)
         return cached
         
