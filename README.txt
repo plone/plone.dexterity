@@ -225,7 +225,7 @@ makes up a "content type" in the Dexterity system.
     In use, a behavior is essentially just an adapter that only appears to be
     registered if the behavior is enabled in the FTI of the object being
     adapted. Thus, if you have a behavior described by my.package.IMyBehavior,
-    you'll typically interact with this behavior by doing:
+    you'll typically interact with this behavior by doing::
     
         my_behavior = IMyBehavior(context, None)
         if my_behavior is not None:
@@ -235,7 +235,7 @@ makes up a "content type" in the Dexterity system.
     list of dotted interface names.
 
 The Dexterity Ecosystem
-------------------------
+-----------------------
 
 The Dexterity system comprises a number of packages, most of which are
 independently re-usable. In addition, Dexterity uses many components from

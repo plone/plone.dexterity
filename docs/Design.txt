@@ -1,10 +1,10 @@
 About this document
-================
+===================
 
 This document explains the initial set of use cases and design thinking that influenced the way in which Dexterity is built. We will try to keep it relevant and up to date, but you should look at interface documentation and other documentation in the actual packages for details about how Dexterity works and how to work with it.
 
 About Dexterity
-================
+===============
 
 Dexterity is the code name for a new way of creating and managing content types in Plone. It aims to take the power to create content types out of the realm of developers and put it in the hands of site administrators and business analysts. Dexterity is also designed to work well with GUI tools ala Gensis or ArchGenXML.
 
@@ -20,7 +20,7 @@ She then enters into a schema editor. Here, she can add any number of fields to 
 When the type definition is saved, presuming the type has been enabled, it will show up through the Plone interface, just as a normal content type.
 
 User story - packaging up a content type to deploy elsewhere
--------------------------------------------------------------
+------------------------------------------------------------
 
 So far, the type has lived in the ZODB only. All the settings made through the web can, however, be exported and re-imported using GenericSetup.
 
