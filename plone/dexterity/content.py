@@ -170,7 +170,7 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
             if field is not None:
                 return field.default
         
-        return super(DexterityContent, self).__getattr__(name)
+        raise AttributeError(name)
     
     # Let __name__ and id be identical. Note that id must be ASCII in Zope 2,
     # but __name__ should be unicode. Note that setting the name to something
