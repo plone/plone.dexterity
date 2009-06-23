@@ -1,4 +1,5 @@
 from Acquisition import Explicit, aq_parent
+from OFS.IOrderSupport import IOrderedContainer
 
 from zope.component import queryUtility
 
@@ -211,6 +212,10 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
     """
     
     implements(IDexterityContainer)
+    # Yes folks, Plone 3.3 still requires Zope2 interfaces!
+    __implements__ = BrowserDefaultMixin.__implements__ + \
+            CMFOrderedBTreeFolderBase.__implements__ + \
+            (IOrderedContainer,)
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
     
