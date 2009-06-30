@@ -40,7 +40,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
     """A __providedBy__ decorator that returns the interfaces provided by
     the object, plus the schema interface set in the FTI.
     """
-
+    
     def __get__(self, inst, cls=None):
         
         # We're looking at a class - fall back on default
@@ -68,7 +68,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         #  - The instance was modified and persisted since the cache was built.
         #  - The instance now has a different __provides__, which means that someone
         #    called directlyProvides/alsoProvides on it.
-
+        
         if cache is not None and portal_type is not None:
             cached_mtime, cached_fti_counter, cached_direct_spec, cached_spec = cache
             
@@ -119,7 +119,7 @@ class AttributeValidator(Explicit):
     """
     
     def __call__(self, name, value):
-
+        
         # Short circuit for things like views or viewlets
         if name == '':
             return 1
