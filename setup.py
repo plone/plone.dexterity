@@ -26,7 +26,7 @@ setup(name='plone.dexterity',
       install_requires=[
           'setuptools',
           'plone.synchronize',
-          'plone.mocktestcase',
+          'plone.mocktestcase>=1.0b3',
           
           'plone.z3cform',
           'plone.folder',
