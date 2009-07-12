@@ -13,9 +13,9 @@ from zope.lifecycleevent import modified
 
 from zope.app.component.hooks import getSiteManager
 
-from plone.supermodel import load_string, load_file
+from plone.supermodel import loadString, loadFile
 from plone.supermodel.model import Model
-from plone.supermodel.utils import sync_schema
+from plone.supermodel.utils import syncSchema
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityFTIModificationDescription
@@ -39,9 +39,9 @@ from Products.CMFCore.Expression import Expression
 class DexterityFTIModificationDescription(object):
     implements(IDexterityFTIModificationDescription)
     
-    def __init__(self, attribute, old_value):
+    def __init__(self, attribute, oldValue):
         self.attribute = attribute
-        self.old_value = old_value
+        self.oldValue = oldValue
 
 class AddViewActionCompat(object):
     """Mixin class for forward compatibility with CMF trunk, where add views
@@ -114,7 +114,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     _properties = base.DynamicViewTypeInformation._properties + (
         { 'id': 'add_permission', 
           'type': 'selection',
-          'select_variable': 'possible_permission_ids',
+          'select_variable': 'possiblePermissionIds',
           'mode': 'w',
           'label': 'Add permission',
           'description': 'Permission needed to be able to add content of this type'
@@ -235,14 +235,14 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
             self._setPropValue('add_view_expr', add_view_expr)
     
     @property
-    def has_dynamic_schema(self):
+    def hasDynamicSchema(self):
         return not(self.schema)
     
-    def lookup_schema(self):
+    def lookupSchema(self):
         
         # If a specific schema is given, use it
         if self.schema:
-            schema = utils.resolve_dotted_name(self.schema)
+            schema = utils.resolveDottedName(self.schema)
             if schema is None:
                 raise ValueError(u"Schema %s set for type %s cannot be resolved" % (self.schema, self.getId()))
             return schema
@@ -251,20 +251,20 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
         # an unnamed schema if it is the first time it is looked up. 
         # See schema.py
 
-        schema_name = utils.portal_type_to_schema_name(self.getId())
-        return getattr(plone.dexterity.schema.generated, schema_name)
+        schemaName = utils.portalTypeToSchemaName(self.getId())
+        return getattr(plone.dexterity.schema.generated, schemaName)
     
-    def lookup_model(self):
+    def lookupModel(self):
         
         if self.model_source:
-            return load_string(self.model_source, policy=u"dexterity")
+            return loadString(self.model_source, policy=u"dexterity")
         
         elif self.model_file:
-            model_file = self._abs_model_file()
-            return load_file(model_file, reload=True, policy=u"dexterity")
+            model_file = self._absModelFile()
+            return loadFile(model_file, reload=True, policy=u"dexterity")
         
         elif self.schema:
-            schema = self.lookup_schema()
+            schema = self.lookupSchema()
             return Model({u"": schema})
         
         raise ValueError("Neither model source, nor model file, nor schema is specified in FTI %s" % self.getId())
@@ -281,12 +281,12 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
         the property that was changed.
         """
         
-        old_value = getattr(self, id, None)
+        oldValue = getattr(self, id, None)
         super(DexterityFTI, self)._updateProperty(id, value)
         new_value = getattr(self, id, None)
         
-        if old_value != new_value:
-            modified(self, DexterityFTIModificationDescription(id, old_value))
+        if oldValue != new_value:
+            modified(self, DexterityFTIModificationDescription(id, oldValue))
         
     # Allow us to specify a particular add permission rather than rely on ones
     # stored in meta types that we don't have anyway
@@ -305,7 +305,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     # Helper methods
     # 
 
-    def possible_permission_ids(self):
+    def possiblePermissionIds(self):
         """Get a vocabulary of Zope 3 permission ids
         """
         permission_names = set()
@@ -313,14 +313,14 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
             permission_names.add(permission.id)
         return sorted(permission_names)
 
-    def _abs_model_file(self):
+    def _absModelFile(self):
         colons = self.model_file.count(':')
         model_file = self.model_file
         
         # We have a package and not an absolute Windows path
         if colons == 1 and self.model_file[1:3] != ':\\':
             package, filename = self.model_file.split(':')
-            mod = utils.resolve_dotted_name(package)
+            mod = utils.resolveDottedName(package)
              # let / work as path separator on all platforms
             filename = filename.replace('/', os.path.sep)
             model_file = os.path.join(os.path.split(mod.__file__)[0], filename)
@@ -333,7 +333,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
         
         return model_file
 
-def _fix_properties(class_, ignored=['product', 'content_meta_type', 'add_view_expr']):
+def _fixProperties(class_, ignored=['product', 'content_meta_type', 'add_view_expr']):
     """Remove properties with the given ids, and ensure that later properties
     override earlier ones with the same id
     """
@@ -354,7 +354,7 @@ def _fix_properties(class_, ignored=['product', 'content_meta_type', 'add_view_e
         processed.add('id')
     
     class_._properties = tuple(reversed(properties))
-_fix_properties(DexterityFTI)
+_fixProperties(DexterityFTI)
 
 # Event handlers
 
@@ -403,7 +403,7 @@ def unregister(fti, old_name=None):
     
     notify(SchemaInvalidatedEvent(portal_type))
         
-def fti_added(object, event):
+def ftiAdded(object, event):
     """When the FTI is created, install local components
     """
     
@@ -412,7 +412,7 @@ def fti_added(object, event):
     
     register(event.object)
     
-def fti_removed(object, event):
+def ftiRemoved(object, event):
     """When the FTI is removed, uninstall local coponents
     """
     
@@ -421,7 +421,7 @@ def fti_removed(object, event):
             
     unregister(event.object)
 
-def fti_renamed(object, event):
+def ftiRenamed(object, event):
     """When the FTI is modified, ensure local components are still valid
     """
     
@@ -434,7 +434,7 @@ def fti_renamed(object, event):
     unregister(event.object, event.oldName)
     register(event.object)
 
-def fti_modified(object, event):
+def ftiModified(object, event):
     """When an FTI is modified, re-sync and invalidate the schema, if 
     necessary.
     """
@@ -451,7 +451,7 @@ def fti_modified(object, event):
     mod = {}
     for desc in event.descriptions:
         if IDexterityFTIModificationDescription.providedBy(desc):
-            mod[desc.attribute] = desc.old_value
+            mod[desc.attribute] = desc.oldValue
     
     # If the factory utility name was modified, we may get an orphan if one 
     # was registered as a local utility to begin with. If so, remove the
@@ -479,10 +479,10 @@ def fti_modified(object, event):
         # Determine if we need to re-sync a dynamic schema
         if (fti.model_source or fti.model_file) and ('model_source' in mod or 'model_file' in mod):
             
-            schema_name = utils.portal_type_to_schema_name(portal_type)
-            schema = getattr(plone.dexterity.schema.generated, schema_name)
+            schemaName = utils.portalTypeToSchemaName(portal_type)
+            schema = getattr(plone.dexterity.schema.generated, schemaName)
     
-            model = fti.lookup_model()
-            sync_schema(model.schema, schema, overwrite=True)
+            model = fti.lookupModel()
+            syncSchema(model.schema, schema, overwrite=True)
         
         notify(SchemaInvalidatedEvent(portal_type))

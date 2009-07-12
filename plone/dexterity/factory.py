@@ -9,7 +9,7 @@ from zope.component.factory import Factory
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityFactory
 
-from plone.dexterity.utils import resolve_dotted_name
+from plone.dexterity.utils import resolveDottedName
 
 class DexterityFactory(Persistent, Factory):
     """A factory for Dexterity content. 
@@ -33,7 +33,7 @@ class DexterityFactory(Persistent, Factory):
     def __call__(self, *args, **kw):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         
-        klass = resolve_dotted_name(fti.klass)
+        klass = resolveDottedName(fti.klass)
         if klass is None or not callable(klass):
             raise ValueError("Content class %s set for type %s is not valid" % (fti.klass, self.portal_type))
         
@@ -51,7 +51,7 @@ class DexterityFactory(Persistent, Factory):
 
     def getInterfaces(self):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
-        spec = Implements(fti.lookup_schema())
+        spec = Implements(fti.lookupSchema())
         spec.__name__ = self.portal_type
         return spec
 

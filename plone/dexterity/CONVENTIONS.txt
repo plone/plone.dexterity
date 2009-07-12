@@ -1,0 +1,31 @@
+Dexterity naming conventions
+============================
+
+The following naming conventions apply to Dexterity code.
+
+ * Classes use CamelCase, e.g. SchemaFactory
+ 
+ * Methods and functions that are meant for external use are in mixedCase,
+   e.g. createContentInContainer()
+   
+ * Arguments to methods that are meant for external use are also in mixedCase,
+   e.g. addContentToContainer(container, object, checkConstraints=True)
+  
+ * Class variables and object attributes that are meant for external use
+   are also in mixedCase, e.g. isPrincipiaFolderish
+   
+ * Exceptions to this rule:
+ 
+     * FTI attributes are in lower_case_with_underscore, e.g. model_source
+     * Any attribute/argument referring to the CMF portal_type is written as
+       such, *not* portalType
+ 
+ * Acronyms in class or variable names are all in the same case, e.g.
+   DexterityFTI or ftiCounter.
+   
+ * Constants and globals are in ALL_CAPS_WITH_UNDER_SCORE e.g. SCHEMA_CACHE
+
+ * Internal variables may be in lower_case_with_underscore if appropriate.
+
+ * Grok directives use lower_case_and_underscore, e.g. 
+   dexterity.write_permission() or form.default_value().

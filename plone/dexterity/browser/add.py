@@ -7,7 +7,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.i18n import MessageFactory as _
 
 from plone.dexterity.browser.base import DexterityExtensibleForm
-from plone.dexterity.utils import add_object_to_container
+from plone.dexterity.utils import addContentToContainer
 
 from Acquisition import aq_inner, aq_base
 from Acquisition.interfaces import IAcquirer
@@ -63,7 +63,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         container = aq_inner(self.context)
-        new_object = add_object_to_container(container, object)
+        new_object = addContentToContainer(container, object)
         
         immediate_view = fti.immediate_view or 'view'
         self.immediate_view = "%s/%s/%s" % (container.absolute_url(), new_object.id, immediate_view,)

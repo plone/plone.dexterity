@@ -4,7 +4,7 @@ from plone.autoform.interfaces import IFormFieldProvider
 from plone.autoform.view import WidgetsView
 
 from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.utils import resolve_dotted_name
+from plone.dexterity.utils import resolveDottedName
 
 class DefaultView(WidgetsView):
     """The default view for Dexterity content. This uses a WidgetsView and
@@ -14,14 +14,14 @@ class DefaultView(WidgetsView):
     @property
     def schema(self):
         fti = getUtility(IDexterityFTI, name=self.context.portal_type)
-        return fti.lookup_schema()
+        return fti.lookupSchema()
     
     @property
-    def additional_schemata(self):
+    def additionalSchemata(self):
         fti = getUtility(IDexterityFTI, name=self.context.portal_type)
         for behavior_name in fti.behaviors:
             try:
-                behavior_interface = resolve_dotted_name(behavior_name)
+                behavior_interface = resolveDottedName(behavior_name)
             except ValueError:
                 continue
             if behavior_interface is not None:

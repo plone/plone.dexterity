@@ -18,12 +18,12 @@ class DexterityBehaviorAssignable(object):
         self.fti = getUtility(IDexterityFTI, name=context.portal_type)
     
     def supports(self, behavior_interface):
-        for behavior in self.enumerate_behaviors():
+        for behavior in self.enumerateBehaviors():
             if behavior_interface in behavior.interface._implied:
                 return True
         return False
         
-    def enumerate_behaviors(self):
+    def enumerateBehaviors(self):
         for name in self.fti.behaviors:
             behavior = queryUtility(IBehavior, name=name)
             if behavior is not None:

@@ -30,10 +30,10 @@ setup(name='plone.dexterity',
           
           'plone.z3cform',
           'plone.folder',
-          'plone.supermodel',
+          'plone.supermodel>=1.0b2',
           'plone.alterego',
-          'plone.behavior',
-          'plone.autoform',
+          'plone.behavior>=1.0b5',
+          'plone.autoform>=1.0b2',
 
           'zope.interface',
           'zope.component',

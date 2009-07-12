@@ -7,7 +7,7 @@ import zope.schema
 from zope.security.interfaces import IPermission
 from zope.security.permission import Permission
 
-from plone.dexterity.schema import schema_cache
+from plone.dexterity.schema import SCHEMA_CACHE
 
 from plone.dexterity.content import Item, Container
 
@@ -19,7 +19,7 @@ from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 class TestAttributeProtection(MockTestCase):
 
     def setUp(self):
-        schema_cache.clear()
+        SCHEMA_CACHE.clear()
             
     def test_item(self):
         
@@ -30,7 +30,7 @@ class TestAttributeProtection(MockTestCase):
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
-        self.expect(fti_mock.lookup_schema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
@@ -69,7 +69,7 @@ class TestAttributeProtection(MockTestCase):
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
-        self.expect(fti_mock.lookup_schema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
@@ -110,7 +110,7 @@ class TestAttributeProtection(MockTestCase):
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
-        self.expect(fti_mock.lookup_schema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
@@ -147,7 +147,7 @@ class TestAttributeProtection(MockTestCase):
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
-        self.expect(fti_mock.lookup_schema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
@@ -175,7 +175,7 @@ class TestAttributeProtection(MockTestCase):
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
-        self.expect(fti_mock.lookup_schema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
@@ -206,7 +206,7 @@ class TestAttributeProtection(MockTestCase):
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
-        self.expect(fti_mock.lookup_schema()).result(None).count(3) # not cached this time
+        self.expect(fti_mock.lookupSchema()).result(None).count(3) # not cached this time
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
@@ -227,7 +227,7 @@ class TestAttributeProtection(MockTestCase):
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         
-        self.expect(fti_mock.lookup_schema()).count(3).throw(AttributeError)
+        self.expect(fti_mock.lookupSchema()).count(3).throw(AttributeError)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
@@ -247,7 +247,7 @@ class TestAttributeProtection(MockTestCase):
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
-        self.expect(fti_mock.lookup_schema()).count(0)
+        self.expect(fti_mock.lookupSchema()).count(0)
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
         # Content item

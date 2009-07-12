@@ -14,7 +14,7 @@ from zope.app.content.interfaces import IContentType
 from plone.behavior.interfaces import IBehavior
 
 from plone.supermodel.parser import ISchemaPolicy
-from plone.supermodel.utils import sync_schema
+from plone.supermodel.utils import syncSchema
 
 from plone.alterego.interfaces import IDynamicObjectFactory
 
@@ -35,7 +35,7 @@ class SchemaCache(object):
     """Simple schema cache. 
     
     This cache will store a Python object reference to the schema, as returned
-    by fti.lookup_schema(), for any number of portal types. The value will
+    by fti.lookupSchema(), for any number of portal types. The value will
     be cached until the server is restarted or the cache is invalidated or
     cleared.
     
@@ -43,13 +43,13 @@ class SchemaCache(object):
     operations, it's safer and easier to do:
     
         >>> fti = getUtility(IDexterityFTI, name=portal_type)
-        >>> schema = fti.lookup_schema()
+        >>> schema = fti.lookupSchema()
     
-    The lookup_schema() call is probably as fast as this cache. However, if
+    The lookupSchema() call is probably as fast as this cache. However, if
     you need to avoid the utility lookup, you can use the cache like so:
     
-        >>> from plone.dexterity.schema import schema_cache
-        >>> my_schema = schema_cache.get(portal_type)
+        >>> from plone.dexterity.schema import SCHEMA_CACHE
+        >>> my_schema = SCHEMA_CACHE.get(portal_type)
         
     Invalidate the cache by calling invalidate() (for one portal_type) or
     clear() (for all cached values), or simply raise a SchemaInvalidatedEvent.
@@ -67,7 +67,7 @@ class SchemaCache(object):
             fti = queryUtility(IDexterityFTI, name=portal_type)
             if fti is not None:
                 try:
-                    cached = self.cache[portal_type] = fti.lookup_schema()
+                    cached = self.cache[portal_type] = fti.lookupSchema()
                 except (AttributeError, ValueError), e:
                     pass
         return cached
@@ -107,7 +107,7 @@ class SchemaCache(object):
         self.cache.clear()
         self.subtypes_cache.clear()
 
-schema_cache = SchemaCache()
+SCHEMA_CACHE = SchemaCache()
 
 class SchemaInvalidatedEvent(object):
     implements(ISchemaInvalidatedEvent)
@@ -118,9 +118,9 @@ class SchemaInvalidatedEvent(object):
 @adapter(ISchemaInvalidatedEvent)
 def invalidate_schema(event):
     if event.portal_type:
-        schema_cache.invalidate(event.portal_type)
+        SCHEMA_CACHE.invalidate(event.portal_type)
     else:
-        schema_cache.clear()
+        SCHEMA_CACHE.clear()
 
 # Dynamic module factory
 
@@ -131,7 +131,7 @@ class SchemaModuleFactory(object):
     implements(IDynamicObjectFactory)
     
     lock = Lock()
-    _transient_schema_cache = {}
+    _transient_SCHEMA_CACHE = {}
     
     @synchronized(lock)
     def __call__(self, name, module):
@@ -152,16 +152,16 @@ class SchemaModuleFactory(object):
         """
         
         try:
-            prefix, portal_type, schema_name = utils.split_schema_name(name)
+            prefix, portal_type, schemaName = utils.splitSchemaName(name)
         except ValueError:
             return None
         
-        if name in self._transient_schema_cache:
-            schema = self._transient_schema_cache[name]
+        if name in self._transient_SCHEMA_CACHE:
+            schema = self._transient_SCHEMA_CACHE[name]
         else:
             bases = ()
             
-            is_default_schema = not schema_name
+            is_default_schema = not schemaName
             if is_default_schema:
                 bases += (IDexteritySchema,)
         
@@ -171,17 +171,17 @@ class SchemaModuleFactory(object):
                 alsoProvides(schema, IContentType)
         
         fti = queryUtility(IDexterityFTI, name=portal_type)
-        if fti is None and name not in self._transient_schema_cache:
-            self._transient_schema_cache[name] = schema
+        if fti is None and name not in self._transient_SCHEMA_CACHE:
+            self._transient_SCHEMA_CACHE[name] = schema
         elif fti is not None:
-            model = fti.lookup_model()            
-            sync_schema(model.schemata[schema_name], schema, sync_bases=True)
+            model = fti.lookupModel()            
+            syncSchema(model.schemata[schemaName], schema, sync_bases=True)
 
             # Save this schema in the module - this factory will not be
             # called again for this name
             
-            if name in self._transient_schema_cache:
-                del self._transient_schema_cache[name]
+            if name in self._transient_SCHEMA_CACHE:
+                del self._transient_SCHEMA_CACHE[name]
                 
             setattr(module, name, schema)
 
@@ -195,15 +195,15 @@ class DexteritySchemaPolicy(object):
     """
     implements(ISchemaPolicy)
     
-    def module(self, schema_name, tree):
+    def module(self, schemaName, tree):
         return 'plone.dexterity.schema.transient'
         
-    def bases(self, schema_name, tree):
+    def bases(self, schemaName, tree):
         return ()
         
-    def name(self, schema_name, tree):
+    def name(self, schemaName, tree):
         # We use a temporary name whilst the interface is being generated;
         # when it's first used, we know the portal_type and site, and can
         # thus update it
-        return '__tmp__' + schema_name
+        return '__tmp__' + schemaName
 

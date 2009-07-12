@@ -11,15 +11,15 @@ from Products.CMFCore.interfaces import ISiteRoot
 from zope.app.container.interfaces import INameChooser
 
 # Not thread safe, but downside of a write conflict is very small
-_dotted_cache = {}
+_dottedCache = {}
 
-def resolve_dotted_name(dotted_name):
+def resolveDottedName(dottedName):
     """Resolve a dotted name to a real object
     """
-    global _dotted_cache
-    if dotted_name not in _dotted_cache:
-        _dotted_cache[dotted_name] = resolve(dotted_name)
-    return _dotted_cache[dotted_name]
+    global _dottedCache
+    if dottedName not in _dottedCache:
+        _dottedCache[dottedName] = resolve(dottedName)
+    return _dottedCache[dottedName]
 
 # Schema name encoding
 
@@ -48,7 +48,7 @@ class SchemaNameEncoder(object):
     def split(self, s):
         return [self.decode(a) for a in s.split('_0_')]
 
-def portal_type_to_schema_name(portal_type, schema=u"", prefix=None):
+def portalTypeToSchemaName(portal_type, schema=u"", prefix=None):
     """Return a canonical interface name for a generated schema interface.
     """
     if prefix is None:
@@ -57,26 +57,26 @@ def portal_type_to_schema_name(portal_type, schema=u"", prefix=None):
     encoder = SchemaNameEncoder()
     return encoder.join(prefix, portal_type, schema)
         
-def schema_name_to_portal_type(schema_name):
+def schemaNameToPortalType(schemaName):
     """Return a the portal_type part of a schema name
     """
     encoder = SchemaNameEncoder()
-    return encoder.split(schema_name)[1]
+    return encoder.split(schemaName)[1]
 
-def split_schema_name(schema_name):
-    """Return a tuple prefix, portal_type, schema_name
+def splitSchemaName(schemaName):
+    """Return a tuple prefix, portal_type, schemaName
     """
     encoder = SchemaNameEncoder()
-    items = encoder.split(schema_name)
+    items = encoder.split(schemaName)
     if len(items) == 2:
         return items[0], items[1], u""
     elif len(items) == 3:
         return items[0], items[1], items[2]
     else:
-        raise ValueError("Schema name %s is invalid" % schema_name)
+        raise ValueError("Schema name %s is invalid" % schemaName)
 
 
-def create_object(portal_type, **kw):
+def createContent(portal_type, **kw):
     fti = getUtility(IDexterityFTI, name=portal_type)
     content = createObject(fti.factory)
 
@@ -92,10 +92,10 @@ def create_object(portal_type, **kw):
     return content
 
 
-def add_object_to_container(container, object, check_constraints=True):
+def addContentToContainer(container, object, checkConstraints=True):
     """Add an object to a container.
 
-    The portal_type must already be set correctly. If check_constraints
+    The portal_type must already be set correctly. If checkConstraints
     is False no check for addable content types is done. The new object,
     wrapped in its new acquisition context, is returned.
     """
@@ -103,7 +103,7 @@ def add_object_to_container(container, object, check_constraints=True):
         raise ValueError("object must have its portal_type set")
 
     container = aq_inner(container)
-    if check_constraints:
+    if checkConstraints:
         container_fti = container.getTypeInfo()
 
         fti = getUtility(IDexterityFTI, name=object.portal_type)
@@ -125,7 +125,7 @@ def add_object_to_container(container, object, check_constraints=True):
     return wrapped_object
 
 
-def create_object_in_container(container, portal_type, check_constraints=True, **kw):
-    content = create_object(portal_type, **kw)
-    return add_object_to_container(container, content, check_constraints=check_constraints)
+def createContentInContainer(container, portal_type, checkConstraints=True, **kw):
+    content = createDexterityObject(portal_type, **kw)
+    return addContentToContainer(container, content, checkConstraints=checkConstraints)
 

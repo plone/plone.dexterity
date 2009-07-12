@@ -9,7 +9,7 @@ import zope.schema
 from plone.dexterity.interfaces import IDexterityFTI
 
 from plone.dexterity.fti import DexterityFTI
-from plone.dexterity.schema import schema_cache
+from plone.dexterity.schema import SCHEMA_CACHE
 from plone.dexterity.content import Item, Container
 
 from plone.behavior.interfaces import IBehavior
@@ -23,7 +23,7 @@ from Acquisition import aq_base
 class TestContent(MockTestCase):
     
     def setUp(self):
-        schema_cache.clear()
+        SCHEMA_CACHE.clear()
         provideAdapter(DefaultOrdering)
         provideAdapter(AttributeAnnotations)
 
@@ -53,7 +53,7 @@ class TestContent(MockTestCase):
         
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema).count(1)
+        self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -110,7 +110,7 @@ class TestContent(MockTestCase):
         
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema).count(1)
+        self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -164,7 +164,7 @@ class TestContent(MockTestCase):
         
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema).count(1)
+        self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -242,7 +242,7 @@ class TestContent(MockTestCase):
         
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema).count(1)
+        self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
         self.expect(fti_mock.behaviors).result(['behavior1', 'behavior2']).count(1)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
@@ -328,7 +328,7 @@ class TestContent(MockTestCase):
         
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema).count(2) # twice, since we invalidate
+        self.expect(fti_mock.lookupSchema()).result(ISchema).count(2) # twice, since we invalidate
         
         # First time around, we have only these behaviors
         self.expect(fti_mock.behaviors).result(['behavior1', 'behavior2']).count(1)
@@ -356,7 +356,7 @@ class TestContent(MockTestCase):
         
         # If we now invalidate the schema cache, we should get the second set
         # of behaviors
-        schema_cache.invalidate('testtype')
+        SCHEMA_CACHE.invalidate('testtype')
         
         # Schema as looked up in FTI is now provided by item ...
         
@@ -383,7 +383,7 @@ class TestContent(MockTestCase):
         
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema)
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -405,7 +405,7 @@ class TestContent(MockTestCase):
         
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema)
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
@@ -430,7 +430,7 @@ class TestContent(MockTestCase):
         
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema)
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()

@@ -28,7 +28,7 @@ from zope.app.container.contained import ObjectRemovedEvent
 from plone.dexterity.interfaces import IDexterityFTI
 
 from plone.dexterity.fti import DexterityFTI, DexterityFTIModificationDescription
-from plone.dexterity.fti import fti_added, fti_removed, fti_renamed, fti_modified
+from plone.dexterity.fti import ftiAdded, ftiRemoved, ftiRenamed, ftiModified
 
 from plone.dexterity.factory import DexterityFactory
 
@@ -48,35 +48,35 @@ class TestFTI(MockTestCase):
         self.assertEquals(u"testtype", fti.getId())
         self.assertEquals(u"testtype", fti.factory)
     
-    def test_has_dynamic_schema(self):
+    def test_hasDynamicSchema(self):
         fti = DexterityFTI(u"testtype")
         fti.schema = u"dummy.schema"
-        self.assertEquals(False, fti.has_dynamic_schema)
+        self.assertEquals(False, fti.hasDynamicSchema)
         fti.schema = None
-        self.assertEquals(True, fti.has_dynamic_schema)
+        self.assertEquals(True, fti.hasDynamicSchema)
     
-    def test_lookup_schema_with_concrete_schema(self):
+    def test_lookupSchema_with_concrete_schema(self):
         fti = DexterityFTI(u"testtype")
         fti.schema = u"plone.dexterity.tests.schemata.ITestSchema"
-        self.assertEquals(ITestSchema, fti.lookup_schema())
-        self.assertEquals(ITestSchema, fti.lookup_schema()) # second time uses _v attribute
+        self.assertEquals(ITestSchema, fti.lookupSchema())
+        self.assertEquals(ITestSchema, fti.lookupSchema()) # second time uses _v attribute
 
-    def test_lookup_schema_with_dynamic_schema(self):
+    def test_lookupSchema_with_dynamic_schema(self):
         fti = DexterityFTI(u"testtype")
         fti.schema = None # use dynamic schema
 
         portal = self.create_dummy(getPhysicalPath=lambda:('', 'site'))
         self.mock_utility(portal, ISiteRoot)
 
-        schema_name = utils.portal_type_to_schema_name(fti.getId())
-        setattr(plone.dexterity.schema.generated, schema_name, ITestSchema)
+        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        setattr(plone.dexterity.schema.generated, schemaName, ITestSchema)
         
-        self.assertEquals(ITestSchema, fti.lookup_schema())
+        self.assertEquals(ITestSchema, fti.lookupSchema())
         
         # cleanup
-        delattr(plone.dexterity.schema.generated, schema_name)
+        delattr(plone.dexterity.schema.generated, schemaName)
 
-    def test_lookup_model_from_string(self):
+    def test_lookupModel_from_string(self):
         fti = DexterityFTI(u"testtype")
         fti.schema = None
         fti.model_source = "<model />"
@@ -84,15 +84,15 @@ class TestFTI(MockTestCase):
         
         model_dummy = Model()
         
-        load_string_mock = self.mocker.replace("plone.supermodel.load_string")
-        self.expect(load_string_mock(fti.model_source, policy=u"dexterity")).result(model_dummy)
+        loadString_mock = self.mocker.replace("plone.supermodel.loadString")
+        self.expect(loadString_mock(fti.model_source, policy=u"dexterity")).result(model_dummy)
         
         self.replay()
         
-        model = fti.lookup_model()
+        model = fti.lookupModel()
         self.assertIs(model_dummy, model)
     
-    def test_lookup_model_from_file_with_package(self):
+    def test_lookupModel_from_file_with_package(self):
         
         fti = DexterityFTI(u"testtype")
         fti.schema = None
@@ -104,15 +104,15 @@ class TestFTI(MockTestCase):
         import plone.dexterity.tests
         abs_file = os.path.join(os.path.split(plone.dexterity.tests.__file__)[0], "test.xml")
         
-        load_file_mock = self.mocker.replace("plone.supermodel.load_file")
-        self.expect(load_file_mock(abs_file, reload=True, policy=u"dexterity")).result(model_dummy)
+        loadFile_mock = self.mocker.replace("plone.supermodel.loadFile")
+        self.expect(loadFile_mock(abs_file, reload=True, policy=u"dexterity")).result(model_dummy)
         
         self.replay()
         
-        model = fti.lookup_model()
+        model = fti.lookupModel()
         self.assertIs(model_dummy, model)
         
-    def test_lookup_model_from_file_with_absolute_path(self):
+    def test_lookupModel_from_file_with_absolute_path(self):
         
         import plone.dexterity.tests
         abs_file = os.path.join(os.path.split(plone.dexterity.tests.__file__)[0], "test.xml")
@@ -124,15 +124,15 @@ class TestFTI(MockTestCase):
         
         model_dummy = Model()
         
-        load_file_mock = self.mocker.replace("plone.supermodel.load_file")
-        self.expect(load_file_mock(abs_file, reload=True, policy=u"dexterity")).result(model_dummy)
+        loadFile_mock = self.mocker.replace("plone.supermodel.loadFile")
+        self.expect(loadFile_mock(abs_file, reload=True, policy=u"dexterity")).result(model_dummy)
         
         self.replay()
         
-        model = fti.lookup_model()
+        model = fti.lookupModel()
         self.assertIs(model_dummy, model)
     
-    def test_lookup_model_from_file_with_win32_absolute_path(self):
+    def test_lookupModel_from_file_with_win32_absolute_path(self):
         
         fti = DexterityFTI(u"testtype")
         fti.schema = None
@@ -147,25 +147,25 @@ class TestFTI(MockTestCase):
         isfile_mock = self.mocker.replace("os.path.isfile")
         self.expect(isfile_mock(fti.model_file)).result(True)
         
-        load_file_mock = self.mocker.replace("plone.supermodel.load_file")
-        self.expect(load_file_mock(fti.model_file, reload=True, policy=u"dexterity")).result(model_dummy)
+        loadFile_mock = self.mocker.replace("plone.supermodel.loadFile")
+        self.expect(loadFile_mock(fti.model_file, reload=True, policy=u"dexterity")).result(model_dummy)
 
         self.replay()
         
-        model = fti.lookup_model()
+        model = fti.lookupModel()
         self.assertIs(model_dummy, model)
 
-    def test_lookup_model_with_schema_only(self):
+    def test_lookupModel_with_schema_only(self):
         fti = DexterityFTI(u"testtype")
         fti.schema = u"plone.dexterity.tests.schemata.ITestSchema"
         fti.model_source = None
         fti.model_file = None
 
-        model = fti.lookup_model()
+        model = fti.lookupModel()
         self.assertEquals(1, len(model.schemata))
         self.assertEquals(ITestSchema, model.schema)
 
-    def test_lookup_model_from_string_with_schema(self):
+    def test_lookupModel_from_string_with_schema(self):
         fti = DexterityFTI(u"testtype")
         fti.schema = u"plone.dexterity.tests.schemata.ITestSchema" # effectively ignored
         fti.model_source = "<model />"
@@ -173,22 +173,22 @@ class TestFTI(MockTestCase):
         
         model_dummy = Model()
         
-        load_string_mock = self.mocker.replace("plone.supermodel.load_string")
-        self.expect(load_string_mock(fti.model_source, policy=u"dexterity")).result(model_dummy)
+        loadString_mock = self.mocker.replace("plone.supermodel.loadString")
+        self.expect(loadString_mock(fti.model_source, policy=u"dexterity")).result(model_dummy)
         
         self.replay()
         
-        model = fti.lookup_model()
+        model = fti.lookupModel()
         self.assertIs(model_dummy, model)
-        self.assertIs(ITestSchema, fti.lookup_schema())
+        self.assertIs(ITestSchema, fti.lookupSchema())
 
-    def test_lookup_model_failure(self):
+    def test_lookupModel_failure(self):
         fti = DexterityFTI(u"testtype")
         fti.schema = None
         fti.model_source = None
         fti.model_file = None
         
-        self.assertRaises(ValueError, fti.lookup_model)
+        self.assertRaises(ValueError, fti.lookupModel)
     
     
     def test_fires_modified_event_on_update_property_if_changed(self):
@@ -201,7 +201,7 @@ class TestFTI(MockTestCase):
         self.expect(notify_mock(mocker.MATCH(lambda x: IObjectModifiedEvent.providedBy(x) \
                                                         and len(x.descriptions) == 1 \
                                                         and x.descriptions[0].attribute == 'title' \
-                                                        and x.descriptions[0].old_value == "Old title")))
+                                                        and x.descriptions[0].oldValue == "Old title")))
         
         self.replay()
         
@@ -218,12 +218,12 @@ class TestFTI(MockTestCase):
         self.expect(notify_mock(mocker.MATCH(lambda x: IObjectModifiedEvent.providedBy(x) \
                                                         and len(x.descriptions) == 1 \
                                                         and x.descriptions[0].attribute == 'title' \
-                                                        and x.descriptions[0].old_value == "Old title")))
+                                                        and x.descriptions[0].oldValue == "Old title")))
                                                         
         self.expect(notify_mock(mocker.MATCH(lambda x: IObjectModifiedEvent.providedBy(x) \
                                                         and len(x.descriptions) == 1 \
                                                         and x.descriptions[0].attribute == 'global_allow' \
-                                                        and x.descriptions[0].old_value == True)))
+                                                        and x.descriptions[0].oldValue == True)))
         self.replay()
         
         fti.manage_changeProperties(title="New title", allow_discussion=False, global_allow=False)
@@ -325,7 +325,7 @@ class TestFTIEvents(MockTestCase):
 
         self.replay()
         
-        fti_added(fti, ObjectAddedEvent(fti, container_dummy, fti.getId()))
+        ftiAdded(fti, ObjectAddedEvent(fti, container_dummy, fti.getId()))
         
         site_dummy = self.create_dummy(getSiteManager = lambda: site_manager_mock)
         setSite(site_dummy)
@@ -361,7 +361,7 @@ class TestFTIEvents(MockTestCase):
         
         self.replay()
         
-        fti_added(fti, ObjectAddedEvent(fti, container_dummy, fti.getId()))
+        ftiAdded(fti, ObjectAddedEvent(fti, container_dummy, fti.getId()))
 
     def test_components_unregistered_on_delete(self):
         portal_type = u"testtype"
@@ -385,10 +385,10 @@ class TestFTIEvents(MockTestCase):
         self.replay()
         
         # First add the components
-        fti_added(fti, ObjectAddedEvent(fti, container_dummy, fti.getId()))
+        ftiAdded(fti, ObjectAddedEvent(fti, container_dummy, fti.getId()))
         
         # Then remove them again
-        fti_removed(fti, ObjectRemovedEvent(fti, container_dummy, fti.getId()))
+        ftiRemoved(fti, ObjectRemovedEvent(fti, container_dummy, fti.getId()))
         
         site_dummy = self.create_dummy(getSiteManager = lambda: site_manager_mock)
         setSite(site_dummy)
@@ -417,7 +417,7 @@ class TestFTIEvents(MockTestCase):
         
         self.replay()
         
-        fti_removed(fti, ObjectRemovedEvent(fti, container_dummy, fti.getId()))
+        ftiRemoved(fti, ObjectRemovedEvent(fti, container_dummy, fti.getId()))
     
     def test_global_components_not_unregistered_on_delete(self):
         portal_type = u"testtype"
@@ -446,7 +446,7 @@ class TestFTIEvents(MockTestCase):
 
         self.replay()
         
-        fti_removed(fti, ObjectRemovedEvent(fti, container_dummy, fti.getId()))
+        ftiRemoved(fti, ObjectRemovedEvent(fti, container_dummy, fti.getId()))
         
         site_dummy = self.create_dummy(getSiteManager = lambda: site_manager_mock)
         setSite(site_dummy)
@@ -482,7 +482,7 @@ class TestFTIEvents(MockTestCase):
 
         self.replay()
         
-        fti_renamed(fti, ObjectMovedEvent(fti, container_dummy, fti.getId(), container_dummy, u"newtype"))
+        ftiRenamed(fti, ObjectMovedEvent(fti, container_dummy, fti.getId(), container_dummy, u"newtype"))
         
         site_dummy = self.create_dummy(getSiteManager = lambda: site_manager_mock)
         setSite(site_dummy)
@@ -500,7 +500,7 @@ class TestFTIEvents(MockTestCase):
         
         model_dummy = Model({u"": INew})
         
-        self.expect(fti.lookup_model()).result(model_dummy)
+        self.expect(fti.lookupModel()).result(model_dummy)
         container_dummy = self.create_dummy()
         
         site_dummy = self.create_dummy(getPhysicalPath = lambda: ('', 'siteid'))
@@ -512,11 +512,11 @@ class TestFTIEvents(MockTestCase):
         self.replay()
         
         # Set source interface
-        schema_name = utils.portal_type_to_schema_name(fti.getId())
-        setattr(plone.dexterity.schema.generated, schema_name, IBlank)
+        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        setattr(plone.dexterity.schema.generated, schemaName, IBlank)
                 
         # Sync this with schema
-        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('model_file', '')))
+        ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('model_file', '')))
         
         self.failUnless('title' in IBlank)
         self.failUnless(IBlank['title'].title == u"title")
@@ -530,7 +530,7 @@ class TestFTIEvents(MockTestCase):
         
         model_dummy = Model({u"": INew})
         
-        self.expect(fti.lookup_model()).result(model_dummy)
+        self.expect(fti.lookupModel()).result(model_dummy)
         container_dummy = self.create_dummy()
         
         site_dummy = self.create_dummy(getPhysicalPath = lambda: ('', 'siteid'))
@@ -542,11 +542,11 @@ class TestFTIEvents(MockTestCase):
         self.replay()
         
         # Set source interface
-        schema_name = utils.portal_type_to_schema_name(fti.getId())
-        setattr(plone.dexterity.schema.generated, schema_name, IBlank)
+        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        setattr(plone.dexterity.schema.generated, schemaName, IBlank)
                 
         # Sync this with schema
-        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('model_source', '')))
+        ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('model_source', '')))
         
         self.failUnless('title' in IBlank)
         self.failUnless(IBlank['title'].title == u"title")
@@ -562,7 +562,7 @@ class TestFTIEvents(MockTestCase):
             title = zope.schema.TextLine(title=u"title")
         
         model_dummy = Model({u"": INew})
-        self.expect(fti.lookup_model()).result(model_dummy).count(0, None)
+        self.expect(fti.lookupModel()).result(model_dummy).count(0, None)
         container_dummy = self.create_dummy()
         
         site_dummy = self.create_dummy(getPhysicalPath = lambda: ('', 'siteid'))
@@ -570,17 +570,17 @@ class TestFTIEvents(MockTestCase):
         
         self.replay()
         
-        # Set schema to something so that has_dynamic_schema is false
+        # Set schema to something so that hasDynamicSchema is false
         fti.schema = IBlank.__identifier__
-        assert not fti.has_dynamic_schema
+        assert not fti.hasDynamicSchema
         
         # Set source for dynamic FTI - should not be used
-        schema_name = utils.portal_type_to_schema_name(fti.getId())
-        setattr(plone.dexterity.schema.generated, schema_name, IBlank)
+        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        setattr(plone.dexterity.schema.generated, schemaName, IBlank)
                 
         # Sync should not happen now
         
-        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('schema', '')))
+        ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('schema', '')))
         
         self.failIf('title' in IBlank)
     
@@ -615,7 +615,7 @@ class TestFTIEvents(MockTestCase):
         
         self.replay()
         fti.factory = 'new-factory'
-        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'old-factory')))
+        ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'old-factory')))
     
     def test_new_factory_not_registered_after_name_changed_if_exists(self):
         portal_type = u"testtype"
@@ -639,7 +639,7 @@ class TestFTIEvents(MockTestCase):
         
         self.replay()
         fti.factory = 'new-factory'
-        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'old-factory')))        
+        ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'old-factory')))        
 
     def test_old_factory_not_unregistered_if_not_created_by_dexterity(self):
         portal_type = u"testtype"
@@ -673,7 +673,7 @@ class TestFTIEvents(MockTestCase):
         
         self.replay()
         fti.factory = 'new-factory'
-        fti_modified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'old-factory')))
+        ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'old-factory')))
 
 def test_suite():
     suite = unittest.TestSuite()

@@ -4,7 +4,7 @@ from plone.autoform.interfaces import IFormFieldProvider
 from plone.autoform.form import AutoExtensibleForm
 
 from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.utils import resolve_dotted_name
+from plone.dexterity.utils import resolveDottedName
 
 class DexterityExtensibleForm(AutoExtensibleForm):
     """Mixin class for Dexterity forms that support updatable fields
@@ -20,14 +20,14 @@ class DexterityExtensibleForm(AutoExtensibleForm):
     @property
     def schema(self):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
-        return fti.lookup_schema() 
+        return fti.lookupSchema() 
     
     @property
-    def additional_schemata(self):
+    def additionalSchemata(self):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         for behavior_name in fti.behaviors:
             try:
-                behavior_interface = resolve_dotted_name(behavior_name)
+                behavior_interface = resolveDottedName(behavior_name)
             except ValueError:
                 continue
             if behavior_interface is not None:

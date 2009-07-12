@@ -222,7 +222,7 @@ class TestAddView(MockTestCase):
         # FTI
         
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema)
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
         self.expect(fti_mock.behaviors).result((IBehaviorOne.__identifier__, 
                                                 IBehaviorTwo.__identifier__, 
                                                 IBehaviorThree.__identifier__))
@@ -236,7 +236,7 @@ class TestAddView(MockTestCase):
         view.portal_type = u"testtype"
         
         self.assertEquals(ISchema, view.schema)
-        self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additional_schemata,))
+        self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
     
 class TestEditView(MockTestCase):
     
@@ -278,7 +278,7 @@ class TestEditView(MockTestCase):
         # FTI
         
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema)
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
         self.expect(fti_mock.behaviors).result((IBehaviorOne.__identifier__, 
                                                 IBehaviorTwo.__identifier__, 
                                                 IBehaviorThree.__identifier__))
@@ -294,7 +294,7 @@ class TestEditView(MockTestCase):
         view.portal_type = u"testtype"
         
         self.assertEquals(ISchema, view.schema)
-        self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additional_schemata,))
+        self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
 
 class TestDefaultView(MockTestCase):
     
@@ -308,7 +308,7 @@ class TestDefaultView(MockTestCase):
         # FTI
         
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema)
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
         self.expect(fti_mock.behaviors).result((IBehaviorOne.__identifier__, 
                                                 IBehaviorTwo.__identifier__, 
                                                 IBehaviorThree.__identifier__))
@@ -321,7 +321,7 @@ class TestDefaultView(MockTestCase):
         view = DefaultView(context_mock, request_mock)
         
         self.assertEquals(ISchema, view.schema)
-        self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additional_schemata,))
+        self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
 
 def test_suite():
     suite = unittest.TestSuite()

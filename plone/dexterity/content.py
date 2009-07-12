@@ -17,7 +17,7 @@ from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.interfaces import IDexterityContainer
 
-from plone.dexterity.schema import schema_cache
+from plone.dexterity.schema import SCHEMA_CACHE
 
 # XXX: Should move to zope.container in the future
 from zope.app.container.contained import Contained
@@ -34,7 +34,7 @@ from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
 
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
-from plone.supermodel.utils import merged_tagged_value_dict
+from plone.supermodel.utils import mergedTaggedValueDict
 
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
     """A __providedBy__ decorator that returns the interfaces provided by
@@ -58,7 +58,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         
         fti_counter = -1
         if portal_type is not None:
-            fti_counter = schema_cache.counter(portal_type)
+            fti_counter = SCHEMA_CACHE.counter(portal_type)
         
         # See if we have a valid cache. Reasons to do this include:
         # 
@@ -91,11 +91,11 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         dynamically_provided = []
         
         if portal_type is not None:
-            schema = schema_cache.get(portal_type)
+            schema = SCHEMA_CACHE.get(portal_type)
             if schema is not None:
                 dynamically_provided.append(schema)
             
-            subtypes = schema_cache.subtypes(portal_type)
+            subtypes = SCHEMA_CACHE.subtypes(portal_type)
             if subtypes:
                 dynamically_provided.extend(subtypes)
         
@@ -108,7 +108,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
             dynamically_provided.append(spec)
             spec = Implements(*dynamically_provided)
             
-            inst._v__providedBy__ = inst._p_mtime, schema_cache.counter(portal_type), direct_spec, spec
+            inst._v__providedBy__ = inst._p_mtime, SCHEMA_CACHE.counter(portal_type), direct_spec, spec
         
         return spec
 
@@ -130,7 +130,7 @@ class AttributeValidator(Explicit):
         if schema is None:
             return 1
         
-        info = merged_tagged_value_dict(schema, READ_PERMISSIONS_KEY)
+        info = mergedTaggedValueDict(schema, READ_PERMISSIONS_KEY)
         
         if name not in info:
             return 1
@@ -145,7 +145,7 @@ class AttributeValidator(Explicit):
         portal_type = getattr(inst, 'portal_type', None)
         if portal_type is not None:
             try:
-                return schema_cache.get(portal_type)
+                return SCHEMA_CACHE.get(portal_type)
             except (ValueError, AttributeError,):
                 pass
         return None
@@ -165,7 +165,7 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
         # attribute was not found; try to look it up in the schema and return
         # a default
         
-        schema = schema_cache.get(self.portal_type)
+        schema = SCHEMA_CACHE.get(self.portal_type)
         if schema is not None:
             field = schema.get(name, None)
             if field is not None:
@@ -236,7 +236,7 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
         # attribute was not found; try to look it up in the schema and return
         # a default
         
-        schema = schema_cache.get(self.portal_type)
+        schema = SCHEMA_CACHE.get(self.portal_type)
         if schema is not None:
             field = schema.get(name, None)
             if field is not None:

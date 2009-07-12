@@ -35,7 +35,7 @@ class TestFactory(MockTestCase):
 
     def test_get_interfaces(self):
         fti_mock = self.mocker.mock(DexterityFTI)
-        self.expect(fti_mock.lookup_schema()).result(IDummy)
+        self.expect(fti_mock.lookupSchema()).result(IDummy)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
     
         self.replay()
@@ -65,7 +65,7 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_mock)
         
         # Resolver
-        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
+        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolveDottedName")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
         # FTI
@@ -90,7 +90,7 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_mock)
         
         # Resolver
-        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
+        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolveDottedName")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
         # FTI
@@ -115,7 +115,7 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_mock)
         
         # Resolver
-        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
+        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolveDottedName")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
         # FTI
@@ -139,7 +139,7 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_mock)
         
         # Resolver
-        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
+        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolveDottedName")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
         
         # FTI
@@ -163,7 +163,7 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock(u"id", title=u"title")).result(obj_mock)
         
         # Resolver
-        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolve_dotted_name")
+        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolveDottedName")
         self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
                 
         # FTI

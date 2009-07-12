@@ -8,12 +8,12 @@ import zope.schema
 from plone.dexterity.interfaces import IDexterityFTI
 
 from plone.dexterity.fti import DexterityFTI
-from plone.dexterity.schema import schema_cache
+from plone.dexterity.schema import SCHEMA_CACHE
 
 class TestSchemaCache(MockTestCase):
     
     def setUp(self):
-        schema_cache.clear()
+        SCHEMA_CACHE.clear()
     
     def test_repeated_lookup(self):
 
@@ -22,13 +22,13 @@ class TestSchemaCache(MockTestCase):
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema)
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
         
-        schema1 = schema_cache.get(u"testtype")
-        schema2 = schema_cache.get(u"testtype")
+        schema1 = SCHEMA_CACHE.get(u"testtype")
+        schema2 = SCHEMA_CACHE.get(u"testtype")
         
         self.failUnless(schema1 is schema2 is ISchema)
     
@@ -42,14 +42,14 @@ class TestSchemaCache(MockTestCase):
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema1)
-        self.expect(fti_mock.lookup_schema()).result(ISchema2).count(0,None)
+        self.expect(fti_mock.lookupSchema()).result(ISchema1)
+        self.expect(fti_mock.lookupSchema()).result(ISchema2).count(0,None)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
         
-        schema1 = schema_cache.get(u"testtype")
-        schema2 = schema_cache.get(u"testtype")
+        schema1 = SCHEMA_CACHE.get(u"testtype")
+        schema2 = SCHEMA_CACHE.get(u"testtype")
         
         self.failUnless(schema1 is schema2 and schema2 is ISchema1)
     
@@ -63,15 +63,15 @@ class TestSchemaCache(MockTestCase):
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema1)
-        self.expect(fti_mock.lookup_schema()).result(ISchema2).count(0,None)
+        self.expect(fti_mock.lookupSchema()).result(ISchema1)
+        self.expect(fti_mock.lookupSchema()).result(ISchema2).count(0,None)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
         
-        schema1 = schema_cache.get(u"testtype")
-        schema_cache.invalidate(u"testtype")
-        schema2 = schema_cache.get(u"testtype")
+        schema1 = SCHEMA_CACHE.get(u"testtype")
+        SCHEMA_CACHE.invalidate(u"testtype")
+        schema2 = SCHEMA_CACHE.get(u"testtype")
         
         self.failUnless(schema1 is ISchema1)
         self.failUnless(schema2 is ISchema2)
@@ -83,15 +83,15 @@ class TestSchemaCache(MockTestCase):
             
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(None)
-        self.expect(fti_mock.lookup_schema()).result(ISchema1)
+        self.expect(fti_mock.lookupSchema()).result(None)
+        self.expect(fti_mock.lookupSchema()).result(ISchema1)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
         
-        schema1 = schema_cache.get(u"testtype")
-        schema2 = schema_cache.get(u"testtype")
-        schema3 = schema_cache.get(u"testtype")
+        schema1 = SCHEMA_CACHE.get(u"testtype")
+        schema2 = SCHEMA_CACHE.get(u"testtype")
+        schema3 = SCHEMA_CACHE.get(u"testtype")
         
         self.failUnless(schema1 is None)
         self.failUnless(schema2 is schema3 is ISchema1)
@@ -103,16 +103,16 @@ class TestSchemaCache(MockTestCase):
             
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).throw(AttributeError)
-        self.expect(fti_mock.lookup_schema()).throw(ValueError)
-        self.expect(fti_mock.lookup_schema()).result(ISchema1)
+        self.expect(fti_mock.lookupSchema()).throw(AttributeError)
+        self.expect(fti_mock.lookupSchema()).throw(ValueError)
+        self.expect(fti_mock.lookupSchema()).result(ISchema1)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
         
-        schema1 = schema_cache.get(u"testtype")
-        schema2 = schema_cache.get(u"testtype")
-        schema3 = schema_cache.get(u"testtype")
+        schema1 = SCHEMA_CACHE.get(u"testtype")
+        schema2 = SCHEMA_CACHE.get(u"testtype")
+        schema3 = SCHEMA_CACHE.get(u"testtype")
         
         self.failUnless(schema1 is None)
         self.failUnless(schema2 is None)
@@ -125,14 +125,14 @@ class TestSchemaCache(MockTestCase):
             
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookup_schema()).result(ISchema1)
+        self.expect(fti_mock.lookupSchema()).result(ISchema1)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
         
-        schema1 = schema_cache.get(u"othertype")
-        schema2 = schema_cache.get(u"testtype")
-        schema3 = schema_cache.get(u"testtype")
+        schema1 = SCHEMA_CACHE.get(u"othertype")
+        schema2 = SCHEMA_CACHE.get(u"testtype")
+        schema3 = SCHEMA_CACHE.get(u"testtype")
         
         self.failUnless(schema1 is None)
         self.failUnless(schema2 is schema3 is ISchema1)

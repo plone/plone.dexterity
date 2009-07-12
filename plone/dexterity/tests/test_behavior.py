@@ -67,7 +67,7 @@ class TestBehavior(MockTestCase):
         
         assignable = DexterityBehaviorAssignable(context_dummy)
         
-        self.assertEquals([behavior_dummy], list(assignable.enumerate_behaviors()))
+        self.assertEquals([behavior_dummy], list(assignable.enumerateBehaviors()))
     
 def test_suite():
     suite = unittest.TestSuite()
