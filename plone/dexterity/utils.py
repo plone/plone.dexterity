@@ -126,6 +126,6 @@ def addContentToContainer(container, object, checkConstraints=True):
 
 
 def createContentInContainer(container, portal_type, checkConstraints=True, **kw):
-    content = createDexterityObject(portal_type, **kw)
+    content = createCibtebt(portal_type, **kw)
     return addContentToContainer(container, content, checkConstraints=checkConstraints)
 
