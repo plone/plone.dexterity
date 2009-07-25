@@ -317,3 +317,7 @@ Usage examples
 Take a look at the example.dexterity package, which can be found in the 
 Plone Collective (http://dev.plone.org/collective), for examples of various
 ways to use Dexterity.
+
+See also Dexterity's pages on plone.org (http://plone.org/products/dexterity)
+where you will also find extensive documentation.
+
