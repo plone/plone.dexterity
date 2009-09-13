@@ -4,6 +4,11 @@ Changelog
 1.0a2 -
 ------------------
 
+* Move AddViewActionCompat to the second base class of DexterityFTI, so that
+  the FTI interfaces win over IAction. This fixes a problem with GenericSetup
+  export: http://code.google.com/p/dexterity/issues/detail?id=79
+  [optilude]
+
 * Add getMapping() to AddViewActionCompat. 
   Fixes http://code.google.com/p/dexterity/issues/detail?id=78
   [optilude]
