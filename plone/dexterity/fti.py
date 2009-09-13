@@ -56,7 +56,25 @@ class AddViewActionCompat(object):
     
     #
     #   'IAction' interface methods
-    #
+    
+    # BBB support for action interface export
+    def getMapping(self):
+        """ Get a mapping of this object's data. Used for export/import.
+        """
+        
+        permissions = ()
+        permission = queryUtility(IPermission, name=self.add_permission)
+        if permission:
+            permissions = (permission.title,)
+        
+        return { 'id': self.getId(),
+                 'title': self.Title(),
+                 'description': self.Description(),
+                 'category': 'folder/add',
+                 'condition': getattr(self, 'condition', None) and self.condition.text or '',
+                 'permissions': permissions,
+                 'visible': True,
+                 'action': self.add_view_expr }
 
     def getInfoData(self):
         """ Get the data needed to create an ActionInfo.
@@ -206,7 +224,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
                                name=action['title'],
                                action=action['action'],
                                condition=action.get('condition'),
-                               permission=action.get( 'permissions', ()),
+                               permission=action.get('permissions', ()),
                                category=action.get('category', 'object'),
                                visible=action.get('visible', True))
         

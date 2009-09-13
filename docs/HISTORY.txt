@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.0a2 -
+------------------
+
+* Add getMapping() to AddViewActionCompat. 
+  Fixes http://code.google.com/p/dexterity/issues/detail?id=78
+  [optilude]
+
 1.0a1 - 2009-07-25
 ------------------
 
