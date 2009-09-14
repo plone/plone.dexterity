@@ -121,7 +121,7 @@ class AddViewActionCompat(object):
         """
         return self.isConstructionAllowed(ec.contexts['folder'])
 
-class DexterityFTI(base.DynamicViewTypeInformation, AddViewActionCompat):
+class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     """A Dexterity FTI
     """
     

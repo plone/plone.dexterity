@@ -5,7 +5,9 @@ import zope.schema
 
 from zope.component.interfaces import IFactory
 
-class IDexterityFTI(Interface):
+from Products.CMFCore.interfaces import ITypeInformation
+
+class IDexterityFTI(ITypeInformation):
     """The Factory Type Information for Dexterity content objects
     """
 
