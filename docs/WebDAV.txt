@@ -53,11 +53,12 @@ In Archetypes, the default implementation marshals all Archetypes fields to
 RFC 2822 headers, except for the field marked as the primary field, which is
 marshaled to a string and returned as the body.
 
-In Dexterity, ``manage_FTPget()`` adapts ``self`` to ``IReadFile`` and calls its
-``read()`` method. The default ``IReadFile`` implementation returns an
+In Dexterity, ``manage_FTPget()`` adapts ``self`` to ``IReadFile`` and calls
+its ``read()`` method. The default ``IReadFile`` implementation returns an
 RFC 2822 style message document. Most fields on the object and any enabled
 behaviours will be turned into UTF-8 encoded headers. The primary field, if
-any, will be returned in the body, also as an UTF-8 encoded string.
+any, will be returned in the body, also most likely encoded as an UTF-8
+encoded string.
 
 A type which wishes to override this behaviour can provide its own adapter.
 For example, an image type could return the raw image data.
@@ -210,8 +211,9 @@ alternate factory method via the ``mkdir`` method alias, if it exists.
 Archetypes' ``BaseFolder`` extends ``manage_addFolder()`` to also unmark the
 Archetypes creation flag and fire an event.
 
-In Dexterity, ``manage_addFolder()`` adapts self to an ``IDirectoryFactory``
-from ``zope.filerepresentation`` and uses this to create a directory.
+In Dexterity, ``MKCOL()_handler`` is overridden to adapt self to an
+``IDirectoryFactory`` from ``zope.filerepresentation`` and use this to create
+a directory.
 
 COPY
 ----
