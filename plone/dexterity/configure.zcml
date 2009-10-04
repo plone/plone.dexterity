@@ -6,8 +6,9 @@
     <include package="plone.behavior" />
     <include package="plone.folder" />
     <include package="plone.supermodel" />
+    <include package="plone.rfc822" />
     <include package="plone.z3cform" />
-        
+
     <include package=".browser" />
     <include package=".fti" />
     
@@ -88,5 +89,15 @@
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".fti.ftiModified"
         />
+    
+    <!-- File representation (FTP/WebDAV support) -->
+    <adapter factory=".filerepresentation.DefaultDirectoryFactory" />
+    <adapter factory=".filerepresentation.DefaultFileFactory" />
+    
+    <adapter
+        provides="zope.filerepresentation.interfaces.IRawReadFile"
+        factory=".filerepresentation.DefaultReadFile"
+        />
+    <adapter factory=".filerepresentation.DefaultWriteFile" />
 
 </configure>

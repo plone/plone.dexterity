@@ -1,10 +1,10 @@
+# Use python 2.4 import location
+from email.Message import Message
+
 from Acquisition import Explicit, aq_parent
-try:
-    from OFS.IOrderSupport import IOrderedContainer
-except ImportError:
-    from OFS.interfaces import IOrderedContainer
 
 from zope.component import queryUtility
+from zope.lifecycleevent import modified
 
 from zope.interface import implements
 from zope.interface.declarations import Implements
@@ -38,6 +38,14 @@ from plone.folder.ordered import CMFOrderedBTreeFolderBase
 
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 from plone.supermodel.utils import mergedTaggedValueDict
+
+from zope.filerepresentation.interfaces import IRawReadFile
+from zope.filerepresentation.interfaces import IRawWriteFile
+
+from zope.filerepresentation.interfaces import IFileFactory
+from zope.filerepresentation.interfaces import IDirectoryFactory
+
+_marker = object()
 
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
     """A __providedBy__ decorator that returns the interfaces provided by
@@ -188,6 +196,92 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
         self.id = value
     __name__ = property(_get__name__, _set__name__)
     
+    # WebDAV/FTP support
+    
+    def content_type(self):
+        """Return the content type of the tiem
+        """
+        return self.Format()
+    
+    def Format(self):
+        """Return the content type of the item
+        """
+        readFile = IRawReadFile(self, None)
+        if readFile is None:
+            return None
+        return readFile.mimeType
+
+    def manage_DAVget(self):
+        """Get the body of the content item in a WebDAV response
+        """
+        return self.manage_FTPget()
+    
+    def manage_FTPget(self, REQUEST=None, RESPONSE=None):
+        """Return the body of the content item in an FTP response
+        """
+        
+        reader = IRawReadFile(self, None)
+        if reader is None:
+            return ''
+        
+        request = REQUEST is not None and REQUEST or self.REQUEST
+        response = RESPONSE is not None and RESPONSE or request.response
+        
+        mimeType = reader.mimeType
+        encoding = reader.encoding
+        
+        if mimeType is not None:
+            if encoding is not None:
+                response.setHeader('Content-Type', '%s; charset="%s"' % (mimeType, encoding,))
+            else:
+                response.setHeader('Content-Type', mimeType)
+        
+        size = reader.size()
+        if size is not None:
+            response.setHeader('Content-Length', size)
+        
+        # the reader is an iterator
+        return reader
+    
+    def PUT(self, REQUEST=None, RESPONSE=None):
+        """WebDAV method to replace self with a new resource.
+        """
+        
+        request = REQUEST is not None and REQUEST or self.REQUEST
+        response = RESPONSE is not None and RESPONSE or request.response
+        
+        self.dav__init(request, response)
+        self.dav__simpleifhandler(request, response, refresh=1)
+        
+        infile = request.get('BODYFILE', None)
+        if infile is None:
+            raise KeyError("No BODYFILE in request")
+        
+        writer = IRawWriteFile(self)
+        contentTypeHeader = request.get_header('content-type', None)
+        
+        if contentTypeHeader is not None:
+            msg = Message()
+            msg['Content-Type'] = contentTypeHeader
+            
+            mimeType = msg.get_content_type()
+            if mimeType is not None:
+                writer.mimeType = mimeType
+            
+            charset = msg.get_param('charset')
+            if charset is not None:
+                writer.encoding = charset
+        
+        try:
+            for chunk in infile:
+                writer.write(chunk)
+        finally:
+            writer.close()
+        
+        # TODO: detect if object was just created, and if so fire an object
+        # created event instead
+        modified(self)
+
 # XXX: It'd be nice to reduce the number of base classes here
 
 class Item(BrowserDefaultMixin, DexterityContent):
@@ -243,7 +337,23 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
         
         # Be specific about the implementation we use
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
-
+    
+    # WebDAV/FTP support
+    
+    def MKCOL_handler(self, id, REQUEST=None, RESPONSE=None):
+        """Handle "make collection" by delegating to an IDirectoryFactory
+        adapter.
+        """
+        factory = IDirectoryFactory(self)
+        factory(id)
+    
+    def PUT_factory(self, name, contentType, body):
+        """Handle constructing a new object upon a PUT request by delegating
+        to an IFileFactory adapter
+        """
+        factory = IFileFactory(self)
+        return factory(name, contentType, body)
+    
 def reindexOnModify(content, event):
     """When an object is modified, re-index it in the catalog
     """

@@ -1,10 +1,15 @@
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from AccessControl import Unauthorized
-from zope.component import getUtility
+
+from zope.component import getUtility, queryUtility
 from zope.component import createObject
+
 from zope.dottedname.resolve import resolve
+
+from plone.autoform.interfaces import IFormFieldProvider
 from plone.dexterity.interfaces import IDexterityFTI
+
 from Products.CMFCore.interfaces import ISiteRoot
 
 # XXX: Should move to zope.container in the future
@@ -75,6 +80,26 @@ def splitSchemaName(schemaName):
     else:
         raise ValueError("Schema name %s is invalid" % schemaName)
 
+def iterSchemata(content):
+    """Return an iterable containing first the object's schema, and then
+    any form field schemata for any enabled behaviors.
+    """
+    
+    fti = queryUtility(IDexterityFTI, name=content.portal_type)
+    if fti is None:
+        return
+    
+    yield fti.lookupSchema()
+    
+    for behavior in fti.behaviors:
+        try:
+            behaviorInterface = resolveDottedName(behavior)
+        except ValueError:
+            continue
+        if behaviorInterface is not None:
+            behaviorSchema = IFormFieldProvider(behaviorInterface, None)
+            if behaviorSchema is not None:
+                yield behaviorSchema
 
 def createContent(portal_type, **kw):
     fti = getUtility(IDexterityFTI, name=portal_type)

@@ -25,7 +25,9 @@ setup(name='plone.dexterity',
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'rwproperty',
           'plone.synchronize',
+          'plone.memoize',
           'plone.mocktestcase>=1.0b3',
           
           'plone.z3cform',
@@ -34,6 +36,7 @@ setup(name='plone.dexterity',
           'plone.alterego',
           'plone.behavior>=1.0b5',
           'plone.autoform>=1.0b2',
+          'plone.rfc822',
 
           'zope.interface',
           'zope.component',
@@ -47,6 +50,7 @@ setup(name='plone.dexterity',
           'zope.app.container',   # XXX: Should move to zope.container in the future
           'zope.app.content',
           'ZODB3',
+          'zope.filerepresentation',
           
           # 'Acquisition',
           # 'AccessControl',

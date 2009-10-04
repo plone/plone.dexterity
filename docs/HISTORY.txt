@@ -4,6 +4,20 @@ Changelog
 1.0a2 -
 ------------------
 
+* Added support for WebDAV. This is primarily implemented by adapting content
+  objects to the IRawReadFile and IRawWriteFile interfaces from the
+  zope.filerepresentation package. The default is to use plone.rfc822 to
+  construct an RFC(2)822 style message containing all fields. One or more
+  fields may be marked with the IPrimaryField interface from that package,
+  in which case they will be sent in the body of the message.
+  
+  In addition, the creation of new files (PUT requests to a null resource) is
+  delegated to an IFileFactory adapter, whilst the creation of new directories
+  (MKCOL requests) is delegated to an IDirectoryFactory adapter. See
+  zope.filerepresentation for details, and filerepresentation.py for the
+  default implementation.
+  [optilude]
+
 * Move AddViewActionCompat to the second base class of DexterityFTI, so that
   the FTI interfaces win over IAction. This fixes a problem with GenericSetup
   export: http://code.google.com/p/dexterity/issues/detail?id=79

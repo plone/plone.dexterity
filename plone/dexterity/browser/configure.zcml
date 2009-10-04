@@ -11,7 +11,10 @@
         template="item.pt"
         permission="zope2.View"
         />
-
+    
+    <!-- Standard IPublishTraverse adapter -->
+    <adapter factory=".traversal.DexterityPublishTraverse" />
+    
     <!-- Standard add view and form - invoked from ++add++ traverser -->
     <adapter
         for="Products.CMFCore.interfaces.IFolderish

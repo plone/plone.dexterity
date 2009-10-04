@@ -49,9 +49,9 @@ A GET request retrieves headers and body.
 Zope calls ``manage_DAVget()`` to retrieve the body. The default
 implementation calls ``manage_FTPput()``.
 
-In Archetypes, the default implementation marshalls all Archetypes fields to
+In Archetypes, the default implementation marshals all Archetypes fields to
 RFC 2822 headers, except for the field marked as the primary field, which is
-marshalled to a string and returned as the body.
+marshaled to a string and returned as the body.
 
 In Dexterity, ``manage_FTPget()`` adapts ``self`` to ``IReadFile`` and calls its
 ``read()`` method. The default ``IReadFile`` implementation returns an
