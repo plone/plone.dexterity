@@ -1,5 +1,8 @@
 from Acquisition import Explicit, aq_parent
-from OFS.IOrderSupport import IOrderedContainer
+try:
+    from OFS.IOrderSupport import IOrderedContainer
+except ImportError:
+    from OFS.interfaces import IOrderedContainer
 
 from zope.component import queryUtility
 
