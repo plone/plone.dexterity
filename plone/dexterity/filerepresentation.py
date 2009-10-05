@@ -7,12 +7,16 @@ from email.Parser import FeedParser
 from rwproperty import getproperty, setproperty
 
 from zope.interface import implements
-from zope.component import adapts
+from zope.component import adapts, getUtility
+from zope.event import notify
+from zope.lifecycleevent import ObjectCreatedEvent
 from zope.schema import getFieldsInOrder
 
+from zope.component.interfaces import IFactory
 from zope.interface.interfaces import IInterface
 
 from Acquisition import aq_base
+from zExceptions import Unauthorized
 from ZPublisher.Iterators import IStreamIterator
 from Products.CMFCore.utils import getToolByName
 
@@ -115,27 +119,69 @@ class DefaultFileFactory(object):
         
         # Deal with Finder cruft
         if name == '.DS_Store':
-            return None
+            raise Unauthorized("Refusing to store Mac OS X resource forks")
         elif name.startswith('._'):
-            return None
+            raise Unauthorized("Refusing to store Mac OS X resource forks")
         
         registry = getToolByName(self.context, 'content_type_registry', None)
         if registry is None:
-            return None
+            return None # fall back on default
         
         typeObjectName = registry.findTypeName(name, contentType, data)
         if typeObjectName is None:
-            return None
+            return # fall back on default
         
-        self.context.invokeFactory(typeObjectName, name)
+        typesTool = getToolByName(self.context, 'portal_types')
         
-        # invokeFactory does too much, so the object has to be removed again
-        # this is extremely lame, but old style factories have to work this
-        # way. If we only had new-style factories, we could just call the
-        # factory and return the result
+        targetType = typesTool.getTypeInfo(typeObjectName)
+        if targetType is None:
+            return # fall back on default
         
-        obj = aq_base(self.context._getOb(name))
-        self.context._delObject(name)
+        contextType = typesTool.getTypeInfo(self.context)
+        if contextType is not None:
+            if not contextType.allowType(typeObjectName):
+                raise Unauthorized("Creating a %s object here is not allowed" % typeObjectName)
+        
+        if not targetType.isConstructionAllowed(self.context):
+            raise Unauthorized("Creating a %s object here is not allowed" % typeObjectName)
+        
+        # There are two possibilities here: either we have a new-style
+        # IFactory utility, in which case all is good. We can call the
+        # factory and return the object. Or, we have an old style factory
+        # method which will call _setObject() magically. This results in all
+        # sorts of events being fired, and then we have to delete the object,
+        # before re-creating it immediately afterwards in NullResource.PUT().
+        # Naturally this sucks. At least, let's do the sane thing for content
+        # with new-style factories.
+        
+        if targetType.product: # boo :(
+            m = targetType._getFactoryMethod(self.context, check_security=0)
+            if getattr(aq_base(m), 'isDocTemp', 0):
+                newid = m(m.aq_parent, self.context.REQUEST, id=name)
+            else:
+                newid = m(name)
+            # allow factory to munge ID
+            newid = newid or name
+            
+            newObj = self.context._getOb(newid)
+            targetType._finishConstruction(newObj)
+            
+            # sob, sob...
+            obj = aq_base(newObj)
+            self.context._delObject(name)
+            
+        else: # yay
+            factory = getUtility(IFactory, targetType.factory)
+            obj = factory(name)
+            
+            # we fire this event here, because NullResource.PUT will now go
+            # and set the object on the parent. The correct sequence of
+            # events is object created -> object added. In this case, we'll
+            # get object created -> object added -> object modified.
+            notify(ObjectCreatedEvent(obj))
+        
+        # mark object so that we can call _finishConstruction later
+        
         return obj
 
 
