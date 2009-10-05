@@ -39,6 +39,8 @@ from plone.folder.ordered import CMFOrderedBTreeFolderBase
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 from plone.supermodel.utils import mergedTaggedValueDict
 
+from zope.size.interfaces import ISized
+
 from zope.filerepresentation.interfaces import IRawReadFile
 from zope.filerepresentation.interfaces import IRawWriteFile
 
@@ -197,6 +199,15 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
     __name__ = property(_get__name__, _set__name__)
     
     # WebDAV/FTP support
+    
+    def get_size(self):
+        sized = ISized(self, None)
+        if sized is None:
+            return None
+        unit, size = sized.sizeForSorting()
+        if unit == 'bytes':
+            return size
+        return None
     
     def content_type(self):
         """Return the content type of the tiem

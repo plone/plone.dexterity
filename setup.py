@@ -37,7 +37,7 @@ setup(name='plone.dexterity',
           'plone.behavior>=1.0b5',
           'plone.autoform>=1.0b2',
           'plone.rfc822',
-
+          
           'zope.interface',
           'zope.component',
           'zope.schema',
@@ -49,8 +49,9 @@ setup(name='plone.dexterity',
           'zope.security',
           'zope.app.container',   # XXX: Should move to zope.container in the future
           'zope.app.content',
-          'ZODB3',
           'zope.filerepresentation',
+          'zope.size',
+          'ZODB3',
           
           # 'Acquisition',
           # 'AccessControl',
@@ -59,7 +60,7 @@ setup(name='plone.dexterity',
           # 'Products.CMFDynamicViewFTI',
           # 'Products.Five',
           # 'Products.statusmessages',
-
+          
           # -*- Extra requirements: -*-
       ],
       entry_points="""

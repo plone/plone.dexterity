@@ -4,6 +4,13 @@ Changelog
 1.0a2 -
 ------------------
 
+* Added support for zope.size.interfaces.ISized. An adapter to this interface
+  may be used to specify the file size that is reported in WebDAV operations
+  or used for Plone's folder listings. This requires that the sizeForSorting()
+  method is implemented to return a tuple ('bytes', numBytes), where numBytes
+  is the size in bytes.
+  [optilude]
+
 * Added support for WebDAV. This is primarily implemented by adapting content
   objects to the IRawReadFile and IRawWriteFile interfaces from the
   zope.filerepresentation package. The default is to use plone.rfc822 to

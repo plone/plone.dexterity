@@ -238,6 +238,11 @@ class DefaultReadFile(object):
     
     @memoize
     def _getStream(self):
+        # We write to a TemporayFile instead of a StringIO because we don't
+        # want to keep the full file contents around in memory, and because
+        # this approach allows us to hand off the stream iterator to the
+        # publisher, which will serve it efficiently even after the
+        # transaction is closed
         out = tempfile.TemporaryFile(mode='w+b')
         generator = Generator(out, mangle_from_=False)
         generator.flatten(self._getMessage())
