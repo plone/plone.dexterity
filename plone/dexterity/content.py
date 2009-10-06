@@ -205,21 +205,28 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
     # WebDAV/FTP support
     
     def get_size(self):
+        """Get the size of the content item in bytes. Used both in folder
+        listings and in DAV PROPFIND requests.
+        
+        The default implementation delegates to an ISized adapter and calls
+        getSizeForSorting(). This returns a tuple (unit, value). If the unit
+        is 'bytes', the value is returned, otherwise the size is 0.
+        """
         sized = ISized(self, None)
         if sized is None:
-            return None
+            return 0
         unit, size = sized.sizeForSorting()
         if unit == 'bytes':
             return size
-        return None
+        return 0
     
     def content_type(self):
-        """Return the content type of the tiem
+        """Return the content type (MIME type) of the tiem
         """
         return self.Format()
     
     def Format(self):
-        """Return the content type of the item
+        """Return the content type (MIME type) of the item
         """
         readFile = IRawReadFile(self, None)
         if readFile is None:
@@ -227,12 +234,15 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
         return readFile.mimeType
     
     def manage_DAVget(self):
-        """Get the body of the content item in a WebDAV response
+        """Get the body of the content item in a WebDAV response.
         """
         return self.manage_FTPget()
     
     def manage_FTPget(self, REQUEST=None, RESPONSE=None):
-        """Return the body of the content item in an FTP response
+        """Return the body of the content item in an FTP or WebDAV response.
+        
+        This adapts self to IRawReadFile(), which is then returned as an
+        iterator. The adapter should provide IStreamIterator.
         """
         
         reader = IRawReadFile(self, None)
@@ -259,7 +269,11 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
         return reader
     
     def PUT(self, REQUEST=None, RESPONSE=None):
-        """WebDAV method to replace self with a new resource.
+        """WebDAV method to replace self with a new resource. This is also
+        used when initialising an object just created from a NullResource.
+        
+        This will look up an IRawWriteFile adapter on self and write to it,
+        line-by-line, from the request body.
         """
         
         request = REQUEST is not None and REQUEST or self.REQUEST
