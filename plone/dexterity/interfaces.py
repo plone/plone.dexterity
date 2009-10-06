@@ -7,6 +7,9 @@ from zope.component.interfaces import IFactory
 
 from Products.CMFCore.interfaces import ITypeInformation
 
+# id for pseudo-resource used to expose data for folderish items over WebDAV
+DAV_FOLDER_DATA_ID = '_data'
+
 class IDexterityFTI(ITypeInformation):
     """The Factory Type Information for Dexterity content objects
     """

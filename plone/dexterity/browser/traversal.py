@@ -1,8 +1,3 @@
-from zope.component import adapts
-
-from zope.publisher.interfaces.browser import IBrowserRequest
-from plone.dexterity.interfaces import IDexterityContent
-
 try:
     from repoze.zope2.publishtraverse import DefaultPublishTraverse
 except ImportError:
@@ -11,14 +6,23 @@ except ImportError:
 from Acquisition import aq_inner, aq_parent
 from Acquisition.interfaces import IAcquirer
 from webdav.NullResource import NullResource
+
+from zope.component import adapts
+
+from zope.publisher.interfaces.browser import IBrowserRequest
+
+from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
+from plone.dexterity.interfaces import IDexterityContent
+
 from plone.dexterity.filerepresentation import FolderDataResource
 
 class DexterityPublishTraverse(DefaultPublishTraverse):
     """Override the default browser publisher to make WebDAV work for
     Dexterity objects.
     
-    This may become superfluous if http://bugs.launchpad.net/zope2/+bug/180155
-    is fixed in Zope 2.
+    In part, this works around certain problems with the ZPublisher that make
+    DAV requests difficult, and in part it adds support for the '_data'
+    pseudo-resource that is shown for folderish content items.
     """
     
     adapts(IDexterityContent, IBrowserRequest)
@@ -34,8 +38,8 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         # If we are trying to traverse to the folder "body" pseudo-object 
         # returned by listDAVObjects(), return that immediately
 
-        if name == '__folder_data__':
-            return FolderDataResource('__folder_data__', context).__of__(context)
+        if getattr(request, 'maybe_webdav_client', False) and name == DAV_FOLDER_DATA_ID:
+            return FolderDataResource(DAV_FOLDER_DATA_ID, context).__of__(context)
         
         defaultTraversal = super(DexterityPublishTraverse, self).publishTraverse(request, name)
         

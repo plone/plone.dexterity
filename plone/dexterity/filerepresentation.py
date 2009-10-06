@@ -388,6 +388,14 @@ class DefaultWriteFile(object):
 class FolderDataResource(Implicit, Resource):
     """This object is a proxy which is created on-demand during traversal,
     to allow access to the "file-like" aspects of a container type.
+    
+    When a Container object is listed via WebDAV, the first item in the folder
+    listing is an instance of this class with an id of '_data'. When
+    requested, the default Dexterity IPublishTraverse adapter will also return
+    an instance (the instances are non-persistent). A GET, PUT, HEAD, LOCK,
+    UNLOCK, PROPFIND or PROPPATCH request against this resource will be 
+    treated as if it were a request against the parent object, treating it
+    as a resource (file) rather than a collection (folder).
     """
     
     def __init__(self, name, parent):

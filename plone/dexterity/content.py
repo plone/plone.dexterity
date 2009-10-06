@@ -20,6 +20,8 @@ from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.interfaces import IDexterityContainer
 
+from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
+
 from plone.dexterity.schema import SCHEMA_CACHE
 
 # XXX: Should move to zope.container in the future
@@ -397,7 +399,8 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
             parentList = list(parentList)
         
         # insert the FolderDataResource pseudo child
-        parentList.insert(0, FolderDataResource('__folder_data__', self).__of__(self))
+        faux = FolderDataResource(DAV_FOLDER_DATA_ID, self).__of__(self)
+        parentList.insert(0, faux)
         return parentList
 
 def reindexOnModify(content, event):
