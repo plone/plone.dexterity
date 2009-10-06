@@ -47,6 +47,8 @@ from zope.filerepresentation.interfaces import IRawWriteFile
 from zope.filerepresentation.interfaces import IFileFactory
 from zope.filerepresentation.interfaces import IDirectoryFactory
 
+from plone.dexterity.filerepresentation import FolderDataResource
+
 _marker = object()
 
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
@@ -125,6 +127,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         
         return spec
 
+
 class AttributeValidator(Explicit):
     """Decide whether attributes should be accessible. This is set as the
     __allow_access_to_unprotected_subobjects__ variable in Dexterity's content
@@ -163,6 +166,7 @@ class AttributeValidator(Explicit):
                 pass
         return None
 
+
 class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
     """Base class for Dexterity content
     """
@@ -189,7 +193,7 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
     # Let __name__ and id be identical. Note that id must be ASCII in Zope 2,
     # but __name__ should be unicode. Note that setting the name to something
     # that can't be encoded to ASCII will throw a UnicodeEncodeError
-
+    
     def _get__name__(self):
         return unicode(self.id)
     def _set__name__(self, value):
@@ -221,7 +225,7 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
         if readFile is None:
             return None
         return readFile.mimeType
-
+    
     def manage_DAVget(self):
         """Get the body of the content item in a WebDAV response
         """
@@ -289,12 +293,10 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
         finally:
             writer.close()
         
-        # TODO: detect if object was just created, and if so fire an object
-        # created event instead
         modified(self)
 
-# XXX: It'd be nice to reduce the number of base classes here
 
+# XXX: It'd be nice to reduce the number of base classes here
 class Item(BrowserDefaultMixin, DexterityContent):
     """A non-containerish, CMFish item
     """
@@ -315,6 +317,7 @@ class Item(BrowserDefaultMixin, DexterityContent):
     # Be explicit about which __getattr__ to use
     __getattr__ = DexterityContent.__getattr__
 
+
 class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
     """Base class for folderish items
     """
@@ -327,7 +330,7 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
     
     # make sure CMFCatalogAware's manage_options don't take precedence
     manage_options = PortalFolderBase.manage_options
-
+    
     def __init__(self, id=None, **kwargs):
         CMFOrderedBTreeFolderBase.__init__(self, id, **kwargs)
         DefaultDublinCoreImpl.__init__(self, **kwargs)
@@ -351,6 +354,8 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
     
     # WebDAV/FTP support
     
+    PUT = DexterityContent.PUT
+    
     def MKCOL_handler(self, id, REQUEST=None, RESPONSE=None):
         """Handle "make collection" by delegating to an IDirectoryFactory
         adapter.
@@ -365,6 +370,22 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
         factory = IFileFactory(self)
         return factory(name, contentType, body)
     
+    def listDAVObjects(self):
+        """Return objects for WebDAV folder listings.
+        
+        We add a non-folderish pseudo object which contains the "body" data
+        for this container.
+        """
+        parentList = super(Container, self).listDAVObjects()
+        if not parentList:
+            parentList = []
+        else:
+            parentList = list(parentList)
+        
+        # insert the FolderDataResource pseudo child
+        parentList.insert(0, FolderDataResource('__folder_data__', self).__of__(self))
+        return parentList
+
 def reindexOnModify(content, event):
     """When an object is modified, re-index it in the catalog
     """

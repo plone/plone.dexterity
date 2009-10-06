@@ -15,8 +15,9 @@ from zope.schema import getFieldsInOrder
 from zope.component.interfaces import IFactory
 from zope.interface.interfaces import IInterface
 
-from Acquisition import aq_base
-from zExceptions import Unauthorized
+from Acquisition import aq_base, Implicit
+from zExceptions import Unauthorized, MethodNotAllowed
+from webdav.Resource import Resource
 from ZPublisher.Iterators import IStreamIterator
 from Products.CMFCore.utils import getToolByName
 
@@ -382,3 +383,100 @@ class DefaultWriteFile(object):
     
     def flush(self):
         pass
+
+
+class FolderDataResource(Implicit, Resource):
+    """This object is a proxy which is created on-demand during traversal,
+    to allow access to the "file-like" aspects of a container type.
+    """
+    
+    def __init__(self, name, parent):
+        self.__name__ = self.id = name
+        self.__parent__ = parent
+    
+    def getId(self):
+        """Get id for traveral purposes
+        """
+        return self.id
+    
+    def HEAD(self, REQUEST, RESPONSE):
+        """HEAD request: use the Resource algorithm on the data of the
+        parent.
+        """
+        return Resource.HEAD(self.__parent__, REQUEST, RESPONSE)
+    
+    def OPTIONS(self, REQUEST, RESPONSE):
+        """OPTIONS request: delegate to parent
+        """
+        return self.__parent__.OPTIONS(REQUEST, RESPONSE)
+    
+    def TRACE(self, REQUEST, RESPONSE):
+        """TRACE request: delegate to parent
+        """
+        return self.__parent__.TRACE(REQUEST, RESPONSE)
+    
+    def PROPFIND(self, REQUEST, RESPONSE):
+        """PROPFIND request: use Resource algorithm on self, so that we do
+        not appear as a folder.
+        
+        Certain things may be acquired, notably .propertysheets
+        """
+        return super(FolderDataResource, self).PROPFIND(REQUEST, RESPONSE)
+    
+    def PROPPATCH(self, REQUEST, RESPONSE):
+        """PROPPATCH request: Use Resource algorithm on self, so that we do
+        not appear as a folder.
+        
+        Certain things may be acquired, notably .propertysheets
+        """
+        return super(FolderDataResource, self).PROPFIND(REQUEST, RESPONSE)
+    
+    def LOCK(self, REQUEST, RESPONSE):
+        """LOCK request: delegate to parent
+        """
+        return self.__parent__.LOCK(REQUEST, RESPONSE)
+    
+    def UNLOCK(self, REQUEST, RESPONSE):
+        """UNLOCK request: delegate to parent
+        """
+        return self.__parent__.UNLOCK(REQUEST, RESPONSE)
+    
+    def PUT(self, REQUEST, RESPONSE):
+        """PUT request: delegate to parent
+        """
+        return self.__parent__.PUT(REQUEST, RESPONSE)
+    
+    def MKCOL(self, REQUEST, RESPONSE):
+        """MKCOL request: not allowed
+        """
+        raise MethodNotAllowed('Cannot create a collection inside a folder data: try at the folder level instead')
+    
+    def DELETE(self, REQUEST, RESPONSE):
+        """DELETE request: not allowed
+        """
+        raise MethodNotAllowed('Cannot delete folder data: delete folder instead')
+    
+    def COPY(self, REQUEST, RESPONSE):
+        """COPY request: not allowed
+        """
+        raise MethodNotAllowed('Cannot copy folder data: copy the folder instead')
+        
+    def MOVE(self, REQUEST, RESPONSE):
+        """MOVE request: not allowed
+        """
+        raise MethodNotAllowed('Cannot move folder data: move the folder instead')
+    
+    def manage_DAVget(self):
+        """DAV content access: delete to manage_FTPget()
+        """
+        return self.manage_FTPget()
+    
+    def manage_FTPget(self):
+        """FTP access: delegate to parent
+        """
+        return self.__parent__.manage_FTPget()
+    
+    def listDAVObjects(self):
+        """DAV object listing: return nothing
+        """
+        return []
