@@ -259,6 +259,4 @@ class TestAttributeProtection(MockTestCase):
         self.assertTrue(item.__allow_access_to_unprotected_subobjects__('', u"foo"))
 
 def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestAttributeProtection))
-    return suite
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)

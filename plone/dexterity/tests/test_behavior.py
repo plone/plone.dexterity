@@ -70,6 +70,4 @@ class TestBehavior(MockTestCase):
         self.assertEquals([behavior_dummy], list(assignable.enumerateBehaviors()))
     
 def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestBehavior))
-    return suite
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)

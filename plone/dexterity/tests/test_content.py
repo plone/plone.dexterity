@@ -506,6 +506,4 @@ class TestContent(MockTestCase):
         
     
 def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestContent))
-    return suite
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)

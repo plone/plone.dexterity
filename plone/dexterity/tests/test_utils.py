@@ -45,6 +45,4 @@ class TestUtils(MockTestCase):
             utils.splitSchemaName('prefix_0_type_1_one_2_two'))
 
 def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestUtils))
-    return suite
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)

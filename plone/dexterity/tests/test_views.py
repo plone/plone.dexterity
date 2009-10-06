@@ -324,8 +324,4 @@ class TestDefaultView(MockTestCase):
         self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
 
 def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestAddView))
-    suite.addTest(unittest.makeSuite(TestEditView))
-    suite.addTest(unittest.makeSuite(TestDefaultView))
-    return suite
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)

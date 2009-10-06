@@ -141,6 +141,4 @@ class TestSchemaModuleFactory(MockTestCase):
         self.assertEquals(('dummy',), tuple(zope.schema.getFieldNames(klass)))
 
 def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestSchemaModuleFactory))
-    return suite
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)

@@ -5,6 +5,4 @@ import unittest
 #    more specific tests here.
 
 def test_suite():
-    suite = unittest.TestSuite()
-    # suite.addTest(unittest.makeSuite(TestIntegration))
-    return suite
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)

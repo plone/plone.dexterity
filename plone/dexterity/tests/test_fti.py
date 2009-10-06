@@ -676,7 +676,4 @@ class TestFTIEvents(MockTestCase):
         ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'old-factory')))
 
 def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestFTI))
-    suite.addTest(unittest.makeSuite(TestFTIEvents))
-    return suite
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)

@@ -177,6 +177,4 @@ class TestFactory(MockTestCase):
         self.assertEquals(obj_mock, factory(u"id", title=u"title"))
 
 def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestFactory))
-    return suite
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)

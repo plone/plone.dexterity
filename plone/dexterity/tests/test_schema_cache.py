@@ -136,9 +136,6 @@ class TestSchemaCache(MockTestCase):
         
         self.failUnless(schema1 is None)
         self.failUnless(schema2 is schema3 is ISchema1)
-    
 
 def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestSchemaCache))
-    return suite
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)
