@@ -3,17 +3,19 @@ import tempfile
 # capitalised for Python 2.4 compatibility
 from email.Generator import Generator
 from email.Parser import FeedParser
+from email.Message import Message
 
 from rwproperty import getproperty, setproperty
 
 from zope.interface import implements
 from zope.component import adapts, getUtility
-from zope.event import notify
-from zope.lifecycleevent import ObjectCreatedEvent
 from zope.schema import getFieldsInOrder
+from zope.event import notify
+from zope.lifecycleevent import modified, ObjectCreatedEvent
 
 from zope.component.interfaces import IFactory
 from zope.interface.interfaces import IInterface
+from zope.size.interfaces import ISized
 
 from Acquisition import aq_base, Implicit
 from zExceptions import Unauthorized, MethodNotAllowed
@@ -34,8 +36,174 @@ from plone.rfc822 import initializeObjectFromSchemata
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityContainer
 
+from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
+
 from plone.dexterity.utils import iterSchemata
 from plone.memoize.instance import memoize
+
+class DAVResourceMixin(object):
+    """Mixin class for WebDAV resource support.
+    
+    The main purpose of this class is to implement the Zope 2 WebDAV API to
+    delegate to more granular adapters.
+    """
+    
+    def get_size(self):
+        """Get the size of the content item in bytes. Used both in folder
+        listings and in DAV PROPFIND requests.
+        
+        The default implementation delegates to an ISized adapter and calls
+        getSizeForSorting(). This returns a tuple (unit, value). If the unit
+        is 'bytes', the value is returned, otherwise the size is 0.
+        """
+        sized = ISized(self, None)
+        if sized is None:
+            return 0
+        unit, size = sized.sizeForSorting()
+        if unit == 'bytes':
+            return size
+        return 0
+    
+    def content_type(self):
+        """Return the content type (MIME type) of the tiem
+        """
+        readFile = IRawReadFile(self, None)
+        if readFile is None:
+            return None
+        return readFile.mimeType
+    
+    def Format(self):
+        """Return the content type (MIME type) of the item
+        """
+        return self.content_type()
+    
+    def manage_DAVget(self):
+        """Get the body of the content item in a WebDAV response.
+        """
+        return self.manage_FTPget()
+    
+    def manage_FTPget(self, REQUEST=None, RESPONSE=None):
+        """Return the body of the content item in an FTP or WebDAV response.
+        
+        This adapts self to IRawReadFile(), which is then returned as an
+        iterator. The adapter should provide IStreamIterator.
+        """
+        
+        reader = IRawReadFile(self, None)
+        if reader is None:
+            return ''
+        
+        request = REQUEST is not None and REQUEST or self.REQUEST
+        response = RESPONSE is not None and RESPONSE or request.response
+        
+        mimeType = reader.mimeType
+        encoding = reader.encoding
+        
+        if mimeType is not None:
+            if encoding is not None:
+                response.setHeader('Content-Type', '%s; charset="%s"' % (mimeType, encoding,))
+            else:
+                response.setHeader('Content-Type', mimeType)
+        
+        size = reader.size()
+        if size is not None:
+            response.setHeader('Content-Length', str(size))
+        
+        # if the reader is an iterator that the publisher can handle, return
+        # it as-is. Otherwise, read the full contents
+        
+        if ((IInterface.providedBy(IStreamIterator) and IStreamIterator.providedBy(reader))
+         or (not IInterface.providedBy(IStreamIterator) and IStreamIterator.isImplementedBy(reader))
+        ):
+            return reader
+        else:
+            return reader.read()
+    
+    def PUT(self, REQUEST=None, RESPONSE=None):
+        """WebDAV method to replace self with a new resource. This is also
+        used when initialising an object just created from a NullResource.
+        
+        This will look up an IRawWriteFile adapter on self and write to it,
+        line-by-line, from the request body.
+        """
+        
+        request = REQUEST is not None and REQUEST or self.REQUEST
+        response = RESPONSE is not None and RESPONSE or request.response
+        
+        self.dav__init(request, response)
+        self.dav__simpleifhandler(request, response, refresh=1)
+        
+        infile = request.get('BODYFILE', None)
+        if infile is None:
+            raise MethodNotAllowed("Cannot complete PUT request: No BODYFILE in request")
+        
+        writer = IRawWriteFile(self, None)
+        if writer is None:
+            raise MethodNotAllowed("Cannot complete PUT request: No IRawWriteFile adapter found")
+        
+        contentTypeHeader = request.get_header('content-type', None)
+        
+        if contentTypeHeader is not None:
+            msg = Message()
+            msg['Content-Type'] = contentTypeHeader
+            
+            mimeType = msg.get_content_type()
+            if mimeType is not None:
+                writer.mimeType = mimeType
+            
+            charset = msg.get_param('charset')
+            if charset is not None:
+                writer.encoding = charset
+        
+        try:
+            for chunk in infile:
+                writer.write(chunk)
+        finally:
+            writer.close()
+        
+        modified(self)    
+
+class DAVCollectionMixin(DAVResourceMixin):
+    """Mixin class for WebDAV collection support.
+    
+    The main purpose of this class is to implement the Zope 2 WebDAV API to
+    delegate to more granular adapters.
+    """
+    
+    def MKCOL_handler(self, id, REQUEST=None, RESPONSE=None):
+        """Handle "make collection" by delegating to an IDirectoryFactory
+        adapter.
+        """
+        factory = IDirectoryFactory(self, None)
+        if factory is None:
+            raise MethodNotAllowed("Cannot create collection: No IDirectoryFactory adapter found")
+        factory(id)
+    
+    def PUT_factory(self, name, contentType, body):
+        """Handle constructing a new object upon a PUT request by delegating
+        to an IFileFactory adapter
+        """
+        factory = IFileFactory(self, None)
+        if factory is None:
+            return None
+        return factory(name, contentType, body)
+    
+    def listDAVObjects(self):
+        """Return objects for WebDAV folder listings.
+        
+        We add a non-folderish pseudo object which contains the "body" data
+        for this container.
+        """
+        parentList = super(DAVCollectionMixin, self).listDAVObjects()
+        if not parentList:
+            parentList = []
+        else:
+            parentList = list(parentList)
+        
+        # insert the FolderDataResource pseudo child
+        faux = FolderDataResource(DAV_FOLDER_DATA_ID, self).__of__(self)
+        parentList.insert(0, faux)
+        return parentList
 
 class StringStreamIterator(object):
     """Simple stream iterator to allow efficient data streaming.

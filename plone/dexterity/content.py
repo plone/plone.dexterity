@@ -1,10 +1,7 @@
 # Use python 2.4 import location
-from email.Message import Message
-
 from Acquisition import Explicit, aq_parent
 
 from zope.component import queryUtility
-from zope.lifecycleevent import modified
 
 from zope.interface import implements
 from zope.interface.declarations import Implements
@@ -19,8 +16,6 @@ from zope.annotation import IAttributeAnnotatable
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.interfaces import IDexterityContainer
-
-from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 
 from plone.dexterity.schema import SCHEMA_CACHE
 
@@ -41,15 +36,7 @@ from plone.folder.ordered import CMFOrderedBTreeFolderBase
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 from plone.supermodel.utils import mergedTaggedValueDict
 
-from zope.size.interfaces import ISized
-
-from zope.filerepresentation.interfaces import IRawReadFile
-from zope.filerepresentation.interfaces import IRawWriteFile
-
-from zope.filerepresentation.interfaces import IFileFactory
-from zope.filerepresentation.interfaces import IDirectoryFactory
-
-from plone.dexterity.filerepresentation import FolderDataResource
+from plone.dexterity.filerepresentation import DAVResourceMixin, DAVCollectionMixin
 
 _marker = object()
 
@@ -169,7 +156,7 @@ class AttributeValidator(Explicit):
         return None
 
 
-class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
+class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, Contained):
     """Base class for Dexterity content
     """
     implements(IDexterityContent, IAttributeAnnotatable)
@@ -203,113 +190,6 @@ class DexterityContent(PortalContent, DefaultDublinCoreImpl, Contained):
             value = str(value) # may throw, but that's OK - id must be ASCII
         self.id = value
     __name__ = property(_get__name__, _set__name__)
-    
-    # WebDAV/FTP support
-    
-    def get_size(self):
-        """Get the size of the content item in bytes. Used both in folder
-        listings and in DAV PROPFIND requests.
-        
-        The default implementation delegates to an ISized adapter and calls
-        getSizeForSorting(). This returns a tuple (unit, value). If the unit
-        is 'bytes', the value is returned, otherwise the size is 0.
-        """
-        sized = ISized(self, None)
-        if sized is None:
-            return 0
-        unit, size = sized.sizeForSorting()
-        if unit == 'bytes':
-            return size
-        return 0
-    
-    def content_type(self):
-        """Return the content type (MIME type) of the tiem
-        """
-        return self.Format()
-    
-    def Format(self):
-        """Return the content type (MIME type) of the item
-        """
-        readFile = IRawReadFile(self, None)
-        if readFile is None:
-            return None
-        return readFile.mimeType
-    
-    def manage_DAVget(self):
-        """Get the body of the content item in a WebDAV response.
-        """
-        return self.manage_FTPget()
-    
-    def manage_FTPget(self, REQUEST=None, RESPONSE=None):
-        """Return the body of the content item in an FTP or WebDAV response.
-        
-        This adapts self to IRawReadFile(), which is then returned as an
-        iterator. The adapter should provide IStreamIterator.
-        """
-        
-        reader = IRawReadFile(self, None)
-        if reader is None:
-            return ''
-        
-        request = REQUEST is not None and REQUEST or self.REQUEST
-        response = RESPONSE is not None and RESPONSE or request.response
-        
-        mimeType = reader.mimeType
-        encoding = reader.encoding
-        
-        if mimeType is not None:
-            if encoding is not None:
-                response.setHeader('Content-Type', '%s; charset="%s"' % (mimeType, encoding,))
-            else:
-                response.setHeader('Content-Type', mimeType)
-        
-        size = reader.size()
-        if size is not None:
-            response.setHeader('Content-Length', size)
-        
-        # the reader is an iterator
-        return reader
-    
-    def PUT(self, REQUEST=None, RESPONSE=None):
-        """WebDAV method to replace self with a new resource. This is also
-        used when initialising an object just created from a NullResource.
-        
-        This will look up an IRawWriteFile adapter on self and write to it,
-        line-by-line, from the request body.
-        """
-        
-        request = REQUEST is not None and REQUEST or self.REQUEST
-        response = RESPONSE is not None and RESPONSE or request.response
-        
-        self.dav__init(request, response)
-        self.dav__simpleifhandler(request, response, refresh=1)
-        
-        infile = request.get('BODYFILE', None)
-        if infile is None:
-            raise KeyError("No BODYFILE in request")
-        
-        writer = IRawWriteFile(self)
-        contentTypeHeader = request.get_header('content-type', None)
-        
-        if contentTypeHeader is not None:
-            msg = Message()
-            msg['Content-Type'] = contentTypeHeader
-            
-            mimeType = msg.get_content_type()
-            if mimeType is not None:
-                writer.mimeType = mimeType
-            
-            charset = msg.get_param('charset')
-            if charset is not None:
-                writer.encoding = charset
-        
-        try:
-            for chunk in infile:
-                writer.write(chunk)
-        finally:
-            writer.close()
-        
-        modified(self)
 
 
 # XXX: It'd be nice to reduce the number of base classes here
@@ -334,7 +214,7 @@ class Item(BrowserDefaultMixin, DexterityContent):
     __getattr__ = DexterityContent.__getattr__
 
 
-class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
+class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
     """Base class for folderish items
     """
     
@@ -367,41 +247,7 @@ class Container(BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase,
         
         # Be specific about the implementation we use
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
-    
-    # WebDAV/FTP support
-    
-    PUT = DexterityContent.PUT
-    
-    def MKCOL_handler(self, id, REQUEST=None, RESPONSE=None):
-        """Handle "make collection" by delegating to an IDirectoryFactory
-        adapter.
-        """
-        factory = IDirectoryFactory(self)
-        factory(id)
-    
-    def PUT_factory(self, name, contentType, body):
-        """Handle constructing a new object upon a PUT request by delegating
-        to an IFileFactory adapter
-        """
-        factory = IFileFactory(self)
-        return factory(name, contentType, body)
-    
-    def listDAVObjects(self):
-        """Return objects for WebDAV folder listings.
-        
-        We add a non-folderish pseudo object which contains the "body" data
-        for this container.
-        """
-        parentList = super(Container, self).listDAVObjects()
-        if not parentList:
-            parentList = []
-        else:
-            parentList = list(parentList)
-        
-        # insert the FolderDataResource pseudo child
-        faux = FolderDataResource(DAV_FOLDER_DATA_ID, self).__of__(self)
-        parentList.insert(0, faux)
-        return parentList
+
 
 def reindexOnModify(content, event):
     """When an object is modified, re-index it in the catalog
