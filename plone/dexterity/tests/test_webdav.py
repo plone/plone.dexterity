@@ -512,7 +512,7 @@ class TestFolderDataResource(MockTestCase):
         result = response.getBody()
         result = re.sub(r'<n:getlastmodified>.+</n:getlastmodified>', '<n:getlastmodified>...</n:getlastmodified>', result)
         
-        self.assertEquals(body.strip(), result.strip())
+        self.assertEquals(result.strip(), body.strip())
     
     def test_PROPPATCH(self):
         class TestContainer(Container):
@@ -708,11 +708,55 @@ The operation succeded.
     
 class TestFileRepresentation(MockTestCase):
     
-    pass
+    def test_directory_factory(self):
+        pass
+    
+    def test_file_factory_finder_cruft(self):
+        pass
+    
+    def test_file_factory_no_fti(self):
+        pass
+    
+    def test_file_factory_not_allowed(self):
+        pass
+    
+    def test_file_factory_factory_method(self):
+        pass
+    
+    def test_file_factory_factory_utility(self):
+        pass
+    
+    def test_readfile_mimetype(self):
+        pass
+    
+    def test_readfile_file_operations(self):
+        pass
+    
+    def test_writefile_mimetype(self):
+        pass
+    
+    def test_writefile_file_operations(self):
+        pass
 
 class TestDAVTraversal(MockTestCase):
     
-    pass
+    def test_no_acquire_dav(self):
+        pass
+    
+    def test_acquire_without_dav(self):
+        pass
+    
+    def test_folder_data_traversal_dav(self):
+        pass
+    
+    def test_folder_data_traversal_without_dav(self):
+        pass
+    
+    def test_browser_default_dav(self):
+        pass
+    
+    def test_browser_default_without_dav(self):
+        pass
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

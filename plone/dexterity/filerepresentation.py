@@ -218,34 +218,37 @@ class FolderDataResource(Implicit, Resource):
     treated as if it were a request against the parent object, treating it
     as a resource (file) rather than a collection (folder).
     """
-    
-    # These variables will be kept on this object. Everything else is proxied
-    # back to the parent object. This allows properties to get obtained and
-    # set on the parent
-    
+
     __dav_collection__ = 0
-    __parent__ = None
-    __name__ = None
-    id = None
     
     def __init__(self, name, parent):
         self.__dict__.update({'__parent__': parent, '__name__': name})
-        
+    
+    # We need to proxy certain things to the parent for getting and setting
+    # of property sheet values to work.
+    # 
+    # XXX: A better approach may be to define a custom PropertySheets type
+    # with some kind of wrapping property sheet that redefines v_self() to
+    # be the container.
+    
     def __getattr__(self, name):
-        """Fall back on parent in case we are missing an attribute. This
-        makes property sheets work
+        """Fall back on parent for certain things, even if we're aq_base'd.
+        This makes propertysheet access work.
         """
-        return getattr(self.__parent__, name)
+        if hasattr(self.__parent__.aq_base, name):
+            return getattr(self.__parent__, name)
+        raise AttributeError(name)
     
     def __setattr__(self, name, value):
-        """Allow properties to be set as attributes on the parent
+        """Set certain attributes on the parent
         """
-        if name not in self.__dict__:
+        if name in self.__dict__:
+            object.__setattr__(self, name, value)
+        elif self.__parent__.hasProperty(name):
             setattr(self.__parent__, name, value)
         else:
             object.__setattr__(self, name, value)
     
-    # store properties on parent
     @getproperty
     def _properties(self):
         return self.__parent__._properties
