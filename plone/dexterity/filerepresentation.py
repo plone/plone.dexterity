@@ -88,7 +88,6 @@ class DAVResourceMixin(object):
         This adapts self to IRawReadFile(), which is then returned as an
         iterator. The adapter should provide IStreamIterator.
         """
-        
         reader = IRawReadFile(self, None)
         if reader is None:
             return ''
@@ -126,7 +125,6 @@ class DAVResourceMixin(object):
         This will look up an IRawWriteFile adapter on self and write to it,
         line-by-line, from the request body.
         """
-        
         request = REQUEST is not None and REQUEST or self.REQUEST
         response = RESPONSE is not None and RESPONSE or request.response
         
@@ -161,7 +159,9 @@ class DAVResourceMixin(object):
         finally:
             writer.close()
         
-        modified(self)    
+        modified(self)
+        return response
+
 
 class DAVCollectionMixin(DAVResourceMixin):
     """Mixin class for WebDAV collection support.
@@ -204,6 +204,146 @@ class DAVCollectionMixin(DAVResourceMixin):
         faux = FolderDataResource(DAV_FOLDER_DATA_ID, self).__of__(self)
         parentList.insert(0, faux)
         return parentList
+
+
+class FolderDataResource(Implicit, Resource):
+    """This object is a proxy which is created on-demand during traversal,
+    to allow access to the "file-like" aspects of a container type.
+    
+    When a Container object is listed via WebDAV, the first item in the folder
+    listing is an instance of this class with an id of '_data'. When
+    requested, the default Dexterity IPublishTraverse adapter will also return
+    an instance (the instances are non-persistent). A GET, PUT, HEAD, LOCK,
+    UNLOCK, PROPFIND or PROPPATCH request against this resource will be 
+    treated as if it were a request against the parent object, treating it
+    as a resource (file) rather than a collection (folder).
+    """
+    
+    # These variables will be kept on this object. Everything else is proxied
+    # back to the parent object. This allows properties to get obtained and
+    # set on the parent
+    
+    __dav_collection__ = 0
+    __parent__ = None
+    __name__ = None
+    id = None
+    
+    def __init__(self, name, parent):
+        self.__dict__.update({'__parent__': parent, '__name__': name})
+        
+    def __getattr__(self, name):
+        """Fall back on parent in case we are missing an attribute. This
+        makes property sheets work
+        """
+        return getattr(self.__parent__, name)
+    
+    def __setattr__(self, name, value):
+        """Allow properties to be set as attributes on the parent
+        """
+        if name not in self.__dict__:
+            setattr(self.__parent__, name, value)
+        else:
+            object.__setattr__(self, name, value)
+    
+    # store properties on parent
+    @getproperty
+    def _properties(self):
+        return self.__parent__._properties
+    @setproperty
+    def _properties(self, value):
+        self.__parent__._properties = value
+    
+    @property
+    def id(self):
+        return self.__name__
+    
+    def getId(self):
+        """Get id for traveral purposes
+        """
+        return self.__name__
+        
+    def HEAD(self, REQUEST, RESPONSE):
+        """HEAD request: use the Resource algorithm on the data of the
+        parent.
+        """
+        return Resource.HEAD(self.__parent__, REQUEST, RESPONSE)
+    
+    def OPTIONS(self, REQUEST, RESPONSE):
+        """OPTIONS request: delegate to parent
+        """
+        return self.__parent__.OPTIONS(REQUEST, RESPONSE)
+    
+    def TRACE(self, REQUEST, RESPONSE):
+        """TRACE request: delegate to parent
+        """
+        return self.__parent__.TRACE(REQUEST, RESPONSE)
+    
+    def PROPFIND(self, REQUEST, RESPONSE):
+        """PROPFIND request: use Resource algorithm on self, so that we do
+        not appear as a folder.
+        
+        Certain things may be acquired, notably .propertysheets
+        """
+        return super(FolderDataResource, self).PROPFIND(REQUEST, RESPONSE)
+    
+    def PROPPATCH(self, REQUEST, RESPONSE):
+        """PROPPATCH request: Use Resource algorithm on self, so that we do
+        not appear as a folder.
+        
+        Certain things may be acquired, notably .propertysheets
+        """
+        return super(FolderDataResource, self).PROPPATCH(REQUEST, RESPONSE)
+    
+    def LOCK(self, REQUEST, RESPONSE):
+        """LOCK request: delegate to parent
+        """
+        return self.__parent__.LOCK(REQUEST, RESPONSE)
+    
+    def UNLOCK(self, REQUEST, RESPONSE):
+        """UNLOCK request: delegate to parent
+        """
+        return self.__parent__.UNLOCK(REQUEST, RESPONSE)
+    
+    def PUT(self, REQUEST, RESPONSE):
+        """PUT request: delegate to parent
+        """
+        return self.__parent__.PUT(REQUEST, RESPONSE)
+    
+    def MKCOL(self, REQUEST, RESPONSE):
+        """MKCOL request: not allowed
+        """
+        raise MethodNotAllowed('Cannot create a collection inside a folder data: try at the folder level instead')
+    
+    def DELETE(self, REQUEST, RESPONSE):
+        """DELETE request: not allowed
+        """
+        raise MethodNotAllowed('Cannot delete folder data: delete folder instead')
+    
+    def COPY(self, REQUEST, RESPONSE):
+        """COPY request: not allowed
+        """
+        raise MethodNotAllowed('Cannot copy folder data: copy the folder instead')
+        
+    def MOVE(self, REQUEST, RESPONSE):
+        """MOVE request: not allowed
+        """
+        raise MethodNotAllowed('Cannot move folder data: move the folder instead')
+    
+    def manage_DAVget(self):
+        """DAV content access: delete to manage_FTPget()
+        """
+        return self.__parent__.manage_DAVget()
+    
+    def manage_FTPget(self):
+        """FTP access: delegate to parent
+        """
+        return self.__parent__.manage_FTPget()
+    
+    def listDAVObjects(self):
+        """DAV object listing: return nothing
+        """
+        return []
+
 
 class StringStreamIterator(object):
     """Simple stream iterator to allow efficient data streaming.
@@ -552,107 +692,3 @@ class DefaultWriteFile(object):
     def flush(self):
         pass
 
-
-class FolderDataResource(Implicit, Resource):
-    """This object is a proxy which is created on-demand during traversal,
-    to allow access to the "file-like" aspects of a container type.
-    
-    When a Container object is listed via WebDAV, the first item in the folder
-    listing is an instance of this class with an id of '_data'. When
-    requested, the default Dexterity IPublishTraverse adapter will also return
-    an instance (the instances are non-persistent). A GET, PUT, HEAD, LOCK,
-    UNLOCK, PROPFIND or PROPPATCH request against this resource will be 
-    treated as if it were a request against the parent object, treating it
-    as a resource (file) rather than a collection (folder).
-    """
-    
-    def __init__(self, name, parent):
-        self.__name__ = self.id = name
-        self.__parent__ = parent
-    
-    def getId(self):
-        """Get id for traveral purposes
-        """
-        return self.id
-    
-    def HEAD(self, REQUEST, RESPONSE):
-        """HEAD request: use the Resource algorithm on the data of the
-        parent.
-        """
-        return Resource.HEAD(self.__parent__, REQUEST, RESPONSE)
-    
-    def OPTIONS(self, REQUEST, RESPONSE):
-        """OPTIONS request: delegate to parent
-        """
-        return self.__parent__.OPTIONS(REQUEST, RESPONSE)
-    
-    def TRACE(self, REQUEST, RESPONSE):
-        """TRACE request: delegate to parent
-        """
-        return self.__parent__.TRACE(REQUEST, RESPONSE)
-    
-    def PROPFIND(self, REQUEST, RESPONSE):
-        """PROPFIND request: use Resource algorithm on self, so that we do
-        not appear as a folder.
-        
-        Certain things may be acquired, notably .propertysheets
-        """
-        return super(FolderDataResource, self).PROPFIND(REQUEST, RESPONSE)
-    
-    def PROPPATCH(self, REQUEST, RESPONSE):
-        """PROPPATCH request: Use Resource algorithm on self, so that we do
-        not appear as a folder.
-        
-        Certain things may be acquired, notably .propertysheets
-        """
-        return super(FolderDataResource, self).PROPFIND(REQUEST, RESPONSE)
-    
-    def LOCK(self, REQUEST, RESPONSE):
-        """LOCK request: delegate to parent
-        """
-        return self.__parent__.LOCK(REQUEST, RESPONSE)
-    
-    def UNLOCK(self, REQUEST, RESPONSE):
-        """UNLOCK request: delegate to parent
-        """
-        return self.__parent__.UNLOCK(REQUEST, RESPONSE)
-    
-    def PUT(self, REQUEST, RESPONSE):
-        """PUT request: delegate to parent
-        """
-        return self.__parent__.PUT(REQUEST, RESPONSE)
-    
-    def MKCOL(self, REQUEST, RESPONSE):
-        """MKCOL request: not allowed
-        """
-        raise MethodNotAllowed('Cannot create a collection inside a folder data: try at the folder level instead')
-    
-    def DELETE(self, REQUEST, RESPONSE):
-        """DELETE request: not allowed
-        """
-        raise MethodNotAllowed('Cannot delete folder data: delete folder instead')
-    
-    def COPY(self, REQUEST, RESPONSE):
-        """COPY request: not allowed
-        """
-        raise MethodNotAllowed('Cannot copy folder data: copy the folder instead')
-        
-    def MOVE(self, REQUEST, RESPONSE):
-        """MOVE request: not allowed
-        """
-        raise MethodNotAllowed('Cannot move folder data: move the folder instead')
-    
-    def manage_DAVget(self):
-        """DAV content access: delete to manage_FTPget()
-        """
-        return self.manage_FTPget()
-    
-    def manage_FTPget(self):
-        """FTP access: delegate to parent
-        """
-        return self.__parent__.manage_FTPget()
-    
-    def listDAVObjects(self):
-        """DAV object listing: return nothing
-        """
-        return []

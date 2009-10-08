@@ -1,3 +1,4 @@
+import re
 import unittest
 from StringIO import StringIO
 from plone.mocktestcase import MockTestCase
@@ -19,6 +20,7 @@ from zope.filerepresentation.interfaces import IDirectoryFactory
 from zope.filerepresentation.interfaces import IFileFactory
 
 from ZPublisher.Iterators import IStreamIterator
+from ZPublisher.HTTPResponse import HTTPResponse
 
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.filerepresentation import FolderDataResource
@@ -26,8 +28,12 @@ from plone.dexterity.filerepresentation import FolderDataResource
 class DAVTestRequest(TestRequest):
     
     get_header = TestRequest.getHeader
+    
+    def _createResponse(self):
+        return HTTPResponse()
 
-class TestWebDAV(MockTestCase):
+
+class TestWebZope2DAVAPI(MockTestCase):
     
     def test_get_size_no_adapter(self):
         item = Item('test')
@@ -367,9 +373,338 @@ class TestWebDAV(MockTestCase):
         self.assertEquals(container, objects[0].__parent__)
         self.assertEquals('foo', objects[1].getId())
 
+
 class TestFolderDataResource(MockTestCase):
     
-    pass
+    def test_getId(self):
+        container = Container('container')
+        r = FolderDataResource('fdata', container)
+        
+        self.replay()
+        
+        self.assertEquals('fdata', r.getId())
+        self.assertEquals(container, r.__parent__)
+    
+    def test_HEAD(self):
+        
+        class TestContainer(Container):
+            
+            def get_size(self):
+                return 10
+            
+            def content_type(self):
+                return 'text/foo'
+        
+        container = TestContainer('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        response = request.response
+        
+        self.replay()
+        
+        self.assertEquals(response, r.HEAD(request, request.response))
+        self.assertEquals(200, response.getStatus())
+        self.assertEquals('close', response.getHeader('Connection', literal=True))
+        self.assertEquals('text/foo', response.getHeader('Content-Type'))
+        self.assertEquals('10', response.getHeader('Content-Length'))
+    
+    def test_OPTIONS(self):
+        class TestContainer(Container):
+            
+            def get_size(self):
+                return 10
+            
+            def content_type(self):
+                return 'text/foo'
+        
+        container = TestContainer('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        response = request.response
+        
+        self.replay()
+    
+        self.assertEquals(response, r.OPTIONS(request, request.response))
+        self.assertEquals('close', response.getHeader('Connection', literal=True))
+        self.assertEquals('GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE, PROPFIND, PROPPATCH, MKCOL, COPY, MOVE, LOCK, UNLOCK', response.getHeader('Allow'))
+    
+    def test_TRACE(self):
+        class TestContainer(Container):
+            
+            def get_size(self):
+                return 10
+            
+            def content_type(self):
+                return 'text/foo'
+        
+        container = TestContainer('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        response = request.response
+        
+        self.replay()
+    
+        self.assertRaises(MethodNotAllowed, r.TRACE, request, request.response)
+    
+    def test_PROPFIND(self):
+        class TestContainer(Container):
+            
+            def get_size(self):
+                return 10
+            
+            def content_type(self):
+                return 'text/foo'
+        
+        container = TestContainer('container')
+        container.manage_changeProperties(title="Container")
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        response = request.response
+        
+        self.replay()
+        
+        self.assertEquals(response, r.PROPFIND(request, response))
+        
+        self.assertEquals('close', response.getHeader('connection', literal=True))
+        self.assertEquals('text/xml; charset="utf-8"', response.getHeader('Content-Type'))
+        self.assertEquals(207, response.getStatus())
+        
+        body = """\
+<?xml version="1.0" encoding="utf-8"?>
+<d:multistatus xmlns:d="DAV:">
+<d:response>
+<d:href>/site/container</d:href>
+<d:propstat xmlns:n="http://www.zope.org/propsets/default">
+  <d:prop>
+  <n:title>Container</n:title>
+  </d:prop>
+  <d:status>HTTP/1.1 200 OK</d:status>
+</d:propstat>
+<d:propstat xmlns:n="DAV:">
+  <d:prop>
+  <n:creationdate>1970-01-01T12:00:00Z</n:creationdate>
+  <n:displayname>Container</n:displayname>
+  <n:resourcetype></n:resourcetype>
+  <n:getcontenttype>text/foo</n:getcontenttype>
+  <n:getcontentlength>10</n:getcontentlength>
+  <n:source></n:source>
+  <n:supportedlock>
+  <n:lockentry>
+  <d:lockscope><d:exclusive/></d:lockscope>
+  <d:locktype><d:write/></d:locktype>
+  </n:lockentry>
+  </n:supportedlock>
+  <n:lockdiscovery>
+
+</n:lockdiscovery>
+  <n:getlastmodified>...</n:getlastmodified>
+  </d:prop>
+  <d:status>HTTP/1.1 200 OK</d:status>
+</d:propstat>
+</d:response>
+</d:multistatus>
+"""
+        
+        result = response.getBody()
+        result = re.sub(r'<n:getlastmodified>.+</n:getlastmodified>', '<n:getlastmodified>...</n:getlastmodified>', result)
+        
+        self.assertEquals(body.strip(), result.strip())
+    
+    def test_PROPPATCH(self):
+        class TestContainer(Container):
+            
+            def get_size(self):
+                return 10
+            
+            def content_type(self):
+                return 'text/foo'
+        
+        container = TestContainer('container')
+        container.manage_changeProperties(title="Container")
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        requestBody = """\
+<?xml version="1.0" encoding="utf-8" ?>
+<D:propertyupdate xmlns:D="DAV:" xmlns:n="http://www.zope.org/propsets/default">
+    <D:set>
+        <D:prop>
+            <n:title>New title</n:title>
+          </D:prop>
+     </D:set>
+</D:propertyupdate>
+"""
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container', 'BODY': requestBody})
+        response = request.response
+        
+        self.replay()
+        
+        self.assertEquals(response, r.PROPPATCH(request, response))
+        
+        self.assertEquals('New title', container.getProperty('title'))
+        
+        self.assertEquals('close', response.getHeader('connection', literal=True))
+        self.assertEquals('text/xml; charset="utf-8"', response.getHeader('Content-Type'))
+        self.assertEquals(207, response.getStatus())
+        
+        body = """\
+<?xml version="1.0" encoding="utf-8"?>
+<d:multistatus xmlns:d="DAV:">
+<d:response>
+<d:href>http%3A//example.org/site/container</d:href>
+<d:propstat xmlns:n="http://www.zope.org/propsets/default">
+  <d:prop>
+  <n:title/>
+  </d:prop>
+  <d:status>HTTP/1.1 200 OK</d:status>
+</d:propstat>
+<d:responsedescription>
+The operation succeded.
+</d:responsedescription>
+</d:response>
+</d:multistatus>
+"""
+        
+        result = response.getBody()
+        self.assertEquals(body.strip(), result.strip())
+
+    def test_LOCK(self):
+        # Too much WebDAV magic - just test that it delegates correctly
+        class TestContainer(Container):
+            
+            def LOCK(self, request, response):
+                self._locked = (request, response,)
+                return response
+        
+        container = TestContainer('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        response = request.response
+        
+        self.replay()
+        
+        self.assertEquals(response, r.LOCK(request, response))
+        self.assertEquals((request, response), container._locked)
+    
+    def test_UNLOCK(self):
+        # Too much WebDAV magic - just test that it delegates correctly
+        class TestContainer(Container):
+            
+            def UNLOCK(self, request, response):
+                self._unlocked = (request, response,)
+                return response
+        
+        container = TestContainer('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        response = request.response
+        
+        self.replay()
+        
+        self.assertEquals(response, r.UNLOCK(request, response))
+        self.assertEquals((request, response), container._unlocked)
+    
+    def test_PUT(self):
+        class TestContainer(Container):
+            
+            def PUT(self, request, response):
+                self._put = (request, response,)
+                return response
+        
+        container = TestContainer('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        response = request.response
+        
+        self.replay()
+        
+        self.assertEquals(response, r.PUT(request, response))
+        self.assertEquals((request, response), container._put)
+    
+    def test_MKCOL(self):
+        container = Container('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        self.replay()
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        response = request.response
+        
+        self.assertRaises(MethodNotAllowed, r.MKCOL, request, response)
+    
+    def test_DELETE(self):
+        container = Container('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        self.replay()
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        response = request.response
+        
+        self.assertRaises(MethodNotAllowed, r.DELETE, request, response)
+    
+    def test_COPY(self):
+        container = Container('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        self.replay()
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        response = request.response
+        
+        self.assertRaises(MethodNotAllowed, r.COPY, request, response)
+    
+    def test_MOVE(self):
+        container = Container('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        self.replay()
+        
+        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        response = request.response
+        
+        self.assertRaises(MethodNotAllowed, r.MOVE, request, response)
+    
+    def test_manage_DAVget(self):
+        class TestContainer(Container):
+            
+            def manage_DAVget(self):
+                return 'data'
+        
+        container = TestContainer('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        self.replay()
+        
+        self.assertEquals('data', r.manage_DAVget())
+    
+    def test_manage_FTPget(self):
+        class TestContainer(Container):
+            
+            def manage_FTPget(self):
+                return 'data'
+        
+        container = TestContainer('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        self.replay()
+        
+        self.assertEquals('data', r.manage_FTPget())
+    
+    def test_listDAVObjects(self):
+        container = Container('container')
+        r = FolderDataResource('fdata', container).__of__(container)
+        
+        self.replay()
+        
+        self.assertEquals([], r.listDAVObjects())
     
 class TestFileRepresentation(MockTestCase):
     
