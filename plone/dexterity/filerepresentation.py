@@ -524,15 +524,15 @@ class DefaultReadFile(object):
     @property
     def mimeType(self):
         if not self._haveMessage:
-            single = True
+            foundOne = False
             for schema in iterSchemata(self.context):
                 for name, field in getFieldsInOrder(schema):
-                    if IPrimaryField.providedBy(schema):
-                        if single:
+                    if IPrimaryField.providedBy(field):
+                        if foundOne:
                             # more than one primary field
                             return 'message/rfc822'
                         else:
-                            single = True
+                            foundOne = True
             # zero or one primary fields
             return 'text/plain'
         if not self._getMessage().is_multipart():
@@ -558,22 +558,34 @@ class DefaultReadFile(object):
         return self._size
     
     def seek(self, offset, whence=None):
-        self._getStream().seek(offset, whence)
+        if whence is not None:
+            self._getStream().seek(offset, whence)
+        else:
+            self._getStream().seek(offset)
     
     def tell(self):
-        self._getStream().tell()
+        return self._getStream().tell()
     
     def close(self):
         self._getStream().close()
     
     def read(self, size=None):
-        return self._getStream().read(size)
+        if size is not None:
+            return self._getStream().read(size)
+        else:
+            return self._getStream().read()
     
     def readline(self, size=None):
-        return self._getStream().readline(size)
+        if size is None:
+            return self._getStream().readline()
+        else:
+            return self._getStream().readline(size)
     
     def readlines(self, sizehint=None):
-        return self._getStream().readlines(sizehint)
+        if sizehint is None:
+            return self._getStream().readlines()
+        else:
+            return self._getStream().readlines(sizehint)
     
     def __iter__(self):
         return self
@@ -666,10 +678,10 @@ class DefaultWriteFile(object):
         self._name = value
     
     def seek(self, offset, whence=None):
-        raise NotImplemented("Seeking is not supported")
+        raise NotImplementedError("Seeking is not supported")
     
     def tell(self):
-        self._written
+        return self._written
     
     def close(self):
         self._message = self._parser.close()
@@ -686,7 +698,9 @@ class DefaultWriteFile(object):
         for item in sequence:
             self.write(item)
     
-    def truncate(self, size):
+    def truncate(self, size=None):
+        if (size is None and self._written != 0) and size != 0:
+            raise NotImplementedError("The 'size' argument to truncate() must be 0 - partial truncation is not supported")
         if self._closed:
             raise ValueError("File is closed")
         self._parser = FeedParser()

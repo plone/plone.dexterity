@@ -1,6 +1,9 @@
 import re
 import unittest
 from StringIO import StringIO
+from email.Message import Message
+from mocker import ANY
+
 from plone.mocktestcase import MockTestCase
 
 from OFS.Folder import Folder
@@ -12,11 +15,17 @@ from webdav.NullResource import NullResource
 from plone.dexterity.content import Item, Container
 from zope.publisher.browser import TestRequest
 
+from zope.interface import Interface
 from zope.interface import implements
+from zope.interface import alsoProvides
+
 from zope.interface.interfaces import IInterface
 from zope.component.interfaces import IFactory
+
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.size.interfaces import ISized
+
+from zope import schema
 
 from zope.filerepresentation.interfaces import IRawReadFile
 from zope.filerepresentation.interfaces import IRawWriteFile
@@ -27,7 +36,12 @@ from zope.filerepresentation.interfaces import IFileFactory
 from ZPublisher.Iterators import IStreamIterator
 from ZPublisher.HTTPResponse import HTTPResponse
 
+from plone.rfc822.interfaces import IPrimaryField
+from plone.autoform.interfaces import IFormFieldProvider
+
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
+from plone.dexterity.interfaces import IDexterityFTI
+
 from plone.dexterity.filerepresentation import FolderDataResource
 
 from plone.dexterity.filerepresentation import DefaultDirectoryFactory
@@ -36,7 +50,14 @@ from plone.dexterity.filerepresentation import DefaultFileFactory
 from plone.dexterity.filerepresentation import DefaultReadFile
 from plone.dexterity.filerepresentation import DefaultWriteFile
 
+from plone.dexterity.fti import DexterityFTI
+
 from plone.dexterity.browser.traversal import DexterityPublishTraverse
+
+class ITestBehavior(Interface):
+    foo = schema.Int()
+    bar = schema.Bytes()
+alsoProvides(ITestBehavior, IFormFieldProvider)
 
 class DAVTestRequest(TestRequest):
     
@@ -902,17 +923,227 @@ class TestFileRepresentation(MockTestCase):
         self.assertEquals(result_dummy, factory('test.html', 'text/html', '<html />'))
         self.assertEquals('test.html', result_dummy._set_name)
     
-    def test_readfile_mimetype(self):
-        pass
+    def test_readfile_mimetype_no_message_no_fields(self):
+        
+        class ITest(Interface):
+            pass
+        
+        fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.lookupSchema()).result(ITest)
+        self.expect(fti_mock.behaviors).result([])
+        
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        item = Item('item')
+        item.portal_type = 'testtype'
+        
+        readfile = DefaultReadFile(item)
+        
+        self.replay()
+        
+        self.assertEquals('text/plain', readfile.mimeType)
     
-    def test_readfile_file_operations(self):
-        pass
+    def test_readfile_mimetype_no_message_no_primary_field(self):
+        
+        class ITest(Interface):
+            title = schema.TextLine()
+        
+        fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.lookupSchema()).result(ITest)
+        self.expect(fti_mock.behaviors).result([])
+        
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        item = Item('item')
+        item.portal_type = 'testtype'
+        
+        readfile = DefaultReadFile(item)
+        
+        self.replay()
+        
+        self.assertEquals('text/plain', readfile.mimeType)
+
+    def test_readfile_mimetype_no_message_single_primary_field(self):
+        
+        class ITest(Interface):
+            title = schema.TextLine()
+            body = schema.Text()
+        alsoProvides(ITest['body'], IPrimaryField)
+            
+        fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.lookupSchema()).result(ITest)
+        self.expect(fti_mock.behaviors).result([])
+        
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        item = Item('item')
+        item.portal_type = 'testtype'
+        
+        readfile = DefaultReadFile(item)
+        
+        self.replay()
+        
+        self.assertEquals('text/plain', readfile.mimeType)
+
+    def test_readfile_mimetype_no_message_multiple_primary_fields(self):
+        
+        class ITest(Interface):
+            title = schema.TextLine()
+            body = schema.Text()
+            stuff = schema.Bytes()
+        alsoProvides(ITest['body'], IPrimaryField)
+        alsoProvides(ITest['stuff'], IPrimaryField)
+            
+        fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.lookupSchema()).result(ITest)
+        
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        item = Item('item')
+        item.portal_type = 'testtype'
+        
+        readfile = DefaultReadFile(item)
+        
+        self.replay()
+        
+        self.assertEquals('message/rfc822', readfile.mimeType)
     
-    def test_writefile_mimetype(self):
-        pass
+    def test_readfile_operations(self):
+        
+        class ITest(Interface):
+            title = schema.TextLine()
+            body = schema.Text()
+        alsoProvides(ITest['body'], IPrimaryField)
+        
+        fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.lookupSchema()).result(ITest).count(0, None)
+        self.expect(fti_mock.behaviors).result([ITestBehavior.__identifier__]).count(0, None)
+        
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        item = Item('item')
+        item.portal_type = 'testtype'
+        
+        readfile = DefaultReadFile(item)
+        
+        message = Message()
+        message['title'] = 'Test title'
+        message['foo'] = '10'
+        message['bar'] = 'xyz'
+        message.set_payload('<p>body</p>')
+        
+        constructMessageFromSchemata_mock = self.mocker.replace('plone.rfc822.constructMessageFromSchemata')
+        self.expect(constructMessageFromSchemata_mock(item, ANY)).result(message)
+        
+        self.replay()
+        
+        body = """\
+title: Test title
+foo: 10
+bar: xyz
+Portal-Type: testtype
+
+<p>body</p>"""
+        
+        # iter
+        # next
+        
+        self.assertEquals(body, readfile.read())
+        self.assertEquals(69L, readfile.size())
+        self.assertEquals('utf-8', readfile.encoding)
+        self.assertEquals(None, readfile.name)
+        self.assertEquals('text/plain', readfile.mimeType)
+        
+        readfile.seek(2)
+        self.assertEquals(2, readfile.tell())
+        self.assertEquals('tl', readfile.read(2))
+        self.assertEquals(4, readfile.tell())
+        
+        readfile.seek(0,2)
+        self.assertEquals(69, readfile.tell())
+        
+        readfile.seek(0)
+        self.assertEquals('foo: 10\n', readfile.readlines()[1])
+        
+        readfile.seek(0)
+        self.assertEquals('foo: 10\n', readfile.readlines(100)[1])
+        
+        readfile.seek(0)
+        self.assertEquals('title: Test title\n', readfile.readline())
+        
+        readfile.seek(0)
+        self.assertEquals('title: Test title\n', readfile.readline(100))
+        
+        readfile.seek(0)
+        self.assertEquals('foo: 10\n', list(iter(readfile))[1])
+        
+        self.assertEquals(False, readfile.closed)
+        readfile.close()
     
     def test_writefile_file_operations(self):
-        pass
+        
+        class ITest(Interface):
+            title = schema.TextLine()
+            body = schema.Text()
+        alsoProvides(ITest['body'], IPrimaryField)
+        
+        fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.lookupSchema()).result(ITest).count(0, None)
+        self.expect(fti_mock.behaviors).result([ITestBehavior.__identifier__]).count(0, None)
+        
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        item = Item('item')
+        item.portal_type = 'testtype'
+        item.title = u"Test title"
+        item.foo = 10
+        item.bar = 'xyz'
+        item.body = u"<p>body</p>"
+        
+        writefile = DefaultWriteFile(item)
+        
+        body = """\
+title: Test title
+foo: 10
+bar: xyz
+Portal-Type: testtype
+
+<p>body</p>"""
+        
+        initializeObjectFromSchemata_mock = self.mocker.replace('plone.rfc822.initializeObjectFromSchemata')
+        self.expect(initializeObjectFromSchemata_mock(item, ANY, self.match_type(Message), 'latin1'))
+        
+        self.replay()
+        
+        writefile.mimeType = 'text/plain'
+        self.assertEquals('text/plain', writefile.mimeType)
+        
+        writefile.encoding = 'latin1'
+        self.assertEquals('latin1', writefile.encoding)
+        
+        writefile.filename = 'test.html'
+        self.assertEquals('test.html', writefile.filename)
+        
+        self.assertEquals(False, writefile.closed)
+        self.assertEquals(0, writefile.tell())
+        
+        writefile.writelines(['one\n', 'two'])
+        self.assertEquals(7, writefile.tell())
+        
+        self.assertRaises(NotImplementedError, writefile.truncate)
+        
+        writefile.truncate(0)
+        self.assertEquals(0, writefile.tell())
+        
+        self.assertRaises(NotImplementedError, writefile.seek, 10)
+        
+        writefile.write(body[:10])
+        writefile.write(body[10:])
+        writefile.close()
+        
+        self.assertEquals(True, writefile.closed)
+        self.assertEquals(69, writefile.tell())
+        
 
 class TestDAVTraversal(MockTestCase):
     
