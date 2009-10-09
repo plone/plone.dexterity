@@ -3,7 +3,11 @@ import unittest
 from StringIO import StringIO
 from plone.mocktestcase import MockTestCase
 
+from OFS.Folder import Folder
+from OFS.SimpleItem import SimpleItem
 from zExceptions import Unauthorized, MethodNotAllowed, Forbidden
+
+from webdav.NullResource import NullResource
 
 from plone.dexterity.content import Item, Container
 from zope.publisher.browser import TestRequest
@@ -766,10 +770,42 @@ class TestFileRepresentation(MockTestCase):
 class TestDAVTraversal(MockTestCase):
     
     def test_no_acquire_dav(self):
-        pass
+        container = Container('container')
+        
+        outer = Folder('outer')
+        outer._setOb('item', SimpleItem('item'))
+        outer._setOb('container', container)
+        
+        request = DAVTestRequest(environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'PUT'})
+        request.maybe_webdav_client = True
+        
+        traversal = DexterityPublishTraverse(container.__of__(outer), request)
+        
+        self.replay()
+        
+        r = traversal.publishTraverse(request, 'item')
+        
+        self.failUnless(isinstance(r, NullResource))
+        self.assertEquals(container, r.aq_parent)
     
     def test_acquire_without_dav(self):
-        pass
+        container = Container('container')
+        
+        outer = Folder('outer')
+        outer._setOb('item', SimpleItem('item'))
+        outer._setOb('container', container)
+        
+        request = DAVTestRequest(environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'GET'})
+        request.maybe_webdav_client = False
+        
+        traversal = DexterityPublishTraverse(container.__of__(outer), request)
+        
+        self.replay()
+        
+        r = traversal.publishTraverse(request, 'item')
+        
+        self.assertEquals(r.aq_base, outer['item'].aq_base)
+        self.assertEquals(container, r.aq_parent)
     
     def test_folder_data_traversal_dav(self):
         container = Container('test')
