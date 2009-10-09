@@ -14,6 +14,7 @@ from zope.publisher.browser import TestRequest
 
 from zope.interface import implements
 from zope.interface.interfaces import IInterface
+from zope.component.interfaces import IFactory
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.size.interfaces import ISized
 
@@ -743,17 +744,163 @@ class TestFileRepresentation(MockTestCase):
         self.assertRaises(Unauthorized, factory, '.DS_Store', 'application/octet-stream', 'xxx')
         self.assertRaises(Unauthorized, factory, '._test', 'application/octet-stream', 'xxx')
     
+    
+    def test_file_factory_no_ctr(self):
+        container = Container('container')
+        
+        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
+        self.expect(getToolByName_mock(container, 'content_type_registry', None)).result(None)
+        
+        factory = DefaultFileFactory(container)
+        
+        self.replay()
+        
+        self.assertEquals(None, factory('test.html', 'text/html', '<html />'))
+    
     def test_file_factory_no_fti(self):
-        pass
+        container = Container('container')
+        
+        ctr_mock = self.mocker.mock()
+        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
+        
+        self.expect(getToolByName_mock(container, 'content_type_registry', None)).result(ctr_mock)
+        self.expect(ctr_mock.findTypeName('test.html', 'text/html', '<html />')).result(None)
+        
+        factory = DefaultFileFactory(container)
+        
+        self.replay()
+        
+        self.assertEquals(None, factory('test.html', 'text/html', '<html />'))    
     
     def test_file_factory_not_allowed(self):
-        pass
+        container = Container('container')
+        container.portal_type = 'containertype'
+        
+        child_fti_mock = self.mocker.mock()
+        container_fti_mock = self.mocker.mock()
+        ctr_mock = self.mocker.mock()
+        pt_mock = self.mocker.mock()
+        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
+        
+        self.expect(getToolByName_mock(container, 'content_type_registry', None)).result(ctr_mock)
+        self.expect(getToolByName_mock(container, 'portal_types')).result(pt_mock)
+        
+        self.expect(ctr_mock.findTypeName('test.html', 'text/html', '<html />')).result('childtype')
+        
+        self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
+        self.expect(pt_mock.getTypeInfo(container)).result(container_fti_mock)
+        
+        self.expect(container_fti_mock.allowType('childtype')).result(False)
+        
+        factory = DefaultFileFactory(container)
+        
+        self.replay()
+        
+        self.assertRaises(Unauthorized, factory, 'test.html', 'text/html', '<html />')
+    
+    def test_file_factory_construction_not_allowed(self):
+        container = Container('container')
+        container.portal_type = 'containertype'
+        
+        child_fti_mock = self.mocker.mock()
+        container_fti_mock = self.mocker.mock()
+        ctr_mock = self.mocker.mock()
+        pt_mock = self.mocker.mock()
+        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
+        
+        self.expect(getToolByName_mock(container, 'content_type_registry', None)).result(ctr_mock)
+        self.expect(getToolByName_mock(container, 'portal_types')).result(pt_mock)
+        
+        self.expect(ctr_mock.findTypeName('test.html', 'text/html', '<html />')).result('childtype')
+        
+        self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
+        self.expect(pt_mock.getTypeInfo(container)).result(container_fti_mock)
+        
+        self.expect(container_fti_mock.allowType('childtype')).result(True)
+        self.expect(child_fti_mock.isConstructionAllowed(container)).result(False)
+        
+        factory = DefaultFileFactory(container)
+        
+        self.replay()
+        
+        self.assertRaises(Unauthorized, factory, 'test.html', 'text/html', '<html />')
     
     def test_file_factory_factory_method(self):
-        pass
+        
+        container_mock = self.mocker.mock()
+        child_fti_mock = self.mocker.mock()
+        container_fti_mock = self.mocker.mock()
+        ctr_mock = self.mocker.mock()
+        pt_mock = self.mocker.mock()
+        factory_method_mock = self.mocker.mock()
+        
+        result_dummy = self.create_dummy()
+        
+        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
+        
+        self.expect(getToolByName_mock(container_mock, 'content_type_registry', None)).result(ctr_mock)
+        self.expect(getToolByName_mock(container_mock, 'portal_types')).result(pt_mock)
+        
+        self.expect(ctr_mock.findTypeName('test.html', 'text/html', '<html />')).result('childtype')
+        
+        self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
+        self.expect(pt_mock.getTypeInfo(container_mock)).result(container_fti_mock)
+        
+        self.expect(container_fti_mock.allowType('childtype')).result(True)
+        self.expect(child_fti_mock.isConstructionAllowed(container_mock)).result(True)
+        
+        self.expect(child_fti_mock.product).result('FooProduct')
+        self.expect(child_fti_mock._getFactoryMethod(container_mock, check_security=0)).result(factory_method_mock)
+        
+        self.expect(factory_method_mock.isDocTemp).result(0)
+        self.expect(factory_method_mock('test.html')).result('test-1.html')
+        
+        self.expect(container_mock._getOb('test-1.html')).result(result_dummy)
+        self.expect(child_fti_mock._finishConstruction(result_dummy))
+        self.expect(container_mock._delObject('test-1.html'))
+
+        factory = DefaultFileFactory(container_mock)
+        
+        self.replay()
+        
+        self.assertEquals(result_dummy, factory('test.html', 'text/html', '<html />'))
     
     def test_file_factory_factory_utility(self):
-        pass
+        container_mock = self.mocker.mock()
+        child_fti_mock = self.mocker.mock()
+        container_fti_mock = self.mocker.mock()
+        ctr_mock = self.mocker.mock()
+        pt_mock = self.mocker.mock()
+        
+        result_dummy = self.create_dummy()
+        
+        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
+        
+        self.expect(getToolByName_mock(container_mock, 'content_type_registry', None)).result(ctr_mock)
+        self.expect(getToolByName_mock(container_mock, 'portal_types')).result(pt_mock)
+        
+        self.expect(ctr_mock.findTypeName('test.html', 'text/html', '<html />')).result('childtype')
+        
+        self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
+        self.expect(pt_mock.getTypeInfo(container_mock)).result(container_fti_mock)
+        
+        self.expect(container_fti_mock.allowType('childtype')).result(True)
+        self.expect(child_fti_mock.isConstructionAllowed(container_mock)).result(True)
+        
+        self.expect(child_fti_mock.product).result(None)
+        self.expect(child_fti_mock.factory).result('childtype-factory')
+        
+        def factory(name):
+            result_dummy._set_name = name
+            return result_dummy
+        self.mock_utility(factory, IFactory, name=u'childtype-factory')
+
+        factory = DefaultFileFactory(container_mock)
+        
+        self.replay()
+        
+        self.assertEquals(result_dummy, factory('test.html', 'text/html', '<html />'))
+        self.assertEquals('test.html', result_dummy._set_name)
     
     def test_readfile_mimetype(self):
         pass

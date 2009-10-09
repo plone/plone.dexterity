@@ -480,7 +480,7 @@ class DefaultFileFactory(object):
             
             # sob, sob...
             obj = aq_base(newObj)
-            self.context._delObject(name)
+            self.context._delObject(newid)
             
         else: # yay
             factory = getUtility(IFactory, targetType.factory)
