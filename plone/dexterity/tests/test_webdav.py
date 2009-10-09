@@ -3,7 +3,7 @@ import unittest
 from StringIO import StringIO
 from plone.mocktestcase import MockTestCase
 
-from zExceptions import MethodNotAllowed
+from zExceptions import Unauthorized, MethodNotAllowed, Forbidden
 
 from plone.dexterity.content import Item, Container
 from zope.publisher.browser import TestRequest
@@ -24,6 +24,14 @@ from ZPublisher.HTTPResponse import HTTPResponse
 
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.filerepresentation import FolderDataResource
+
+from plone.dexterity.filerepresentation import DefaultDirectoryFactory
+from plone.dexterity.filerepresentation import DefaultFileFactory
+
+from plone.dexterity.filerepresentation import DefaultReadFile
+from plone.dexterity.filerepresentation import DefaultWriteFile
+
+from plone.dexterity.browser.traversal import DexterityPublishTraverse
 
 class DAVTestRequest(TestRequest):
     
@@ -709,10 +717,27 @@ The operation succeded.
 class TestFileRepresentation(MockTestCase):
     
     def test_directory_factory(self):
-        pass
+        class TestContainer(Container):
+            
+            def manage_addFolder(self, name):
+                self._added = name
+        
+        container = TestContainer('container')
+        factory = DefaultDirectoryFactory(container)
+        
+        self.replay()
+        
+        factory('foo')
+        self.assertEquals('foo', container._added)
     
     def test_file_factory_finder_cruft(self):
-        pass
+        container = Container('container')
+        factory = DefaultFileFactory(container)
+        
+        self.replay()
+        
+        self.assertRaises(Unauthorized, factory, '.DS_Store', 'application/octet-stream', 'xxx')
+        self.assertRaises(Unauthorized, factory, '._test', 'application/octet-stream', 'xxx')
     
     def test_file_factory_no_fti(self):
         pass
@@ -747,16 +772,79 @@ class TestDAVTraversal(MockTestCase):
         pass
     
     def test_folder_data_traversal_dav(self):
-        pass
+        container = Container('test')
+        request = DAVTestRequest(environ={'URL': 'http://site/test'})
+        request.maybe_webdav_client = True
+        
+        traversal = DexterityPublishTraverse(container, request)
+        
+        self.replay()
+        
+        r = traversal.publishTraverse(request, DAV_FOLDER_DATA_ID)
+        
+        self.assertEquals(DAV_FOLDER_DATA_ID, r.__name__)
+        self.assertEquals(container, r.__parent__)
+        self.assertEquals(container, r.aq_parent)
+        
     
     def test_folder_data_traversal_without_dav(self):
-        pass
+        container = Container('test')
+        request = DAVTestRequest(environ={'URL': 'http://site/test'})
+        request.maybe_webdav_client = False
+        
+        traversal = DexterityPublishTraverse(container, request)
+        
+        self.replay()
+        
+        self.assertRaises(Forbidden, traversal.publishTraverse, request, DAV_FOLDER_DATA_ID)
     
     def test_browser_default_dav(self):
-        pass
+        class TestContainer(Container):
+            
+            def __browser_default__(self, request):
+                return self, ('foo',)
+        
+        container = TestContainer('container')
+        request = DAVTestRequest(environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'PROPFIND'})
+        request.maybe_webdav_client = True
+        
+        traversal = DexterityPublishTraverse(container, request)
+        
+        self.replay()
+        
+        self.assertEquals((container, (),), traversal.browserDefault(request))
+    
+    def test_browser_default_dav_get(self):
+        class TestContainer(Container):
+            
+            def __browser_default__(self, request):
+                return self, ('foo',)
+        
+        container = TestContainer('container')
+        request = DAVTestRequest(environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'GET'})
+        request.maybe_webdav_client = True
+        
+        traversal = DexterityPublishTraverse(container, request)
+        
+        self.replay()
+        
+        self.assertEquals((container, ('foo',),), traversal.browserDefault(request))
     
     def test_browser_default_without_dav(self):
-        pass
+        class TestContainer(Container):
+            
+            def __browser_default__(self, request):
+                return self, ('foo',)
+        
+        container = TestContainer('container')
+        request = DAVTestRequest(environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'PROPFIND'})
+        request.maybe_webdav_client = False
+        
+        traversal = DexterityPublishTraverse(container, request)
+        
+        self.replay()
+        
+        self.assertEquals((container, ('foo',),), traversal.browserDefault(request))
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
