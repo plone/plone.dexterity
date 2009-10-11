@@ -8,14 +8,14 @@ from email.Message import Message
 from rwproperty import getproperty, setproperty
 
 from zope.interface import implements
-from zope.component import adapts, getUtility
+from zope.component import adapts
 from zope.schema import getFieldsInOrder
 from zope.event import notify
 from zope.lifecycleevent import modified, ObjectCreatedEvent
 
-from zope.component.interfaces import IFactory
 from zope.interface.interfaces import IInterface
 from zope.size.interfaces import ISized
+from zope.component import createObject
 
 from Acquisition import aq_base, Implicit
 from zExceptions import Unauthorized, MethodNotAllowed
@@ -449,42 +449,36 @@ class DefaultFileFactory(object):
         if targetType is None:
             return # fall back on default
         
-        contextType = typesTool.getTypeInfo(self.context)
-        if contextType is not None:
-            if not contextType.allowType(typeObjectName):
-                raise Unauthorized("Creating a %s object here is not allowed" % typeObjectName)
-        
-        if not targetType.isConstructionAllowed(self.context):
-            raise Unauthorized("Creating a %s object here is not allowed" % typeObjectName)
-        
         # There are two possibilities here: either we have a new-style
         # IFactory utility, in which case all is good. We can call the
         # factory and return the object. Or, we have an old style factory
-        # method which will call _setObject() magically. This results in all
-        # sorts of events being fired, and then we have to delete the object,
-        # before re-creating it immediately afterwards in NullResource.PUT().
-        # Naturally this sucks. At least, let's do the sane thing for content
-        # with new-style factories.
+        # method which will call _setObject() automatically. This results in
+        # all sorts of events being fired, and then we have to delete the
+        # object, before re-creating it immediately afterwards in
+        # NullResource.PUT(). Naturally this sucks. At least, let's do the
+        # sane thing for content with new-style factories.
         
         if targetType.product: # boo :(
-            m = targetType._getFactoryMethod(self.context, check_security=0)
-            if getattr(aq_base(m), 'isDocTemp', 0):
-                newid = m(m.aq_parent, self.context.REQUEST, id=name)
-            else:
-                newid = m(name)
-            # allow factory to munge ID
-            newid = newid or name
             
-            newObj = self.context._getOb(newid)
-            targetType._finishConstruction(newObj)
-            
-            # sob, sob...
-            obj = aq_base(newObj)
-            self.context._delObject(newid)
+            newName = self.context.invokeFactory(typeObjectName, name)
+            obj = aq_base(self.context._getOb(newName))
+            self.context._delObject(newName)
+            return obj
             
         else: # yay
-            factory = getUtility(IFactory, targetType.factory)
-            obj = factory(name)
+            
+            contextType = typesTool.getTypeInfo(self.context)
+            if contextType is not None:
+                if not contextType.allowType(typeObjectName):
+                    raise Unauthorized("Creating a %s object here is not allowed" % typeObjectName)
+            
+            if not targetType.isConstructionAllowed(self.context):
+                raise Unauthorized("Creating a %s object here is not allowed" % typeObjectName)
+            
+            obj = createObject(targetType.factory)
+            
+            if hasattr(obj, '_setPortalTypeName'):
+                obj._setPortalTypeName(targetType.getId())
             
             # we fire this event here, because NullResource.PUT will now go
             # and set the object on the parent. The correct sequence of
@@ -492,10 +486,7 @@ class DefaultFileFactory(object):
             # get object created -> object added -> object modified.
             notify(ObjectCreatedEvent(obj))
         
-        # mark object so that we can call _finishConstruction later
-        
         return obj
-
 
 class ReadFileBase(object):
     """Convenience base class for read files which delegate to another stream

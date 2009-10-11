@@ -101,8 +101,6 @@ class TestAddView(MockTestCase):
         self.expect(obj.id).result(u"newid")
         self.expect(obj.portal_type).result("testtype").count(0,None)
         
-        self.expect(obj.notifyWorkflowCreated())
-
         # New object's FTI
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
         self.expect(fti_mock.isConstructionAllowed(container)).result(True)

@@ -191,6 +191,14 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
         self.id = value
     __name__ = property(_get__name__, _set__name__)
 
+    # XXX: This method and the finishConstruction() event handler below can go
+    # away once we depend on CMF 2.2. It is necessary because CMF 2.1 will
+    # call this method if invokeFactory() was used, rather than in the event
+    # handler for IObjectAddedEvent.
+
+    def notifyWorkflowCreated(self):
+        super(DexterityContent, self).notifyWorkflowCreated()
+        self._workflowInitialized = True
 
 # XXX: It'd be nice to reduce the number of base classes here
 class Item(BrowserDefaultMixin, DexterityContent):
@@ -260,3 +268,14 @@ def reindexOnModify(content, event):
     # not match index names.
     
     content.reindexObject()
+
+# XXX: This can go away when we use CMF 2.2, where handleContentishEvent
+# takes care of this there.
+def finishConstruction(content, event):
+    """When an object is added to a container, make sure the workflow tool
+    is adequately aware.
+    """
+    
+    if not getattr(content, '_workflowInitialized', False):
+        content.notifyWorkflowCreated()
+        content.reindexObjectSecurity()

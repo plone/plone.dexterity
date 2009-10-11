@@ -141,14 +141,8 @@ def addContentToContainer(container, object, checkConstraints=True):
     name = INameChooser(container).chooseName(None, object)
     object.id = name
 
-    new_name = container._setObject(name, object)
-
-    # XXX: When we move to CMF 2.2, an event handler will take care of this
-    wrapped_object = container._getOb(new_name)
-    wrapped_object.notifyWorkflowCreated()
-
-    return wrapped_object
-
+    newName = container._setObject(name, object)
+    return container._getOb(newName)
 
 def createContentInContainer(container, portal_type, checkConstraints=True, **kw):
     content = createContent(portal_type, **kw)

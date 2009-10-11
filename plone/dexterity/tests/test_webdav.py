@@ -811,6 +811,8 @@ class TestFileRepresentation(MockTestCase):
         self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
         self.expect(pt_mock.getTypeInfo(container)).result(container_fti_mock)
         
+        self.expect(child_fti_mock.product).result(None)
+        
         self.expect(container_fti_mock.allowType('childtype')).result(False)
         
         factory = DefaultFileFactory(container)
@@ -836,6 +838,8 @@ class TestFileRepresentation(MockTestCase):
         
         self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
         self.expect(pt_mock.getTypeInfo(container)).result(container_fti_mock)
+        
+        self.expect(child_fti_mock.product).result(None)
         
         self.expect(container_fti_mock.allowType('childtype')).result(True)
         self.expect(child_fti_mock.isConstructionAllowed(container)).result(False)
@@ -865,19 +869,11 @@ class TestFileRepresentation(MockTestCase):
         self.expect(ctr_mock.findTypeName('test.html', 'text/html', '<html />')).result('childtype')
         
         self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
-        self.expect(pt_mock.getTypeInfo(container_mock)).result(container_fti_mock)
-        
-        self.expect(container_fti_mock.allowType('childtype')).result(True)
-        self.expect(child_fti_mock.isConstructionAllowed(container_mock)).result(True)
         
         self.expect(child_fti_mock.product).result('FooProduct')
-        self.expect(child_fti_mock._getFactoryMethod(container_mock, check_security=0)).result(factory_method_mock)
-        
-        self.expect(factory_method_mock.isDocTemp).result(0)
-        self.expect(factory_method_mock('test.html')).result('test-1.html')
+        self.expect(container_mock.invokeFactory('childtype', 'test.html')).result('test-1.html')
         
         self.expect(container_mock._getOb('test-1.html')).result(result_dummy)
-        self.expect(child_fti_mock._finishConstruction(result_dummy))
         self.expect(container_mock._delObject('test-1.html'))
 
         factory = DefaultFileFactory(container_mock)
@@ -911,8 +907,7 @@ class TestFileRepresentation(MockTestCase):
         self.expect(child_fti_mock.product).result(None)
         self.expect(child_fti_mock.factory).result('childtype-factory')
         
-        def factory(name):
-            result_dummy._set_name = name
+        def factory(*args, **kwargs):
             return result_dummy
         self.mock_utility(factory, IFactory, name=u'childtype-factory')
 
@@ -921,7 +916,6 @@ class TestFileRepresentation(MockTestCase):
         self.replay()
         
         self.assertEquals(result_dummy, factory('test.html', 'text/html', '<html />'))
-        self.assertEquals('test.html', result_dummy._set_name)
     
     def test_readfile_mimetype_no_message_no_fields(self):
         
