@@ -717,6 +717,7 @@ class DefaultWriteFile(object):
     Uses RFC822 marshaler.
     """
     
+    implements(IRawWriteFile)
     adapts(IDexterityContent)
     
     def __init__(self, context):
