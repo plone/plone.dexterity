@@ -218,7 +218,7 @@ class FolderDataResource(Implicit, Resource):
     treated as if it were a request against the parent object, treating it
     as a resource (file) rather than a collection (folder).
     """
-
+    
     __dav_collection__ = 0
     
     def __init__(self, name, parent):
@@ -497,65 +497,34 @@ class DefaultFileFactory(object):
         return obj
 
 
-class DefaultReadFile(object):
-    """IRawReadFile adapter for Dexterity objects.
+class ReadFileBase(object):
+    """Convenience base class for read files which delegate to another stream
+    type (e.g. a temporary file or StringIO)
     
-    Uses RFC822 marshaler.
-    
-    This is also marked as an IStreamIterator, which means that it is safe
-    to return it to the publisher directly. In particular, the size() method
-    will return an accurate file size.
+    Override _getStream() and any required methods.
     """
     
-    # Stupid workaround for the fact that on Zope < 2.12, we don't have
-    # a real interface
-    if IInterface.providedBy(IStreamIterator):
-        implements(IRawReadFile, IStreamIterator)
-    else:
-        implements(IRawReadFile)
-        __implements__ = (IStreamIterator,)        
-    
-    adapts(IDexterityContent)
+    implements(IRawReadFile)
     
     def __init__(self, context):
         self.context = context
-        self._haveMessage = False
+        self._size = 0
     
-    @property
-    def mimeType(self):
-        if not self._haveMessage:
-            foundOne = False
-            for schema in iterSchemata(self.context):
-                for name, field in getFieldsInOrder(schema):
-                    if IPrimaryField.providedBy(field):
-                        if foundOne:
-                            # more than one primary field
-                            return 'message/rfc822'
-                        else:
-                            foundOne = True
-            # zero or one primary fields
-            return 'text/plain'
-        if not self._getMessage().is_multipart():
-            return 'text/plain'
-        else:
-            return 'message/rfc822'
-    
-    @property
-    def encoding(self):
-        return self._getMessage().get_charset() or 'utf-8'
+    mimeType = None
+    encoding = 'utf-8'
+    name = None
     
     @property
     def closed(self):
         return self._getStream().closed
     
-    @property
-    def name(self):
-        return self._getMessage().get_filename(None)
-    
     def size(self):
-        # construct the stream if necessary
-        self._getStream()
-        return self._size
+        stream = self._getStream()
+        pos = stream.tell()
+        stream.seek(0, 2)
+        size = stream.tell()
+        stream.seek(pos)
+        return size
     
     def seek(self, offset, whence=None):
         if whence is not None:
@@ -593,6 +562,65 @@ class DefaultReadFile(object):
     def next(self):
         return self._getStream().next()
     
+    def _getStream(self):
+        raise NotImplementedError("Subclass and override this _getStream()")
+
+
+class DefaultReadFile(ReadFileBase):
+    """IRawReadFile adapter for Dexterity objects.
+    
+    Uses RFC822 marshaler.
+    
+    This is also marked as an IStreamIterator, which means that it is safe
+    to return it to the publisher directly. In particular, the size() method
+    will return an accurate file size.
+    """
+    
+    # Stupid workaround for the fact that on Zope < 2.12, we don't have
+    # a real interface
+    if IInterface.providedBy(IStreamIterator):
+        implements(IStreamIterator)
+    else:
+        __implements__ = (IStreamIterator,)        
+    
+    adapts(IDexterityContent)
+    
+    def __init__(self, context):
+        self.context = context
+        self._haveMessage = False
+    
+    @property
+    def mimeType(self):
+        if not self._haveMessage:
+            foundOne = False
+            for schema in iterSchemata(self.context):
+                for name, field in getFieldsInOrder(schema):
+                    if IPrimaryField.providedBy(field):
+                        if foundOne:
+                            # more than one primary field
+                            return 'message/rfc822'
+                        else:
+                            foundOne = True
+            # zero or one primary fields
+            return 'text/plain'
+        if not self._getMessage().is_multipart():
+            return 'text/plain'
+        else:
+            return 'message/rfc822'
+    
+    @property
+    def encoding(self):
+        return self._getMessage().get_charset() or 'utf-8'
+    
+    @property
+    def name(self):
+        return self._getMessage().get_filename(None)
+    
+    def size(self):
+        # construct the stream if necessary
+        self._getStream()
+        return self._size
+    
     # internal helper methods
     
     @memoize
@@ -621,13 +649,73 @@ class DefaultReadFile(object):
         return out
 
 
-class DefaultWriteFile(object):
+class WriteFileBase(object):
+    """Convenience base class for write files which delegate to another
+    stream, e.g. a file or StringIO.
+    
+    Implement _getStream() and override any methods required.
+    """
+    
+    implements(IRawWriteFile)
+    
+    def __init__(self, context):
+        self.context = context
+        
+        self._closed = False
+        self._written = 0
+        
+    mimeType = None
+    encoding = 'utf-8'
+    name = None
+    
+    @property
+    def closed(self):
+        return self._closed
+    
+    def seek(self, offset, whence=None):
+        if whence is not None:
+            self._getStream().seek(offset, whence)
+        else:
+            self._getStream().seek(offset)
+    
+    def tell(self):
+        return self._getStream().tell()
+    
+    def close(self):
+        self._closed = True
+        self._getStream().close()
+    
+    def write(self, data):
+        if self._closed:
+            raise ValueError("File is closed")
+        self._written += len(data)
+        self._getStream().write(data)
+        
+    def writelines(self, sequence):
+        for item in sequence:
+            self.write(item)
+    
+    def truncate(self, size=None):
+        if (size is None and self._written != 0) and size != 0:
+            raise NotImplementedError("The 'size' argument to truncate() must be 0 - partial truncation is not supported")
+        if self._closed:
+            raise ValueError("File is closed")
+        self._parser = FeedParser()
+        self._written = 0
+    
+    def flush(self):
+        self._getStream().flush()
+    
+    def _getStream(self):
+        raise NotImplementedError("Subclass and override this _getStream()")
+
+
+class DefaultWriteFile(WriteFileBase):
     """IRawWriteFile file adapter for Dexterity objects.
     
     Uses RFC822 marshaler.
     """
     
-    implements(IRawWriteFile)
     adapts(IDexterityContent)
     
     def __init__(self, context):
@@ -673,6 +761,7 @@ class DefaultWriteFile(object):
         if self._message is not None:
             return self._message.get_filename(self._name)
         return self._name
+    
     @setproperty
     def name(self, value):
         self._name = value

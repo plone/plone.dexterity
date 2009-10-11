@@ -2,8 +2,7 @@ WebDAV notes
 ============
 
 WebDAV uses a number of HTTP verbs to perform different operations. The
-following notes describe how they are implemented in Zope 2, CMF and
-Dexterity.
+following notes describe how they are implemented in Zope 2 and Dexterity.
 
 Background
 ----------
@@ -11,17 +10,15 @@ Background
 Basic WebDAV support can be found in the ``webdav`` package. This defines two
 base classes, ``webdav.Resource.Resource`` and
 ``webdav.Collection.Collection``.  ``Collection`` extends ``Resource``. These
-are mixed into non-folderish and folderish content objects, respectively.
+are mixed into item and container content objects, respectively.
 
 The webdav package also defines the ``NullResource`` object. A
 ``NullResource`` is a kind of placeholder, which supports the HTTP verbs HEAD,
 PUT, and MKCOL.
 
-``OFS.ObjectManager.ObjectManager`` will return a ``NullResource`` if it
-cannot find the requested object and the request is a WebDAV request.
-Similarly, types which define an ``index_html()`` method usually return a
-``NullResource`` for WebDAV requests if they also want to allow WebDAV upload
-of an object called ``index_html``.
+Contains based on ``ObjectManager`` (including those in Dexterity) will return
+a ``NullResource`` if they cannot find the requested object and the request is
+a WebDAV request.
 
 The ``zope.filerepresentation`` package defines a number of interfaces which
 are intended to help manage file representations of content objects. Dexterity
@@ -47,18 +44,27 @@ GET
 A GET request retrieves headers and body.
 
 Zope calls ``manage_DAVget()`` to retrieve the body. The default
-implementation calls ``manage_FTPput()``.
+implementation calls ``manage_FTPget()``.
 
-In Archetypes, the default implementation marshals all Archetypes fields to
-RFC 2822 headers, except for the field marked as the primary field, which is
-marshaled to a string and returned as the body.
+In Dexterity, ``manage_FTPget()`` adapts ``self`` to ``IRawReadFile`` and uses
+its ``mimeType`` and ``encoding`` properties to set the ``Content-Type``
+header, and its ``size()`` method to set ``Content-Length``.
 
-In Dexterity, ``manage_FTPget()`` adapts ``self`` to ``IReadFile`` and calls
-its ``read()`` method. The default ``IReadFile`` implementation returns an
+If the ``IRawReadFile`` adapter is also an ``IStreamIterator``, it will be
+returned for the publisher to consume directly. This provides for efficient
+serving of large files, although it does require that the file can be read
+in its entirety with the ZODB connection closed. Dexterity solves this problem
+by writing the file content to a temporary file on the server.
+
+If the ``IRawReadFile`` adapter is not a stream iterator, its contents are
+returned as a string, by calling its ``read()`` method. Note that this loads
+the entire file contents into memory on the server.
+
+The default ``IRawReadFile`` implementation for Dexterity content returns an
 RFC 2822 style message document. Most fields on the object and any enabled
 behaviours will be turned into UTF-8 encoded headers. The primary field, if
 any, will be returned in the body, also most likely encoded as an UTF-8
-encoded string.
+encoded string. Binary data may be base64 encoded instead.
 
 A type which wishes to override this behaviour can provide its own adapter.
 For example, an image type could return the raw image data.
@@ -73,36 +79,39 @@ By default ``Resource.PUT()`` fails with 405 Method Not Allowed. That is, it
 is not by default possible to PUT to a resource that already exists. The same
 is true of ``Collection.PUT()``.
 
-In Archetypes, ``PUT()`` is overridden to read the ``BODYFILE`` or ``BODY``
-request variable if present, demarshal the data, update the object, re-index
-it, and fire an event.
+In Dexterity, the ``PUT()`` method is overridden to adapt self to 
+``zope.filerepresentation.IRawWriteFile``, and call its ``write()`` method one
+or more times, writing the contents of the request body, before calling
+``close()``. The ``mimeType`` and ``encoding`` properties will also be set
+based on the value of the ``Content-Type`` header, if available.
 
-In CMF, classes like ``Document`` will override this method for type-specific
-purposes.
+The default implementation of ``IRawWriteFile`` for Dexterity objects assumes
+the input is an RFC 2822 style message document. It will read header values
+and use them to set fields on the object or in behaviours, and similarly read
+the body and update the corresponding primary field.
 
 ``NullResource.PUT()`` is responsible for creating a new content object and
-initialising it (remember that a ``NullResource`` may be returned if a WebDAV
+initialising it (recall that a ``NullResource`` may be returned if a WebDAV
 request attempts to traverse to an object which does not exist). It sniffs the
 content type and body from the request, and then looks for the
 ``PUT_factory()`` method on the parent folder.
 
-``Products.CMFCore.PortalFolder.PortalFolderBase`` implements
-``PUT_factory()`` to look up a type name in the ``content_type_registry`` tool
-based on the content type, and then calls ``invokeFactory()`` to instantiate
-the object. The object's ``PUT()`` method is then called to update it.
-
-In Dexterity, ``PUT_factory()`` is overridden to look up an ``IFileFactory``
+In Dexterity, ``PUT_factory()`` is implemented to look up an ``IFileFactory``
 adapter on self and use it to create the empty file. The default
-implementation uses the same algorithm as CMF's default ``PUT_factory``.
+implementation will use the ``content_type_registry`` tool to determine a
+type name for the request (e.g. based on its extension or MIME type), and
+then construct an instance of that type.
 
-Furthermore, in Dexterity, the ``PUT()`` method is overridden to adapt self to 
-``zope.filerepresentation.IWriteFile``, and call its write() method with the
-value of 'BODYFILE' or 'BODY'.
+Once an instance has been constructed, the object will be initialised by
+calling its ``PUT()`` method, as above.
 
-The default implementation of ``IWriteFile`` for Dexterity objects assumes the
-input is an RFC 2822 style message document. It will read header values and
-use them to set fields on the object or in behaviours, and similarly read the
-body and update the corresponding primary field.
+Note that when content is created via WebDAV, an ``IObjectCreatedEvent`` will
+be fired from the ``IFileFactory`` adapter, just after the object has been
+constructed. At this point, none of its values will be set. Subsequently,
+at the end of the ``PUT()`` method, an ``IObjectModifiedEvent`` will be fired.
+This differs from the event sequence of an object created through the web.
+Here, only an ``IObjectCreatedEvent`` is fired, and only *after* the object
+has been fully initialised.
 
 DELETE
 ------
@@ -160,13 +169,18 @@ content object). In particular:
 * ``resourcetype`` returns an empty string or <n:collection/>
 * ``getlastmodified`` returns the ZODB modification time
 * ``getcontenttype`` delegates to the ``content_type()`` method, falling
-  back on the ``default_content_type()`` method.
-* ``getcontentlength`` delegates to the ``get_size()`` method
+  back on the ``default_content_type()`` method. In Dexterity,
+  ``content_type()`` is implemented to look up the ``IRawReadFile`` adapter
+  on the context and return the value of its ``mimeType`` property.
+* ``getcontentlength`` delegates to the ``get_size()`` method (which is also
+  used for the "size" column in Plone folder listings). In Dexterity,
+  this looks up a ``zope.size.interfaces.ISized`` adapter on the object and
+  calls ``sizeForSorting()``. If this returns a unit of ``'bytes'``, the
+  value portion is used. Otherwise, a size of 0 is returned.
 * ``source`` returns a link to ``/document_src``, if that attribute exists
 * ``supportedlock`` indicates whether ``IWriteLock`` is supported by the
   content item
 * ``lockdiscovery`` returns information about any active locks
-
 
 Other properties in this and any other property sheets are returned as stored
 when requested.
@@ -185,7 +199,6 @@ A PROPPATCH request is used to update the properties on an existing object.
 sheets as ``PROPFIND()``. It uses the ``PropertySheet`` API to add or update
 properties as appropriate.
 
-
 MKCOL
 -----
 
@@ -203,17 +216,10 @@ exist, that the parent is indeed a collection (folderish item), and that the
 parent is not locked, it calls the ``MKCOL_handler()`` method on the parent
 folder.
 
-In CMF's ``PortalFolderBase``, this method is implemented to call
-``manage_addFolder()``. By default, this will create a new object of type
-``Folder`` via ``invokeFactory()``, but it is possible to specify an
-alternate factory method via the ``mkdir`` method alias, if it exists.
-
-Archetypes' ``BaseFolder`` extends ``manage_addFolder()`` to also unmark the
-Archetypes creation flag and fire an event.
-
 In Dexterity, ``MKCOL()_handler`` is overridden to adapt self to an
 ``IDirectoryFactory`` from ``zope.filerepresentation`` and use this to create
-a directory.
+a directory. The default implementation simply calls ``manage_addFolder()``
+on the parent. This will create an instance of the ``Folder`` type.
 
 COPY
 ----
@@ -230,7 +236,6 @@ A MOVE request is used to relocate or rename a resource.
 
 ``Resource.MOVE()`` implements this operation using the standard Zope content
 object move semantics.
-
 
 LOCK
 ----
@@ -262,3 +267,20 @@ An UNLOCK request is used to unlock a locked object.
 
 ``LockNullResource.UNLOCK()`` handles unlocking of a ``LockNullResource``.
 This deletes the ``LockNullResource`` object from the parent container.
+
+Fields on container objects
+---------------------------
+
+When browsing content via WebDAV, a container object (folderish item) will
+appear as a folder. Most likely, this object will also have content in the
+form of schema fields. To make this accessible, Dexterity containers expose
+a pseudo-file with the name '_data', by injecting this into the return value
+of ``listDAVObjects()`` and adding a special traversal hook to allow its
+contents to be retrieved.
+
+This file supports HEAD, GET, PUT, LOCK, UNLOCK, PROPFIND and PROPPATCH
+requests (an error will be raised if the user attempts to rename, copy, move
+or delete it). These operate on the container object, obviously. For example,
+when the data object is updated via a PUT request, the ``PUT()`` method on
+the container is called, by default delegating to an ``IRawWriteFile`` adapter
+on the container.
