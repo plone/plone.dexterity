@@ -696,11 +696,12 @@ class WriteFileBase(object):
             self.write(item)
     
     def truncate(self, size=None):
-        if (size is None and self._written != 0) and size != 0:
-            raise NotImplementedError("The 'size' argument to truncate() must be 0 - partial truncation is not supported")
         if self._closed:
             raise ValueError("File is closed")
-        self._parser = FeedParser()
+        if size is not None:
+            self._getStream().truncate(size)
+        else:
+            self._getStream().truncate()
         self._written = 0
     
     def flush(self):
@@ -710,7 +711,7 @@ class WriteFileBase(object):
         raise NotImplementedError("Subclass and override this _getStream()")
 
 
-class DefaultWriteFile(WriteFileBase):
+class DefaultWriteFile(object):
     """IRawWriteFile file adapter for Dexterity objects.
     
     Uses RFC822 marshaler.
