@@ -165,6 +165,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
     
     # portal_type is set by the add view and/or factory
     portal_type = None
+
+    # description should always be a string
+    description = u''
     
     def __getattr__(self, name):
         
