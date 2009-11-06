@@ -43,83 +43,87 @@ class DexterityFTIModificationDescription(object):
         self.attribute = attribute
         self.oldValue = oldValue
 
-class AddViewActionCompat(object):
-    """Mixin class for forward compatibility with CMF trunk, where add views
-    are kept as actions in the FTI
-    
-    NOTE: We likely need to remove this when we move to CMF 2.2
-    """
-    
-    implements(IAction)
-    
-    add_view_expr = ''
-    
-    #
-    #   'IAction' interface methods
-    
-    # BBB support for action interface export
-    def getMapping(self):
-        """ Get a mapping of this object's data. Used for export/import.
+# XXX: Backport from CMF 2.2 - enabled only when we are on CMF 2.1
+
+if hasattr(base.DynamicViewTypeInformation, 'getInfoData'):
+    class AddViewActionCompat(object):
+        pass
+else:
+    class AddViewActionCompat(object):
+        """Mixin class for forward compatibility with CMF 2.2, where add views
+        are kept as actions in the FTI.
         """
+    
+        implements(IAction)
+    
+        add_view_expr = ''
+    
+        #
+        #   'IAction' interface methods
+    
+        # BBB support for action interface export
+        def getMapping(self):
+            """ Get a mapping of this object's data. Used for export/import.
+            """
         
-        permissions = ()
-        permission = queryUtility(IPermission, name=self.add_permission)
-        if permission:
-            permissions = (permission.title,)
+            permissions = ()
+            permission = queryUtility(IPermission, name=self.add_permission)
+            if permission:
+                permissions = (permission.title,)
         
-        return { 'id': self.getId(),
-                 'title': self.Title(),
-                 'description': self.Description(),
-                 'category': 'folder/add',
-                 'condition': getattr(self, 'condition', None) and self.condition.text or '',
-                 'permissions': permissions,
-                 'visible': True,
-                 'action': self.add_view_expr }
+            return { 'id': self.getId(),
+                     'title': self.Title(),
+                     'description': self.Description(),
+                     'category': 'folder/add',
+                     'condition': getattr(self, 'condition', None) and self.condition.text or '',
+                     'permissions': permissions,
+                     'visible': True,
+                     'action': self.add_view_expr }
 
-    def getInfoData(self):
-        """ Get the data needed to create an ActionInfo.
-        """
-        lazy_keys = ['available', 'allowed']
-        lazy_map = {}
+        def getInfoData(self):
+            """ Get the data needed to create an ActionInfo.
+            """
+            lazy_keys = ['available', 'allowed']
+            lazy_map = {}
 
-        lazy_map['id'] = self.getId()
-        lazy_map['category'] = 'folder/add'
-        lazy_map['title'] = self.Title()
-        lazy_map['description'] = self.Description()
-        if self.add_view_expr:
-            lazy_map['url'] = self.add_view_expr_object
-            lazy_keys.append('url')
-        else:
-            lazy_map['url'] = ''
-        if self.content_icon:
-            lazy_map['icon'] = Expression('string:${portal_url}/%s'
-                                          % self.content_icon)
-            lazy_keys.append('icon')
-        else:
-            lazy_map['icon'] = ''
-        lazy_map['visible'] = True
-        lazy_map['available'] = self._checkAvailable
-        lazy_map['allowed'] = self._checkAllowed
+            lazy_map['id'] = self.getId()
+            lazy_map['category'] = 'folder/add'
+            lazy_map['title'] = self.Title()
+            lazy_map['description'] = self.Description()
+            if self.add_view_expr:
+                lazy_map['url'] = self.add_view_expr_object
+                lazy_keys.append('url')
+            else:
+                lazy_map['url'] = ''
+            if self.content_icon:
+                lazy_map['icon'] = Expression('string:${portal_url}/%s'
+                                              % self.content_icon)
+                lazy_keys.append('icon')
+            else:
+                lazy_map['icon'] = ''
+            lazy_map['visible'] = True
+            lazy_map['available'] = self._checkAvailable
+            lazy_map['allowed'] = self._checkAllowed
 
-        return (lazy_map, lazy_keys)
+            return (lazy_map, lazy_keys)
 
-    def _setPropValue(self, id, value):
-        self._wrapperCheck(value)
-        if isinstance(value, list):
-            value = tuple(value)
-        setattr(self, id, value)
-        if value and id.endswith('_expr'):
-            setattr(self, '%s_object' % id, Expression(value))
+        def _setPropValue(self, id, value):
+            self._wrapperCheck(value)
+            if isinstance(value, list):
+                value = tuple(value)
+            setattr(self, id, value)
+            if value and id.endswith('_expr'):
+                setattr(self, '%s_object' % id, Expression(value))
 
-    def _checkAvailable(self, ec):
-        """ Check if the action is available in the current context.
-        """
-        return ec.contexts['folder'].getTypeInfo().allowType(self.getId())
+        def _checkAvailable(self, ec):
+            """ Check if the action is available in the current context.
+            """
+            return ec.contexts['folder'].getTypeInfo().allowType(self.getId())
 
-    def _checkAllowed(self, ec):
-        """ Check if the action is allowed in the current context.
-        """
-        return self.isConstructionAllowed(ec.contexts['folder'])
+        def _checkAllowed(self, ec):
+            """ Check if the action is allowed in the current context.
+            """
+            return self.isConstructionAllowed(ec.contexts['folder'])
 
 class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     """A Dexterity FTI
