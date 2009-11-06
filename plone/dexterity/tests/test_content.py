@@ -449,12 +449,19 @@ class TestContent(MockTestCase):
         self.failUnless(isinstance(getattr(content, 'quux'), Item))
         self.assertEquals('quux', getattr(content, 'quux').id)
     
-    def test_ZMI_manage_options(self):
+    def test_ZMI_manage_options_container(self):
         # Make sure we get the expected tabs in the ZMI
-        self.assertEquals([o['label'] for o in Container.manage_options],
-            ['Contents', 'Components', 'View', 'Properties', 'Security', 'Define Permissions', 'Undo', 'Ownership', 'Interfaces', 'Find', 'Workflows'])
-        self.assertEquals([o['label'] for o in Item.manage_options],
-            ['Dublin Core', 'Edit', 'View', 'Workflows', 'Undo', 'Ownership', 'Interfaces', 'Security'])
+        
+        containerOptions = [o['label'] for o in Container.manage_options]        
+        for tab in ['Security', 'View', 'Contents', 'Properties', 'Undo', 'Ownership', 'Interfaces']:
+            self.failUnless(tab in containerOptions, "Tab %s not found" % tab)
+        
+    def test_ZMI_manage_options_item(self):
+        # Make sure we get the expected tabs in the ZMI
+        
+        containerOptions = [o['label'] for o in Item.manage_options]        
+        for tab in ['Security', 'View', 'Undo', 'Ownership', 'Interfaces', 'Dublin Core']:
+            self.failUnless(tab in containerOptions, "Tab %s not found" % tab)        
 
     def test_folder_parent_pointers(self):
         

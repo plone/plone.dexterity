@@ -215,11 +215,10 @@ class Item(BrowserDefaultMixin, DexterityContent):
     isPrincipiaFolderish = 0
     
     def __init__(self, id=None, **kwargs):
-        PortalContent.__init__(self, id, **kwargs)
-        DefaultDublinCoreImpl.__init__(self, **kwargs)
-        
         if id is not None:
             self.id = id
+        
+        DefaultDublinCoreImpl.__init__(self, **kwargs)
     
     # Be explicit about which __getattr__ to use
     __getattr__ = DexterityContent.__getattr__
