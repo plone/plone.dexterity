@@ -1,7 +1,13 @@
 Changelog
 =========
 
-1.0a2 -
+1.0a3 -
+------------------
+
+* require zope.filerepresentation>=3.6.0 for IRawReadFile
+  [csenger]
+
+1.0a2 - 2009-10-12
 ------------------
 
 * Added support for zope.size.interfaces.ISized. An adapter to this interface

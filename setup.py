@@ -49,7 +49,7 @@ setup(name='plone.dexterity',
           'zope.security',
           'zope.app.container',   # XXX: Should move to zope.container in the future
           'zope.app.content',
-          'zope.filerepresentation',
+          'zope.filerepresentation>=3.6.0',
           'zope.size',
           'ZODB3',
           
