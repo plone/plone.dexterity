@@ -33,8 +33,12 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
 
     def updateActions(self):
         super(DefaultEditForm, self).updateActions()
-        self.actions["save"].addClass("context")
-        self.actions["cancel"].addClass("standalone")
+        
+        if 'save' in self.actions:
+            self.actions["save"].addClass("context")
+        
+        if 'cancel' in self.actions:
+            self.actions["cancel"].addClass("standalone")
     
     @property
     def label(self):
