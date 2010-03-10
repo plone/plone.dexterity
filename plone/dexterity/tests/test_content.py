@@ -18,8 +18,6 @@ from plone.behavior.registration import BehaviorRegistration
 from plone.folder.default import DefaultOrdering
 from zope.annotation.attribute import AttributeAnnotations
 
-from Acquisition import aq_base
-
 class TestContent(MockTestCase):
     
     def setUp(self):
@@ -463,14 +461,6 @@ class TestContent(MockTestCase):
         for tab in ['Security', 'View', 'Undo', 'Ownership', 'Interfaces', 'Dublin Core']:
             self.failUnless(tab in containerOptions, "Tab %s not found" % tab)        
 
-    def test_folder_parent_pointers(self):
-        
-        c = Container('container')
-        c['id1'] = Item('id1')
-        
-        self.assertEquals('id1', c['id1'].__name__)
-        self.failUnless(aq_base(c['id1'].__parent__) is c)
-    
     def test_name_and_id_in_sync(self):
         
         i = Item()
