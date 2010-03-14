@@ -92,7 +92,6 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     @button.buttonAndHandler(_(u'Cancel'), name='cancel')
     def handleCancel(self, action):
         IStatusMessage(self.request).addStatusMessage(_(u"Add New Item operation cancelled"), "info")
-        container = aq_inner(self.context)
         self.request.response.redirect(self.nextURL()) 
 
     def updateActions(self):
