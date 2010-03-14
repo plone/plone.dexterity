@@ -1,4 +1,5 @@
 from zope.component import getUtility, createObject
+from zope.publisher.browser import BrowserPage
 
 from z3c.form import form, button
 from plone.z3cform import layout
@@ -109,7 +110,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         type_name = fti.title
         return _(u"Add ${name}", mapping={'name': type_name})
 
-class DefaultAddView(layout.FormWrapper):
+class DefaultAddView(layout.FormWrapper, BrowserPage):
     """This is the default add view as looked up by the ++add++ traversal
     namespace adapter in CMF. It is an unnamed adapter on 
     (context, request, fti).

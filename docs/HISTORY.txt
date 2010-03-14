@@ -4,6 +4,11 @@ Changelog
 1.0a4 - unreleased
 ------------------
 
+* Make the default add form extend BrowserPage to avoid warnings about
+  security declarations for nonexistent methods.  This closes
+  http://code.google.com/p/dexterity/issues/detail?id=69
+  [davisagli]
+
 * For now, no longer ensure that Dexterity content provides ILocation (in
   particular, that it has a __parent__ pointer), since that causes problems
   when exporting in Zope 2.10.
