@@ -1,10 +1,6 @@
 import unittest
 from plone.mocktestcase import MockTestCase
 
-from zope.interface import Interface
-from zope.schema import getFieldNamesInOrder
-from zope import schema
-
 from plone.dexterity import utils
 from Products.CMFCore.interfaces import ISiteRoot
 

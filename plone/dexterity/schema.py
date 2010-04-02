@@ -68,7 +68,7 @@ class SchemaCache(object):
             if fti is not None:
                 try:
                     cached = self.cache[portal_type] = fti.lookupSchema()
-                except (AttributeError, ValueError), e:
+                except (AttributeError, ValueError):
                     pass
         return cached
     

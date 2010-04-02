@@ -501,7 +501,7 @@ class TestFTIEvents(MockTestCase):
         model_dummy = Model({u"": INew})
         
         self.expect(fti.lookupModel()).result(model_dummy)
-        container_dummy = self.create_dummy()
+        self.create_dummy()
         
         site_dummy = self.create_dummy(getPhysicalPath = lambda: ('', 'siteid'))
         self.mock_utility(site_dummy, ISiteRoot)
@@ -531,7 +531,7 @@ class TestFTIEvents(MockTestCase):
         model_dummy = Model({u"": INew})
         
         self.expect(fti.lookupModel()).result(model_dummy)
-        container_dummy = self.create_dummy()
+        self.create_dummy()
         
         site_dummy = self.create_dummy(getPhysicalPath = lambda: ('', 'siteid'))
         self.mock_utility(site_dummy, ISiteRoot)
@@ -563,7 +563,7 @@ class TestFTIEvents(MockTestCase):
         
         model_dummy = Model({u"": INew})
         self.expect(fti.lookupModel()).result(model_dummy).count(0, None)
-        container_dummy = self.create_dummy()
+        self.create_dummy()
         
         site_dummy = self.create_dummy(getPhysicalPath = lambda: ('', 'siteid'))
         self.mock_utility(site_dummy, ISiteRoot)

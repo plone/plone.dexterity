@@ -477,7 +477,6 @@ class TestFolderDataResource(MockTestCase):
         r = FolderDataResource('fdata', container).__of__(container)
         
         request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
-        response = request.response
         
         self.replay()
     
@@ -854,10 +853,8 @@ class TestFileRepresentation(MockTestCase):
         
         container_mock = self.mocker.mock()
         child_fti_mock = self.mocker.mock()
-        container_fti_mock = self.mocker.mock()
         ctr_mock = self.mocker.mock()
         pt_mock = self.mocker.mock()
-        factory_method_mock = self.mocker.mock()
         
         result_dummy = self.create_dummy()
         

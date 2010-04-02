@@ -3,8 +3,6 @@ from plone.mocktestcase import MockTestCase
 
 from zope.interface import Interface
 
-import zope.schema
-
 from plone.dexterity.interfaces import IDexterityFTI
 
 from plone.dexterity.fti import DexterityFTI
