@@ -3,12 +3,15 @@ from zope.component import getUtility
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.autoform.form import AutoExtensibleForm
 
+from plone.dexterity.i18n import MessageFactory as _
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import resolveDottedName
 
 class DexterityExtensibleForm(AutoExtensibleForm):
     """Mixin class for Dexterity forms that support updatable fields
     """
+
+    default_fieldset_label = _(u"Content")
 
     @property
     def description(self):
