@@ -4,6 +4,9 @@ Changelog
 1.0a4 - unreleased
 ------------------
 
+* Update the label for the default fieldset to something more humane.
+  [wichert]
+
 * Make the default add form extend BrowserPage to avoid warnings about
   security declarations for nonexistent methods.  This closes
   http://code.google.com/p/dexterity/issues/detail?id=69
