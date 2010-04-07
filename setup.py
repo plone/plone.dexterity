@@ -28,7 +28,6 @@ setup(name='plone.dexterity',
           'rwproperty',
           'plone.synchronize',
           'plone.memoize',
-          'plone.mocktestcase>=1.0b3',
           
           'plone.z3cform',
           'plone.folder',
@@ -63,6 +62,9 @@ setup(name='plone.dexterity',
           
           # -*- Extra requirements: -*-
       ],
+      extras_require={
+        'tests': ['plone.mocktestcase>=1.0b3',]
+      },
       entry_points="""
       # -*- Entry points: -*-
       """,
