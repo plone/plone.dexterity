@@ -63,7 +63,7 @@ setup(name='plone.dexterity',
           # -*- Extra requirements: -*-
       ],
       extras_require={
-        'tests': ['plone.mocktestcase>=1.0b3',]
+        'test': ['plone.mocktestcase>=1.0b3',]
       },
       entry_points="""
       # -*- Entry points: -*-
