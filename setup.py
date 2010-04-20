@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.0a4'
+version = '1.0b1'
 
 setup(name='plone.dexterity',
       version=version,
@@ -29,7 +29,7 @@ setup(name='plone.dexterity',
           'plone.synchronize',
           'plone.memoize',
           
-          'plone.z3cform',
+          'plone.z3cform>=0.6.0',
           'plone.folder',
           'plone.supermodel>=1.0b2',
           'plone.alterego',

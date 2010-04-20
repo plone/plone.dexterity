@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0a4 - unreleased
+1.0b1 - 2010-04-20
 ------------------
 
 * Update the label for the default fieldset to something more humane.
