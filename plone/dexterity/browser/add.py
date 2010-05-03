@@ -66,8 +66,10 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         container = aq_inner(self.context)
         new_object = addContentToContainer(container, object)
         
-        immediate_view = fti.immediate_view or 'view'
-        self.immediate_view = "%s/%s/%s" % (container.absolute_url(), new_object.id, immediate_view,)
+        if fti.immediate_view:
+            self.immediate_view = "%s/%s/%s" % (container.absolute_url(), new_object.id, fti.immediate_view,)
+        else:
+            self.immediate_view = "%s/%s" % (container.absolute_url(), new_object.id)
 
     def nextURL(self):
         if self.immediate_view is not None:
