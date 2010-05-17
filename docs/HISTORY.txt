@@ -4,6 +4,9 @@ Changelog
 1.0b2 - unreleased
 ------------------
 
+* Fix invalid license declaration in package metadata.
+  [wichert]
+
 * Do not assume "view" is the right immediate view - in some cases
   it might not exist. Instead use the absolute URL directly.
   [wichert]
