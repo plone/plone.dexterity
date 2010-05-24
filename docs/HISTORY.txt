@@ -1,7 +1,11 @@
 Changelog
 =========
 
-1.0b2 - unreleased
+1.0b3 - unreleased
+------------------
+
+
+1.0b2 - 2010-05-24
 ------------------
 
 * Fix invalid license declaration in package metadata.
@@ -10,6 +14,7 @@ Changelog
 * Do not assume "view" is the right immediate view - in some cases
   it might not exist. Instead use the absolute URL directly.
   [wichert]
+
 
 1.0b1 - 2010-04-20
 ------------------
