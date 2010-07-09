@@ -22,6 +22,10 @@ setup(name='plone.dexterity',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['plone'],
       include_package_data=True,
+      message_extractors = {"plone": [
+            ("**.py",    "chameleon_python", None),
+            ("**.pt"  ,  "chameleon_xml", None),
+            ]},
       zip_safe=False,
       install_requires=[
           'setuptools',
