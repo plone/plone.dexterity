@@ -4,6 +4,8 @@ Changelog
 1.0b3 - unreleased
 ------------------
 
+* Configure Babel plugins for i18n extraction and add a Dutch translation.
+  [wichert]
 
 1.0b2 - 2010-05-24
 ------------------
