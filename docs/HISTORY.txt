@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0b3 - unreleased
+1.0b3 - 2010-07-19
 ------------------
 
 * Clarify license to GPL version 2 only.
