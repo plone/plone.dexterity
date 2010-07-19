@@ -4,7 +4,8 @@ Changelog
 1.0b4 - unreleased
 ------------------
 
-* ...
+* Add German translation from Christian Stengel.
+  [wichert]
 
 
 1.0b3 - 2010-07-19
