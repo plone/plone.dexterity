@@ -4,6 +4,9 @@ Changelog
 1.0b3 - unreleased
 ------------------
 
+* Clarify license to GPL version 2 only.
+  [wichert]
+
 * Configure Babel plugins for i18n extraction and add a Dutch translation.
   [wichert]
 
