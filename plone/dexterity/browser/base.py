@@ -1,3 +1,4 @@
+import logging
 from zope.component import getUtility
 
 from plone.autoform.interfaces import IFormFieldProvider
@@ -6,6 +7,8 @@ from plone.autoform.form import AutoExtensibleForm
 from plone.dexterity.i18n import MessageFactory as _
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import resolveDottedName
+
+log = logging.getLogger(__name__)
 
 class DexterityExtensibleForm(AutoExtensibleForm):
     """Mixin class for Dexterity forms that support updatable fields
@@ -31,7 +34,8 @@ class DexterityExtensibleForm(AutoExtensibleForm):
         for behavior_name in fti.behaviors:
             try:
                 behavior_interface = resolveDottedName(behavior_name)
-            except ValueError:
+            except (ValueError, ImportError):
+                log.warning("Error resolving behaviour %s", behavior_name)
                 continue
             if behavior_interface is not None:
                 behavior_schema = IFormFieldProvider(behavior_interface, None)
