@@ -6,7 +6,7 @@ from plone.z3cform import layout
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.i18n import MessageFactory as _
-from Products.CMFPlone import PloneMessageFactory as _plone
+from plone.dexterity.i18n import PloneMessageFactory as _plone
 
 from plone.dexterity.browser.base import DexterityExtensibleForm
 from plone.dexterity.utils import addContentToContainer
