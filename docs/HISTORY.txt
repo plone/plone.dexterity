@@ -1,7 +1,13 @@
 Changelog
 =========
 
-1.0b4 - unreleased
+1.0b5 - unreleased
+------------------
+
+* ...
+
+
+1.0b4 - 2010-07-22
 ------------------
 
 * Improve robustness: catch and log import errors when trying to resolve
