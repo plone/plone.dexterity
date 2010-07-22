@@ -6,6 +6,7 @@ from plone.z3cform import layout
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.i18n import MessageFactory as _
+from Products.CMFPlone import PloneMessageFactory as _plone
 
 from plone.dexterity.browser.base import DexterityExtensibleForm
 from plone.dexterity.utils import addContentToContainer
@@ -108,7 +109,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     def label(self):
         portal_type = self.portal_type
         fti = getUtility(IDexterityFTI, name=portal_type)
-        type_name = fti.title
+        type_name = _plone(fti.title)
         return _(u"Add ${name}", mapping={'name': type_name})
 
 class DefaultAddView(layout.FormWrapper, BrowserPage):

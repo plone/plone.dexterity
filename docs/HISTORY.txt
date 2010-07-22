@@ -4,7 +4,8 @@ Changelog
 1.0b5 - unreleased
 ------------------
 
-* ...
+* Translate FTI titles with the plone domain.
+  [mj]
 
 
 1.0b4 - 2010-07-22

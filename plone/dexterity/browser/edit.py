@@ -5,6 +5,7 @@ from plone.z3cform import layout
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.i18n import MessageFactory as _
+from Products.CMFPlone import PloneMessageFactory as _plone
 
 from plone.dexterity.browser.base import DexterityExtensibleForm
 
@@ -44,7 +45,7 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
     def label(self):
         portal_type = self.context.portal_type
         fti = getUtility(IDexterityFTI, name=portal_type)
-        type_name = fti.title
+        type_name = _plone(fti.title)
         return _(u"Edit ${name}", mapping={'name': type_name})
         
 DefaultEditView = layout.wrap_form(DefaultEditForm)
