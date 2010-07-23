@@ -7,6 +7,9 @@ Changelog
 * Translate FTI titles and descriptions with the plone domain.
   [mj]
 
+* Add Norwegian translation.
+  [mj]
+
 
 1.0b4 - 2010-07-22
 ------------------
