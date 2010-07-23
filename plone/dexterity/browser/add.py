@@ -109,7 +109,6 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         portal_type = self.portal_type
         fti = getUtility(IDexterityFTI, name=portal_type)
         type_name = fti.Title()
-        import pdb; pdb.set_trace( )
         return _(u"Add ${name}", mapping={'name': type_name})
 
 class DefaultAddView(layout.FormWrapper, BrowserPage):
