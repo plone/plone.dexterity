@@ -5,7 +5,6 @@ from plone.autoform.interfaces import IFormFieldProvider
 from plone.autoform.form import AutoExtensibleForm
 
 from plone.dexterity.i18n import MessageFactory as _
-from plone.dexterity.i18n import PloneMessageFactory as _plone
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import resolveDottedName
 
@@ -20,7 +19,7 @@ class DexterityExtensibleForm(AutoExtensibleForm):
     @property
     def description(self):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
-        return _plone(fti.description)
+        return fti.Description()
     
     # AutoExtensibleForm contract
     

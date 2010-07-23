@@ -4,10 +4,8 @@ Changelog
 1.0b5 - unreleased
 ------------------
 
-* Translate FTI titles and descriptions with the 'plone' domain. This is
-  consistent with how all of Plone treats these strings, and allows for
-  constistent translation of these strings when plone.dexterity is used with
-  Plone.
+* Switch to the .Title() and .Description() methods of fti when used in 
+  a translatable context, to ensure that these strings are translated.
   [mj]
 
 * Add Norwegian translation.
