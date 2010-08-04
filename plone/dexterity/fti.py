@@ -251,10 +251,25 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
         # Dexterity provides a default (unnamed) adapter for any IFolderish
         # context, request and IDexterityFTI that can construct an add view
         # for any Dexterity schema.
-
+        
         if not self.add_view_expr:
             add_view_expr = kwargs.get('add_view_expr', "string:${folder_url}/++add++%s" % self.getId())
             self._setPropValue('add_view_expr', add_view_expr)
+        
+        # Set the content_meta_type from the klass
+        
+        klass = utils.resolveDottedName(self.klass)
+        if klass is not None:
+            self.content_meta_type = getattr(klass, 'meta_type', None)
+    
+    def Metatype(self):
+        if self.content_meta_type:
+            return self.content_meta_type
+        # BBB - this didn't use to be set
+        klass = utils.resolveDottedName(self.klass)
+        if klass is not None:
+            self.content_meta_type = getattr(klass, 'meta_type', None)
+        return self.content_meta_type
     
     @property
     def hasDynamicSchema(self):
@@ -309,7 +324,13 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
         
         if oldValue != new_value:
             modified(self, DexterityFTIModificationDescription(id, oldValue))
-        
+            
+            # Update meta_type from klass
+            if id == 'klass':
+                klass = utils.resolveDottedName(new_value)
+                if klass is not None:
+                    self.content_meta_type = getattr(klass, 'meta_type', None)
+    
     # Allow us to specify a particular add permission rather than rely on ones
     # stored in meta types that we don't have anyway
     

@@ -41,6 +41,13 @@ from Products.CMFCore.interfaces import ISiteRoot
 
 import plone.dexterity.schema.generated
 
+class TestClass(object):
+    meta_type = "Test Class"
+
+class TestClass2(object):
+    meta_type = "Test Class 2"
+
+
 class TestFTI(MockTestCase):
 
     def test_factory_name_is_fti_id(self):
@@ -296,6 +303,15 @@ class TestFTI(MockTestCase):
                            factory="my.factory")
         self.assertEquals('string:${folder_url}/@@my-addview', fti.add_view_expr)
         self.assertEquals('my.factory', fti.factory)
+    
+    def test_meta_type(self):
+        fti = DexterityFTI(u"testtype", klass="plone.dexterity.tests.test_fti.TestClass")
+        self.assertEquals(TestClass.meta_type, fti.Metatype())
+    
+    def test_meta_type_change_class(self):
+        fti = DexterityFTI(u"testtype", klass="plone.dexterity.tests.test_fti.TestClass")
+        fti._updateProperty('klass', "plone.dexterity.tests.test_fti.TestClass2")
+        self.assertEquals(TestClass2.meta_type, fti.Metatype())
     
 class TestFTIEvents(MockTestCase):
 
