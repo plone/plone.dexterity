@@ -196,7 +196,7 @@ class TestAddView(MockTestCase):
         # FTI
         
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.title).result(u"Test title")
+        self.expect(fti_mock.Title()).result(u"Test title")
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
       
         # Form
@@ -250,7 +250,7 @@ class TestEditView(MockTestCase):
         # FTI
         
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.title).result(u"Test title")
+        self.expect(fti_mock.Title()).result(u"Test title")
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
       
         # Form
