@@ -4,6 +4,10 @@ Changelog
 1.0b5 - unreleased
 ------------------
 
+* Fix folder ordering bug.
+  See: http://code.google.com/p/dexterity/issues/detail?id=113
+  [optilude]
+
 * Switch to the .Title() and .Description() methods of fti when used in 
   a translatable context, to ensure that these strings are translated.
   [mj]
