@@ -6,6 +6,8 @@ from zope.component import getUtility, queryUtility
 from zope.component import createObject
 
 from zope.dottedname.resolve import resolve
+from zope.event import notify
+from zope.lifecycleevent import ObjectCreatedEvent
 
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.dexterity.interfaces import IDexterityFTI
@@ -114,6 +116,7 @@ def createContent(portal_type, **kw):
     for (key,value) in kw.items():
         setattr(content, key, value)
 
+    notify(ObjectCreatedEvent(content))
     return content
 
 

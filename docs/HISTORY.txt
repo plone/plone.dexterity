@@ -4,6 +4,9 @@ Changelog
 1.0b6 - unreleased
 ------------------
 
+* Send ObjectCreatedEvent event from createContent utility method.
+  [wichert]
+
 * Update content base classes to use allow keyword arguments to set
   initial values for instance variables.
   [wichert]
