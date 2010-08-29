@@ -500,7 +500,29 @@ class TestContent(MockTestCase):
         self.failUnless(isinstance(i.__name__, unicode))
         self.failUnless(isinstance(i.id, str))
         self.failUnless(isinstance(i.getId(), str))
-        
+
+    def test_item_init_dublincore(self):
+        from DateTime.DateTime import DateTime
+        i = Item(title=u"Test title", language="en", effective_date="2010-08-20")
+        self.assertEqual(i.title, u"Test title")
+        self.assertEqual(i.language, "en")
+        self.assertTrue(isinstance(i.effective_date, DateTime))
     
+    def test_item_init_nondc_kwargs(self):
+        i = Item(foo="bar")
+        self.assertEqual(i.foo, "bar")
+
+    def test_container_init_dublincore(self):
+        from DateTime.DateTime import DateTime
+        c = Container(title=u"Test title", language="en", effective_date="2010-08-20")
+        self.assertEqual(c.title, u"Test title")
+        self.assertEqual(c.language, "en")
+        self.assertTrue(isinstance(c.effective_date, DateTime))
+
+    def test_item_init_nondc_kwargs(self):
+        c = Container(foo="bar")
+        self.assertEqual(c.foo, "bar")
+
+
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

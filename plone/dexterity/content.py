@@ -223,7 +223,7 @@ class Item(BrowserDefaultMixin, DexterityContent):
                      "effective_date", "expiration_date", "format", "language",
                      "rights"]:
             if arg in kwargs:
-                dublin_args[arg] = kwargs.pop(arg)
+                dublin_kw[arg] = kwargs.pop(arg)
 
         DefaultDublinCoreImpl.__init__(self, **dublin_kw)
         for (k,v) in kwargs.items():
@@ -252,7 +252,7 @@ class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrd
                      "effective_date", "expiration_date", "format", "language",
                      "rights"]:
             if arg in kwargs:
-                dublin_args[arg] = kwargs.pop(arg)
+                dublin_kw[arg] = kwargs.pop(arg)
 
         CMFOrderedBTreeFolderBase.__init__(self, id)
         DefaultDublinCoreImpl.__init__(self, **dublin_kw)
