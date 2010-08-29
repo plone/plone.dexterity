@@ -217,8 +217,17 @@ class Item(BrowserDefaultMixin, DexterityContent):
     def __init__(self, id=None, **kwargs):
         if id is not None:
             self.id = id
-        
-        DefaultDublinCoreImpl.__init__(self, **kwargs)
+
+        dublin_kw = {}
+        for arg in [ "title", "subject", "description", "contributors",
+                     "effective_date", "expiration_date", "format", "language",
+                     "rights"]:
+            if arg in kwargs:
+                dublin_args[arg] = kwargs.pop(arg)
+
+        DefaultDublinCoreImpl.__init__(self, **dublin_kw)
+        for (k,v) in kwargs.items():
+            setattr(self, k, v)
     
     # Be explicit about which __getattr__ to use
     __getattr__ = DexterityContent.__getattr__
@@ -238,11 +247,18 @@ class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrd
     manage_options = PortalFolderBase.manage_options
     
     def __init__(self, id=None, **kwargs):
-        CMFOrderedBTreeFolderBase.__init__(self, id, **kwargs)
-        DefaultDublinCoreImpl.__init__(self, **kwargs)
-        
-        if id is not None:
-            self.id = id
+        dublin_kw = {}
+        for arg in [ "title", "subject", "description", "contributors",
+                     "effective_date", "expiration_date", "format", "language",
+                     "rights"]:
+            if arg in kwargs:
+                dublin_args[arg] = kwargs.pop(arg)
+
+        CMFOrderedBTreeFolderBase.__init__(self, id)
+        DefaultDublinCoreImpl.__init__(self, **dublin_kw)
+
+        for (k,v) in kwargs.items():
+            setattr(self, k, v)
     
     def __getattr__(self, name):
         

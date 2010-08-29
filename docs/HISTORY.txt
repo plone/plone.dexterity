@@ -4,6 +4,10 @@ Changelog
 1.0b6 - unreleased
 ------------------
 
+* Update content base classes to use allow keyword arguments to set
+  initial values for instance variables.
+  [wichert]
+
 * Avoid empty <div class="field"> tag for title and description in 
   item.pt.
   [gaudenzius]
