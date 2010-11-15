@@ -7,6 +7,9 @@ Changelog
 * Add Spanish translation.
   [dukebody]
 
+* Add French translation.
+  [toutpt]
+
 
 1.0b6 - 2010-08-30
 ------------------
