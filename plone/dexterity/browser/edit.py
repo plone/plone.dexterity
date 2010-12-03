@@ -1,10 +1,13 @@
 from zope.component import getUtility
+from zope.event import notify
 
 from z3c.form import form, button
 from plone.z3cform import layout
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.i18n import MessageFactory as _
+from plone.dexterity.events import EditBegunEvent
+from plone.dexterity.events import EditCancelledEvent
 
 from plone.dexterity.browser.base import DexterityExtensibleForm
 
@@ -25,11 +28,18 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
     @button.buttonAndHandler(_(u'Cancel'), name='cancel')
     def handleCancel(self, action):
         IStatusMessage(self.request).addStatusMessage(_(u"Edit cancelled"), "info")
-        self.request.response.redirect(self.context.absolute_url()) 
+        self.request.response.redirect(self.context.absolute_url())
+        notify(EditCancelledEvent(self.context))
     
     def update(self):
         self.portal_type = self.context.portal_type
         super(DefaultEditForm, self).update()
+        
+        # fire the edit begun only if no action was executed
+        executed_actions = [action for action in self.actions.values()
+                            if action.isExecuted()]
+        if len(executed_actions) == 0:
+            notify(EditBegunEvent(self.context))
 
     def updateActions(self):
         super(DefaultEditForm, self).updateActions()
