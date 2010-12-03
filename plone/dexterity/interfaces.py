@@ -4,6 +4,7 @@ from zope.lifecycleevent.interfaces import IModificationDescription
 import zope.schema
 
 from zope.component.interfaces import IFactory
+from zope.component.interfaces import IObjectEvent
 
 from Products.CMFCore.interfaces import ITypeInformation
 
@@ -121,4 +122,32 @@ class IDexterityItem(IDexterityContent):
     
 class IDexterityContainer(IDexterityContent):
     """Marker interface applied to dexterity-managed folderish objects
+    """
+
+# Events
+
+class IBegunEvent(IObjectEvent):
+    """Base begun event
+    """
+
+class IEditBegunEvent(IBegunEvent):
+    """An edit operation was begun
+    """
+
+class IAddBegunEvent(IBegunEvent):
+    """An add operation was begun. The event context is the folder,
+    since the object does not exist yet.
+    """
+
+class ICancelledEvent(IObjectEvent):
+    """Base cancel event
+    """
+
+class IEditCancelledEvent(ICancelledEvent):
+    """An edit operation was cancelled
+    """
+
+class IAddCancelledEvent(ICancelledEvent):
+    """An add operation was cancelled. The event context is the folder,
+    since the object does not exist yet.
     """
