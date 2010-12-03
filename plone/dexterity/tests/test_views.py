@@ -6,7 +6,6 @@ from zope.interface import implements, Interface, alsoProvides
 
 from z3c.form.interfaces import IWidgets
 from z3c.form.interfaces import IActions
-from z3c.form.interfaces import IActionHandler
 from z3c.form.action import Actions
 from z3c.form.field import FieldWidgets
 
@@ -14,7 +13,6 @@ from plone.autoform.interfaces import IFormFieldProvider
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IEditBegunEvent
-from plone.dexterity.interfaces import IEditCancelledEvent
 from plone.dexterity.interfaces import IAddBegunEvent
 
 from plone.dexterity.browser.add import DefaultAddForm

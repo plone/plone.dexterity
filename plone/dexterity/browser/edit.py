@@ -36,9 +36,7 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
         super(DefaultEditForm, self).update()
         
         # fire the edit begun only if no action was executed
-        executed_actions = [action for action in self.actions.values()
-                            if action.isExecuted()]
-        if len(executed_actions) == 0:
+        if len(self.actions.executedActions) == 0:
             notify(EditBegunEvent(self.context))
 
     def updateActions(self):
