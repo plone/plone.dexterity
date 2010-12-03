@@ -1,11 +1,17 @@
 import unittest
+import mocker
 from plone.mocktestcase import MockTestCase
 
 from zope.interface import implements, Interface, alsoProvides
 
+from z3c.form.interfaces import IWidgets
+from z3c.form.interfaces import IActions
+
 from plone.autoform.interfaces import IFormFieldProvider
 
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.interfaces import IEditBegunEvent
+from plone.dexterity.interfaces import IAddBegunEvent
 
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
@@ -235,6 +241,56 @@ class TestAddView(MockTestCase):
         
         self.assertEquals(ISchema, view.schema)
         self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
+
+    def test_fires_add_begun_event(self):
+        
+        # Context and request
+        
+        context_mock = self.create_dummy(portal_type=u'testtype')
+        request_mock = TestRequest()
+        
+        # FTI
+        
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
+        self.mocker.count(0, 100)
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        # mock the widget
+        class Widgets(object):
+            implements(IWidgets)
+            def __init__(self, a, b, c):
+                pass
+            def update(self):
+                pass
+
+        self.mock_adapter(Widgets, IWidgets, (Interface, Interface, Interface))
+
+        # mock the action
+        class Actions(dict):
+            implements(IActions)
+            def __init__(self, a, b, c):
+                pass
+            def update(self):
+                pass
+            def execute(self):
+                pass
+
+        self.mock_adapter(Actions, IActions, (Interface, Interface, Interface))
+        
+        # mock notify
+        notify_mock = self.mocker.replace('zope.event.notify')
+        self.expect(notify_mock(mocker.MATCH(
+                    lambda x: IAddBegunEvent.providedBy(x)
+                    )))
+        
+        # Form
+        
+        self.replay()
+        
+        view = DefaultAddForm(context_mock, request_mock)
+        view.portal_type = fti_mock.getId()
+        view.update()
     
 class TestEditView(MockTestCase):
     
@@ -293,6 +349,57 @@ class TestEditView(MockTestCase):
         
         self.assertEquals(ISchema, view.schema)
         self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
+
+    def test_fires_edit_begun_event(self):
+        
+        # Context and request
+        
+        context_mock = self.create_dummy(portal_type=u'testtype')
+        request_mock = TestRequest()
+        
+        # FTI
+        
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
+        self.mocker.count(0, 100)
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        
+        # mock the widget
+        class Widgets(object):
+            implements(IWidgets)
+            def __init__(self, a, b, c):
+                pass
+            def update(self):
+                pass
+
+        self.mock_adapter(Widgets, IWidgets, (Interface, Interface, Interface))
+
+        # mock the action
+        class Actions(dict):
+            implements(IActions)
+            def __init__(self, a, b, c):
+                pass
+            def update(self):
+                pass
+            def execute(self):
+                pass
+
+        self.mock_adapter(Actions, IActions, (Interface, Interface, Interface))
+        
+        # mock notify
+        notify_mock = self.mocker.replace('zope.event.notify')
+        self.expect(notify_mock(mocker.MATCH(
+                    lambda x: IEditBegunEvent.providedBy(x)
+                    )))
+        
+        # Form
+        
+        view = DefaultEditForm(context_mock, request_mock)
+        
+        self.replay()
+        
+        view.update()
+
 
 class TestDefaultView(MockTestCase):
     
