@@ -6,11 +6,15 @@ from zope.interface import implements, Interface, alsoProvides
 
 from z3c.form.interfaces import IWidgets
 from z3c.form.interfaces import IActions
+from z3c.form.interfaces import IActionHandler
+from z3c.form.action import Actions
+from z3c.form.field import FieldWidgets
 
 from plone.autoform.interfaces import IFormFieldProvider
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IEditBegunEvent
+from plone.dexterity.interfaces import IEditCancelledEvent
 from plone.dexterity.interfaces import IAddBegunEvent
 
 from plone.dexterity.browser.add import DefaultAddForm
@@ -256,25 +260,7 @@ class TestAddView(MockTestCase):
         self.mocker.count(0, 100)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
-        # mock the widget
-        class Widgets(object):
-            implements(IWidgets)
-            def __init__(self, a, b, c):
-                pass
-            def update(self):
-                pass
-
-        self.mock_adapter(Widgets, IWidgets, (Interface, Interface, Interface))
-
-        # mock the action
-        class Actions(dict):
-            implements(IActions)
-            def __init__(self, a, b, c):
-                pass
-            def update(self):
-                pass
-            def execute(self):
-                pass
+        self.mock_adapter(FieldWidgets, IWidgets, (Interface, Interface, Interface))
 
         self.mock_adapter(Actions, IActions, (Interface, Interface, Interface))
         
@@ -291,7 +277,8 @@ class TestAddView(MockTestCase):
         view = DefaultAddForm(context_mock, request_mock)
         view.portal_type = fti_mock.getId()
         view.update()
-    
+
+        
 class TestEditView(MockTestCase):
     
     def test_label(self):
@@ -363,27 +350,8 @@ class TestEditView(MockTestCase):
         self.expect(fti_mock.lookupSchema()).result(ISchema)
         self.mocker.count(0, 100)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        
-        # mock the widget
-        class Widgets(object):
-            implements(IWidgets)
-            def __init__(self, a, b, c):
-                pass
-            def update(self):
-                pass
 
-        self.mock_adapter(Widgets, IWidgets, (Interface, Interface, Interface))
-
-        # mock the action
-        class Actions(dict):
-            implements(IActions)
-            def __init__(self, a, b, c):
-                pass
-            def update(self):
-                pass
-            def execute(self):
-                pass
-
+        self.mock_adapter(FieldWidgets, IWidgets, (Interface, Interface, Interface))
         self.mock_adapter(Actions, IActions, (Interface, Interface, Interface))
         
         # mock notify
