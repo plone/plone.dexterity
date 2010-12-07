@@ -14,6 +14,8 @@ from plone.autoform.interfaces import IFormFieldProvider
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IEditBegunEvent
 from plone.dexterity.interfaces import IAddBegunEvent
+from plone.dexterity.interfaces import IEditCancelledEvent
+from plone.dexterity.interfaces import IAddCancelledEvent
 
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
@@ -27,6 +29,8 @@ from zope.publisher.browser import TestRequest as TestRequestBase
 from zope.app.container.interfaces import INameChooser
 
 from AccessControl import Unauthorized
+
+from Products.statusmessages.interfaces import IStatusMessage
 
 class TestRequest(TestRequestBase):
     """Zope 3's TestRequest doesn't support item assignment, but Zope 2's
@@ -276,6 +280,35 @@ class TestAddView(MockTestCase):
         view.portal_type = fti_mock.getId()
         view.update()
 
+    def test_fires_add_cancelled_event(self):
+
+        # Context and request
+
+        context_mock = self.create_dummy(portal_type=u'testtype')
+        context_mock.absolute_url = lambda *a, **kw: 'http://nohost/plone/item'
+        request_mock = TestRequest()
+
+        # mock status message
+        class StatusMessage(object):
+            implements(IStatusMessage)
+            def __init__(self, request):
+                pass
+            def addStatusMessage(self, msg, type=''):
+                pass
+        self.mock_adapter(StatusMessage, IStatusMessage, (Interface,))
+
+        # mock notify
+        notify_mock = self.mocker.replace('zope.event.notify')
+        self.expect(notify_mock(mocker.MATCH(
+                    lambda x: IAddCancelledEvent.providedBy(x)
+                    )))
+
+        # Form
+        self.replay()
+
+        view = DefaultAddForm(context_mock, request_mock)
+        view.handleCancel(view, {})
+
         
 class TestEditView(MockTestCase):
     
@@ -365,6 +398,35 @@ class TestEditView(MockTestCase):
         self.replay()
         
         view.update()
+
+    def test_fires_edit_cancelled_event(self):
+
+        # Context and request
+
+        context_mock = self.create_dummy(portal_type=u'testtype')
+        context_mock.absolute_url = lambda *a, **kw: 'http://nohost/plone/item'
+        request_mock = TestRequest()
+
+        # mock status message
+        class StatusMessage(object):
+            implements(IStatusMessage)
+            def __init__(self, request):
+                pass
+            def addStatusMessage(self, msg, type=''):
+                pass
+        self.mock_adapter(StatusMessage, IStatusMessage, (Interface,))
+
+        # mock notify
+        notify_mock = self.mocker.replace('zope.event.notify')
+        self.expect(notify_mock(mocker.MATCH(
+                    lambda x: IEditCancelledEvent.providedBy(x)
+                    )))
+
+        # Form
+        self.replay()
+
+        view = DefaultEditForm(context_mock, request_mock)
+        view.handleCancel(view, {})
 
 
 class TestDefaultView(MockTestCase):
