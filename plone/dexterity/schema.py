@@ -1,6 +1,6 @@
 import new
 
-from threading import Lock
+from threading import RLock
 from plone.synchronize import synchronized
 
 from zope.interface import implements, alsoProvides
@@ -55,7 +55,7 @@ class SchemaCache(object):
     clear() (for all cached values), or simply raise a SchemaInvalidatedEvent.
     """
     
-    lock = Lock()
+    lock = RLock()
     cache = {}
     subtypes_cache = {}
     counter_values = {}
@@ -130,7 +130,7 @@ class SchemaModuleFactory(object):
     
     implements(IDynamicObjectFactory)
     
-    lock = Lock()
+    lock = RLock()
     _transient_SCHEMA_CACHE = {}
     
     @synchronized(lock)
