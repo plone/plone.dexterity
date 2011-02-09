@@ -4,6 +4,9 @@ Changelog
 1.0b7 - unreleased
 ------------------
 
+* Add adapter for plone.rfc822.interfaces.IPrimaryFieldInfo.
+  [elro]
+
 * Fixed deadlock in synchronized methods of schema cache by using
   threading.RLock instead of threading.Lock.
   [jbaumann]

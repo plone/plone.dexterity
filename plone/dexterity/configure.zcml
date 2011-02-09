@@ -112,4 +112,6 @@
         />
     <adapter factory=".filerepresentation.DefaultWriteFile" />
 
+    <!-- PrimaryFieldInfo -->
+    <adapter factory=".primary.PrimaryFieldInfo"/>
 </configure>
