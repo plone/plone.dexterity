@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0b7 - unreleased
+1.0b7 - 2011-02-11
 ------------------
 
 * Add adapter for plone.rfc822.interfaces.IPrimaryFieldInfo.
