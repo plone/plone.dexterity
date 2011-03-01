@@ -21,7 +21,7 @@ class PrimaryFieldInfo(object):
             if IPrimaryField.providedBy(field)
             ]
         if not primary:
-            raise TypeError('Could not adapt', context, IPrimayFieldInfo)
+            raise TypeError('Could not adapt', context, IPrimaryFieldInfo)
         self.fieldname, self.field = primary[0]
     
     @property
