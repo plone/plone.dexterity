@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 from plone.mocktestcase import MockTestCase
 
@@ -523,6 +524,13 @@ class TestContent(MockTestCase):
         c = Container(foo="bar")
         self.assertEqual(c.foo, "bar")
 
+    def test_unicode_title(self):
+        #fix http://code.google.com/p/dexterity/issues/detail?id=145
+        i = Item()
+        i.setTitle("é")
+        self.assertEqual(i.Title(),u"é")
+        i.setTitle(u"é")
+        self.assertEqual(i.Title(),u"é")
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

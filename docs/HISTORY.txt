@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0b8 - unreleased
+------------------
+
+* Fix #145: UnicodeDecodeError After renaming item from @@folder_contents
+  [toutpt]
+
 1.0b7 - 2011-02-11
 ------------------
 
