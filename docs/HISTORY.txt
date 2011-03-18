@@ -4,6 +4,9 @@ Changelog
 1.0b8 - unreleased
 ------------------
 
+* Redirect to immediate_view after edit.
+  [elro]
+
 * Fix #145: UnicodeDecodeError After renaming item from @@folder_contents
   [toutpt]
 
