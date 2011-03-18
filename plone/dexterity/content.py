@@ -22,8 +22,11 @@ from plone.dexterity.schema import SCHEMA_CACHE
 # XXX: Should move to zope.container in the future
 from zope.app.container.contained import Contained
 
+import AccessControl.Permissions
+from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
 
+import Products.CMFCore.permissions
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.PortalFolder import PortalFolderBase
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
@@ -245,6 +248,13 @@ class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrd
     implements(IDexterityContainer)
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
+    
+    security = ClassSecurityInfo()
+    security.declareProtected(AccessControl.Permissions.copy_or_move, 'manage_copyObjects')
+    security.declareProtected(Products.CMFCore.permissions.ModifyPortalContent, 'manage_cutObjects')
+    security.declareProtected(Products.CMFCore.permissions.ModifyPortalContent, 'manage_pasteObjects')
+    security.declareProtected(Products.CMFCore.permissions.ModifyPortalContent, 'manage_renameObject')    
+    security.declareProtected(Products.CMFCore.permissions.ModifyPortalContent, 'manage_renameObjects')
     
     isPrincipiaFolderish = 1
     
