@@ -207,7 +207,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
         self._workflowInitialized = True
 
     def setTitle(self, title):
-        if type(title)==str:
+        if isinstance(title, str):
             title = title.decode('utf-8')
         self.title = title
 
