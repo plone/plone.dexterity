@@ -211,6 +211,11 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
             title = title.decode('utf-8')
         self.title = title
 
+    def setDescription(self, description):
+        if isinstance(description, str):
+            description = description.decode('utf-8')
+        self.description = description
+
 # XXX: It'd be nice to reduce the number of base classes here
 class Item(BrowserDefaultMixin, DexterityContent):
     """A non-containerish, CMFish item

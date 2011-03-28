@@ -4,6 +4,9 @@ Changelog
 1.0b8 - unreleased
 ------------------
 
+* Make setDescription coerce to unicode in the same way as setTitle.
+  [elro]
+
 * Remove redundant edit and sharing aliases from FTI defaults.
   [elro]
 
