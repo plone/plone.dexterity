@@ -4,6 +4,9 @@ Changelog
 1.0b8 - unreleased
 ------------------
 
+* Change the FTI default to enable dynamic view.
+  [elro]
+
 * Setup folder permissions in the same way as Archetypes so copy / paste /
   rename work consistently with the rest of Plone.
   [elro]
