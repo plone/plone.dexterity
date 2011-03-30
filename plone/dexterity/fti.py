@@ -179,7 +179,9 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     )
     
     default_aliases = {'(Default)': '(dynamic view)',
-                       'view': '(selected layout)',}
+                       'view': '(selected layout)',
+                       'edit': '@@edit',
+                       'sharing': '@@sharing',}
     
     default_actions = [{'id': 'view', 
                         'title': 'View', 

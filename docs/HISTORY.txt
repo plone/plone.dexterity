@@ -7,9 +7,6 @@ Changelog
 * Make setDescription coerce to unicode in the same way as setTitle.
   [elro]
 
-* Remove redundant edit and sharing aliases from FTI defaults.
-  [elro]
-
 * Change the FTI default to enable dynamic view.
   [elro]
 
