@@ -433,7 +433,6 @@ class TestContent(MockTestCase):
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
-        import pdb; pdb.set_trace( )
         # Schema field masks contained item
         self.assertEquals(u"foo_default", content.foo)
         
