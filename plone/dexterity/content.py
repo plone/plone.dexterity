@@ -1,6 +1,8 @@
 # Use python 2.4 import location
 from Acquisition import Explicit, aq_parent
 
+from copy import deepcopy
+
 from zope.component import queryUtility
 
 from zope.interface import implements
@@ -181,7 +183,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
         if schema is not None:
             field = schema.get(name, None)
             if field is not None:
-                return field.default
+                return deepcopy(field.default)
         
         raise AttributeError(name)
     
@@ -289,7 +291,7 @@ class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrd
         if schema is not None:
             field = schema.get(name, None)
             if field is not None:
-                return field.default
+                return deepcopy(field.default)
         
         # Be specific about the implementation we use
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
