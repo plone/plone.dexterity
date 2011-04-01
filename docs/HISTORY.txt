@@ -4,6 +4,11 @@ Changelog
 1.0b8 - unreleased
 ------------------
 
+* Do a deep copy instead of shallow when assigning field defaults. Content
+  generated via script wound up with linked list (and other
+  AbstractCollection) fields.
+  [cah190, esteele]
+
 * Make setDescription coerce to unicode in the same way as setTitle.
   [elro]
 
