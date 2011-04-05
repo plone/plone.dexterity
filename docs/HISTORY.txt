@@ -4,6 +4,9 @@ Changelog
 1.0b8 - unreleased
 ------------------
 
+* Add ids to group fieldsets.
+  [elro]
+
 * Do a deep copy instead of shallow when assigning field defaults. Content
   generated via script wound up with linked list (and other
   AbstractCollection) fields.
