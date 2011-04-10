@@ -8,7 +8,9 @@ from plone.dexterity.i18n import MessageFactory as _
 
 from plone.dexterity.browser.base import DexterityExtensibleForm
 
+from Products.CMFCore.utils import getToolByName
 from Products.statusmessages.interfaces import IStatusMessage
+
 
 class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
     
@@ -28,12 +30,16 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
         self.request.response.redirect(self.nextURL()) 
 
     def nextURL(self):
-        absolute_url = self.context.absolute_url()
-        immediate_view = self.fti.immediate_view
-        if immediate_view:
-            return "%s/%s" % (absolute_url, immediate_view)
-        else:
-            return absolute_url
+        view_url = self.context.absolute_url()
+        portal_properties = getToolByName(self, 'portal_properties', None)
+        if portal_properties is not None:
+            site_properties = getattr(portal_properties, 'site_properties', None)
+            portal_type = self.portal_type
+            if site_properties is not None and portal_type is not None:
+                use_view_action = site_properties.getProperty('typesUseViewActionInListings', ())
+                if portal_type in use_view_action:
+                    view_url = view_url + '/view'
+        return view_url
     
     def update(self):
         self.portal_type = self.context.portal_type

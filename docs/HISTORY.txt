@@ -22,8 +22,9 @@ Changelog
   rename work consistently with the rest of Plone.
   [elro]
 
-* Redirect to immediate_view after edit.
-  [elro]
+* Make sure the typesUseViewActionInListings property is respected when
+  redirecting after edit.
+  [elro, davisagli]
 
 * Fix #145: UnicodeDecodeError After renaming item from @@folder_contents
   [toutpt]
