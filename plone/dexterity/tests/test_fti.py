@@ -57,14 +57,22 @@ class TestFTI(MockTestCase):
     
     def test_hasDynamicSchema(self):
         fti = DexterityFTI(u"testtype")
+        fti.model_source = None
         fti.schema = u"dummy.schema"
         self.assertEquals(False, fti.hasDynamicSchema)
         fti.schema = None
         self.assertEquals(True, fti.hasDynamicSchema)
     
+    def test_hasDynamicSchema_w_schema_and_model_source(self):
+        fti = DexterityFTI(u'testtype')
+        fti.schema = u'dummy.schema'
+        fti.model_source = '<model />'
+        self.assertEquals(True, fti.hasDynamicSchema)
+    
     def test_lookupSchema_with_concrete_schema(self):
         fti = DexterityFTI(u"testtype")
         fti.schema = u"plone.dexterity.tests.schemata.ITestSchema"
+        fti.model_source = None
         self.assertEquals(ITestSchema, fti.lookupSchema())
         self.assertEquals(ITestSchema, fti.lookupSchema()) # second time uses _v attribute
 
@@ -78,6 +86,22 @@ class TestFTI(MockTestCase):
         schemaName = utils.portalTypeToSchemaName(fti.getId())
         setattr(plone.dexterity.schema.generated, schemaName, ITestSchema)
         
+        self.assertEquals(ITestSchema, fti.lookupSchema())
+        
+        # cleanup
+        delattr(plone.dexterity.schema.generated, schemaName)
+    
+    def test_lookupSchema_w_concrete_and_dynamic_schema(self):
+        fti = DexterityFTI(u'testtype')
+        fti.schema = u'plone.dexterity.tests.schemata.ITestSchema'
+        fti.model_source = '<model />'
+        
+        portal = self.create_dummy(getPhysicalPath=lambda:('', 'site'))
+        self.mock_utility(portal, ISiteRoot)
+        
+        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        setattr(plone.dexterity.schema.generated, schemaName, ITestSchema)
+
         self.assertEquals(ITestSchema, fti.lookupSchema())
         
         # cleanup
@@ -174,20 +198,30 @@ class TestFTI(MockTestCase):
 
     def test_lookupModel_from_string_with_schema(self):
         fti = DexterityFTI(u"testtype")
-        fti.schema = u"plone.dexterity.tests.schemata.ITestSchema" # effectively ignored
+        fti.schema = u"plone.dexterity.tests.schemata.ITestSchema"
         fti.model_source = "<model />"
         fti.model_file = None
         
+        class IDummySchema(object):
+            pass
         model_dummy = Model()
+        
+        portal = self.create_dummy(getPhysicalPath=lambda:('', 'site'))
+        self.mock_utility(portal, ISiteRoot)
         
         loadString_mock = self.mocker.replace("plone.supermodel.loadString")
         self.expect(loadString_mock(fti.model_source, policy=u"dexterity")).result(model_dummy)
         
         self.replay()
         
-        model = fti.lookupModel()
-        self.assertIs(model_dummy, model)
-        self.assertIs(ITestSchema, fti.lookupSchema())
+        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        setattr(plone.dexterity.schema.generated, schemaName, IDummySchema)
+        
+        self.assertIs(model_dummy, fti.lookupModel())
+        self.assertIs(IDummySchema, fti.lookupSchema())
+        
+        # cleanup
+        delattr(plone.dexterity.schema.generated, schemaName)
 
     def test_lookupModel_failure(self):
         fti = DexterityFTI(u"testtype")
@@ -588,6 +622,7 @@ class TestFTIEvents(MockTestCase):
         
         # Set schema to something so that hasDynamicSchema is false
         fti.schema = IBlank.__identifier__
+        fti.model_source = None
         assert not fti.hasDynamicSchema
         
         # Set source for dynamic FTI - should not be used

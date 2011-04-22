@@ -273,16 +273,29 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
     
     @property
     def hasDynamicSchema(self):
+        if self.model_source:
+            return True
         return not(self.schema)
+    
+    def lookupConcreteSchema(self):
+        """ Resolves the dotted path to a schema in the FTI's schema attribute.
+        
+        Returns None if the schema attribute is not specified.
+        """
+        if not self.schema:
+            return None
+        
+        schema = utils.resolveDottedName(self.schema)
+        if schema is None:
+            raise ValueError(u"Schema %s set for type %s cannot be resolved" % (self.schema, self.getId()))
+        return schema
     
     def lookupSchema(self):
         
         # If a specific schema is given, use it
-        if self.schema:
-            schema = utils.resolveDottedName(self.schema)
-            if schema is None:
-                raise ValueError(u"Schema %s set for type %s cannot be resolved" % (self.schema, self.getId()))
-            return schema
+        # (unless overridden by model_source)
+        if self.schema and not self.model_source:
+            return self.lookupConcreteSchema()
         
         # Otherwise, look up a dynamic schema. This will query the model for
         # an unnamed schema if it is the first time it is looked up. 
@@ -301,7 +314,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
             return loadFile(model_file, reload=True, policy=u"dexterity")
         
         elif self.schema:
-            schema = self.lookupSchema()
+            schema = self.lookupConcreteSchema()
             return Model({u"": schema})
         
         raise ValueError("Neither model source, nor model file, nor schema is specified in FTI %s" % self.getId())

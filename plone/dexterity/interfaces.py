@@ -14,14 +14,20 @@ class IDexterityFTI(ITypeInformation):
     """The Factory Type Information for Dexterity content objects
     """
 
+    def lookupConcreteSchema():
+        """ Resolves the dotted path to a schema in the FTI's schema attribute.
+        
+        Returns None if the schema attribute is not specified.
+        """
+
     def lookupSchema():
         """Return an InterfaceClass that represents the schema of this type.
         Raises a ValueError if it cannot be found.
         
-        If a schema interface is specified, return this. Otherwise, look up
-        the model from either the TTW model source string or a specified
-        model XML file, and build a schema from the unnamed schema
-        specified in this model.
+        If a schema interface is specified and no model_source is specified,
+        return the schema. Otherwise, look up the model from either the TTW
+        model source string or a specified model XML file, and build a schema
+        from the unnamed schema specified in this model.
         """
 
     def lookupModel():

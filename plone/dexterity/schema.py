@@ -155,14 +155,20 @@ class SchemaModuleFactory(object):
             prefix, portal_type, schemaName = utils.splitSchemaName(name)
         except ValueError:
             return None
+
+        fti = queryUtility(IDexterityFTI, name=portal_type)
         
-        if name in self._transient_SCHEMA_CACHE:
+        if fti is None and name in self._transient_SCHEMA_CACHE:
             schema = self._transient_SCHEMA_CACHE[name]
         else:
             bases = ()
             
             is_default_schema = not schemaName
             if is_default_schema:
+                if fti is not None:
+                    concrete_schema = fti.lookupConcreteSchema()
+                    if concrete_schema is not None:
+                        bases += (concrete_schema,)
                 bases += (IDexteritySchema,)
         
             schema = InterfaceClass(name, bases, __module__=module.__name__)
@@ -170,12 +176,16 @@ class SchemaModuleFactory(object):
             if is_default_schema:
                 alsoProvides(schema, IContentType)
         
-        fti = queryUtility(IDexterityFTI, name=portal_type)
         if fti is None and name not in self._transient_SCHEMA_CACHE:
             self._transient_SCHEMA_CACHE[name] = schema
         elif fti is not None:
-            model = fti.lookupModel()            
-            syncSchema(model.schemata[schemaName], schema, sync_bases=True)
+            model = fti.lookupModel()
+            # sync once to overwrite fields
+            syncSchema(model.schemata[schemaName], schema, sync_bases=False,
+                       overwrite=True)
+            # sync again to copy bases
+            syncSchema(model.schemata[schemaName], schema, sync_bases=True,
+                       overwrite=False)
 
             # Save this schema in the module - this factory will not be
             # called again for this name
