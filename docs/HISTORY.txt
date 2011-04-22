@@ -4,14 +4,6 @@ Changelog
 1.0b8 - unreleased
 ------------------
 
-* If both a model_source and schema are specified for an FTI, generate a
-  dynamic schema that is based on the model but also extends the concrete
-  schema. This way types with filesystem schemas can be edited
-  through the web and have changes serialized to the model_source.
-  Caveat: Fields deleted through the web will still be inherited from the
-  base concrete schema the next time the schema is loaded.
-  [davisagli]
-
 * Add ids to group fieldsets.
   [elro]
 

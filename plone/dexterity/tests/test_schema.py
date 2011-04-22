@@ -43,8 +43,6 @@ class TestSchemaModuleFactory(MockTestCase):
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
-        fti_mock.lookupConcreteSchema()
-        self.mocker.result(None)
         fti_mock.lookupModel()
         self.mocker.result(mock_model)
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
@@ -125,8 +123,6 @@ class TestSchemaModuleFactory(MockTestCase):
         mock_model = Model({u"": IDummy})
         
         fti_mock = self.mocker.mock(DexterityFTI)
-        fti_mock.lookupConcreteSchema()
-        self.mocker.result(None)
         fti_mock.lookupModel()
         self.mocker.result(mock_model)
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
@@ -143,36 +139,6 @@ class TestSchemaModuleFactory(MockTestCase):
         
         # Now we get the fields from the FTI's model
         self.assertEquals(('dummy',), tuple(zope.schema.getFieldNames(klass)))
-
-    def test_transient_schema_based_on_concrete_schema(self):
-        # If an FTI has both a concrete schema and a model_source set,
-        # the schema factory should create a dynamic schema that extends
-        # the concrete one for the purpose of adapter lookup.
-
-        factory = schema.SchemaModuleFactory()
-        schemaName = utils.portalTypeToSchemaName('testtype', prefix='site')
-
-        class IDummyConcrete(Interface):
-            dummy = zope.schema.TextLine(title=u'Dummy')
-        class IDummyFromModel(Interface):
-            dummy2 = zope.schema.TextLine(title=u'Dummy 2')
-        mock_model = Model({u'': IDummyFromModel})
-        
-        fti_mock = self.mocker.mock(DexterityFTI)
-        fti_mock.lookupConcreteSchema()
-        self.mocker.result(IDummyConcrete)
-        fti_mock.lookupModel()
-        self.mocker.result(mock_model)
-        self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
-        
-        self.mocker.replay()
-        
-        klass = factory(schemaName, schema.generated)
-        
-        # Now the generated schema has the fields from both schemata
-        self.assertEquals(('dummy2','dummy'), tuple(zope.schema.getFieldNames(klass)))
-        # And it declares itself as extending the concrete schema.
-        self.assertTrue(klass.isOrExtends(IDummyConcrete))
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
