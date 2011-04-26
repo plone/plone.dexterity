@@ -10,6 +10,7 @@ from plone.dexterity.utils import resolveDottedName
 
 log = logging.getLogger(__name__)
 
+
 class DexterityExtensibleForm(AutoExtensibleForm):
     """Mixin class for Dexterity forms that support updatable fields
     """
@@ -20,14 +21,14 @@ class DexterityExtensibleForm(AutoExtensibleForm):
     def description(self):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         return fti.Description()
-    
+
     # AutoExtensibleForm contract
-    
+
     @property
     def schema(self):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
-        return fti.lookupSchema() 
-    
+        return fti.lookupSchema()
+
     @property
     def additionalSchemata(self):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
