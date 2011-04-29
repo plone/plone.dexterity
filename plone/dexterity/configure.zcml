@@ -6,6 +6,8 @@
 
     <i18n:registerTranslations directory="locales"/>
 
+    <include package="Products.CMFCore" />
+
     <include package="plone.behavior" />
     <include package="plone.folder" />
     <include package="plone.supermodel" />

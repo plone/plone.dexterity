@@ -4,6 +4,9 @@ Changelog
 1.0b8 - unreleased
 ------------------
 
+* Explicitly load CMFCore ZCML.
+  [davisagli]
+
 * Add ids to group fieldsets.
   [elro]
 
