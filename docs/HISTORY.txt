@@ -4,6 +4,11 @@ Changelog
 1.0b8 - unreleased
 ------------------
 
+* Look up additional schemata by adapting to IBehaviorAssignable in cases
+  where a Dexterity instance is available. (The list of behaviors in the
+  FTI is still consulted for add forms.)
+  [maurits]
+
 * Explicitly load CMFCore ZCML.
   [davisagli]
 

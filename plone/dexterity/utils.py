@@ -1,3 +1,5 @@
+import logging
+
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from AccessControl import Unauthorized
@@ -10,12 +12,15 @@ from zope.event import notify
 from zope.lifecycleevent import ObjectCreatedEvent
 
 from plone.autoform.interfaces import IFormFieldProvider
+from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.interfaces import IDexterityFTI
 
 from Products.CMFCore.interfaces import ISiteRoot
 
 # XXX: Should move to zope.container in the future
 from zope.app.container.interfaces import INameChooser
+
+log = logging.getLogger(__name__)
 
 # Not thread safe, but downside of a write conflict is very small
 _dottedCache = {}
@@ -151,3 +156,46 @@ def createContentInContainer(container, portal_type, checkConstraints=True, **kw
     content = createContent(portal_type, **kw)
     return addContentToContainer(container, content, checkConstraints=checkConstraints)
 
+
+def getAdditionalSchemata(context=None, portal_type=None):
+    """Get additional schemata for this context or this portal_type.
+
+    Additional schemata can be defined in behaviors.
+
+    Usually either context or portal_type should be set, not both.
+    The idea is that for edit forms or views you pass in a context
+    (and we get the portal_type from there) and for add forms you pass
+    in a portal_type (and the context is irrelevant then).  If both
+    are set, the portal_type might get ignored, depending on which
+    code path is taken.
+    """
+    log.info("getAdditionalSchemata with context %r and portal_type %s",
+             context, portal_type)
+    if context is None and portal_type is None:
+        return
+    if context:
+        behavior_assignable = IBehaviorAssignable(context, None)
+    else:
+        behavior_assignable = None
+    if behavior_assignable is None:
+        log.info("No behavior assignable found, only checking fti.")
+        # Usually an add-form.
+        if portal_type is None:
+            portal_type = context.portal_type
+        fti = getUtility(IDexterityFTI, name=portal_type)
+        for behavior_name in fti.behaviors:
+            try:
+                behavior_interface = resolveDottedName(behavior_name)
+            except (ValueError, ImportError):
+                log.warning("Error resolving behaviour %s", behavior_name)
+                continue
+            if behavior_interface is not None:
+                behavior_schema = IFormFieldProvider(behavior_interface, None)
+                if behavior_schema is not None:
+                    yield behavior_schema
+    else:
+        log.info("Behavior assignable found for context.")
+        for behavior_reg in behavior_assignable.enumerateBehaviors():
+            behavior_schema = IFormFieldProvider(behavior_reg.interface, None)
+            if behavior_schema is not None:
+                yield behavior_schema

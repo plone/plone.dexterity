@@ -2,8 +2,10 @@ import unittest
 from plone.mocktestcase import MockTestCase
 
 from zope.interface import implements, Interface, alsoProvides
+from zope.component import adapts, provideAdapter
 
 from plone.autoform.interfaces import IFormFieldProvider
+from plone.behavior.interfaces import IBehaviorAssignable
 
 from plone.dexterity.interfaces import IDexterityFTI
 
@@ -40,6 +42,22 @@ alsoProvides(IBehaviorTwo, IFormFieldProvider)
 
 class IBehaviorThree(Interface):
     pass
+
+class NoBehaviorAssignable(object):
+    # We will use this simple class to check that registering our own
+    # IBehaviorAssignable adapter has an effect.
+    implements(IBehaviorAssignable)
+    adapts(Interface)
+    
+    def __init__(self, context):
+        self.context = context
+    
+    def supports(self, behavior_interface):
+        return False
+        
+    def enumerateBehaviors(self):
+        return []
+
 
 class TestAddView(MockTestCase):
     
@@ -225,6 +243,7 @@ class TestAddView(MockTestCase):
                                                 IBehaviorTwo.__identifier__, 
                                                 IBehaviorThree.__identifier__))
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.expect(fti_mock.behaviors).result([])
       
         # Form
         
@@ -235,6 +254,12 @@ class TestAddView(MockTestCase):
         
         self.assertEquals(ISchema, view.schema)
         self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
+
+        # When we register our own IBehaviorAssignable we can
+        # influence what goes into the additionalSchemata:
+        provideAdapter(NoBehaviorAssignable)
+        self.assertEquals([], list(view.additionalSchemata,))
+
     
 class TestEditView(MockTestCase):
     
@@ -294,6 +319,12 @@ class TestEditView(MockTestCase):
         self.assertEquals(ISchema, view.schema)
         self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
 
+        # When we register our own IBehaviorAssignable we can
+        # influence what goes into the additionalSchemata:
+        provideAdapter(NoBehaviorAssignable)
+        self.assertEquals([], list(view.additionalSchemata,))
+
+
 class TestDefaultView(MockTestCase):
     
     def test_schema_lookup(self):
@@ -320,6 +351,12 @@ class TestDefaultView(MockTestCase):
         
         self.assertEquals(ISchema, view.schema)
         self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
+
+        # When we register our own IBehaviorAssignable we can
+        # influence what goes into the additionalSchemata:
+        provideAdapter(NoBehaviorAssignable)
+        self.assertEquals([], list(view.additionalSchemata,))
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

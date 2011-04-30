@@ -1,14 +1,10 @@
-import logging
 from zope.component import getUtility
 
-from plone.autoform.interfaces import IFormFieldProvider
 from plone.autoform.form import AutoExtensibleForm
 
 from plone.dexterity.i18n import MessageFactory as _
 from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.utils import resolveDottedName
-
-log = logging.getLogger(__name__)
+from plone.dexterity.utils import getAdditionalSchemata
 
 
 class DexterityExtensibleForm(AutoExtensibleForm):
@@ -31,14 +27,5 @@ class DexterityExtensibleForm(AutoExtensibleForm):
 
     @property
     def additionalSchemata(self):
-        fti = getUtility(IDexterityFTI, name=self.portal_type)
-        for behavior_name in fti.behaviors:
-            try:
-                behavior_interface = resolveDottedName(behavior_name)
-            except (ValueError, ImportError):
-                log.warning("Error resolving behaviour %s", behavior_name)
-                continue
-            if behavior_interface is not None:
-                behavior_schema = IFormFieldProvider(behavior_interface, None)
-                if behavior_schema is not None:
-                    yield behavior_schema
+        return getAdditionalSchemata(context=self.context,
+                                     portal_type=self.portal_type)

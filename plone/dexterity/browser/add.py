@@ -9,6 +9,7 @@ from plone.dexterity.i18n import MessageFactory as _
 
 from plone.dexterity.browser.base import DexterityExtensibleForm
 from plone.dexterity.utils import addContentToContainer
+from plone.dexterity.utils import getAdditionalSchemata
 
 from Acquisition import aq_inner, aq_base
 from Acquisition.interfaces import IAcquirer
@@ -33,6 +34,10 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         super(DefaultAddForm, self).__init__(context, request)
         self.request['disable_border'] = True
     
+    @property
+    def additionalSchemata(self):
+        return getAdditionalSchemata(portal_type=self.portal_type)
+
     # API
     
     def create(self, data):
@@ -110,6 +115,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         fti = getUtility(IDexterityFTI, name=portal_type)
         type_name = fti.Title()
         return _(u"Add ${name}", mapping={'name': type_name})
+
 
 class DefaultAddView(layout.FormWrapper, BrowserPage):
     """This is the default add view as looked up by the ++add++ traversal
