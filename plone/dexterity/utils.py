@@ -169,8 +169,8 @@ def getAdditionalSchemata(context=None, portal_type=None):
     are set, the portal_type might get ignored, depending on which
     code path is taken.
     """
-    log.info("getAdditionalSchemata with context %r and portal_type %s",
-             context, portal_type)
+    log.debug("getAdditionalSchemata with context %r and portal_type %s",
+              context, portal_type)
     if context is None and portal_type is None:
         return
     if context:
@@ -178,7 +178,7 @@ def getAdditionalSchemata(context=None, portal_type=None):
     else:
         behavior_assignable = None
     if behavior_assignable is None:
-        log.info("No behavior assignable found, only checking fti.")
+        log.debug("No behavior assignable found, only checking fti.")
         # Usually an add-form.
         if portal_type is None:
             portal_type = context.portal_type
@@ -194,7 +194,7 @@ def getAdditionalSchemata(context=None, portal_type=None):
                 if behavior_schema is not None:
                     yield behavior_schema
     else:
-        log.info("Behavior assignable found for context.")
+        log.debug("Behavior assignable found for context.")
         for behavior_reg in behavior_assignable.enumerateBehaviors():
             behavior_schema = IFormFieldProvider(behavior_reg.interface, None)
             if behavior_schema is not None:
