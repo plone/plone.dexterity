@@ -212,11 +212,24 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
         if isinstance(title, str):
             title = title.decode('utf-8')
         self.title = title
+    
+    def Title(self):
+        # this is a CMF-style accessor, so should return utf8-encoded
+        if isinstance(self.title, unicode):
+            return self.title.encode('utf8')
+        return self.title
 
     def setDescription(self, description):
         if isinstance(description, str):
             description = description.decode('utf-8')
         self.description = description
+    
+    def Description(self):
+        # this is a CMF-style accessor, so should return utf8-encoded
+        if isinstance(self.description, unicode):
+            return self.description.encode('utf8')
+        return self.description
+
 
 # XXX: It'd be nice to reduce the number of base classes here
 class Item(BrowserDefaultMixin, DexterityContent):

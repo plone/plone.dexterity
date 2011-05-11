@@ -519,17 +519,24 @@ class TestContent(MockTestCase):
         self.assertEqual(c.language, "en")
         self.assertTrue(isinstance(c.effective_date, DateTime))
 
-    def test_item_init_nondc_kwargs(self):
+    def test_container_init_nondc_kwargs(self):
         c = Container(foo="bar")
         self.assertEqual(c.foo, "bar")
 
-    def test_unicode_title(self):
+    def test_setTitle_converts_to_unicode(self):
         #fix http://code.google.com/p/dexterity/issues/detail?id=145
         i = Item()
         i.setTitle("é")
-        self.assertEqual(i.Title(),u"é")
+        self.assertEqual(i.title, u"é")
         i.setTitle(u"é")
-        self.assertEqual(i.Title(),u"é")
+        self.assertEqual(i.title, u"é")
+    
+    def test_Title_converts_to_utf8(self):
+        i = Item()
+        i.title = u"é"
+        self.assertEqual("é", i.Title())
+        i.title = "é"
+        self.assertEqual("é", i.Title())
 
     def test_field_default_independence(self):
         # Ensure that fields using the default value aren't being assigned 
