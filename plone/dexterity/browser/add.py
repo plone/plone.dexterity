@@ -17,7 +17,7 @@ from Acquisition.interfaces import IAcquirer
 from Products.statusmessages.interfaces import IStatusMessage
 
 class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
-    """Standard add form, which is warpped by DefaultAddView (see below).
+    """Standard add form, which is wrapped by DefaultAddView (see below).
     
     This form is capable of rendering the fields of any Dexterity schema,
     including behaviours. To do that, needs to know the portal_type, which
