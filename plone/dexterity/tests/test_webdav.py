@@ -38,6 +38,7 @@ from ZPublisher.HTTPResponse import HTTPResponse
 
 from plone.rfc822.interfaces import IPrimaryField
 from plone.autoform.interfaces import IFormFieldProvider
+from plone.behavior.interfaces import IBehaviorAssignable
 
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.interfaces import IDexterityFTI
@@ -49,6 +50,7 @@ from plone.dexterity.filerepresentation import DefaultFileFactory
 
 from plone.dexterity.filerepresentation import DefaultReadFile
 from plone.dexterity.filerepresentation import DefaultWriteFile
+from plone.dexterity.schema import SCHEMA_CACHE
 
 from plone.dexterity.fti import DexterityFTI
 
@@ -920,7 +922,10 @@ class TestFileRepresentation(MockTestCase):
             pass
         
         fti_mock = self.mocker.mock(DexterityFTI)
+        SCHEMA_CACHE.clear()
         self.expect(fti_mock.lookupSchema()).result(ITest)
+        self.expect(fti_mock.lookupSchema()).result(ITest)
+        self.expect(fti_mock.behaviors).result([])
         self.expect(fti_mock.behaviors).result([])
         
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
@@ -939,8 +944,11 @@ class TestFileRepresentation(MockTestCase):
         class ITest(Interface):
             title = schema.TextLine()
         
+        SCHEMA_CACHE.clear()
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookupSchema()).result(ITest)
+        self.expect(fti_mock.lookupSchema()).result(ITest)
+        self.expect(fti_mock.behaviors).result([])
         self.expect(fti_mock.behaviors).result([])
         
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
@@ -961,8 +969,11 @@ class TestFileRepresentation(MockTestCase):
             body = schema.Text()
         alsoProvides(ITest['body'], IPrimaryField)
             
+        SCHEMA_CACHE.clear()
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookupSchema()).result(ITest)
+        self.expect(fti_mock.lookupSchema()).result(ITest)
+        self.expect(fti_mock.behaviors).result([])
         self.expect(fti_mock.behaviors).result([])
         
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
@@ -985,11 +996,49 @@ class TestFileRepresentation(MockTestCase):
         alsoProvides(ITest['body'], IPrimaryField)
         alsoProvides(ITest['stuff'], IPrimaryField)
             
+        SCHEMA_CACHE.clear()
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookupSchema()).result(ITest)
         
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        item = Item('item')
+        item.portal_type = 'testtype'
         
+        readfile = DefaultReadFile(item)
+        
+        self.replay()
+        
+        self.assertEquals('message/rfc822', readfile.mimeType)
+    
+    def test_readfile_mimetype_additional_schemata(self):
+        # This is mostly a test that utils.iterSchemata takes
+        # IBehaviorAssignable into account.
+        
+        class ITest(Interface):
+            title = schema.TextLine()
+        class ITestAdditional(Interface):
+            # Additional behavior on an item
+            body = schema.Text()
+            stuff = schema.Bytes()
+        alsoProvides(ITestAdditional['body'], IPrimaryField)
+        alsoProvides(ITestAdditional['stuff'], IPrimaryField)
+        alsoProvides(ITestAdditional, IFormFieldProvider)
+        class MockBehavior(object):
+            def __init__(self, iface):
+                self.interface = iface
+        class MockBehaviorAssignable(object):
+            def __init__(self, context):
+                self.context = context
+            def enumerateBehaviors(self):
+                yield MockBehavior(ITestAdditional)
+        SCHEMA_CACHE.clear()
+        fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.lookupSchema()).result(ITest)
+        self.expect(fti_mock.lookupSchema()).result(ITest)
+
+        self.mock_adapter(MockBehaviorAssignable, IBehaviorAssignable,
+                          (Item, ))
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         item = Item('item')
         item.portal_type = 'testtype'
         

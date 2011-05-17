@@ -97,16 +97,9 @@ def iterSchemata(content):
         return
     
     yield fti.lookupSchema()
-    
-    for behavior in fti.behaviors:
-        try:
-            behaviorInterface = resolveDottedName(behavior)
-        except ValueError:
-            continue
-        if behaviorInterface is not None:
-            behaviorSchema = IFormFieldProvider(behaviorInterface, None)
-            if behaviorSchema is not None:
-                yield behaviorSchema
+    for schema in getAdditionalSchemata(context=content):
+        yield schema
+
 
 def createContent(portal_type, **kw):
     fti = getUtility(IDexterityFTI, name=portal_type)
