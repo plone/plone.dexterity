@@ -217,7 +217,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
         # this is a CMF-style accessor, so should return utf8-encoded
         if isinstance(self.title, unicode):
             return self.title.encode('utf8')
-        return self.title
+        return self.title or ''
 
     def setDescription(self, description):
         if isinstance(description, str):
@@ -228,7 +228,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
         # this is a CMF-style accessor, so should return utf8-encoded
         if isinstance(self.description, unicode):
             return self.description.encode('utf8')
-        return self.description
+        return self.description or ''
 
 
 # XXX: It'd be nice to reduce the number of base classes here

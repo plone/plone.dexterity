@@ -537,6 +537,14 @@ class TestContent(MockTestCase):
         self.assertEqual("é", i.Title())
         i.title = "é"
         self.assertEqual("é", i.Title())
+    
+    def test_Title_handles_None(self):
+        i = Item(title=None)
+        self.assertEqual('', i.Title())
+    
+    def test_Description_handles_None(self):
+        i = Item(description=None)
+        self.assertEqual('', i.Description())
 
     def test_field_default_independence(self):
         # Ensure that fields using the default value aren't being assigned 
