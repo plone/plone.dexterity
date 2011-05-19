@@ -4,8 +4,11 @@ Changelog
 1.0 - unreleased
 ----------------
 
+* Make sure the Title and Description accessors handle a value of None.
+  [davisagli]
+
 * Make sure the Title() accessor for Dexterity content returns an encoded
-  bytestring as expected for CMF-style accessors.
+  bytestring as expected for CMF-style accessors
   [davisagli]
 
 1.0rc1 - 2011-04-30
