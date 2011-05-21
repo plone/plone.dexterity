@@ -4,6 +4,9 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Removed support for Plone 3 / CMF 2.1 / Zope 2.10.
+  [davisagli]
+
 * Update package dependencies and imports as appropriate for Zope 2.12 & 2.13.
   [davisagli]
 

@@ -19,7 +19,6 @@ from zope.interface import Interface
 from zope.interface import implements
 from zope.interface import alsoProvides
 
-from zope.interface.interfaces import IInterface
 from zope.component.interfaces import IFactory
 
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
@@ -185,10 +184,7 @@ class TestWebZope2DAVAPI(MockTestCase):
     
     def test_get_streaming(self):
         class ReadFileAdapter(object):
-            if IInterface.providedBy(IStreamIterator):
-                implements(IStreamIterator)
-            else:
-                __implements__ = (IStreamIterator,)
+            implements(IStreamIterator)
             def __init__(self, context):
                 self.context = context
             mimeType = None

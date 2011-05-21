@@ -351,13 +351,7 @@ class FolderDataResource(Implicit, Resource):
 class StringStreamIterator(object):
     """Simple stream iterator to allow efficient data streaming.
     """
-    
-    # Stupid workaround for the fact that on Zope < 2.12, we don't have
-    # a real interface
-    if IInterface.providedBy(IStreamIterator):
-        implements(IStreamIterator)
-    else:
-        __implements__ = (IStreamIterator,)
+    implements(IStreamIterator)
     
     def __init__(self, data, size=None, chunk=1<<16):
         """Consume data (a str) into a temporary file and prepare streaming.
@@ -567,13 +561,7 @@ class DefaultReadFile(ReadFileBase):
     will return an accurate file size.
     """
     
-    # Stupid workaround for the fact that on Zope < 2.12, we don't have
-    # a real interface
-    if IInterface.providedBy(IStreamIterator):
-        implements(IStreamIterator)
-    else:
-        __implements__ = (IStreamIterator,)        
-    
+    implements(IStreamIterator)
     adapts(IDexterityContent)
     
     def __init__(self, context):

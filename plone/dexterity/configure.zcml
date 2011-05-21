@@ -23,15 +23,6 @@
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".content.reindexOnModify"
         />
-        
-    <!-- Ensure content workflow is always initialised.
-        XXX: This should go away when we use CMF 2.2, which does this for us.
-      -->
-    <subscriber
-        for=".interfaces.IDexterityContent
-             zope.app.container.interfaces.IObjectAddedEvent"
-        handler=".content.finishConstruction"
-        />
     
     <!-- Support for dynamic schemata -->
     
