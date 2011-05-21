@@ -40,7 +40,7 @@
   
     <!-- FTI add form -->
     <browser:page
-        for="zope.container.interfaces.IAdding"
+        for="zope.browser.interfaces.IAdding"
         name="plone.dexterity.fti"
         template="fti.pt"
         class=".fti.FTIAddView"
