@@ -17,8 +17,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 
 from Products.CMFCore.interfaces import ISiteRoot
 
-# XXX: Should move to zope.container in the future
-from zope.app.container.interfaces import INameChooser
+from zope.container.interfaces import INameChooser
 
 log = logging.getLogger(__name__)
 

@@ -18,7 +18,7 @@ from plone.dexterity.content import Item, Container
 from plone.dexterity.fti import DexterityFTI
 
 from zope.publisher.browser import TestRequest as TestRequestBase
-from zope.app.container.interfaces import INameChooser
+from zope.container.interfaces import INameChooser
 
 from AccessControl import Unauthorized
 

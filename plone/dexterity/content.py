@@ -20,8 +20,7 @@ from plone.dexterity.interfaces import IDexterityContainer
 
 from plone.dexterity.schema import SCHEMA_CACHE
 
-# XXX: Should move to zope.container in the future
-from zope.app.container.contained import Contained
+from zope.container.contained import Contained
 
 import AccessControl.Permissions
 from AccessControl import ClassSecurityInfo

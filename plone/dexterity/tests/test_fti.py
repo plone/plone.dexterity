@@ -21,9 +21,9 @@ from zope.app.component.hooks import setSite, setHooks
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.lifecycleevent import ObjectModifiedEvent
 
-from zope.app.container.contained import ObjectMovedEvent
-from zope.app.container.contained import ObjectAddedEvent
-from zope.app.container.contained import ObjectRemovedEvent
+from zope.container.contained import ObjectMovedEvent
+from zope.container.contained import ObjectAddedEvent
+from zope.container.contained import ObjectRemovedEvent
 
 from plone.dexterity.interfaces import IDexterityFTI
 

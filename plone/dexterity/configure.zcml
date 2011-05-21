@@ -73,19 +73,19 @@
     
     <subscriber
         for=".interfaces.IDexterityFTI
-             zope.app.container.interfaces.IObjectAddedEvent"
+             zope.container.interfaces.IObjectAddedEvent"
         handler=".fti.ftiAdded"
         />
         
     <subscriber
         for=".interfaces.IDexterityFTI
-             zope.app.container.interfaces.IObjectRemovedEvent"
+             zope.container.interfaces.IObjectRemovedEvent"
         handler=".fti.ftiRemoved"
         />
         
     <subscriber
         for=".interfaces.IDexterityFTI
-             zope.app.container.interfaces.IObjectMovedEvent"
+             zope.container.interfaces.IObjectMovedEvent"
         handler=".fti.ftiRenamed"
         />
     
