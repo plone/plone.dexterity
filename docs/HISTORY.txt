@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2.0 - unreleased
+----------------
+
+* Update package dependencies and imports as appropriate for Zope 2.12 & 2.13.
+  [davisagli]
+
+
 1.0 - 2011-05-20
 ----------------
 

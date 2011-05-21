@@ -1,4 +1,3 @@
-# Use python 2.4 import location
 from Acquisition import Explicit, aq_parent
 
 from copy import deepcopy

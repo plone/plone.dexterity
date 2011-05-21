@@ -11,7 +11,7 @@ from zope.security.interfaces import IPermission
 
 from zope.lifecycleevent import modified
 
-from zope.app.component.hooks import getSiteManager
+from zope.site.hooks import getSiteManager
 
 from plone.supermodel import loadString, loadFile
 from plone.supermodel.model import Model
