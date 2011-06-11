@@ -12,6 +12,7 @@
     <include package="plone.folder" />
     <include package="plone.supermodel" />
     <include package="plone.rfc822" />
+    <include package="plone.uuid" />
     <include package="plone.z3cform" />
     
     <include package=".browser" />
