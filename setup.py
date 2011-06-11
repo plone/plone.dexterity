@@ -39,6 +39,7 @@ setup(name='plone.dexterity',
           'plone.rfc822',
           'plone.supermodel>=1.0b2',
           'plone.synchronize',
+          'plone.uuid',
           'plone.z3cform>=0.6.0',
           'Products.CMFCore',
           'Products.CMFDefault',
@@ -64,7 +65,10 @@ setup(name='plone.dexterity',
           'ZODB3',
       ],
       extras_require={
-        'test': ['plone.mocktestcase>=1.0b3',]
+        'test': [
+            'plone.mocktestcase>=1.0b3',
+            'plone.testing',
+            ]
       },
       entry_points="""
       # -*- Entry points: -*-

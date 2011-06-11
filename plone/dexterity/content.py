@@ -35,6 +35,7 @@ from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
+from plone.uuid.interfaces import IAttributeUUID
 
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 from plone.supermodel.utils import mergedTaggedValueDict
@@ -162,7 +163,7 @@ class AttributeValidator(Explicit):
 class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, Contained):
     """Base class for Dexterity content
     """
-    implements(IDexterityContent, IAttributeAnnotatable)
+    implements(IDexterityContent, IAttributeAnnotatable, IAttributeUUID)
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
     

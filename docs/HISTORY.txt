@@ -4,6 +4,10 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Assign plone.uuid UUIDs to Dexterity items when they are created.
+  Added dependency on plone.uuid.
+  [davisagli]
+
 * Removed support for Plone 3 / CMF 2.1 / Zope 2.10.
   [davisagli]
 
