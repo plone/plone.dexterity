@@ -1,0 +1,57 @@
+# Translations template for plone.dexterity.
+# Copyright (C) 2010 Plone foundation
+# This file is distributed under the same license as the plone.dexterity
+# project.
+# Jian Aijun  <jianaijun@gmail.com>, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: plone.dexterity 1.0rc1\n"
+"Report-Msgid-Bugs-To: dexterity-development@googlegroups.com\n"
+"POT-Creation-Date: 2010-07-09 15:38+0200\n"
+"PO-Revision-Date: 2011-05-04 18:06+0800\n"
+"Last-Translator: Jian Aijun <jianaijun@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.5\n"
+
+#: plone/dexterity/browser/add.py:82
+#: plone/dexterity/browser/edit.py:15
+msgid "Save"
+msgstr "保存"
+
+#: plone/dexterity/browser/add.py:92
+msgid "Item created"
+msgstr "条目已经创建"
+
+#: plone/dexterity/browser/add.py:94
+#: plone/dexterity/browser/edit.py:25
+msgid "Cancel"
+msgstr "取消"
+
+#: plone/dexterity/browser/add.py:96
+msgid "Add New Item operation cancelled"
+msgstr "添加​​新条目操作已经取消"
+
+#: plone/dexterity/browser/add.py:112
+msgid "Add ${name}"
+msgstr "添加 ${name}"
+
+#: plone/dexterity/browser/base.py:14
+msgid "Content"
+msgstr "内容"
+
+#: plone/dexterity/browser/edit.py:22
+msgid "Changes saved"
+msgstr "更改已经保存"
+
+#: plone/dexterity/browser/edit.py:27
+msgid "Edit cancelled"
+msgstr "编辑已经撤消"
+
+#: plone/dexterity/browser/edit.py:48
+msgid "Edit ${name}"
+msgstr "编辑 ${name}"
+

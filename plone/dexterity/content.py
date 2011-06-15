@@ -1,5 +1,6 @@
-# Use python 2.4 import location
 from Acquisition import Explicit, aq_parent
+
+from copy import deepcopy
 
 from zope.component import queryUtility
 
@@ -19,11 +20,13 @@ from plone.dexterity.interfaces import IDexterityContainer
 
 from plone.dexterity.schema import SCHEMA_CACHE
 
-# XXX: Should move to zope.container in the future
-from zope.app.container.contained import Contained
+from zope.container.contained import Contained
 
+import AccessControl.Permissions
+from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
 
+import Products.CMFCore.permissions
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.PortalFolder import PortalFolderBase
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
@@ -32,6 +35,7 @@ from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
+from plone.uuid.interfaces import IAttributeUUID
 
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 from plone.supermodel.utils import mergedTaggedValueDict
@@ -159,7 +163,7 @@ class AttributeValidator(Explicit):
 class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, Contained):
     """Base class for Dexterity content
     """
-    implements(IDexterityContent, IAttributeAnnotatable)
+    implements(IDexterityContent, IAttributeAnnotatable, IAttributeUUID)
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
     
@@ -178,7 +182,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
         if schema is not None:
             field = schema.get(name, None)
             if field is not None:
-                return field.default
+                return deepcopy(field.default)
         
         raise AttributeError(name)
     
@@ -194,16 +198,29 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
         self.id = value
     __name__ = property(_get__name__, _set__name__)
 
-    # XXX: This method and the finishConstruction() event handler below can go
-    # away once we depend on CMF 2.2. It is necessary because CMF 2.1 will
-    # call this method if invokeFactory() was used, rather than in the event
-    # handler for IObjectAddedEvent.
+    def setTitle(self, title):
+        if isinstance(title, str):
+            title = title.decode('utf-8')
+        self.title = title
+    
+    def Title(self):
+        # this is a CMF-style accessor, so should return utf8-encoded
+        if isinstance(self.title, unicode):
+            return self.title.encode('utf8')
+        return self.title or ''
 
-    def notifyWorkflowCreated(self):
-        super(DexterityContent, self).notifyWorkflowCreated()
-        self._workflowInitialized = True
+    def setDescription(self, description):
+        if isinstance(description, str):
+            description = description.decode('utf-8')
+        self.description = description
+    
+    def Description(self):
+        # this is a CMF-style accessor, so should return utf8-encoded
+        if isinstance(self.description, unicode):
+            return self.description.encode('utf8')
+        return self.description or ''
 
-# XXX: It'd be nice to reduce the number of base classes here
+
 class Item(BrowserDefaultMixin, DexterityContent):
     """A non-containerish, CMFish item
     """
@@ -241,6 +258,13 @@ class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrd
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
     
+    security = ClassSecurityInfo()
+    security.declareProtected(AccessControl.Permissions.copy_or_move, 'manage_copyObjects')
+    security.declareProtected(Products.CMFCore.permissions.ModifyPortalContent, 'manage_cutObjects')
+    security.declareProtected(Products.CMFCore.permissions.ModifyPortalContent, 'manage_pasteObjects')
+    security.declareProtected(Products.CMFCore.permissions.ModifyPortalContent, 'manage_renameObject')    
+    security.declareProtected(Products.CMFCore.permissions.ModifyPortalContent, 'manage_renameObjects')
+    
     isPrincipiaFolderish = 1
     
     # make sure CMFCatalogAware's manage_options don't take precedence
@@ -269,7 +293,7 @@ class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrd
         if schema is not None:
             field = schema.get(name, None)
             if field is not None:
-                return field.default
+                return deepcopy(field.default)
         
         # Be specific about the implementation we use
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
@@ -286,14 +310,3 @@ def reindexOnModify(content, event):
     # not match index names.
     
     content.reindexObject()
-
-# XXX: This can go away when we use CMF 2.2, where handleContentishEvent
-# takes care of this there.
-def finishConstruction(content, event):
-    """When an object is added to a container, make sure the workflow tool
-    is adequately aware.
-    """
-    
-    if not getattr(content, '_workflowInitialized', False):
-        content.notifyWorkflowCreated()
-        content.reindexObjectSecurity()

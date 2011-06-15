@@ -3,6 +3,7 @@ import mocker
 from plone.mocktestcase import MockTestCase
 
 from zope.interface import implements, Interface, alsoProvides
+from zope.component import adapts, provideAdapter
 
 from z3c.form.interfaces import IWidgets
 from z3c.form.interfaces import IActions
@@ -10,6 +11,7 @@ from z3c.form.action import Actions
 from z3c.form.field import FieldWidgets
 
 from plone.autoform.interfaces import IFormFieldProvider
+from plone.behavior.interfaces import IBehaviorAssignable
 
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IEditBegunEvent
@@ -26,7 +28,7 @@ from plone.dexterity.content import Item, Container
 from plone.dexterity.fti import DexterityFTI
 
 from zope.publisher.browser import TestRequest as TestRequestBase
-from zope.app.container.interfaces import INameChooser
+from zope.container.interfaces import INameChooser
 
 from AccessControl import Unauthorized
 
@@ -52,6 +54,22 @@ alsoProvides(IBehaviorTwo, IFormFieldProvider)
 
 class IBehaviorThree(Interface):
     pass
+
+class NoBehaviorAssignable(object):
+    # We will use this simple class to check that registering our own
+    # IBehaviorAssignable adapter has an effect.
+    implements(IBehaviorAssignable)
+    adapts(Interface)
+    
+    def __init__(self, context):
+        self.context = context
+    
+    def supports(self, behavior_interface):
+        return False
+        
+    def enumerateBehaviors(self):
+        return []
+
 
 class TestAddView(MockTestCase):
     
@@ -237,6 +255,7 @@ class TestAddView(MockTestCase):
                                                 IBehaviorTwo.__identifier__, 
                                                 IBehaviorThree.__identifier__))
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.expect(fti_mock.behaviors).result([])
       
         # Form
         
@@ -247,6 +266,11 @@ class TestAddView(MockTestCase):
         
         self.assertEquals(ISchema, view.schema)
         self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
+
+        # When we register our own IBehaviorAssignable we can
+        # influence what goes into the additionalSchemata:
+        provideAdapter(NoBehaviorAssignable)
+        self.assertEquals([], list(view.additionalSchemata,))
 
     def test_fires_add_begun_event(self):
         
@@ -309,7 +333,7 @@ class TestAddView(MockTestCase):
         view = DefaultAddForm(context_mock, request_mock)
         view.handleCancel(view, {})
 
-        
+
 class TestEditView(MockTestCase):
     
     def test_label(self):
@@ -367,6 +391,11 @@ class TestEditView(MockTestCase):
         
         self.assertEquals(ISchema, view.schema)
         self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
+
+        # When we register our own IBehaviorAssignable we can
+        # influence what goes into the additionalSchemata:
+        provideAdapter(NoBehaviorAssignable)
+        self.assertEquals([], list(view.additionalSchemata,))
 
     def test_fires_edit_begun_event(self):
         
@@ -455,6 +484,12 @@ class TestDefaultView(MockTestCase):
         
         self.assertEquals(ISchema, view.schema)
         self.assertEquals([IBehaviorOne, IBehaviorTwo], list(view.additionalSchemata,))
+
+        # When we register our own IBehaviorAssignable we can
+        # influence what goes into the additionalSchemata:
+        provideAdapter(NoBehaviorAssignable)
+        self.assertEquals([], list(view.additionalSchemata,))
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

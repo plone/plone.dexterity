@@ -6,10 +6,13 @@
 
     <i18n:registerTranslations directory="locales"/>
 
+    <include package="Products.CMFCore" />
+
     <include package="plone.behavior" />
     <include package="plone.folder" />
     <include package="plone.supermodel" />
     <include package="plone.rfc822" />
+    <include package="plone.uuid" />
     <include package="plone.z3cform" />
     
     <include package=".browser" />
@@ -20,15 +23,6 @@
         for=".interfaces.IDexterityContent
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".content.reindexOnModify"
-        />
-        
-    <!-- Ensure content workflow is always initialised.
-        XXX: This should go away when we use CMF 2.2, which does this for us.
-      -->
-    <subscriber
-        for=".interfaces.IDexterityContent
-             zope.app.container.interfaces.IObjectAddedEvent"
-        handler=".content.finishConstruction"
         />
     
     <!-- Support for dynamic schemata -->
@@ -80,19 +74,19 @@
     
     <subscriber
         for=".interfaces.IDexterityFTI
-             zope.app.container.interfaces.IObjectAddedEvent"
+             zope.container.interfaces.IObjectAddedEvent"
         handler=".fti.ftiAdded"
         />
         
     <subscriber
         for=".interfaces.IDexterityFTI
-             zope.app.container.interfaces.IObjectRemovedEvent"
+             zope.container.interfaces.IObjectRemovedEvent"
         handler=".fti.ftiRemoved"
         />
         
     <subscriber
         for=".interfaces.IDexterityFTI
-             zope.app.container.interfaces.IObjectMovedEvent"
+             zope.container.interfaces.IObjectMovedEvent"
         handler=".fti.ftiRenamed"
         />
     
@@ -112,4 +106,6 @@
         />
     <adapter factory=".filerepresentation.DefaultWriteFile" />
 
+    <!-- PrimaryFieldInfo -->
+    <adapter factory=".primary.PrimaryFieldInfo"/>
 </configure>

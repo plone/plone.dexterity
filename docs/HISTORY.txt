@@ -1,12 +1,75 @@
 Changelog
 =========
 
-1.0b7 - unreleased
+2.0 - unreleased
+----------------
+
+* Assign plone.uuid UUIDs to Dexterity items when they are created.
+  Added dependency on plone.uuid.
+  [davisagli]
+
+* Removed support for Plone 3 / CMF 2.1 / Zope 2.10.
+  [davisagli]
+
+* Update package dependencies and imports as appropriate for Zope 2.12 & 2.13.
+  [davisagli]
+
+
+1.0 - 2011-05-20
+----------------
+
+* Make sure the Title and Description accessors handle a value of None.
+  [davisagli]
+
+* Make sure the Title() accessor for Dexterity content returns an encoded
+  bytestring as expected for CMF-style accessors.
+  [davisagli]
+
+1.0rc1 - 2011-04-30
+-------------------
+
+* Look up additional schemata by adapting to IBehaviorAssignable in cases
+  where a Dexterity instance is available. (The list of behaviors in the
+  FTI is still consulted for add forms.)
+  [maurits]
+
+* Explicitly load CMFCore ZCML.
+  [davisagli]
+
+* Add ids to group fieldsets.
+  [elro]
+
+* Do a deep copy instead of shallow when assigning field defaults. Content
+  generated via script wound up with linked list (and other
+  AbstractCollection) fields.
+  [cah190, esteele]
+
+* Make setDescription coerce to unicode in the same way as setTitle.
+  [elro]
+
+* Change the FTI default to enable dynamic view.
+  [elro]
+
+* Setup folder permissions in the same way as Archetypes so copy / paste /
+  rename work consistently with the rest of Plone.
+  [elro]
+
+* Make sure the typesUseViewActionInListings property is respected when
+  redirecting after edit.
+  [elro, davisagli]
+
+* Fix #145: UnicodeDecodeError After renaming item from @@folder_contents
+  [toutpt]
+
+1.0b7 - 2011-02-11
 ------------------
 
 * Added events: IEditBegunEvent, IEditCancelledEvent, IAddBegunEvent,
   IAddCancelledEvent
   [jbaumann]
+
+* Add adapter for plone.rfc822.interfaces.IPrimaryFieldInfo.
+  [elro]
 
 * Fixed deadlock in synchronized methods of schema cache by using
   threading.RLock instead of threading.Lock.

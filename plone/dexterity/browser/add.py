@@ -12,6 +12,7 @@ from plone.dexterity.browser.base import DexterityExtensibleForm
 from plone.dexterity.utils import addContentToContainer
 from plone.dexterity.events import AddBegunEvent
 from plone.dexterity.events import AddCancelledEvent
+from plone.dexterity.utils import getAdditionalSchemata
 
 from Acquisition import aq_inner, aq_base
 from Acquisition.interfaces import IAcquirer
@@ -19,7 +20,7 @@ from Acquisition.interfaces import IAcquirer
 from Products.statusmessages.interfaces import IStatusMessage
 
 class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
-    """Standard add form, which is warpped by DefaultAddView (see below).
+    """Standard add form, which is wrapped by DefaultAddView (see below).
     
     This form is capable of rendering the fields of any Dexterity schema,
     including behaviours. To do that, needs to know the portal_type, which
@@ -36,6 +37,10 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         super(DefaultAddForm, self).__init__(context, request)
         self.request['disable_border'] = True
     
+    @property
+    def additionalSchemata(self):
+        return getAdditionalSchemata(portal_type=self.portal_type)
+
     # API
     
     def create(self, data):
@@ -120,6 +125,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         fti = getUtility(IDexterityFTI, name=portal_type)
         type_name = fti.Title()
         return _(u"Add ${name}", mapping={'name': type_name})
+
 
 class DefaultAddView(layout.FormWrapper, BrowserPage):
     """This is the default add view as looked up by the ++add++ traversal

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.0b7'
+version = '2.0dev'
 
 setup(name='plone.dexterity',
       version=version,
@@ -28,46 +28,47 @@ setup(name='plone.dexterity',
             ]},
       zip_safe=False,
       install_requires=[
-          'setuptools',
-          'rwproperty',
-          'plone.synchronize',
-          'plone.memoize',
-          
-          'plone.z3cform>=0.6.0',
-          'plone.folder',
-          'plone.supermodel>=1.0b2',
+          # 'Acquisition',
+          # 'AccessControl',
+      
           'plone.alterego',
-          'plone.behavior>=1.0b5',
           'plone.autoform>=1.0b2',
+          'plone.behavior>=1.0b5',
+          'plone.folder',
+          'plone.memoize',
           'plone.rfc822',
-          
-          'zope.interface',
-          'zope.component',
-          'zope.schema',
-          'zope.location',
-          'zope.dottedname',
+          'plone.supermodel>=1.0b2',
+          'plone.synchronize',
+          'plone.uuid',
+          'plone.z3cform>=0.6.0',
+          'Products.CMFCore',
+          'Products.CMFDefault',
+          'Products.CMFDynamicViewFTI',
+          'Products.statusmessages',
+          'rwproperty',
+          'setuptools',
+          'Zope2',
           'zope.annotation',
+          'zope.browser',
+          'zope.component',
+          'zope.container',
+          'zope.dottedname',
+          'zope.interface',
+          'zope.lifecycleevent',
+          'zope.location',
           'zope.publisher',
-          'zope.deferredimport',
+          'zope.schema',
           'zope.security',
-          'zope.app.container',   # XXX: Should move to zope.container in the future
           'zope.app.content',
           'zope.filerepresentation>=3.6.0',
           'zope.size',
           'ZODB3',
-          
-          # 'Acquisition',
-          # 'AccessControl',
-          # 'Products.CMFCore',
-          # 'Products.CMFDefault',
-          # 'Products.CMFDynamicViewFTI',
-          # 'Products.Five',
-          # 'Products.statusmessages',
-          
-          # -*- Extra requirements: -*-
       ],
       extras_require={
-        'test': ['plone.mocktestcase>=1.0b3',]
+        'test': [
+            'plone.mocktestcase>=1.0b3',
+            'plone.testing',
+            ]
       },
       entry_points="""
       # -*- Entry points: -*-

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 from plone.mocktestcase import MockTestCase
 
@@ -432,7 +433,6 @@ class TestContent(MockTestCase):
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         
         self.replay()
-        
         # Schema field masks contained item
         self.assertEquals(u"foo_default", content.foo)
         
@@ -519,10 +519,77 @@ class TestContent(MockTestCase):
         self.assertEqual(c.language, "en")
         self.assertTrue(isinstance(c.effective_date, DateTime))
 
-    def test_item_init_nondc_kwargs(self):
+    def test_container_init_nondc_kwargs(self):
         c = Container(foo="bar")
         self.assertEqual(c.foo, "bar")
 
+    def test_setTitle_converts_to_unicode(self):
+        #fix http://code.google.com/p/dexterity/issues/detail?id=145
+        i = Item()
+        i.setTitle("é")
+        self.assertEqual(i.title, u"é")
+        i.setTitle(u"é")
+        self.assertEqual(i.title, u"é")
+    
+    def test_Title_converts_to_utf8(self):
+        i = Item()
+        i.title = u"é"
+        self.assertEqual("é", i.Title())
+        i.title = "é"
+        self.assertEqual("é", i.Title())
+    
+    def test_Title_handles_None(self):
+        i = Item(title=None)
+        self.assertEqual('', i.Title())
+    
+    def test_Description_handles_None(self):
+        i = Item(description=None)
+        self.assertEqual('', i.Description())
+
+    def test_field_default_independence(self):
+        # Ensure that fields using the default value aren't being assigned 
+        # shallow copies.
+
+        class FauxDataManager(object):
+            def setstate(self, obj): pass
+            def oldstate(self, obj, tid): pass
+            def register(self, obj): pass
+        
+        # Dummy instances
+        foo = Item(id=u'foo')
+        foo.portal_type = 'testtype'
+        foo._p_jar = FauxDataManager()
+
+        bar = Item(id=u'bar')
+        bar.portal_type = 'testtype'
+        bar._p_jar = FauxDataManager()
+
+        baz = Container(id=u'baz')
+        baz.portal_type = 'testtype'
+        baz._p_jar = FauxDataManager()
+        
+        # Dummy schema
+        class ISchema(Interface):
+            listfield = zope.schema.List(title=u"listfield", default=[1,2])
+
+        # FTI mock
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+
+        self.replay()
+
+        # Ensure that the field of foo is not the same field, also attached to
+        # bar.
+        self.assertTrue(foo.listfield is not bar.listfield)
+        self.assertTrue(foo.listfield is not baz.listfield)
+        # And just to reinforce why this is awful, we'll ensure that updating
+        # the field's value on one object does not change the value on the
+        # other.
+        foo.listfield.append(3)
+        self.assertEquals(bar.listfield, [1,2])
+        self.assertEquals(baz.listfield, [1,2])
+        
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
