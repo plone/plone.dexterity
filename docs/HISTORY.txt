@@ -4,6 +4,10 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Added events: IEditBegunEvent, IEditCancelledEvent, IAddBegunEvent,
+  IAddCancelledEvent
+  [jbaumann]
+
 * Assign plone.uuid UUIDs to Dexterity items when they are created.
   Added dependency on plone.uuid.
   [davisagli]
@@ -63,10 +67,6 @@ Changelog
 
 1.0b7 - 2011-02-11
 ------------------
-
-* Added events: IEditBegunEvent, IEditCancelledEvent, IAddBegunEvent,
-  IAddCancelledEvent
-  [jbaumann]
 
 * Add adapter for plone.rfc822.interfaces.IPrimaryFieldInfo.
   [elro]
