@@ -309,7 +309,7 @@ class TestAddView(MockTestCase):
         # Context and request
 
         context_mock = self.create_dummy(portal_type=u'testtype')
-        context_mock.absolute_url = lambda *a, **kw: 'http://nohost/plone/item'
+        context_mock.absolute_url = lambda *a, **kw: 'http://127.0.0.1/plone/item'
         request_mock = TestRequest()
 
         # mock status message
@@ -433,7 +433,7 @@ class TestEditView(MockTestCase):
         # Context and request
 
         context_mock = self.create_dummy(portal_type=u'testtype')
-        context_mock.absolute_url = lambda *a, **kw: 'http://nohost/plone/item'
+        context_mock.absolute_url = lambda *a, **kw: 'http://127.0.0.1/plone/item'
         request_mock = TestRequest()
 
         # mock status message
