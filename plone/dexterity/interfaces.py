@@ -151,3 +151,8 @@ class IAddCancelledEvent(ICancelledEvent):
     """An add operation was cancelled. The event context is the folder,
     since the object does not exist yet.
     """
+
+class IEditFinishedEvent(IObjectEvent):
+    """Edit was finished and contents are saved. This event is fired
+    even when no changes happen (and no modified event is fired.)
+    """

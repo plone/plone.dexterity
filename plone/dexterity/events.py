@@ -28,3 +28,10 @@ class AddCancelledEvent(ObjectEvent):
     since the object does not exist yet.
     """
     implements(interfaces.IAddCancelledEvent)
+
+
+class EditFinishedEvent(ObjectEvent):
+    """Edit was finished and contents are saved. This event is fired
+    even when no changes happen (and no modified event is fired.)
+    """
+    implements(interfaces.IEditFinishedEvent)

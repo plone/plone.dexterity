@@ -18,6 +18,7 @@ from plone.dexterity.interfaces import IEditBegunEvent
 from plone.dexterity.interfaces import IAddBegunEvent
 from plone.dexterity.interfaces import IEditCancelledEvent
 from plone.dexterity.interfaces import IAddCancelledEvent
+from plone.dexterity.interfaces import IEditFinishedEvent
 
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
@@ -432,7 +433,7 @@ class TestEditView(MockTestCase):
 
         # Context and request
 
-        context_mock = self.create_dummy(portal_type=u'testtype')
+        context_mock = self.create_dummy(portal_type=u'testtype', title=u'foo')
         context_mock.absolute_url = lambda *a, **kw: 'http://127.0.0.1/plone/item'
         request_mock = TestRequest()
 
@@ -456,6 +457,38 @@ class TestEditView(MockTestCase):
 
         view = DefaultEditForm(context_mock, request_mock)
         view.handleCancel(view, {})
+
+    def test_fires_edit_finished_event(self):
+
+        # Context and request
+
+        context_mock = self.create_dummy(portal_type=u'testtype', title=u'foo')
+        context_mock.absolute_url = lambda *a, **kw: 'http://127.0.0.1/plone/item'
+        request_mock = TestRequest()
+
+        # mock status message
+        class StatusMessage(object):
+            implements(IStatusMessage)
+            def __init__(self, request):
+                pass
+            def addStatusMessage(self, msg, type=''):
+                pass
+        self.mock_adapter(StatusMessage, IStatusMessage, (Interface,))
+
+        # mock notify
+        notify_mock = self.mocker.replace('zope.event.notify')
+        self.expect(notify_mock(mocker.MATCH(
+                    lambda x: IEditFinishedEvent.providedBy(x)
+                    )))
+
+        # Form
+        view = DefaultEditForm(context_mock, request_mock)
+        view.widgets = self.create_dummy()
+        view.widgets.extract = lambda *a, **kw: ({'title': u'foo'}, [])
+        self.replay()
+
+        view.handleApply(view, {})
+        
 
 
 class TestDefaultView(MockTestCase):

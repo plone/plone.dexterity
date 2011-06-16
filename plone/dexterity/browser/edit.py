@@ -8,6 +8,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.i18n import MessageFactory as _
 from plone.dexterity.events import EditBegunEvent
 from plone.dexterity.events import EditCancelledEvent
+from plone.dexterity.events import EditFinishedEvent
 
 from plone.dexterity.browser.base import DexterityExtensibleForm
 
@@ -26,6 +27,7 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
         self.applyChanges(data)
         IStatusMessage(self.request).addStatusMessage(_(u"Changes saved"), "info")
         self.request.response.redirect(self.nextURL())
+        notify(EditFinishedEvent(self.context))
     
     @button.buttonAndHandler(_(u'Cancel'), name='cancel')
     def handleCancel(self, action):
