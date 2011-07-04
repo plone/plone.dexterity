@@ -4,6 +4,9 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Added pt_BR translation.
+  [rafaelbco, davisagli]
+
 * Added events: IEditBegunEvent, IEditCancelledEvent, IEditFinished, 
   IAddBegunEvent, IAddCancelledEvent
   [jbaumann]
