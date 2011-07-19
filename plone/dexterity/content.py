@@ -34,6 +34,7 @@ from Products.CMFCore.PortalFolder import PortalFolderBase
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
+from Products.CMFDefault.utils import tuplize
 from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
@@ -216,7 +217,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
     def Title(self):
         # this is a CMF-style accessor, so should return utf8-encoded
         if isinstance(self.title, unicode):
-            return self.title.encode('utf8')
+            return self.title.encode('utf-8')
         return self.title or ''
 
     def setDescription(self, description):
@@ -227,9 +228,27 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
     def Description(self):
         # this is a CMF-style accessor, so should return utf8-encoded
         if isinstance(self.description, unicode):
-            return self.description.encode('utf8')
+            return self.description.encode('utf-8')
         return self.description or ''
-
+    
+    def setSubject(self, subject):
+        subject = tuplize('subject', subject)
+        s = []
+        for part in subject:
+            if isinstance(part, str):
+                part = part.decode('utf-8')
+            s.append(part)
+        self.subject = tuple(s)
+    
+    def Subject(self):
+        # this is a CMF-style accessor, so should return utf8-encoded
+        s = []
+        if self.subject:
+            for part in self.subject:
+                if isinstance(part, unicode):
+                    part = part.encode('utf-8')
+                s.append(part)
+        return tuple(s)
 
 # XXX: It'd be nice to reduce the number of base classes here
 class Item(BrowserDefaultMixin, DexterityContent):
