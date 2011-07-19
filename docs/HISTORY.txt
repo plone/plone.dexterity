@@ -4,6 +4,11 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Make sure the Subject accessor returns an encoded bytestring as expected for
+  CMF-style accessors. This fixes
+  http://code.google.com/p/dexterity/issues/detail?id=197
+  [davisagli]
+
 * Added pt_BR translation.
   [rafaelbco, davisagli]
 

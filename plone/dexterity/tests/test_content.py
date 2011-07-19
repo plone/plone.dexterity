@@ -545,6 +545,25 @@ class TestContent(MockTestCase):
     def test_Description_handles_None(self):
         i = Item(description=None)
         self.assertEqual('', i.Description())
+    
+    def test_Subject_converts_to_utf8(self):
+        i = Item()
+        i.subject = (u"é",)
+        self.assertEqual(("é",), i.Subject())
+        i.subject = ("é",)
+        self.assertEqual(("é",), i.Subject())
+    
+    def test_setSubject_converts_to_unicode(self):
+        i = Item()
+        i.setSubject(("é",))
+        self.assertEqual(i.subject, (u"é",))
+        i.setSubject((u"é",))
+        self.assertEqual(i.subject, (u"é",))
+    
+    def test_Subject_handles_None(self):
+        i = Item()
+        i.subject = None
+        self.assertEqual((), i.Subject())
 
     def test_field_default_independence(self):
         # Ensure that fields using the default value aren't being assigned 
