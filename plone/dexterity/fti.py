@@ -376,7 +376,7 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
         
         return model_file
 
-def _fixProperties(class_, ignored=['product', 'content_meta_type', 'add_view_expr']):
+def _fixProperties(class_, ignored=['product', 'content_meta_type']):
     """Remove properties with the given ids, and ensure that later properties
     override earlier ones with the same id
     """

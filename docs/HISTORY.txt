@@ -4,6 +4,10 @@ Changelog
 1.0.1 - unreleased
 ------------------
 
+* Support importing the ``add_view_expr`` property of the FTI via GenericSetup.
+  This closes http://code.google.com/p/dexterity/issues/detail?id=192
+  [davisagli]
+
 * Make it possible to use DefaultAddForm without a form wrapper.
   [davisagli]
 
