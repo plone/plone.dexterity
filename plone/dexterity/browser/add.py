@@ -33,8 +33,11 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     portal_type = None
     immediate_view = None
     
-    def __init__(self, context, request):
+    def __init__(self, context, request, ti=None):
         super(DefaultAddForm, self).__init__(context, request)
+        if ti is not None:
+            self.ti = ti
+            self.portal_type = ti.getId()
         self.request['disable_border'] = True
     
     @property
