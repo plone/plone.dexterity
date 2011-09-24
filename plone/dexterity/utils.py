@@ -47,7 +47,7 @@ class SchemaNameEncoder(object):
         for k,v in self.key:
             s = s.replace(k, v)
         return s
-    
+
     def decode(self, s):
         for k,v in self.key:
             s = s.replace(v, k)
@@ -55,7 +55,7 @@ class SchemaNameEncoder(object):
 
     def join(self, *args):
         return '_0_'.join([self.encode(a) for a in args if a])
-    
+
     def split(self, s):
         return [self.decode(a) for a in s.split('_0_')]
 
@@ -64,10 +64,10 @@ def portalTypeToSchemaName(portal_type, schema=u"", prefix=None):
     """
     if prefix is None:
         prefix = '/'.join(getUtility(ISiteRoot).getPhysicalPath())[1:]
-    
+
     encoder = SchemaNameEncoder()
     return encoder.join(prefix, portal_type, schema)
-        
+
 def schemaNameToPortalType(schemaName):
     """Return a the portal_type part of a schema name
     """
@@ -86,15 +86,30 @@ def splitSchemaName(schemaName):
     else:
         raise ValueError("Schema name %s is invalid" % schemaName)
 
+
+def iterSchemataForType(portal_type):
+    """XXX: came from plone.app.deco.utils, very similar to iterSchemata
+
+    Not fully merged codewise with iterSchemata as that breaks
+    test_webdav.test_readline_mimetype_additional_schemata.
+    """
+    fti = queryUtility(IDexterityFTI, name=portal_type)
+    if fti is None:
+        return
+
+    yield fti.lookupSchema()
+    for schema in getAdditionalSchemata(portal_type=portal_type):
+        yield schema
+
+
 def iterSchemata(content):
     """Return an iterable containing first the object's schema, and then
     any form field schemata for any enabled behaviors.
     """
-    
     fti = queryUtility(IDexterityFTI, name=content.portal_type)
     if fti is None:
         return
-    
+
     yield fti.lookupSchema()
     for schema in getAdditionalSchemata(context=content):
         yield schema
@@ -134,7 +149,7 @@ def addContentToContainer(container, object, checkConstraints=True):
         fti = getUtility(IDexterityFTI, name=object.portal_type)
         if not fti.isConstructionAllowed(container):
             raise Unauthorized("Cannot create %s" % object.portal_type)
-        
+
         if container_fti is not None and not container_fti.allowType(object.portal_type):
             raise ValueError("Disallowed subobject type: %s" % object.portal_type)
 
