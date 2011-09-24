@@ -87,11 +87,25 @@ def splitSchemaName(schemaName):
         raise ValueError("Schema name %s is invalid" % schemaName)
 
 
+def iterSchemataForType(portal_type):
+    """XXX: came from plone.app.deco.utils, very similar to iterSchemata
+
+    Not fully merged codewise with iterSchemata as that breaks
+    test_webdav.test_readline_mimetype_additional_schemata.
+    """
+    fti = queryUtility(IDexterityFTI, name=portal_type)
+    if fti is None:
+        return
+
+    yield fti.lookupSchema()
+    for schema in getAdditionalSchemata(portal_type=portal_type):
+        yield schema
+
+
 def iterSchemata(content):
     """Return an iterable containing first the object's schema, and then
     any form field schemata for any enabled behaviors.
     """
-
     fti = queryUtility(IDexterityFTI, name=content.portal_type)
     if fti is None:
         return
