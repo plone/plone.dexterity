@@ -4,6 +4,8 @@ Changelog
 1.0.2 - unreleased
 ------------------
 
+* Added zh_TW translation.
+  [marr, davisagli]
 
 1.0.1 - 2011-09-24
 ------------------
