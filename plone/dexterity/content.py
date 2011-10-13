@@ -299,7 +299,13 @@ class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrd
     
     # make sure CMFCatalogAware's manage_options don't take precedence
     manage_options = PortalFolderBase.manage_options
-    
+
+    # Make sure PortalFolder's accessors and mutators don't take precedence
+    Title = DexterityContent.Title
+    setTitle = DexterityContent.setTitle
+    Description = DexterityContent.Description
+    setDescription = DexterityContent.setDescription
+
     def __init__(self, id=None, **kwargs):
         dublin_kw = {}
         for arg in [ "title", "subject", "description", "contributors",

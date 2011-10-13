@@ -4,6 +4,10 @@ Changelog
 1.0.2 - unreleased
 ------------------
 
+* Make sure the Title() and Description() accessors of containers return an
+  encoded bytestring as expected for CMF-style accessors.
+  [buchi]
+
 * Added zh_TW translation.
   [marr, davisagli]
 
