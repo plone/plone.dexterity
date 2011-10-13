@@ -530,40 +530,91 @@ class TestContent(MockTestCase):
         self.assertEqual(i.title, u"é")
         i.setTitle(u"é")
         self.assertEqual(i.title, u"é")
-    
+        c = Container()
+        c.setTitle("é")
+        self.assertEqual(c.title, u"é")
+        c.setTitle(u"é")
+        self.assertEqual(c.title, u"é")
+
     def test_Title_converts_to_utf8(self):
         i = Item()
         i.title = u"é"
         self.assertEqual("é", i.Title())
         i.title = "é"
         self.assertEqual("é", i.Title())
-    
+        c = Container()
+        c.title = u"é"
+        self.assertEqual("é", c.Title())
+        c.title = "é"
+        self.assertEqual("é", c.Title())
+
     def test_Title_handles_None(self):
         i = Item(title=None)
         self.assertEqual('', i.Title())
-    
+        c = Container(title=None)
+        self.assertEqual('', c.Title())
+
+    def test_Description_converts_to_utf8(self):
+        i = Item()
+        i.description = u"é"
+        self.assertEqual("é", i.Description())
+        i.description = "é"
+        self.assertEqual("é", i.Description())
+        c = Container()
+        c.description = u"é"
+        self.assertEqual("é", c.Description())
+        c.description = "é"
+        self.assertEqual("é", c.Description())
+
+    def test_setDescription_converts_to_unicode(self):
+        i = Item()
+        i.setDescription("é")
+        self.assertEqual(i.description, u"é")
+        i.setDescription(u"é")
+        self.assertEqual(i.description, u"é")
+        c = Container()
+        c.setDescription("é")
+        self.assertEqual(c.description, u"é")
+        c.setDescription(u"é")
+        self.assertEqual(c.description, u"é")
+
     def test_Description_handles_None(self):
         i = Item(description=None)
         self.assertEqual('', i.Description())
-    
+        c = Container(description=None)
+        self.assertEqual('', c.Description())
+
     def test_Subject_converts_to_utf8(self):
         i = Item()
         i.subject = (u"é",)
         self.assertEqual(("é",), i.Subject())
         i.subject = ("é",)
         self.assertEqual(("é",), i.Subject())
-    
+        c = Container()
+        c.subject = (u"é",)
+        self.assertEqual(("é",), c.Subject())
+        c.subject = ("é",)
+        self.assertEqual(("é",), c.Subject())
+
     def test_setSubject_converts_to_unicode(self):
         i = Item()
         i.setSubject(("é",))
         self.assertEqual(i.subject, (u"é",))
         i.setSubject((u"é",))
         self.assertEqual(i.subject, (u"é",))
-    
+        c = Container()
+        c.setSubject(("é",))
+        self.assertEqual(c.subject, (u"é",))
+        c.setSubject((u"é",))
+        self.assertEqual(c.subject, (u"é",))
+
     def test_Subject_handles_None(self):
         i = Item()
         i.subject = None
         self.assertEqual((), i.Subject())
+        c = Container()
+        c.subject = None
+        self.assertEqual((), c.Subject())
 
     def test_field_default_independence(self):
         # Ensure that fields using the default value aren't being assigned 
