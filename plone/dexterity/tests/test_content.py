@@ -3,11 +3,13 @@ import unittest
 from plone.mocktestcase import MockTestCase
 
 from zope.interface import Interface, alsoProvides
-from zope.component import provideAdapter
+from zope.component import provideAdapter, getUtility
 
 import zope.schema
 
-from plone.dexterity.interfaces import IDexterityFTI
+from Products.CMFPlone.interfaces import IConstrainTypes
+
+from plone.dexterity.interfaces import IDexterityFTI, IDexterityContainer
 
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
@@ -677,6 +679,31 @@ class TestContent(MockTestCase):
         item.manage_permission(DeleteObjects, ('Anonymous',))
         container.manage_delObjects(['test'])
         self.assertFalse('test' in container)
+
+    def test_iconstraintypes_adapter(self):
+
+        class DummyConstrainTypes(object):
+
+            def __init__(self, context):
+                self.context = context
+
+            def allowedContentTypes(self):
+                fti = getUtility(IDexterityFTI, name=u"testtype")
+                return [fti]
+
+        self.mock_adapter(DummyConstrainTypes, IConstrainTypes, (IDexterityContainer, ))
+
+        # FTI mock
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.getId()).result(u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+
+        self.replay()
+
+        folder = Container(id="testfolder")
+
+        self.assertEquals(folder.allowedContentTypes(), [fti_mock])
+        self.assertRaises(ValueError, folder.invokeFactory, u"disallowed_type", id="test")
 
 
 def test_suite():

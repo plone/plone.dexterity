@@ -31,6 +31,7 @@ import Products.CMFCore.permissions
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.PortalFolder import PortalFolderBase
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
+from Products.CMFPlone.interfaces import IConstrainTypes
 
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from Products.CMFDefault.utils import tuplize
@@ -346,6 +347,30 @@ class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrd
                 raise Unauthorized, (
                     "Do not have permissions to remove this object")
         return super(Container, self).manage_delObjects(ids, REQUEST=REQUEST)
+
+    # override PortalFolder's allowedContentTypes to respect IConstrainTypes
+    # adapters
+    def allowedContentTypes(self, context=None):
+        if not context:
+            context = self
+
+        constrains = IConstrainTypes(context, None)
+        if not constrains:
+            return super(Container, self).allowedContentTypes()
+
+        return constrains.allowedContentTypes()
+
+    # override PortalFolder's invokeFactory to respect IConstrainTypes
+    # adapters
+    def invokeFactory(self, type_name, id, RESPONSE=None, *args, **kw):
+        """Invokes the portal_types tool
+        """
+        constrains = IConstrainTypes(self, None)
+
+        if constrains and not type_name in [fti.getId() for fti in constrains.allowedContentTypes()]:
+            raise ValueError('Subobject type disallowed by IConstrainTypes adapter: %s' % type_name)
+
+        return super(Container, self).invokeFactory(type_name, id, RESPONSE, *args, **kw)
 
 
 def reindexOnModify(content, event):

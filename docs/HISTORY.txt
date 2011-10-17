@@ -1,8 +1,14 @@
 Changelog
 =========
 
-2.0.1 (unreleased)
-------------------
+2.1 (unreleased)
+----------------
+
+* Overrride allowedContentTypes and invokeFactory from PortalFolder
+  to mimic the behavior of Archetypes based folders. This allows the
+  registration of IConstrainTypes adapters to actually have the
+  expected effect.
+  [gaudenzius]
 
 - The default attribute accessor now also looks through subtypes
   (behaviors) to find a field default.
@@ -33,7 +39,6 @@ Changelog
 
 * Update package dependencies and imports as appropriate for Zope 2.12 & 2.13.
   [davisagli]
-
 
 1.1.2 - 2012-02-20
 ------------------
