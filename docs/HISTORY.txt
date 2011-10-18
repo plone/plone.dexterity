@@ -4,6 +4,9 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Added zh_TW translation.
+  [marr, davisagli]
+
 * Make sure the Subject accessor returns an encoded bytestring as expected for
   CMF-style accessors. This fixes
   http://code.google.com/p/dexterity/issues/detail?id=197
