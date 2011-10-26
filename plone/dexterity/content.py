@@ -44,6 +44,12 @@ from plone.supermodel.utils import mergedTaggedValueDict
 
 from plone.dexterity.filerepresentation import DAVResourceMixin, DAVCollectionMixin
 
+try:
+    from plone.uuid.interfaces import IAttributeUUID
+    HAS_UUID = True
+except ImportError:
+    HAS_UUID = False
+
 _marker = object()
 
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
@@ -165,7 +171,10 @@ class AttributeValidator(Explicit):
 class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, Contained):
     """Base class for Dexterity content
     """
-    implements(IDexterityContent, IAttributeAnnotatable)
+    if HAS_UUID:
+        implements(IDexterityContent, IAttributeAnnotatable, IAttributeUUID)
+    else:
+        implements(IDexterityContent, IAttributeAnnotatable)
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
     

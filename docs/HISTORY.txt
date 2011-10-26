@@ -4,6 +4,11 @@ Changelog
 1.0.2 - unreleased
 ------------------
 
+* Make sure Dexterity content items get UIDs when they are created if
+  ``plone.uuid`` is present. This closes
+  http://code.google.com/p/dexterity/issues/detail?id=235
+  [davisagli]
+
 * Make sure the Title() and Description() accessors of containers return an
   encoded bytestring as expected for CMF-style accessors.
   [buchi]
