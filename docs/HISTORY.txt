@@ -4,6 +4,10 @@ Changelog
 1.0.2 - unreleased
 ------------------
 
+* Added events: IEditBegunEvent, IEditCancelledEvent, IEditFinished, 
+  IAddBegunEvent, IAddCancelledEvent
+  [jbaumann]
+
 * Make sure Dexterity content items get UIDs when they are created if
   ``plone.uuid`` is present. This closes
   http://code.google.com/p/dexterity/issues/detail?id=235
@@ -107,11 +111,11 @@ Changelog
   initial values for instance variables.
   [wichert]
 
-* Avoid empty <div class="field"> tag for title and description in 
+* Avoid empty <div class="field"> tag for title and description in
   item.pt.
   [gaudenzius]
 
- 
+
 1.0b5 - 2010-08-05
 ------------------
 
@@ -119,7 +123,7 @@ Changelog
   See: http://code.google.com/p/dexterity/issues/detail?id=113
   [optilude]
 
-* Switch to the .Title() and .Description() methods of fti when used in 
+* Switch to the .Title() and .Description() methods of fti when used in
   a translatable context, to ensure that these strings are translated.
   [mj]
 
@@ -201,7 +205,7 @@ Changelog
   construct an RFC(2)822 style message containing all fields. One or more
   fields may be marked with the IPrimaryField interface from that package,
   in which case they will be sent in the body of the message.
-  
+
   In addition, the creation of new files (PUT requests to a null resource) is
   delegated to an IFileFactory adapter, whilst the creation of new directories
   (MKCOL requests) is delegated to an IDirectoryFactory adapter. See
@@ -214,7 +218,7 @@ Changelog
   export: http://code.google.com/p/dexterity/issues/detail?id=79
   [optilude]
 
-* Add getMapping() to AddViewActionCompat. 
+* Add getMapping() to AddViewActionCompat.
   Fixes http://code.google.com/p/dexterity/issues/detail?id=78
   [optilude]
 
