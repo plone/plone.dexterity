@@ -4,6 +4,11 @@ Changelog
 1.0.2 - unreleased
 ------------------
 
+* Work around issue where user got a 404 upon adding content if a content
+  rule had moved the new item to a different folder. This closes
+  http://code.google.com/p/dexterity/issues/detail?id=240
+  [davisagli]
+
 * Added events: IEditBegunEvent, IEditCancelledEvent, IEditFinished, 
   IAddBegunEvent, IAddCancelledEvent
   [jbaumann]
