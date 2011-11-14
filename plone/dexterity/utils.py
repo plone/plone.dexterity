@@ -153,9 +153,13 @@ def addContentToContainer(container, object, checkConstraints=True):
     try:
         return container._getOb(newName)
     except AttributeError:
-        # work around edge case where a content rule may have moved the item
-        uuid = IUUID(object)
-        return uuidToObject(uuid)
+        if HAS_UUID:
+            # work around edge case where a content rule may have moved the item
+            uuid = IUUID(object)
+            return uuidToObject(uuid)
+        else:
+            # no way to know where it is
+            raise
 
 
 def createContentInContainer(container, portal_type, checkConstraints=True, **kw):
