@@ -4,6 +4,9 @@ Changelog
 1.0.2 - unreleased
 ------------------
 
+* Added it translation.
+  [zedr]
+
 * Ensure that a factory utility really isn't needed before removing it.
   [lentinj]
 
