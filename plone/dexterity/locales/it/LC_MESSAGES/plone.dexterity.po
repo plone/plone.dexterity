@@ -42,11 +42,11 @@ msgstr "Contenuto"
 
 #: plone/dexterity/browser/edit.py:22
 msgid "Changes saved"
-msgstr "Modifica salvata"
+msgstr "Modifiche applicate"
 
 #: plone/dexterity/browser/edit.py:27
 msgid "Edit cancelled"
-msgstr "Modifica annullata"
+msgstr "Modifiche annullate"
 
 #: plone/dexterity/browser/edit.py:48
 msgid "Edit ${name}"
