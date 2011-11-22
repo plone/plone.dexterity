@@ -4,6 +4,9 @@ Changelog
 1.0.2 - unreleased
 ------------------
 
+* Ensure that a factory utility really isn't needed before removing it.
+  [lentinj]
+
 * Work around issue where user got a 404 upon adding content if a content
   rule had moved the new item to a different folder. This closes
   http://code.google.com/p/dexterity/issues/detail?id=240

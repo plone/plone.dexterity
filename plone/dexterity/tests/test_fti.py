@@ -690,6 +690,69 @@ class TestFTIEvents(MockTestCase):
         self.replay()
         fti.factory = 'new-factory'
         ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'old-factory')))
+    
+    def test_renamed_factory_not_unregistered_if_not_unique(self):
+        portal_type = u"testtype"
+        fti = DexterityFTI(portal_type, factory='common-factory')
+        portal_type2 = u"testtype2"
+        fti2 = DexterityFTI(portal_type2, factory='common-factory')
+        
+        # Mock the lookup of the site and the site manager at the site root
+        dummy_site = self.create_dummy()
+        self.mock_utility(dummy_site, ISiteRoot)
+        
+        site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
+        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
+        
+        # Pretend two FTIs are registered, both using common-factory
+        self.expect(site_manager_mock.registeredUtilities()).result([
+            self.create_dummy(provided=IFactory, name='common-factory', info='plone.dexterity.dynamic'),
+            self.create_dummy(component=fti, provided=IDexterityFTI, name='testtype', info='plone.dexterity.dynamic'),
+            self.create_dummy(component=fti2, provided=IDexterityFTI, name='testtype2', info='plone.dexterity.dynamic'),
+        ])
+        
+        # We shouldn't remove this since fti2 still uses it
+        self.expect(site_manager_mock.unregisterUtility(provided=IFactory, name='common-factory')).count(0)
+        
+        # And a new one to be created with the new factory name
+        self.expect(site_manager_mock.registerUtility(
+                    mocker.MATCH(lambda x: isinstance(x, DexterityFactory) and x.portal_type == portal_type),
+                    IFactory, 'new-factory', info='plone.dexterity.dynamic')).passthrough()
+        
+        self.replay()
+        fti.factory = 'new-factory'
+        ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('factory', 'common-factory')))
+    
+    def test_deleted_factory_not_unregistered_if_not_unique(self):
+        portal_type = u"testtype"
+        fti = DexterityFTI(portal_type, factory='common-factory')
+        portal_type2 = u"testtype2"
+        fti2 = DexterityFTI(portal_type2, factory='common-factory')
+        container_dummy = self.create_dummy()
+        
+        # Mock the lookup of the site and the site manager at the site root
+        dummy_site = self.create_dummy()
+        self.mock_utility(dummy_site, ISiteRoot)
+        
+        site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
+        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
+        
+        # Pretend two FTIs are registered, both using common-factory
+        # NB: Assuming that "testtype" was already removed when this gets called
+        self.expect(site_manager_mock.registeredUtilities()).result([
+            self.create_dummy(provided=IFactory, name='common-factory', info='plone.dexterity.dynamic'),
+            self.create_dummy(component=fti2, provided=IDexterityFTI, name='testtype2', info='plone.dexterity.dynamic'),
+        ])
+        
+        # We shouldn't remove this since fti2 still uses it
+        self.expect(site_manager_mock.unregisterUtility(provided=IFactory, name='common-factory')).count(0)
+        # The type itself should be removed though
+        self.expect(site_manager_mock.unregisterUtility(provided=IDexterityFTI, name=u"testtype")).count(1)
+        
+        self.replay()
+        ftiRemoved(fti, ObjectRemovedEvent(fti, container_dummy, fti.getId()))
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
