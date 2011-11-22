@@ -356,13 +356,25 @@ def unregister(fti, old_name=None):
     portal_type = old_name or fti.getId()
     
     site_manager.unregisterUtility(provided=IDexterityFTI, name=portal_type)
-    
-    if [f for f in site_manager.registeredUtilities()
-                if (f.provided, f.name, f.info) == (IFactory, fti.factory, 'plone.dexterity.dynamic')]:
-        site_manager.unregisterUtility(provided=IFactory, name=fti.factory)
+    unregister_factory(fti.factory, site_manager)
     
     notify(SchemaInvalidatedEvent(portal_type))
-        
+
+def unregister_factory(factory_name, site_manager):
+    """Helper method to unregister factories when unused by any dexterity
+    type
+    """
+    utilities = list(site_manager.registeredUtilities())
+    # Do nothing if an FTI is still using it
+    if factory_name in [f.component.factory for f in utilities
+                        if (f.provided, f.info) == (IDexterityFTI, 'plone.dexterity.dynamic')]:
+        return
+    
+    # If a factory with a matching name exists, remove it
+    if [f for f in utilities
+        if (f.provided, f.name, f.info) == (IFactory, factory_name, 'plone.dexterity.dynamic')]:
+        site_manager.unregisterUtility(provided=IFactory, name=factory_name)
+
 def ftiAdded(object, event):
     """When the FTI is created, install local components
     """
@@ -420,10 +432,8 @@ def ftiModified(object, event):
         site = getUtility(ISiteRoot)
         site_manager = getSiteManager(site)
         
-        # Remove a previously registered local factory if required
-        if [f for f in site_manager.registeredUtilities()
-                if (f.provided, f.name, f.info) == (IFactory, old_factory, 'plone.dexterity.dynamic')]:
-            site_manager.unregisterUtility(provided=IFactory, name=old_factory)
+        # Remove previously registered factory, if no other type uses it.
+        unregister_factory(old_factory, site_manager)
         
         # Register a new local factory if one doesn't exist already
         new_factory_utility = queryUtility(IFactory, name=fti.factory)
