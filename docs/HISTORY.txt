@@ -4,6 +4,9 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Added Italian translation.
+  [zedr]
+
 * Ensure that a factory utility really isn't needed before removing it.
   [lentinj]
 
