@@ -32,6 +32,9 @@ setup(name='plone.dexterity',
           'rwproperty',
           'plone.synchronize',
           'plone.memoize',
+
+          'Products.CMFCore',
+          'Products.CMFPlone',
           
           'plone.z3cform>=0.6.0',
           'plone.folder',
@@ -41,6 +44,9 @@ setup(name='plone.dexterity',
           'plone.autoform>=1.0b2',
           'plone.rfc822',
           
+          'zope.app.pagetemplate',
+          'zope.app.component',
+
           'zope.interface',
           'zope.component',
           'zope.schema',
