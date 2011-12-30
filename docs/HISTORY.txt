@@ -4,6 +4,10 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Fix UnicodeDecodeError when getting an FTI title or description with
+  non-ASCII characters.
+  [davisagli]
+
 * Added Italian translation.
   [zedr]
 
