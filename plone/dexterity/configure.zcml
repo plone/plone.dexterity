@@ -58,7 +58,7 @@
         permission="cmf.AddPortalContent"
         icon="plone.dexterity.item.gif"
         />
-    <class class=".content.Item" />
+    <class class=".content.Container" />
         
     <!-- Register FTI class -->
     <five:registerClass
