@@ -660,6 +660,21 @@ class TestContent(MockTestCase):
         self.assertEquals(bar.listfield, [1,2])
         self.assertEquals(baz.listfield, [1,2])
         
+    def test_container_manage_delObjects(self):
+        # OFS does not check the delete permission for each object being
+        # deleted. We want to.
+        item = Item(id='test')
+        container = Container(id='container')
+        container['test'] = item
+        from zExceptions import Unauthorized
+        self.assertRaises(Unauthorized, container.manage_delObjects, ['test'])
+
+        # Now permit it and try again.
+        from Products.CMFCore.permissions import DeleteObjects
+        item.manage_permission(DeleteObjects, ('Anonymous',))
+        container.manage_delObjects(['test'])
+        self.assertFalse('test' in container)
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

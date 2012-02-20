@@ -1,4 +1,5 @@
 from Acquisition import Explicit, aq_parent
+from zExceptions import Unauthorized
 
 from copy import deepcopy
 
@@ -322,6 +323,22 @@ class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrd
         
         # Be specific about the implementation we use
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
+    
+    security.declareProtected(Products.CMFCore.permissions.DeleteObjects, 'manage_delObjects')
+    def manage_delObjects(self, ids=[], REQUEST=None):
+        """Delete the contained objects with the specified ids.
+
+        If the current user does not have permission to delete one of the
+        objects, an Unauthorized exception will be raised.
+        """
+        if isinstance(ids, basestring):
+            ids = [ids]
+        for id in ids:
+            item = self._getOb(id)
+            if not getSecurityManager().checkPermission(Products.CMFCore.permissions.DeleteObjects, item):
+                raise Unauthorized, (
+                    "Do not have permissions to remove this object")
+        return super(Container, self).manage_delObjects(ids, REQUEST=REQUEST)
 
 
 def reindexOnModify(content, event):

@@ -4,6 +4,12 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* When deleting items from a container using manage_delObjects,
+  check for the "DeleteObjects" permission on each item being
+  deleted. This fixes
+  http://code.google.com/p/dexterity/issues/detail?id=252
+  [davisagli]
+
 * Fix UnicodeDecodeError when getting an FTI title or description with
   non-ASCII characters.
   [davisagli]
