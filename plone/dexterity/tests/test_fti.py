@@ -313,6 +313,31 @@ class TestFTI(MockTestCase):
         fti._updateProperty('klass', "plone.dexterity.tests.test_fti.TestClass2")
         self.assertEquals(TestClass2.meta_type, fti.Metatype())
     
+    def test_title_i18n(self):
+        fti = DexterityFTI(u'testtype', title='t\xc3\xa9st')
+        
+        # with no i18n domain, we get the UTF8-encoded title
+        self.assertEquals('t\xc3\xa9st', fti.Title())
+        
+        # with an i18n domain, we get a Message
+        fti.i18n_domain = 'test'
+        msgid = fti.Title()
+        self.assertEquals(u't\xe9st', msgid)
+        self.assertEquals('test', msgid.domain)
+
+    def test_description_i18n(self):
+        fti = DexterityFTI(u'testtype', description='t\xc3\xa9st')
+
+        # with no i18n domain, we get the UTF8-encoded title
+        self.assertEquals('t\xc3\xa9st', fti.Description())
+
+        # with an i18n domain, we get a Message
+        fti.i18n_domain = 'test'
+        msgid = fti.Description()
+        self.assertEquals(u't\xe9st', msgid)
+        self.assertEquals('test', msgid.domain)
+
+    
 class TestFTIEvents(MockTestCase):
 
     # These tests are a bit verbose, but the basic premise is pretty simple.

@@ -12,6 +12,7 @@ from zope.security.interfaces import IPermission
 from zope.lifecycleevent import modified
 
 from zope.app.component.hooks import getSiteManager
+from zope.i18nmessageid import Message
 
 from plone.supermodel import loadString, loadFile
 from plone.supermodel.model import Model
@@ -261,6 +262,18 @@ class DexterityFTI(AddViewActionCompat, base.DynamicViewTypeInformation):
         klass = utils.resolveDottedName(self.klass)
         if klass is not None:
             self.content_meta_type = getattr(klass, 'meta_type', None)
+    
+    def Title(self):
+        if self.title and self.i18n_domain:
+            return Message(self.title.decode('utf8'), self.i18n_domain)
+        else:
+            return self.title or self.getId()
+
+    def Description(self):
+        if self.description and self.i18n_domain:
+            return Message(self.description.decode('utf8'), self.i18n_domain)
+        else:
+            return self.description
     
     def Metatype(self):
         if self.content_meta_type:

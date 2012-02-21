@@ -1,9 +1,12 @@
 Changelog
 =========
 
-1.1.2 - unreleased
+1.1.2 - 2012-02-20
 ------------------
 
+* Fix UnicodeDecodeError when getting an FTI title or description with
+  non-ASCII characters.
+  [davisagli]
 
 1.1.1 - 2012-02-20
 ------------------
@@ -17,7 +20,7 @@ Changelog
 1.1 - 2011-11-26
 ----------------
 
-* Added it translation.
+* Added Italian translation.
   [zedr]
 
 * Ensure that a factory utility really isn't needed before removing it.
