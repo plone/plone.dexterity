@@ -19,6 +19,13 @@ from Products.CMFCore.interfaces import ISiteRoot
 
 from zope.container.interfaces import INameChooser
 
+try:
+    from plone.uuid.interfaces import IUUID
+    from plone.app.uuid.utils import uuidToObject
+    HAS_UUID = True
+except ImportError:
+    HAS_UUID = False
+
 log = logging.getLogger(__name__)
 
 # Not thread safe, but downside of a write conflict is very small
@@ -157,7 +164,17 @@ def addContentToContainer(container, object, checkConstraints=True):
     object.id = name
 
     newName = container._setObject(name, object)
-    return container._getOb(newName)
+    try:
+        return container._getOb(newName)
+    except AttributeError:
+        if HAS_UUID:
+            # work around edge case where a content rule may have moved the item
+            uuid = IUUID(object)
+            return uuidToObject(uuid)
+        else:
+            # no way to know where it is
+            raise
+
 
 def createContentInContainer(container, portal_type, checkConstraints=True, **kw):
     content = createContent(portal_type, **kw)
