@@ -4,21 +4,51 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Removed support for Plone 3 / CMF 2.1 / Zope 2.10.
+  [davisagli]
+
+* Update package dependencies and imports as appropriate for Zope 2.12 & 2.13.
+  [davisagli]
+
+
+1.1.2 - 2012-02-20
+------------------
+
+* Fix UnicodeDecodeError when getting an FTI title or description with
+  non-ASCII characters.
+  [davisagli]
+
+1.1.1 - 2012-02-20
+------------------
+
 * When deleting items from a container using manage_delObjects,
   check for the "DeleteObjects" permission on each item being
   deleted. This fixes
   http://code.google.com/p/dexterity/issues/detail?id=252
   [davisagli]
 
-* Fix UnicodeDecodeError when getting an FTI title or description with
-  non-ASCII characters.
-  [davisagli]
+1.1 - 2011-11-26
+----------------
 
 * Added Italian translation.
   [zedr]
 
 * Ensure that a factory utility really isn't needed before removing it.
   [lentinj]
+
+* Work around issue where user got a 404 upon adding content if a content
+  rule had moved the new item to a different folder. This closes
+  http://code.google.com/p/dexterity/issues/detail?id=240
+  [davisagli]
+
+* Added events: IEditBegunEvent, IEditCancelledEvent, IEditFinished, 
+  IAddBegunEvent, IAddCancelledEvent
+  [jbaumann]
+
+* Make sure Dexterity content items get UIDs when they are created if
+  ``plone.uuid`` is present. This closes
+  http://code.google.com/p/dexterity/issues/detail?id=235
+  [davisagli]
 
 * Make sure the Title() and Description() accessors of containers return an
   encoded bytestring as expected for CMF-style accessors.
@@ -27,30 +57,7 @@ Changelog
 * Added zh_TW translation.
   [marr, davisagli]
 
-* Make sure the Subject accessor returns an encoded bytestring as expected for
-  CMF-style accessors. This fixes
-  http://code.google.com/p/dexterity/issues/detail?id=197
-  [davisagli]
-
-* Added pt_BR translation.
-  [rafaelbco, davisagli]
-
-* Added events: IEditBegunEvent, IEditCancelledEvent, IEditFinished, 
-  IAddBegunEvent, IAddCancelledEvent
-  [jbaumann]
-
-* Assign plone.uuid UUIDs to Dexterity items when they are created.
-  Added dependency on plone.uuid.
-  [davisagli]
-
-* Removed support for Plone 3 / CMF 2.1 / Zope 2.10.
-  [davisagli]
-
-* Update package dependencies and imports as appropriate for Zope 2.12 & 2.13.
-  [davisagli]
-
-
-1.0.1 - unreleased
+1.0.1 - 2011-09-24
 ------------------
 
 * Support importing the ``add_view_expr`` property of the FTI via GenericSetup.
