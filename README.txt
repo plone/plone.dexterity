@@ -47,9 +47,9 @@ Reuse over reinvention
 
 Small over big
 
-   Mega-frameworks be damned. Dexterity consists of a number of speciaised
+   Mega-frameworks be damned. Dexterity consists of a number of specialised
    packages, each of which is independently tested and reusable. Furthermore,
-   packages should has as few dependencies as possible, and should declare 
+   packages should have as few dependencies as possible, and should declare 
    their dependencies explicitly. This helps keep the design clean and the 
    code manageable.
 
@@ -159,8 +159,9 @@ The factory
    named utility. By convention the factory utility has the same name as the
    portal_type of the content type.
    
-   When a Dexterity FTI is created, an appropriate factory will be registered
-   as a local utility unless one with that name already exists.
+   When a Dexterity FTI (Factory Type Information, see below) is created, 
+   an appropriate factory will be registered as a local utility unless one 
+   with that name already exists.
    
    The default factory is capable of initialising a generic 'Item' or
    'Container' object to exhibit a content type schema and have the
