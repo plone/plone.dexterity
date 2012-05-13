@@ -1206,7 +1206,7 @@ class TestDAVTraversal(MockTestCase):
         container = Container('container')
 
         outer = Folder('outer')
-        outer._setOb('item', SimpleItem('item'))
+        outer._setObject('item', SimpleItem('item'))
         outer._setOb('container', container)
 
         request = DAVTestRequest(environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'GET'})
