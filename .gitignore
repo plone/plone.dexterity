@@ -1,2 +1,3 @@
 *.py?
 plone.dexterity.egg-info/
+*.mo
