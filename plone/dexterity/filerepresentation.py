@@ -5,8 +5,6 @@ from email.Generator import Generator
 from email.Parser import FeedParser
 from email.Message import Message
 
-from rwproperty import getproperty, setproperty
-
 from zope.interface import implements
 from zope.component import adapts
 from zope.schema import getFieldsInOrder
@@ -249,12 +247,13 @@ class FolderDataResource(Implicit, Resource):
         else:
             object.__setattr__(self, name, value)
     
-    @getproperty
+    @property
     def _properties(self):
         return self.__parent__._properties
-    @setproperty
+
+    @_properties.setter
     def _properties(self, value):
-        self.__parent__._properties = value
+        self.__parent__._properties = value        
     
     @property
     def id(self):
@@ -710,7 +709,7 @@ class DefaultWriteFile(object):
         self._parser = FeedParser()
         self._message = None
     
-    @getproperty
+    @property
     def mimeType(self):
         if self._message is None:
             return self._mimeType
@@ -719,17 +718,17 @@ class DefaultWriteFile(object):
         else:
             return 'message/rfc822'
     
-    @setproperty
+    @mimeType.setter
     def mimeType(self, value):
         self._mimeType = value
     
-    @getproperty
+    @property
     def encoding(self):
         if self._message is not None:
             return self._message.get_charset() or self._encoding
         return self._encoding
     
-    @setproperty
+    @encoding.setter
     def encoding(self, value):
         self._encoding = value
     
@@ -737,13 +736,13 @@ class DefaultWriteFile(object):
     def closed(self):
         return self._closed
     
-    @getproperty
+    @property
     def name(self):
         if self._message is not None:
             return self._message.get_filename(self._name)
         return self._name
     
-    @setproperty
+    @name.setter
     def name(self, value):
         self._name = value
     

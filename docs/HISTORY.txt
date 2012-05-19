@@ -4,6 +4,9 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Use standard Python properties instead of rwproperty.
+  [davisagli]
+
 * Removed support for Plone 3 / CMF 2.1 / Zope 2.10.
   [davisagli]
 
