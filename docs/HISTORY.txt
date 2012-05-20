@@ -4,6 +4,9 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Remove hard dependency on zope.app.content.
+  [davisagli]
+
 * Use standard Python properties instead of rwproperty.
   [davisagli]
 

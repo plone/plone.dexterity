@@ -9,8 +9,6 @@ from zope.interface.interface import InterfaceClass
 from zope.component import adapter
 from zope.component import queryUtility
 
-from zope.app.content.interfaces import IContentType
-
 from plone.behavior.interfaces import IBehavior
 
 from plone.supermodel.parser import ISchemaPolicy
@@ -18,6 +16,7 @@ from plone.supermodel.utils import syncSchema
 
 from plone.alterego.interfaces import IDynamicObjectFactory
 
+from plone.dexterity.interfaces import IContentType
 from plone.dexterity.interfaces import IDexteritySchema
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import ISchemaInvalidatedEvent

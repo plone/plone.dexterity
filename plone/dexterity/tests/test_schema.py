@@ -6,8 +6,7 @@ from zope.interface.interface import InterfaceClass
 
 import zope.schema
 
-from zope.app.content.interfaces import IContentType
-
+from plone.dexterity.interfaces import IContentType
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexteritySchema
 

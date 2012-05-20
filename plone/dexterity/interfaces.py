@@ -3,6 +3,12 @@ from zope.lifecycleevent.interfaces import IModificationDescription
 
 import zope.schema
 
+try:
+    from zope.app.content import IContentType
+except ImportError:
+    class IContentType(Interface):
+        pass
+
 from zope.component.interfaces import IFactory
 from zope.component.interfaces import IObjectEvent
 
