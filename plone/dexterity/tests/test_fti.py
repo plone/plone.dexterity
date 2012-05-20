@@ -15,8 +15,7 @@ from zope.component.interfaces import IFactory
 
 from zope.component import getGlobalSiteManager
 from zope.component.persistentregistry import PersistentComponents
-
-from zope.app.component.hooks import setSite, setHooks
+from zope.component.hooks import setSite, setHooks
 
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.lifecycleevent import ObjectModifiedEvent
@@ -355,7 +354,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(dummy_site, ISiteRoot)
         
         site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        getSiteManager_mock = self.mocker.replace('zope.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock)
         
         # We expect that no components are registered , so look for all registrations
@@ -385,7 +384,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(dummy_site, ISiteRoot)
         
         site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        getSiteManager_mock = self.mocker.replace('zope.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock)
 
         # Register FTI utility and factory utility
@@ -414,7 +413,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(dummy_site, ISiteRoot)
         
         site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        getSiteManager_mock = self.mocker.replace('zope.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
         
         # We expect to always be able to unregister without error, even if the
@@ -448,7 +447,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(dummy_site, ISiteRoot)
         
         site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        getSiteManager_mock = self.mocker.replace('zope.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock)
         
         # We expect to always be able to unregister without error, even if the
@@ -470,7 +469,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(dummy_site, ISiteRoot)
         
         site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        getSiteManager_mock = self.mocker.replace('zope.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock)
         
         # Register FTI utility and factory utility
@@ -506,7 +505,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(dummy_site, ISiteRoot)
         
         site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        getSiteManager_mock = self.mocker.replace('zope.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
         
         # First look for unregistration of all local components
@@ -634,7 +633,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(dummy_site, ISiteRoot)
         
         site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        getSiteManager_mock = self.mocker.replace('zope.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
         
         # Pretend like we have a utility registered
@@ -667,7 +666,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(dummy_site, ISiteRoot)
         
         site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        getSiteManager_mock = self.mocker.replace('zope.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
         
         # Create a global default for the new name
@@ -691,7 +690,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(dummy_site, ISiteRoot)
         
         site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        getSiteManager_mock = self.mocker.replace('zope.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
         
         # Pretend like we have a utility registered
@@ -727,7 +726,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(dummy_site, ISiteRoot)
         
         site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        getSiteManager_mock = self.mocker.replace('zope.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
         
         # Pretend two FTIs are registered, both using common-factory
@@ -761,7 +760,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(dummy_site, ISiteRoot)
         
         site_manager_mock = self.mocker.proxy(PersistentComponents(bases=(getGlobalSiteManager(),)))
-        getSiteManager_mock = self.mocker.replace('zope.app.component.hooks.getSiteManager')
+        getSiteManager_mock = self.mocker.replace('zope.component.hooks.getSiteManager')
         self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock).count(1,None)
         
         # Pretend two FTIs are registered, both using common-factory
