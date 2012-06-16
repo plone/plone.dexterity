@@ -1222,7 +1222,7 @@ class TestDAVTraversal(MockTestCase):
         
         r = traversal.publishTraverse(request, 'item')
         
-        self.assertEquals(r.aq_base, outer['item'].aq_base)
+        self.assertEquals(r.aq_base, outer.item.aq_base)
         self.assertEquals(container, r.aq_parent)
     
     def test_folder_data_traversal_dav(self):
