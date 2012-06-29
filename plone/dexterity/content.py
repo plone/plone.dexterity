@@ -325,12 +325,14 @@ class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrd
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
     
     security.declareProtected(Products.CMFCore.permissions.DeleteObjects, 'manage_delObjects')
-    def manage_delObjects(self, ids=[], REQUEST=None):
+    def manage_delObjects(self, ids=None, REQUEST=None):
         """Delete the contained objects with the specified ids.
 
         If the current user does not have permission to delete one of the
         objects, an Unauthorized exception will be raised.
         """
+        if ids is None:
+            ids = []
         if isinstance(ids, basestring):
             ids = [ids]
         for id in ids:
