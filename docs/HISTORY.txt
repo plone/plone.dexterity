@@ -4,6 +4,12 @@ Changelog
 1.1.3 - unreleased
 ------------------
 
+* Overrride allowedContentTypes and invokeFactory from PortalFolder
+  to mimic the behavior of Archetypes based folders. This allows the
+  registration of IConstrainTypes adapters to actually have the
+  expected effect.
+  [gaudenzius]
+
 1.1.2 - 2012-02-20
 ------------------
 
