@@ -38,6 +38,7 @@ from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
 from plone.uuid.interfaces import IAttributeUUID
+from plone.uuid.interfaces import IUUID
 
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 from plone.supermodel.utils import mergedTaggedValueDict
@@ -199,6 +200,10 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
             value = str(value) # may throw, but that's OK - id must be ASCII
         self.id = value
     __name__ = property(_get__name__, _set__name__)
+
+    def UID(self):
+        """Returns the item's globally unique id."""
+        return IUUID(self)
 
     def setTitle(self, title):
         if isinstance(title, str):

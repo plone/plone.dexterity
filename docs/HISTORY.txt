@@ -4,6 +4,10 @@ Changelog
 2.0 - unreleased
 ----------------
 
+* Add a UID method to Dexterity items for compatibility with the Archetypes
+  API.
+  [davisagli]
+
 * Remove hard dependency on zope.app.content.
   [davisagli]
 

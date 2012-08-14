@@ -28,3 +28,4 @@ class TestUUIDIntegration(unittest.TestCase):
         item = Item()
         notify(ObjectCreatedEvent(item))
         self.assertTrue(IUUID(item) is not None)
+        self.assertEqual(IUUID(item), item.UID())
