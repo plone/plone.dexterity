@@ -21,7 +21,7 @@ msgstr ""
 
 #: plone/dexterity/browser/add.py:82 plone/dexterity/browser/edit.py:15
 msgid "Save"
-msgstr "Bewaar"
+msgstr "Bewaren"
 
 #: plone/dexterity/browser/add.py:92
 msgid "Item created"
