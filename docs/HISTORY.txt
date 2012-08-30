@@ -1,7 +1,10 @@
 Changelog
 =========
 
-2.0 - unreleased
+File"setup.py",line27
+message_extractors={"plone":[
+^
+2.0 (2012-08-30)
 ----------------
 
 * Add a UID method to Dexterity items for compatibility with the Archetypes
