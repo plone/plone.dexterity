@@ -11,6 +11,7 @@ from zope.dottedname.resolve import resolve
 from zope.event import notify
 from zope.lifecycleevent import ObjectCreatedEvent
 
+from plone.behavior.interfaces import IBehavior
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.interfaces import IDexterityFTI
@@ -208,11 +209,17 @@ def getAdditionalSchemata(context=None, portal_type=None):
             portal_type = context.portal_type
         fti = getUtility(IDexterityFTI, name=portal_type)
         for behavior_name in fti.behaviors:
-            try:
-                behavior_interface = resolveDottedName(behavior_name)
-            except (ValueError, ImportError):
-                log.warning("Error resolving behaviour %s", behavior_name)
-                continue
+            behavior_interface = None
+            behavior_instance = queryUtility(IBehavior, name=behavior_name)
+            if not behavior_instance:
+                try:
+                    behavior_interface = resolveDottedName(behavior_name)
+                except (ValueError, ImportError):
+                    log.warning("Error resolving behaviour %s", behavior_name)
+                    continue
+            else:
+                behavior_interface = behavior_instance.interface
+
             if behavior_interface is not None:
                 behavior_schema = IFormFieldProvider(behavior_interface, None)
                 if behavior_schema is not None:
