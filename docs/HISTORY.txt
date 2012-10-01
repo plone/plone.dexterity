@@ -4,7 +4,8 @@ Changelog
 2.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added Finnish translations.
+  [pingviini]
 
 
 2.0 (2012-08-30)
