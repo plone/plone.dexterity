@@ -185,7 +185,13 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
             field = schema.get(name, None)
             if field is not None:
                 return deepcopy(field.default)
-        
+
+        # do the same for each subtype
+        for schema in SCHEMA_CACHE.subtypes(self.portal_type):
+            field = schema.get(name, None)
+            if field is not None:
+                return deepcopy(field.default)
+
         raise AttributeError(name)
     
     # Let __name__ and id be identical. Note that id must be ASCII in Zope 2,
