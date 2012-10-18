@@ -53,7 +53,6 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
     """
     
     def __get__(self, inst, cls=None):
-        
         # We're looking at a class - fall back on default
         if inst is None:
             return getObjectSpecification(cls)
@@ -316,16 +315,11 @@ class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrd
             setattr(self, k, v)
     
     def __getattr__(self, name):
-        
-        # attribute was not found; try to look it up in the schema and return
-        # a default
-        
-        schema = SCHEMA_CACHE.get(self.portal_type)
-        if schema is not None:
-            field = schema.get(name, None)
-            if field is not None:
-                return deepcopy(field.default)
-        
+        try:
+            return DexterityContent.__getattr__(self, name)
+        except AttributeError:
+            pass
+
         # Be specific about the implementation we use
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
     
