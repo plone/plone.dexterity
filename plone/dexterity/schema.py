@@ -39,7 +39,7 @@ def volatile(func):
     @functools.wraps(func)
     def decorator(self, portal_type):
         fti = queryUtility(IDexterityFTI, name=portal_type)
-        if fti is not None:
+        if fti is not None and self.cache_enabled:
             key = '_v_schema_%s' % func.__name__
             cache = getattr(fti, key, None)
             if cache is not None:
@@ -49,7 +49,7 @@ def volatile(func):
 
         value = func(self, fti)
 
-        if fti is not None and value is not None:
+        if fti is not None and value is not None and self.cache_enabled:
             setattr(fti, key, (fti._p_mtime, value))
 
         return value
@@ -80,6 +80,9 @@ class SchemaCache(object):
     """
     
     lock = RLock()
+
+    def __init__(self, cache_enabled=True):
+        self.cache_enabled = cache_enabled
 
     @synchronized(lock)
     @volatile
