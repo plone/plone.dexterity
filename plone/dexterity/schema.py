@@ -77,12 +77,13 @@ class SchemaCache(object):
         if cached is None:
             subtypes = []
             fti = queryUtility(IDexterityFTI, name=portal_type)
-            if fti is not None:
-                for behavior_name in fti.behaviors:
-                    behavior = queryUtility(IBehavior, name=behavior_name)
-                    if behavior is not None and behavior.marker is not None:
-                        subtypes.append(behavior.marker)
-                cached = self.subtypes_cache[portal_type] = tuple(subtypes)
+            if fti is None:
+                return ()
+            for behavior_name in fti.behaviors:
+                behavior = queryUtility(IBehavior, name=behavior_name)
+                if behavior is not None and behavior.marker is not None:
+                    subtypes.append(behavior.marker)
+            cached = self.subtypes_cache[portal_type] = tuple(subtypes)
         return cached
         
     @synchronized(lock)

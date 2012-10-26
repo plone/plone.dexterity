@@ -4,6 +4,10 @@ Changelog
 2.0.1 (unreleased)
 ------------------
 
+- The default attribute accessor now also looks through subtypes
+  (behaviors) to find a field default.
+  [malthe]
+
 - Added support in the FTI to look up behaviors by utility name when
   getting additional schemata (i.e. fields provided by behaviors).
 
