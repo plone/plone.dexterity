@@ -1,4 +1,5 @@
 import new
+import functools
 
 from threading import RLock
 from plone.synchronize import synchronized
@@ -7,7 +8,7 @@ from zope.interface import implements, alsoProvides
 from zope.interface.interface import InterfaceClass
 
 from zope.component import adapter
-from zope.component import queryUtility
+from zope.component import queryUtility, getAllUtilitiesRegisteredFor
 
 from plone.behavior.interfaces import IBehavior
 
@@ -28,7 +29,32 @@ from plone.alterego import dynamic
 generated = dynamic.create('plone.dexterity.schema.generated')
 transient = new.module("transient")
 
-# Schema cache
+def invalidate_cache(fti):
+    fti._p_activate()
+    fti.__dict__.pop('_v_schema_get', None)
+    fti.__dict__.pop('_v_schema_subtypes', None)
+
+
+def volatile(func):
+    @functools.wraps(func)
+    def decorator(self, portal_type):
+        fti = queryUtility(IDexterityFTI, name=portal_type)
+        if fti is not None:
+            key = '_v_schema_%s' % func.__name__
+            cache = getattr(fti, key, None)
+            if cache is not None:
+                mtime, value = cache
+                if fti._p_mtime == mtime:
+                    return value
+
+        value = func(self, fti)
+
+        if fti is not None and value is not None:
+            setattr(fti, key, (fti._p_mtime, value))
+
+        return value
+    return decorator
+
 
 class SchemaCache(object):
     """Simple schema cache. 
@@ -50,62 +76,44 @@ class SchemaCache(object):
         >>> from plone.dexterity.schema import SCHEMA_CACHE
         >>> my_schema = SCHEMA_CACHE.get(portal_type)
         
-    Invalidate the cache by calling invalidate() (for one portal_type) or
-    clear() (for all cached values), or simply raise a SchemaInvalidatedEvent.
+    The cache uses the FTI's modification time as its invariant.
     """
     
     lock = RLock()
-    cache = {}
-    subtypes_cache = {}
-    counter_values = {}
 
     @synchronized(lock)
-    def get(self, portal_type):
-        cached = self.cache.get(portal_type, None)
-        if cached is None:
-            fti = queryUtility(IDexterityFTI, name=portal_type)
-            if fti is not None:
-                try:
-                    cached = self.cache[portal_type] = fti.lookupSchema()
-                except (AttributeError, ValueError):
-                    pass
-        return cached
-    
+    @volatile
+    def get(self, fti):
+        if fti is None:
+            return
+        try:
+            return fti.lookupSchema()
+        except (AttributeError, ValueError):
+            pass
+
     @synchronized(lock)
-    def subtypes(self, portal_type):
-        cached = self.subtypes_cache.get(portal_type, None)
-        if cached is None:
-            subtypes = []
-            fti = queryUtility(IDexterityFTI, name=portal_type)
-            if fti is None:
-                return ()
-            for behavior_name in fti.behaviors:
-                behavior = queryUtility(IBehavior, name=behavior_name)
-                if behavior is not None and behavior.marker is not None:
-                    subtypes.append(behavior.marker)
-            cached = self.subtypes_cache[portal_type] = tuple(subtypes)
-        return cached
-        
-    @synchronized(lock)
-    def counter(self, portal_type):
-        counter = self.counter_values.get(portal_type, None)
-        if counter is None:
-            counter = self.counter_values[portal_type] = 0
-        return counter
-    
-    @synchronized(lock)
-    def invalidate(self, portal_type):
-        self.cache[portal_type] = None
-        self.subtypes_cache[portal_type] = None
-        if portal_type in self.counter_values:
-            self.counter_values[portal_type] += 1
-        else:
-            self.counter_values[portal_type] = 0
+    @volatile
+    def subtypes(self, fti):
+        if fti is None:
+            return ()
+        subtypes = []
+        for behavior_name in fti.behaviors:
+            behavior = queryUtility(IBehavior, name=behavior_name)
+            if behavior is not None and behavior.marker is not None:
+                subtypes.append(behavior.marker)
+        return tuple(subtypes)
 
     @synchronized(lock)
     def clear(self):
-        self.cache.clear()
-        self.subtypes_cache.clear()
+        for fti in getAllUtilitiesRegisteredFor(IDexterityFTI):
+            invalidate_cache(fti)
+
+
+    @synchronized(lock)
+    def invalidate(self, portal_type):
+        fti = queryUtility(IDexterityFTI, name=portal_type)
+        invalidate_cache(fti)
+
 
 SCHEMA_CACHE = SchemaCache()
 

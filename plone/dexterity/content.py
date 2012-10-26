@@ -45,6 +45,7 @@ from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 from plone.supermodel.utils import mergedTaggedValueDict
 
 from plone.dexterity.filerepresentation import DAVResourceMixin, DAVCollectionMixin
+from plone.dexterity.interfaces import IDexterityFTI
 
 _marker = object()
 
@@ -58,69 +59,57 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         if inst is None:
             return getObjectSpecification(cls)
         
-        # Find the cached value. This calculation is expensive and called
-        # hundreds of times during each request, so we require a fast cache
-        cache = getattr(inst, '_v__providedBy__', None)
-        
         # Find the data we need to know if our cache needs to be invalidated
-        
         direct_spec = getattr(inst, '__provides__', None)
         portal_type = getattr(inst, 'portal_type', None)
         
-        fti_counter = -1
-        if portal_type is not None:
-            fti_counter = SCHEMA_CACHE.counter(portal_type)
-        
-        # See if we have a valid cache. Reasons to do this include:
-        # 
-        #  - We don't have a portal_type yet, so we can't have found the schema
-        #  - The FTI was modified, and the schema cache invalidated globally.
-        #    The fti_counter will have advanced.
-        #  - The instance was modified and persisted since the cache was built.
-        #  - The instance now has a different __provides__, which means that someone
-        #    called directlyProvides/alsoProvides on it.
-        
-        if cache is not None and portal_type is not None:
-            cached_mtime, cached_fti_counter, cached_direct_spec, cached_spec = cache
-            
-            if inst._p_mtime == cached_mtime and \
-                    fti_counter == cached_fti_counter and \
-                    direct_spec is cached_direct_spec:
-                return cached_spec
-        
-        # We don't have a cache, so we need to build a new spec and maybe cache it
-        
         spec = direct_spec
-        
+
         # If the instance doesn't have a __provides__ attribute, get the
         # interfaces implied by the class as a starting point.
         if spec is None:
             spec = implementedBy(cls)
-        
-        # Add the schema from the FTI and behavior subtypes
-        
-        dynamically_provided = []
-        
-        if portal_type is not None:
-            schema = SCHEMA_CACHE.get(portal_type)
-            if schema is not None:
-                dynamically_provided.append(schema)
-            
-            subtypes = SCHEMA_CACHE.subtypes(portal_type)
-            if subtypes:
-                dynamically_provided.extend(subtypes)
-        
-        # If we have any dynamically provided interface, prepend them to the spec
-        # and cache. We can't cache until we have at least the schema, because
-        # it's possible that we were called before traversal and so could not
-        # find the schema yet.
-        
-        if dynamically_provided:
-            dynamically_provided.append(spec)
-            spec = Implements(*dynamically_provided)
-            
-            inst._v__providedBy__ = inst._p_mtime, SCHEMA_CACHE.counter(portal_type), direct_spec, spec
-        
+
+        # If the instance has no portal type, then we're done.
+        if portal_type is None:
+            return spec
+
+        fti = queryUtility(IDexterityFTI, name=portal_type)
+        if fti is None:
+            return spec
+
+        schema = SCHEMA_CACHE.get(portal_type)
+        subtypes = SCHEMA_CACHE.subtypes(portal_type)
+
+        # Find the cached value. This calculation is expensive and called
+        # hundreds of times during each request, so we require a fast cache
+        cache = getattr(inst, '_v__providedBy__', None)
+        updated = inst._p_mtime, schema, subtypes, direct_spec
+
+        # See if we have a valid cache. Reasons to do this include:
+        #
+        #  - The schema was modified.
+        #  - The subtypes were modified.
+        #  - The instance was modified and persisted since the cache was built.
+        #  - The instance has a different direct specification.
+        if cache is not None:
+            cached_mtime, cached_schema, cached_subtypes, \
+                cached_direct_spec, cached_spec = cache
+
+            if cache[:-1] == updated:
+                return cached_spec
+
+        dynamically_provided = [] if schema is None else [schema]
+        dynamically_provided.extend(subtypes)
+
+        # If we have neither a schema, nor a subtype, then we're also done.
+        if not dynamically_provided:
+            return spec
+
+        dynamically_provided.append(spec)
+        spec = Implements(*dynamically_provided)
+        inst._v__providedBy__ = updated + (spec, )
+
         return spec
 
 
