@@ -115,7 +115,8 @@ class SchemaCache(object):
     @synchronized(lock)
     def invalidate(self, portal_type):
         fti = queryUtility(IDexterityFTI, name=portal_type)
-        invalidate_cache(fti)
+        if fti is not None:
+            invalidate_cache(fti)
 
 
 SCHEMA_CACHE = SchemaCache()
