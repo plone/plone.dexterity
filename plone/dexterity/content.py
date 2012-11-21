@@ -177,10 +177,12 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
     description = u''
     
     def __getattr__(self, name):
-        
         # attribute was not found; try to look it up in the schema and return
         # a default
-        
+
+        if not name.startswith('__'):
+            raise AttributeError(name)
+
         schema = SCHEMA_CACHE.get(self.portal_type)
         if schema is not None:
             field = schema.get(name, None)
