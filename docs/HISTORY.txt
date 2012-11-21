@@ -19,6 +19,15 @@ Changelog
   modification time as its cache key.
   [malthe]
 
+- Fixed schema caching. Previously, a non-persistent counter would be
+  used as part of the cache key, and changes made to this counter in
+  one process would obviously not propagate to other processes.
+
+  Instead, the cache key now includes the schema and subtypes which
+  are both retrieved from a FTI-specific volatile cache that uses the
+  modification time as its cache key.
+  [malthe]
+
 - The default attribute accessor now also looks through subtypes
   (behaviors) to find a field default.
   [malthe]
