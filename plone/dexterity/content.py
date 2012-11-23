@@ -181,7 +181,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
         # such as __conform__ that we can disregard (because we
         # wouldn't be in here if the class had such an attribute
         # defined).
-        if not name.startswith('__'):
+        if name.startswith('__'):
             raise AttributeError(name)
 
         # attribute was not found; try to look it up in the schema and return
