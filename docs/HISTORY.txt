@@ -4,6 +4,9 @@ Changelog
 2.1 (unreleased)
 ----------------
 
+* Added Finnish translations.
+  [pingviini]
+
 * Overrride allowedContentTypes and invokeFactory from PortalFolder
   to mimic the behavior of Archetypes based folders. This allows the
   registration of IConstrainTypes adapters to actually have the
