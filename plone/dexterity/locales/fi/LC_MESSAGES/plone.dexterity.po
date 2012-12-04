@@ -12,7 +12,7 @@ msgstr ""
 "Language-Code: fi\n"
 "Language-Name: Finnish\n"
 "Preferred-Encodings: utf-8 latin1\n"
-"Domain: DOMAIN\n"
+"Domain: plone.dexterity\n"
 "Generated-By: Babel 0.9.5\n"
 
 #: plone/dexterity/browser/add.py:112
