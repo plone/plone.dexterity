@@ -93,7 +93,13 @@ class DexterityFTI(base.DynamicViewTypeInformation):
           'description': "Path to file containing the schema model. This can be " +
                          "relative to a package, e.g. 'my.package:myschema.xml'."
         },
-        
+        { 'id': 'schema_policy',
+          'type': 'string',
+          'mode': 'w',
+          'label': 'Content type schema policy',
+          'description': 'Name of the schema policy.'
+        },
+
     )
     
     default_aliases = {'(Default)': '(dynamic view)',
@@ -133,6 +139,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 """
     model_file = u""
     schema = u""
+    schema_policy = u"dexterity"
     
     def __init__(self, *args, **kwargs):
         super(DexterityFTI, self).__init__(*args, **kwargs)
@@ -224,11 +231,11 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     def lookupModel(self):
         
         if self.model_source:
-            return loadString(self.model_source, policy=u"dexterity")
+            return loadString(self.model_source, policy=self.schema_policy)
         
         elif self.model_file:
             model_file = self._absModelFile()
-            return loadFile(model_file, reload=True, policy=u"dexterity")
+            return loadFile(model_file, reload=True, policy=self.schema_policy)
         
         elif self.schema:
             schema = self.lookupSchema()
