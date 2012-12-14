@@ -31,6 +31,8 @@ from plone.dexterity.fti import ftiAdded, ftiRemoved, ftiRenamed, ftiModified
 
 from plone.dexterity.factory import DexterityFactory
 
+from plone.dexterity.schema import DexteritySchemaPolicy
+
 from plone.dexterity import utils
 from plone.dexterity.tests.schemata import ITestSchema
 
@@ -45,6 +47,9 @@ class TestClass(object):
 
 class TestClass2(object):
     meta_type = "Test Class 2"
+
+class ITestInterface(Interface):
+    pass
 
 
 class TestFTI(MockTestCase):
@@ -335,6 +340,36 @@ class TestFTI(MockTestCase):
         msgid = fti.Description()
         self.assertEquals(u't\xe9st', msgid)
         self.assertEquals('test', msgid.domain)
+
+    def test_lookupModel_without_schema_policy(self):
+        gsm = getGlobalSiteManager()
+        gsm.registerUtility(DexteritySchemaPolicy(), plone.supermodel.interfaces.ISchemaPolicy, name=u"dexterity")
+
+        fti = DexterityFTI(u"testtype")
+        fti.schema = None
+        fti.model_source = '<model xmlns="http://namespaces.plone.org/supermodel/schema"><schema/></model>'
+        fti.model_file = None
+        
+        model = fti.lookupModel()
+        self.assertEquals(False, ITestInterface in model.schemata[''].__bases__)
+
+    def test_lookupModel_with_schema_policy(self):
+        class TestSchemaPolicy(DexteritySchemaPolicy):
+            def bases(self, schemaName, tree):
+                return (ITestInterface,)
+
+        gsm = getGlobalSiteManager()
+        policy = TestSchemaPolicy()
+        gsm.registerUtility(policy, plone.supermodel.interfaces.ISchemaPolicy, name=u"test")
+
+        fti = DexterityFTI(u"testtype")
+        fti.schema = None
+        fti.model_source = '<model xmlns="http://namespaces.plone.org/supermodel/schema"><schema/></model>'
+        fti.model_file = None
+        fti.schema_policy = u"test"
+        
+        model = fti.lookupModel()
+        self.assertEquals(True, ITestInterface in model.schemata[''].__bases__)
 
     
 class TestFTIEvents(MockTestCase):
