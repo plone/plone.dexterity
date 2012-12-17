@@ -28,6 +28,10 @@ Changelog
   https://github.com/plone/plone.dexterity/pull/11
   [malthe]
 
+- Make it possible to define a SchemaPolicy for the FTI
+  [Frédéric Péters]
+  [gbastien]
+
 2.0 (2012-08-30)
 ----------------
 
