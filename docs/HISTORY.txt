@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.1 (unreleased)
+2.1 (2013-01-01)
 ----------------
 
 * Added Finnish translations.
