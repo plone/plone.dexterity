@@ -1,33 +1,31 @@
+
 msgid ""
 msgstr ""
 "Project-Id-Version: plone.dexterity 1.0b3\n"
-"POT-Creation-Date: 2010-07-09 15:38+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2013-01-02 11:53+0100\n"
+"PO-Revision-Date: 2013-01-02 11:56+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: de <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0\n"
-"Language-Code: de\n"
-"Language-Name: German\n"
-"Preferred-Encodings: utf-8 latin1\n"
-"Domain: plone.dexterity\n"
-"X-Is-Fallback-For: de-at de-li de-lu de-ch de-de de\n"
+"Generated-By: Babel 0.9.6\n"
 
-#: plone/dexterity/browser/add.py:112
+#: plone/dexterity/browser/add.py:130
 msgid "Add ${name}"
 msgstr "${name} hinzufügen"
 
-#: plone/dexterity/browser/add.py:96
+#: plone/dexterity/browser/add.py:107
 msgid "Add New Item operation cancelled"
 msgstr "Hinzufügen abgebrochen"
 
-#: plone/dexterity/browser/add.py:94 plone/dexterity/browser/edit.py:25
+#: plone/dexterity/browser/add.py:105 plone/dexterity/browser/edit.py:32
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: plone/dexterity/browser/edit.py:22
+#: plone/dexterity/browser/edit.py:28
 msgid "Changes saved"
 msgstr "Änderungen gespeichert"
 
@@ -35,19 +33,19 @@ msgstr "Änderungen gespeichert"
 msgid "Content"
 msgstr "Inhalt"
 
-#: plone/dexterity/browser/edit.py:48
+#: plone/dexterity/browser/edit.py:74
 msgid "Edit ${name}"
 msgstr "${name} bearbeiten"
 
-#: plone/dexterity/browser/edit.py:27
+#: plone/dexterity/browser/edit.py:34
 msgid "Edit cancelled"
 msgstr "Bearbeiten abgebrochen"
 
-#: plone/dexterity/browser/add.py:92
+#: plone/dexterity/browser/add.py:103
 msgid "Item created"
 msgstr "Eintrag erzeugt"
 
-#: plone/dexterity/browser/add.py:82 plone/dexterity/browser/edit.py:15
+#: plone/dexterity/browser/add.py:93 plone/dexterity/browser/edit.py:21
 msgid "Save"
 msgstr "Speichern"
 
