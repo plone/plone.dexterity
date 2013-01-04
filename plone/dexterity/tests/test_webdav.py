@@ -920,8 +920,6 @@ class TestFileRepresentation(MockTestCase):
         fti_mock = self.mocker.mock(DexterityFTI)
         SCHEMA_CACHE.clear()
         self.expect(fti_mock.lookupSchema()).result(ITest)
-        self.expect(fti_mock.lookupSchema()).result(ITest)
-        self.expect(fti_mock.behaviors).result([])
         self.expect(fti_mock.behaviors).result([])
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
@@ -943,8 +941,6 @@ class TestFileRepresentation(MockTestCase):
         SCHEMA_CACHE.clear()
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookupSchema()).result(ITest)
-        self.expect(fti_mock.lookupSchema()).result(ITest)
-        self.expect(fti_mock.behaviors).result([])
         self.expect(fti_mock.behaviors).result([])
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
@@ -968,8 +964,6 @@ class TestFileRepresentation(MockTestCase):
         SCHEMA_CACHE.clear()
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookupSchema()).result(ITest)
-        self.expect(fti_mock.lookupSchema()).result(ITest)
-        self.expect(fti_mock.behaviors).result([])
         self.expect(fti_mock.behaviors).result([])
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
@@ -1029,7 +1023,6 @@ class TestFileRepresentation(MockTestCase):
                 yield MockBehavior(ITestAdditional)
         SCHEMA_CACHE.clear()
         fti_mock = self.mocker.mock(DexterityFTI)
-        self.expect(fti_mock.lookupSchema()).result(ITest)
         self.expect(fti_mock.lookupSchema()).result(ITest)
 
         self.mock_adapter(MockBehaviorAssignable, IBehaviorAssignable,

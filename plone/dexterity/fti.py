@@ -374,11 +374,11 @@ def unregister(fti, old_name=None):
     site_manager = getSiteManager(site)
     
     portal_type = old_name or fti.getId()
+
+    notify(SchemaInvalidatedEvent(portal_type))
     
     site_manager.unregisterUtility(provided=IDexterityFTI, name=portal_type)
-    unregister_factory(fti.factory, site_manager)
-    
-    notify(SchemaInvalidatedEvent(portal_type))
+    unregister_factory(fti.factory, site_manager)    
 
 def unregister_factory(factory_name, site_manager):
     """Helper method to unregister factories when unused by any dexterity
