@@ -16,11 +16,15 @@ from plone.dexterity.fti import DexterityFTI
 
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 
-class TestAttributeProtection(MockTestCase):
 
+class TestAttributeProtection(MockTestCase):
     def setUp(self):
         SCHEMA_CACHE.clear()
-            
+        SCHEMA_CACHE.cache_enabled = False
+
+    def tearDown(self):
+        SCHEMA_CACHE.cache_enabled = True
+
     def test_item(self):
         
         # Mock schema model
@@ -30,6 +34,8 @@ class TestAttributeProtection(MockTestCase):
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
         self.expect(fti_mock.lookupSchema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
@@ -69,6 +75,8 @@ class TestAttributeProtection(MockTestCase):
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
         self.expect(fti_mock.lookupSchema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
@@ -111,6 +119,8 @@ class TestAttributeProtection(MockTestCase):
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookupSchema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
@@ -148,6 +158,8 @@ class TestAttributeProtection(MockTestCase):
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookupSchema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
@@ -175,6 +187,8 @@ class TestAttributeProtection(MockTestCase):
         
         # Mock FTI
         fti_mock = self.mocker.mock(DexterityFTI)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
+        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
         self.expect(fti_mock.lookupSchema()).result(ITestSchema)
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
