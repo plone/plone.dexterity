@@ -4,6 +4,10 @@ Changelog
 2.1.1 (unreleased)
 ------------------
 
+- Use empty model_source by default instead of title and description
+  We don't necessary want these fields in new content types.
+  [cedricmessiant]
+
 - Fixed schema caching. Previously, a non-persistent counter would be
   used as part of the cache key, and changes made to this counter in
   one process would obviously not propagate to other processes.
@@ -94,7 +98,7 @@ Changelog
   http://code.google.com/p/dexterity/issues/detail?id=240
   [davisagli]
 
-* Added events: IEditBegunEvent, IEditCancelledEvent, IEditFinished, 
+* Added events: IEditBegunEvent, IEditCancelledEvent, IEditFinished,
   IAddBegunEvent, IAddCancelledEvent
   [jbaumann]
 
