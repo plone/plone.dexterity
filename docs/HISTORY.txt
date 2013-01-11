@@ -4,6 +4,10 @@ Changelog
 1.1.3 - unreleased
 ------------------
 
+* When pasting into a dexterity content check the FTI for the the pasted object
+  to see if it is allowed in the new container.
+
+
 1.1.2 - 2012-02-20
 ------------------
 

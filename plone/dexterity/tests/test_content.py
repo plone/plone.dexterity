@@ -675,6 +675,68 @@ class TestContent(MockTestCase):
         container.manage_delObjects(['test'])
         self.assertFalse('test' in container)
 
+    def test_verifyObjectPaste_paste_without_portal_type(self):
+        original_container = Container(id='parent')
+        original_container.manage_permission('View', ('Anonymous',))
+        content = Item(id='test')
+        content.__factory_meta_type__ = 'document'
+        container = Container(id='container')
+        container.all_meta_types = [{'name': 'document',
+                                     'action': None,
+                                     'permission': 'View'}]
+        container.manage_permission('View', ('Anonymous',))
+        container['test'] = content
+        content = container['test']
+        container._verifyObjectPaste(content, True)
+
+    def test_verifyObjectPaste_fti_does_not_allow_content(self):
+        from Products.CMFCore.interfaces import ITypeInformation
+        original_container = Container(id='parent')
+        original_container.manage_permission('View', ('Anonymous',))
+        content = Item(id='test')
+        content.__factory_meta_type__ = 'document'
+        content.portal_type = 'document'
+        container = Container(id='container')
+        container.all_meta_types = [{'name': 'document',
+                                     'action': None,
+                                     'permission': 'View'}]
+        container.manage_permission('View', ('Anonymous',))
+        container['test'] = content
+        content = container['test']
+        fti = self.mocker.mock()
+        self.expect(fti.isConstructionAllowed(container)).result(False)
+        self.mock_utility(fti, ITypeInformation, name='document')
+        pt = self.mocker.mock()
+        self.expect(pt.getTypeInfo('document')).result(None)
+        self.expect(pt.getTypeInfo(container)).result(None)
+        self.mock_tool(pt, 'portal_types')
+        self.replay()
+        self.assertRaises(ValueError, container._verifyObjectPaste, content, True)
+
+    def test_verifyObjectPaste_fti_does_allow_content(self):
+        from Products.CMFCore.interfaces import ITypeInformation
+        original_container = Container(id='parent')
+        original_container.manage_permission('View', ('Anonymous',))
+        content = Item(id='test')
+        content.__factory_meta_type__ = 'document'
+        content.portal_type = 'document'
+        container = Container(id='container')
+        container.all_meta_types = [{'name': 'document',
+                                     'action': None,
+                                     'permission': 'View'}]
+        container.manage_permission('View', ('Anonymous',))
+        container['test'] = content
+        content = container['test']
+        fti = self.mocker.mock()
+        self.expect(fti.isConstructionAllowed(container)).result(True)
+        self.mock_utility(fti, ITypeInformation, name='document')
+        pt = self.mocker.mock()
+        self.expect(pt.getTypeInfo('document')).result(None)
+        self.expect(pt.getTypeInfo(container)).result(None)
+        self.mock_tool(pt, 'portal_types')
+        self.replay()
+        container._verifyObjectPaste(content, True)
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
