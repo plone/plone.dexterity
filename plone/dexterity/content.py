@@ -1,4 +1,4 @@
-from Acquisition import Explicit, aq_parent
+from Acquisition import Explicit, aq_base, aq_parent
 from zExceptions import Unauthorized
 
 from copy import deepcopy
@@ -32,6 +32,7 @@ from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.PortalFolder import PortalFolderBase
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFPlone.interfaces import IConstrainTypes
+from Products.CMFCore.interfaces import ITypeInformation
 
 from Products.CMFDefault.DublinCore import DefaultDublinCoreImpl
 from Products.CMFDefault.utils import tuplize
@@ -152,6 +153,22 @@ class AttributeValidator(Explicit):
         return None
 
 
+class PasteBehaviourMixin(object):
+    def _verifyObjectPaste(self, obj, validate_src=True):
+        # Extend the paste checks from OFS.CopySupport.CopyContainer
+        # (permission checks) and
+        # Products.CMFCore.PortalFolder.PortalFolderBase (permission checks and
+        # allowed content types) to also ask the FTI if construction is
+        # allowed.
+        super(PasteBehaviourMixin, self)._verifyObjectPaste(obj, validate_src)
+        if validate_src:
+            portal_type = getattr(aq_base(obj), 'portal_type', None)
+            if portal_type:
+                fti = queryUtility(ITypeInformation, name=portal_type)
+                if fti is not None and not fti.isConstructionAllowed(self):
+                    raise ValueError('You can not add the copied content here.')
+
+
 class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, Contained):
     """Base class for Dexterity content
     """
@@ -246,7 +263,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
                 s.append(part)
         return tuple(s)
 
-class Item(BrowserDefaultMixin, DexterityContent):
+
+class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
     """A non-containerish, CMFish item
     """
     
@@ -275,7 +293,7 @@ class Item(BrowserDefaultMixin, DexterityContent):
     __getattr__ = DexterityContent.__getattr__
 
 
-class Container(DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
+class Container(PasteBehaviourMixin, DAVCollectionMixin, BrowserDefaultMixin, CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
     """Base class for folderish items
     """
     

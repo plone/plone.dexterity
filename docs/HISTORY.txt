@@ -4,7 +4,11 @@ Changelog
 2.1.1 (unreleased)
 ------------------
 
-- Fixed schema caching. Previously, a non-persistent counter would be
+* When pasting into a dexterity container check the FTI for the the pasted
+  object to see if it is allowed in the new container.
+  [wichert]
+
+* Fixed schema caching. Previously, a non-persistent counter would be
   used as part of the cache key, and changes made to this counter in
   one process would obviously not propagate to other processes.
 
@@ -26,22 +30,22 @@ Changelog
   expected effect.
   [gaudenzius]
 
-- The default attribute accessor now also looks through subtypes
+* The default attribute accessor now also looks through subtypes
   (behaviors) to find a field default.
   [malthe]
 
-- Added support in the FTI to look up behaviors by utility name when
+* Added support in the FTI to look up behaviors by utility name when
   getting additional schemata (i.e. fields provided by behaviors).
 
   This functionality makes it possible to create a behavior where the
   interface is dynamically generated.
   [malthe]
 
-- Return early for attributes that begin with two underscores.
+* Return early for attributes that begin with two underscores.
   https://github.com/plone/plone.dexterity/pull/11
   [malthe]
 
-- Make it possible to define a SchemaPolicy for the FTI
+* Make it possible to define a SchemaPolicy for the FTI
   [Frédéric Péters]
   [gbastien]
 
