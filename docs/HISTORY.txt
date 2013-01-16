@@ -4,6 +4,9 @@ Changelog
 2.1.1 (unreleased)
 ------------------
 
+* No longer add title and description fields to new FTIs by default.
+  [davisagli]
+
 * When pasting into a dexterity container check the FTI for the the pasted
   object to see if it is allowed in the new container.
   [wichert]

@@ -125,16 +125,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     klass = 'plone.dexterity.content.Item'
     model_source = """\
 <model xmlns="http://namespaces.plone.org/supermodel/schema">
-    <schema>
-        <field name="title" type="zope.schema.TextLine">
-            <title>Title</title>
-            <required>True</required>
-        </field>
-        <field name="description" type="zope.schema.Text">
-            <title>Description</title>
-            <required>False</required>
-        </field>
-    </schema>
+    <schema />
 </model>
 """
     model_file = u""
