@@ -12,6 +12,24 @@
         permission="zope2.View"
         />
     
+    <!-- Content core views -->
+
+    <browser:page
+        for="..interfaces.IDexterityItem"
+        name="content-core"
+        class=".view.DefaultView"
+        template="itemcontentcore.pt"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="..interfaces.IDexterityContainer"
+        name="content-core"
+        class=".view.DefaultView"
+        template="containercontentcore.pt"
+        permission="zope2.View"
+        />
+
     <!-- Standard IPublishTraverse adapter -->
     <adapter factory=".traversal.DexterityPublishTraverse" />
     
