@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.1.2 (unreleased)
+2.1.2 (2013-03-05)
 ------------------
 
 - Merged Rafael Oliveira's (@rafaelbco) @content-core views from
