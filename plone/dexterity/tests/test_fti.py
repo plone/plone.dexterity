@@ -87,6 +87,20 @@ class TestFTI(MockTestCase):
         # cleanup
         delattr(plone.dexterity.schema.generated, schemaName)
 
+    def test_lookupSchema_with_nonexistant_schema(self):
+        """ Tests the case where a dexterity type is not removed cleanly
+        from the fti, but the code has been removed.
+        """
+        fti = DexterityFTI(u"testtype")
+        fti.schema = 'model.wont.be.imported'
+        portal = self.create_dummy(getPhysicalPath=lambda:('', 'site'))
+        self.mock_utility(portal, ISiteRoot)
+        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        setattr(plone.dexterity.schema.generated, schemaName, ITestSchema)
+        self.assertEquals(ITestSchema, fti.lookupSchema())
+        delattr(plone.dexterity.schema.generated, schemaName)
+
+
     def test_lookupModel_from_string(self):
         fti = DexterityFTI(u"testtype")
         fti.schema = None
