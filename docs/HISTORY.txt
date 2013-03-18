@@ -3,12 +3,9 @@ Changelog
 
 2.1.3 (unreleased)
 ------------------
+
 - Fail gracefully when a schema lookup fails due to schema that doesn't 
   exist or no longer exists for some reason or another. 
-  [eleddy]
-
-- Add convenience functions (aka sanity) for getting
-  dexterity fields and behavior fields in a consistent way
   [eleddy]
 
 
