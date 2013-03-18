@@ -1,4 +1,5 @@
 import os.path
+import logging
 
 from zope.interface import implements
 
@@ -204,12 +205,18 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         return not(self.schema)
     
     def lookupSchema(self):
+        schema = None
         
         # If a specific schema is given, use it
         if self.schema:
-            schema = utils.resolveDottedName(self.schema)
-            if schema is None:
-                raise ValueError(u"Schema %s set for type %s cannot be resolved" % (self.schema, self.getId()))
+            try:
+                schema = utils.resolveDottedName(self.schema)
+            except ImportError:
+                logging.warning(u"Schema %s set for type %s cannot be resolved" % (self.schema, self.getId()))
+                # fall through to return a fake class with no
+                # fields so that end user code doesn't break
+                
+        if schema:
             return schema
         
         # Otherwise, look up a dynamic schema. This will query the model for
