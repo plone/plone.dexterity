@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '2.1.3'
+version = '2.1.4dev'
 
 setup(name='plone.dexterity',
       version=version,
