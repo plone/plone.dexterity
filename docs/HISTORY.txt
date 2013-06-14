@@ -6,6 +6,8 @@ Changelog
 
 - Use the same message string for the default fieldset as Archetypes does.
   [davisagli]
+- Creator accessor should return encoded strings
+  [kiorky]
 
 2.1.3 (2013-05-26)
 ------------------

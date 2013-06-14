@@ -559,6 +559,23 @@ class TestContent(MockTestCase):
         c = Container(title=None)
         self.assertEqual('', c.Title())
 
+    def test_Creator_converts_to_utf8(self):
+        i = Item()
+        i.creators = (u"é",)
+        self.assertEqual("é", i.Creator())
+        i.creators = ("é",)
+        self.assertEqual("é", i.Creator())
+        c = Container()
+        c.creators = (u"é",)
+        self.assertEqual("é", c.Creator())
+        self.assertEqual((u"é",), c.creators)
+
+    def test_Creator_handles_None(self):
+        i = Item(creators=None)
+        self.assertEqual('', i.Creator())
+        c = Container(creators=None)
+        self.assertEqual('', c.Creator())
+
     def test_Description_converts_to_utf8(self):
         i = Item()
         i.description = u"é"
