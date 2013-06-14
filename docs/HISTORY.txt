@@ -7,13 +7,18 @@ Changelog
 - Use the same message string for the default fieldset as Archetypes does.
   [davisagli]
 - Creator accessor should return encoded strings
+  If your catalog was broken, try to clear & reindex Creator::
+
+    cat.clearIndex('Creator')
+    cat.manage_reindexIndex(['Creator'])
+
   [kiorky]
 
 2.1.3 (2013-05-26)
 ------------------
 
-- Fail gracefully when a schema lookup fails due to schema that doesn't 
-  exist or no longer exists for some reason or another. 
+- Fail gracefully when a schema lookup fails due to schema that doesn't
+  exist or no longer exists for some reason or another.
   [eleddy]
 
 
@@ -124,7 +129,7 @@ Changelog
   http://code.google.com/p/dexterity/issues/detail?id=240
   [davisagli]
 
-* Added events: IEditBegunEvent, IEditCancelledEvent, IEditFinished, 
+* Added events: IEditBegunEvent, IEditCancelledEvent, IEditFinished,
   IAddBegunEvent, IAddCancelledEvent
   [jbaumann]
 
