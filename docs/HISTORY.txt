@@ -4,8 +4,16 @@ Changelog
 2.1.4 (unreleased)
 ------------------
 
-- Use the same message string for the default fieldset as Archetypes does.
+- Support GenericSetup structure import/export of Dexterity content.
+  Content is serialized the same way as for WebDAV,
+  using plone.rfc822. Not all field types are supported yet,
+  but this at least gets the basics in place.
+
+  GS import used to work by accident in a basic way for Dexterity
+  containers. If you were using this, you'll need to recreate your
+  exported files with the rfc822 serialization.
   [davisagli]
+
 - Creator accessor should return encoded strings
   If your catalog was broken, try to clear & reindex Creator::
 
@@ -13,6 +21,9 @@ Changelog
     cat.manage_reindexIndex(['Creator'])
 
   [kiorky]
+
+- Use the same message string for the default fieldset as Archetypes does.
+  [davisagli]
 
 2.1.3 (2013-05-26)
 ------------------
