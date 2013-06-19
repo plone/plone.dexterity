@@ -784,6 +784,25 @@ class TestContent(MockTestCase):
         self.replay()
         container._verifyObjectPaste(content, True)
 
+    def testIsPrincipiaFolderish(self):
+        content = Container('test')
+        content.portal_type = 'nonfolder'
+
+        # it's a folder if it already has stuff in it
+        item = Item('item')
+        content._setObject('item', item)
+        self.assertEqual(1, content.isPrincipiaFolderish)
+
+        # it's a folder if it's empty but things can be added
+        content._delObject('item')
+        content.allowedContentTypes = lambda: ['foo']
+        self.assertEqual(1, content.isPrincipiaFolderish)
+
+        # but it's not a folder if it's empty
+        # and nothing can be added
+        content.allowedContentTypes = lambda: []
+        self.assertEqual(0, content.isPrincipiaFolderish)
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

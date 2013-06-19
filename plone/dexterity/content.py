@@ -1,4 +1,5 @@
 from Acquisition import Explicit, aq_base, aq_parent
+from ComputedAttribute import ComputedAttribute
 from zExceptions import Unauthorized
 
 from copy import deepcopy
@@ -315,7 +316,15 @@ class Container(PasteBehaviourMixin, DAVCollectionMixin, BrowserDefaultMixin, CM
     security.declareProtected(Products.CMFCore.permissions.ModifyPortalContent, 'manage_renameObject')
     security.declareProtected(Products.CMFCore.permissions.ModifyPortalContent, 'manage_renameObjects')
 
-    isPrincipiaFolderish = 1
+    def _isPrincipiaFolderish(self):
+        # Count this as a folder if it has some contents already
+        if len(self):
+            return 1
+        # or if any types are allowed to be added
+        if self.allowedContentTypes():
+            return 1
+        return 0
+    isPrincipiaFolderish = ComputedAttribute(_isPrincipiaFolderish)
 
     # make sure CMFCatalogAware's manage_options don't take precedence
     manage_options = PortalFolderBase.manage_options
