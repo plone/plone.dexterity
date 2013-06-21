@@ -75,7 +75,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         if hasattr(props, 'read'):
             props = props.read()
         export_context.writeDataFile(
-            '.properties',
+            '.data',
             text=props,
             content_type='text/plain',
             subdir=subdir,
@@ -92,7 +92,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         if not root:
             subdir = '%s/%s' % (subdir, context.getId())
 
-        data = import_context.readDataFile('.properties', subdir)
+        data = import_context.readDataFile('.data', subdir)
         if data is not None:
             request = FauxDAVRequest(BODY=data, BODYFILE=StringIO(data))
             response = FauxDAVResponse()

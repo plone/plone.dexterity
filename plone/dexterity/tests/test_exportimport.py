@@ -20,7 +20,7 @@ class ExportImportTests(unittest.TestCase):
 
         self.assertEqual(
             export_context._wrote[-1],
-            ('.properties', 'title: Foo', 'text/plain')
+            ('.data', 'title: Foo', 'text/plain')
             )
 
     def test_import(self):
@@ -35,7 +35,7 @@ class ExportImportTests(unittest.TestCase):
         item = DummyItem('test')
 
         import_context = DummyImportContext(None)
-        import_context._files['.properties'] = 'title: Foo'
+        import_context._files['.data'] = 'title: Foo'
         importer = DexterityContentExporterImporter(item)
         importer.import_(import_context, None, root=True)
 
