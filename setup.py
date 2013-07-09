@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '2.1.4dev'
+version = '2.2.0dev'
 
 setup(name='plone.dexterity',
       version=version,
@@ -37,7 +37,6 @@ setup(name='plone.dexterity',
           'plone.uuid',
           'plone.z3cform>=0.6.0',
           'Products.CMFCore',
-          'Products.CMFDefault',
           'Products.CMFDynamicViewFTI',
           'Products.statusmessages',
           'setuptools',

@@ -3,6 +3,7 @@ import logging
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from AccessControl import Unauthorized
+from DateTime import DateTime
 
 from zope.component import getUtility, queryUtility
 from zope.component import createObject
@@ -230,3 +231,24 @@ def getAdditionalSchemata(context=None, portal_type=None):
             behavior_schema = IFormFieldProvider(behavior_reg.interface, None)
             if behavior_schema is not None:
                 yield behavior_schema
+
+
+def safe_utf8(s):
+    if isinstance(s, unicode):
+        s = s.encode('utf8')
+    return s
+
+
+def safe_unicode(s):
+    if isinstance(s, str):
+        s = s.decode('utf8')
+    return s
+
+
+def datify(s):
+    if s == 'None':
+        s = None
+    elif not isinstance(s, DateTime):
+        if s is not None:
+            s = DateTime(s)
+    return s

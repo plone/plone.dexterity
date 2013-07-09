@@ -1,8 +1,20 @@
 Changelog
 =========
 
-2.1.4 (unreleased)
+2.2.0 (unreleased)
 ------------------
+
+- Hide the Dublin Core tab and show the Properties tab for
+  items when viewed in the ZMI.
+  [davisagli]
+
+- Avoid storing dublin core metadata on new instances unless it
+  differs from the default values.
+  [davisagli]
+
+- Implement CMF's dublin core interfaces inline rather than
+  depending on CMFDefault.
+  [davisagli]
 
 - Return 0 for isPrincipiaFolderish on a Container if
   it is currently empty and no types are allowed to be added.
