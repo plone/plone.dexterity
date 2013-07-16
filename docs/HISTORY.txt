@@ -16,12 +16,7 @@ Changelog
   depending on CMFDefault.
   [davisagli]
 
-- Return 0 for isPrincipiaFolderish on a Container if
-  it is currently empty and no types are allowed to be added.
-  This keeps the Contents tab from showing up in situations
-  where it's a distraction.
-  [davisagli]
-
+when they aren't allowed to contain any types
 - Support GenericSetup structure import/export of Dexterity content.
   Content is serialized the same way as for WebDAV,
   using plone.rfc822. Not all field types are supported yet,

@@ -1,5 +1,4 @@
 from Acquisition import Explicit, aq_base, aq_parent
-from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from zExceptions import Unauthorized
 from OFS.PropertyManager import PropertyManager
@@ -575,15 +574,7 @@ class Container(
     security.declareProtected(
         permissions.ModifyPortalContent, 'manage_renameObjects')
 
-    def _isPrincipiaFolderish(self):
-        # Count this as a folder if it has some contents already
-        if len(self):
-            return 1
-        # or if any types are allowed to be added
-        if self.allowedContentTypes():
-            return 1
-        return 0
-    isPrincipiaFolderish = ComputedAttribute(_isPrincipiaFolderish)
+    isPrincipiaFolderish = 1
 
     # make sure CMFCatalogAware's manage_options don't take precedence
     manage_options = PortalFolderBase.manage_options
