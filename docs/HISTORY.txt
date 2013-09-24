@@ -4,6 +4,9 @@ Changelog
 2.2.0 (unreleased)
 ------------------
 
+- Ensure FTI's isConstructionAllowed method returns a boolean.
+  [danjacka]
+
 - Hide the Dublin Core tab and show the Properties tab for
   items when viewed in the ZMI.
   [davisagli]

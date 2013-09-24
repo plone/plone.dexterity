@@ -283,7 +283,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         if permission is None:
             return False
         
-        return getSecurityManager().checkPermission(permission.title, container)
+        return bool(getSecurityManager().checkPermission(permission.title, container))
         
     #
     # Helper methods
