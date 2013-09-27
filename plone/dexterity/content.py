@@ -203,16 +203,27 @@ class DexterityContent(DAVResourceMixin, PortalContent, DefaultDublinCoreImpl, C
     description = u''
     
     def __getattr__(self, name):
-        
+        # optimization: sometimes we're asked for special attributes
+        # such as __conform__ that we can disregard (because we
+        # wouldn't be in here if the class had such an attribute
+        # defined).
+        if name.startswith('__'):
+            raise AttributeError(name)
+
         # attribute was not found; try to look it up in the schema and return
         # a default
-        
         schema = SCHEMA_CACHE.get(self.portal_type)
         if schema is not None:
             field = schema.get(name, None)
             if field is not None:
                 return deepcopy(field.default)
-        
+
+        # do the same for each subtype
+        for schema in SCHEMA_CACHE.subtypes(self.portal_type):
+            field = schema.get(name, None)
+            if field is not None:
+                return deepcopy(field.default)
+
         raise AttributeError(name)
     
     # Let __name__ and id be identical. Note that id must be ASCII in Zope 2,
@@ -351,15 +362,10 @@ class Container(PasteBehaviourMixin, DAVCollectionMixin, BrowserDefaultMixin, CM
             setattr(self, k, v)
     
     def __getattr__(self, name):
-        
-        # attribute was not found; try to look it up in the schema and return
-        # a default
-        
-        schema = SCHEMA_CACHE.get(self.portal_type)
-        if schema is not None:
-            field = schema.get(name, None)
-            if field is not None:
-                return deepcopy(field.default)
+        try:
+            return DexterityContent.__getattr__(self, name)
+        except AttributeError:
+            pass
         
         # Be specific about the implementation we use
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
