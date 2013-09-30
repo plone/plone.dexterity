@@ -231,7 +231,7 @@ class TestContent(MockTestCase):
             pass
         
         class ISubtype(Interface):
-            baz = zope.schema.TextLine(title=u"baz", default=u"baz")
+            pass
         
         behavior1 = BehaviorRegistration(u"Behavior1", "", IBehavior1, None, None)
         behavior2 = BehaviorRegistration(u"Behavior2", "", IBehavior2, ISubtype, None)
@@ -259,9 +259,6 @@ class TestContent(MockTestCase):
         self.assertEquals(True, ISubtype.providedBy(item))
         self.assertEquals(True, ISchema.providedBy(item))
         
-        # Subtypes provide field defaults.
-        self.assertEquals(u"baz", getattr(item, "baz", None))
-
         # We also need to ensure that the _v_ attribute doesn't hide any
         # interface set directly on the instance with alsoProvides() or
         # directlyProvides(). This is done by clearing the cache when these
