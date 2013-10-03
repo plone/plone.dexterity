@@ -19,7 +19,6 @@ Changelog
   depending on CMFDefault.
   [davisagli]
 
-when they aren't allowed to contain any types
 - Support GenericSetup structure import/export of Dexterity content.
   Content is serialized the same way as for WebDAV,
   using plone.rfc822. Not all field types are supported yet,

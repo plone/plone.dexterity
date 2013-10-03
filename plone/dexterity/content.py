@@ -311,7 +311,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         if modification_date is None:
             self.modification_date = DateTime()
         else:
-            self.modification_date = self._datify(modification_date)
+            self.modification_date = datify(modification_date)
 
     # IMinimalDublinCore
 
