@@ -162,3 +162,8 @@ class IEditFinishedEvent(IObjectEvent):
     """Edit was finished and contents are saved. This event is fired
     even when no changes happen (and no modified event is fired.)
     """
+
+# Views
+
+class IDexterityEditForm(Interface):
+    """The edit form for a Dexterity content type."""

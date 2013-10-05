@@ -1,5 +1,6 @@
 from zope.component import getUtility
 from zope.event import notify
+from zope.interface import classImplements
 
 from z3c.form import form, button
 from plone.z3cform import layout
@@ -11,6 +12,7 @@ from plone.dexterity.events import EditCancelledEvent
 from plone.dexterity.events import EditFinishedEvent
 
 from plone.dexterity.browser.base import DexterityExtensibleForm
+from plone.dexterity.interfaces import IDexterityEditForm
 
 from Products.CMFCore.utils import getToolByName
 from Products.statusmessages.interfaces import IStatusMessage
@@ -74,3 +76,4 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
         return _(u"Edit ${name}", mapping={'name': type_name})
         
 DefaultEditView = layout.wrap_form(DefaultEditForm)
+classImplements(DefaultEditView, IDexterityEditForm)

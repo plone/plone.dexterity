@@ -4,6 +4,10 @@ Changelog
 2.2.0 (unreleased)
 ------------------
 
+- Put a marker interface on the default edit view so viewlets
+  can be registered for it.
+  [davisagli]
+
 - Ensure FTI's isConstructionAllowed method returns a boolean.
   [danjacka]
 
