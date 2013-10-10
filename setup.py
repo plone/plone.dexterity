@@ -6,7 +6,7 @@ version = '2.2.0dev'
 setup(name='plone.dexterity',
       version=version,
       description="Flexible CMF content",
-      long_description=open("README.txt").read() + "\n" +
+      long_description=open("README.rst").read() + "\n" +
                        open("CHANGES.rst")).read(),
       # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
