@@ -4,6 +4,9 @@ Changelog
 2.2.0 (unreleased)
 ------------------
 
+- Replace deprecated test assert statements.
+  [timo]
+
 - Put a marker interface on the default edit view so viewlets
   can be registered for it.
   [davisagli]

@@ -75,7 +75,7 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(0, item.get_size())
+        self.assertEqual(0, item.get_size())
 
     def test_get_size_wrong_adapter(self):
         class SizedAdapter(object):
@@ -90,7 +90,7 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(0, item.get_size())
+        self.assertEqual(0, item.get_size())
 
     def test_get_size_right_adapter(self):
         class SizedAdapter(object):
@@ -105,15 +105,15 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(10, item.get_size())
+        self.assertEqual(10, item.get_size())
 
     def test_content_type_no_adapter(self):
         item = Item('test')
 
         self.replay()
 
-        self.assertEquals(None, item.content_type())
-        self.assertEquals(None, item.Format())
+        self.assertEqual(None, item.content_type())
+        self.assertEqual(None, item.Format())
 
     def test_content_type_simple_adapter(self):
         class ReadFileAdapter(object):
@@ -126,15 +126,15 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         self.replay()
 
-        self.assertEquals('text/foo', item.content_type())
-        self.assertEquals('text/foo', item.Format())
+        self.assertEqual('text/foo', item.content_type())
+        self.assertEqual('text/foo', item.Format())
 
     def test_get_no_adapter(self):
         item = Item('test')
 
         self.replay()
 
-        self.assertEquals('', item.manage_DAVget())
+        self.assertEqual('', item.manage_DAVget())
 
     def test_get_simple_adapter(self):
         class ReadFileAdapter(object):
@@ -155,9 +155,9 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         self.replay()
 
-        self.assertEquals('1234567890', item.manage_DAVget())
-        self.assertEquals('text/foo; charset="latin1"', request.response.getHeader('Content-Type'))
-        self.assertEquals('10', request.response.getHeader('Content-Length'))
+        self.assertEqual('1234567890', item.manage_DAVget())
+        self.assertEqual('text/foo; charset="latin1"', request.response.getHeader('Content-Type'))
+        self.assertEqual('10', request.response.getHeader('Content-Length'))
 
     def test_get_minimal_adapter(self):
         class ReadFileAdapter(object):
@@ -178,9 +178,9 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         self.replay()
 
-        self.assertEquals('1234567890', item.manage_DAVget())
-        self.assertEquals(None, request.response.getHeader('Content-Type'))
-        self.assertEquals(None, request.response.getHeader('Content-Length'))
+        self.assertEqual('1234567890', item.manage_DAVget())
+        self.assertEqual(None, request.response.getHeader('Content-Type'))
+        self.assertEqual(None, request.response.getHeader('Content-Length'))
 
     def test_get_streaming(self):
         class ReadFileAdapter(object):
@@ -206,7 +206,7 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(adapterInstance, item.manage_DAVget())
+        self.assertEqual(adapterInstance, item.manage_DAVget())
 
     def test_put_no_adapter(self):
         request = DAVTestRequest(environ={'BODYFILE': StringIO('')})
@@ -255,10 +255,10 @@ class TestWebZope2DAVAPI(MockTestCase):
         self.replay()
 
         item.PUT()
-        self.assertEquals(None, adapterInstance.mimeType)
-        self.assertEquals(None, adapterInstance.encoding)
-        self.assertEquals('data', adapterInstance._written)
-        self.assertEquals(True, adapterInstance._closed)
+        self.assertEqual(None, adapterInstance.mimeType)
+        self.assertEqual(None, adapterInstance.encoding)
+        self.assertEqual('data', adapterInstance._written)
+        self.assertEqual(True, adapterInstance._closed)
 
     def test_put_with_content_type_header_no_charset(self):
         class WriteFile(object):
@@ -292,11 +292,11 @@ class TestWebZope2DAVAPI(MockTestCase):
         self.replay()
 
         item.PUT()
-        self.assertEquals('text/foo', adapterInstance.mimeType)
-        self.assertEquals(None, adapterInstance.encoding)
-        self.assertEquals('data', adapterInstance._written)
-        self.assertEquals(True, adapterInstance._closed)
-        self.assertEquals(1, len(events))
+        self.assertEqual('text/foo', adapterInstance.mimeType)
+        self.assertEqual(None, adapterInstance.encoding)
+        self.assertEqual('data', adapterInstance._written)
+        self.assertEqual(True, adapterInstance._closed)
+        self.assertEqual(1, len(events))
 
     def test_put_with_content_type_header_and_charset(self):
         class WriteFile(object):
@@ -330,11 +330,11 @@ class TestWebZope2DAVAPI(MockTestCase):
         self.replay()
 
         item.PUT()
-        self.assertEquals('text/foo', adapterInstance.mimeType)
-        self.assertEquals('latin1', adapterInstance.encoding)
-        self.assertEquals('data', adapterInstance._written)
-        self.assertEquals(True, adapterInstance._closed)
-        self.assertEquals(1, len(events))
+        self.assertEqual('text/foo', adapterInstance.mimeType)
+        self.assertEqual('latin1', adapterInstance.encoding)
+        self.assertEqual('data', adapterInstance._written)
+        self.assertEqual(True, adapterInstance._closed)
+        self.assertEqual(1, len(events))
 
     def test_mkcol_no_adapter(self):
         container = Container('container')
@@ -353,12 +353,12 @@ class TestWebZope2DAVAPI(MockTestCase):
         container = Container('container')
         self.replay()
         container.MKCOL_handler('test')
-        self.assertEquals(['test'], created)
+        self.assertEqual(['test'], created)
 
     def test_put_factory_no_adapter(self):
         container = Container('container')
         self.replay()
-        self.assertEquals(None, container.PUT_factory('test', 'text/foo', 'body'))
+        self.assertEqual(None, container.PUT_factory('test', 'text/foo', 'body'))
 
     def test_put_factory_simple_adapter(self):
         instance = object()
@@ -370,7 +370,7 @@ class TestWebZope2DAVAPI(MockTestCase):
         self.mock_adapter(FileFactory, IFileFactory, (Container,))
         container = Container('container')
         self.replay()
-        self.assertEquals(instance, container.PUT_factory('test', 'text/foo', 'body'))
+        self.assertEqual(instance, container.PUT_factory('test', 'text/foo', 'body'))
 
     def test_list_without_items(self):
 
@@ -383,10 +383,10 @@ class TestWebZope2DAVAPI(MockTestCase):
         self.replay()
 
         objects = container.listDAVObjects()
-        self.assertEquals(1, len(objects))
-        self.failUnless(isinstance(objects[0], FolderDataResource))
-        self.assertEquals(DAV_FOLDER_DATA_ID, objects[0].getId())
-        self.assertEquals(container, objects[0].__parent__)
+        self.assertEqual(1, len(objects))
+        self.assertTrue(isinstance(objects[0], FolderDataResource))
+        self.assertEqual(DAV_FOLDER_DATA_ID, objects[0].getId())
+        self.assertEqual(container, objects[0].__parent__)
 
     def test_list_with_items(self):
 
@@ -399,11 +399,11 @@ class TestWebZope2DAVAPI(MockTestCase):
         self.replay()
 
         objects = container.listDAVObjects()
-        self.assertEquals(2, len(objects))
-        self.failUnless(isinstance(objects[0], FolderDataResource))
-        self.assertEquals(DAV_FOLDER_DATA_ID, objects[0].getId())
-        self.assertEquals(container, objects[0].__parent__)
-        self.assertEquals('foo', objects[1].getId())
+        self.assertEqual(2, len(objects))
+        self.assertTrue(isinstance(objects[0], FolderDataResource))
+        self.assertEqual(DAV_FOLDER_DATA_ID, objects[0].getId())
+        self.assertEqual(container, objects[0].__parent__)
+        self.assertEqual('foo', objects[1].getId())
 
 
 class TestFolderDataResource(MockTestCase):
@@ -414,8 +414,8 @@ class TestFolderDataResource(MockTestCase):
 
         self.replay()
 
-        self.assertEquals('fdata', r.getId())
-        self.assertEquals(container, r.__parent__)
+        self.assertEqual('fdata', r.getId())
+        self.assertEqual(container, r.__parent__)
 
     def test_HEAD(self):
 
@@ -435,11 +435,11 @@ class TestFolderDataResource(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(response, r.HEAD(request, request.response))
-        self.assertEquals(200, response.getStatus())
-        self.assertEquals('close', response.getHeader('Connection', literal=True))
-        self.assertEquals('text/foo', response.getHeader('Content-Type'))
-        self.assertEquals('10', response.getHeader('Content-Length'))
+        self.assertEqual(response, r.HEAD(request, request.response))
+        self.assertEqual(200, response.getStatus())
+        self.assertEqual('close', response.getHeader('Connection', literal=True))
+        self.assertEqual('text/foo', response.getHeader('Content-Type'))
+        self.assertEqual('10', response.getHeader('Content-Length'))
 
     def test_OPTIONS(self):
         class TestContainer(Container):
@@ -458,9 +458,9 @@ class TestFolderDataResource(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(response, r.OPTIONS(request, request.response))
-        self.assertEquals('close', response.getHeader('Connection', literal=True))
-        self.assertEquals('GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE, PROPFIND, PROPPATCH, MKCOL, COPY, MOVE, LOCK, UNLOCK', response.getHeader('Allow'))
+        self.assertEqual(response, r.OPTIONS(request, request.response))
+        self.assertEqual('close', response.getHeader('Connection', literal=True))
+        self.assertEqual('GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE, PROPFIND, PROPPATCH, MKCOL, COPY, MOVE, LOCK, UNLOCK', response.getHeader('Allow'))
 
     def test_TRACE(self):
         class TestContainer(Container):
@@ -498,11 +498,11 @@ class TestFolderDataResource(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(response, r.PROPFIND(request, response))
+        self.assertEqual(response, r.PROPFIND(request, response))
 
-        self.assertEquals('close', response.getHeader('connection', literal=True))
-        self.assertEquals('text/xml; charset="utf-8"', response.getHeader('Content-Type'))
-        self.assertEquals(207, response.getStatus())
+        self.assertEqual('close', response.getHeader('connection', literal=True))
+        self.assertEqual('text/xml; charset="utf-8"', response.getHeader('Content-Type'))
+        self.assertEqual(207, response.getStatus())
 
         body = """\
 <?xml version="1.0" encoding="utf-8"?>
@@ -543,7 +543,7 @@ class TestFolderDataResource(MockTestCase):
         result = response.getBody()
         result = re.sub(r'<n:getlastmodified>.+</n:getlastmodified>', '<n:getlastmodified>...</n:getlastmodified>', result)
 
-        self.assertEquals(result.strip(), body.strip())
+        self.assertEqual(result.strip(), body.strip())
 
     def test_PROPPATCH(self):
         class TestContainer(Container):
@@ -574,13 +574,13 @@ class TestFolderDataResource(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(response, r.PROPPATCH(request, response))
+        self.assertEqual(response, r.PROPPATCH(request, response))
 
-        self.assertEquals('New title', container.getProperty('title'))
+        self.assertEqual('New title', container.getProperty('title'))
 
-        self.assertEquals('close', response.getHeader('connection', literal=True))
-        self.assertEquals('text/xml; charset="utf-8"', response.getHeader('Content-Type'))
-        self.assertEquals(207, response.getStatus())
+        self.assertEqual('close', response.getHeader('connection', literal=True))
+        self.assertEqual('text/xml; charset="utf-8"', response.getHeader('Content-Type'))
+        self.assertEqual(207, response.getStatus())
 
         body = """\
 <?xml version="1.0" encoding="utf-8"?>
@@ -601,7 +601,7 @@ The operation succeded.
 """
 
         result = response.getBody()
-        self.assertEquals(body.strip(), result.strip())
+        self.assertEqual(body.strip(), result.strip())
 
     def test_LOCK(self):
         # Too much WebDAV magic - just test that it delegates correctly
@@ -619,8 +619,8 @@ The operation succeded.
 
         self.replay()
 
-        self.assertEquals(response, r.LOCK(request, response))
-        self.assertEquals((request, response), container._locked)
+        self.assertEqual(response, r.LOCK(request, response))
+        self.assertEqual((request, response), container._locked)
 
     def test_UNLOCK(self):
         # Too much WebDAV magic - just test that it delegates correctly
@@ -638,8 +638,8 @@ The operation succeded.
 
         self.replay()
 
-        self.assertEquals(response, r.UNLOCK(request, response))
-        self.assertEquals((request, response), container._unlocked)
+        self.assertEqual(response, r.UNLOCK(request, response))
+        self.assertEqual((request, response), container._unlocked)
 
     def test_PUT(self):
         class TestContainer(Container):
@@ -656,8 +656,8 @@ The operation succeded.
 
         self.replay()
 
-        self.assertEquals(response, r.PUT(request, response))
-        self.assertEquals((request, response), container._put)
+        self.assertEqual(response, r.PUT(request, response))
+        self.assertEqual((request, response), container._put)
 
     def test_MKCOL(self):
         container = Container('container')
@@ -714,7 +714,7 @@ The operation succeded.
 
         self.replay()
 
-        self.assertEquals('data', r.manage_DAVget())
+        self.assertEqual('data', r.manage_DAVget())
 
     def test_manage_FTPget(self):
         class TestContainer(Container):
@@ -727,7 +727,7 @@ The operation succeded.
 
         self.replay()
 
-        self.assertEquals('data', r.manage_FTPget())
+        self.assertEqual('data', r.manage_FTPget())
 
     def test_listDAVObjects(self):
         container = Container('container')
@@ -735,7 +735,7 @@ The operation succeded.
 
         self.replay()
 
-        self.assertEquals([], r.listDAVObjects())
+        self.assertEqual([], r.listDAVObjects())
 
 class TestFileRepresentation(MockTestCase):
 
@@ -751,7 +751,7 @@ class TestFileRepresentation(MockTestCase):
         self.replay()
 
         factory('foo')
-        self.assertEquals('foo', container._added)
+        self.assertEqual('foo', container._added)
 
     def test_file_factory_finder_cruft(self):
         container = Container('container')
@@ -773,7 +773,7 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(None, factory('test.html', 'text/html', '<html />'))
+        self.assertEqual(None, factory('test.html', 'text/html', '<html />'))
 
     def test_file_factory_no_fti(self):
         container = Container('container')
@@ -788,7 +788,7 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(None, factory('test.html', 'text/html', '<html />'))
+        self.assertEqual(None, factory('test.html', 'text/html', '<html />'))
 
     def test_file_factory_not_allowed(self):
         container = Container('container')
@@ -875,7 +875,7 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(result_dummy, factory('test.html', 'text/html', '<html />'))
+        self.assertEqual(result_dummy, factory('test.html', 'text/html', '<html />'))
 
     def test_file_factory_factory_utility(self):
         container_mock = self.mocker.mock()
@@ -910,7 +910,7 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertEquals(result_dummy, factory('test.html', 'text/html', '<html />'))
+        self.assertEqual(result_dummy, factory('test.html', 'text/html', '<html />'))
 
     def test_readfile_mimetype_no_message_no_fields(self):
 
@@ -931,7 +931,7 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertEquals('text/plain', readfile.mimeType)
+        self.assertEqual('text/plain', readfile.mimeType)
 
     def test_readfile_mimetype_no_message_no_primary_field(self):
 
@@ -952,7 +952,7 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertEquals('text/plain', readfile.mimeType)
+        self.assertEqual('text/plain', readfile.mimeType)
 
     def test_readfile_mimetype_no_message_single_primary_field(self):
 
@@ -975,7 +975,7 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertEquals('text/plain', readfile.mimeType)
+        self.assertEqual('text/plain', readfile.mimeType)
 
     def test_readfile_mimetype_no_message_multiple_primary_fields(self):
 
@@ -998,7 +998,7 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertEquals('message/rfc822', readfile.mimeType)
+        self.assertEqual('message/rfc822', readfile.mimeType)
 
     def test_readfile_mimetype_additional_schemata(self):
         # This is mostly a test that utils.iterSchemata takes
@@ -1035,7 +1035,7 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertEquals('message/rfc822', readfile.mimeType)
+        self.assertEqual('message/rfc822', readfile.mimeType)
 
     def test_readfile_operations(self):
 
@@ -1077,36 +1077,36 @@ Portal-Type: testtype
         # iter
         # next
 
-        self.assertEquals(body, readfile.read())
-        self.assertEquals(69L, readfile.size())
-        self.assertEquals('utf-8', readfile.encoding)
-        self.assertEquals(None, readfile.name)
-        self.assertEquals('text/plain', readfile.mimeType)
+        self.assertEqual(body, readfile.read())
+        self.assertEqual(69L, readfile.size())
+        self.assertEqual('utf-8', readfile.encoding)
+        self.assertEqual(None, readfile.name)
+        self.assertEqual('text/plain', readfile.mimeType)
 
         readfile.seek(2)
-        self.assertEquals(2, readfile.tell())
-        self.assertEquals('tl', readfile.read(2))
-        self.assertEquals(4, readfile.tell())
+        self.assertEqual(2, readfile.tell())
+        self.assertEqual('tl', readfile.read(2))
+        self.assertEqual(4, readfile.tell())
 
         readfile.seek(0,2)
-        self.assertEquals(69, readfile.tell())
+        self.assertEqual(69, readfile.tell())
 
         readfile.seek(0)
-        self.assertEquals('foo: 10\n', readfile.readlines()[1])
+        self.assertEqual('foo: 10\n', readfile.readlines()[1])
 
         readfile.seek(0)
-        self.assertEquals('foo: 10\n', readfile.readlines(100)[1])
+        self.assertEqual('foo: 10\n', readfile.readlines(100)[1])
 
         readfile.seek(0)
-        self.assertEquals('title: Test title\n', readfile.readline())
+        self.assertEqual('title: Test title\n', readfile.readline())
 
         readfile.seek(0)
-        self.assertEquals('title: Test title\n', readfile.readline(100))
+        self.assertEqual('title: Test title\n', readfile.readline(100))
 
         readfile.seek(0)
-        self.assertEquals('foo: 10\n', list(iter(readfile))[1])
+        self.assertEqual('foo: 10\n', list(iter(readfile))[1])
 
-        self.assertEquals(False, readfile.closed)
+        self.assertEqual(False, readfile.closed)
         readfile.close()
 
     def test_writefile_file_operations(self):
@@ -1145,24 +1145,24 @@ Portal-Type: testtype
         self.replay()
 
         writefile.mimeType = 'text/plain'
-        self.assertEquals('text/plain', writefile.mimeType)
+        self.assertEqual('text/plain', writefile.mimeType)
 
         writefile.encoding = 'latin1'
-        self.assertEquals('latin1', writefile.encoding)
+        self.assertEqual('latin1', writefile.encoding)
 
         writefile.filename = 'test.html'
-        self.assertEquals('test.html', writefile.filename)
+        self.assertEqual('test.html', writefile.filename)
 
-        self.assertEquals(False, writefile.closed)
-        self.assertEquals(0, writefile.tell())
+        self.assertEqual(False, writefile.closed)
+        self.assertEqual(0, writefile.tell())
 
         writefile.writelines(['one\n', 'two'])
-        self.assertEquals(7, writefile.tell())
+        self.assertEqual(7, writefile.tell())
 
         self.assertRaises(NotImplementedError, writefile.truncate)
 
         writefile.truncate(0)
-        self.assertEquals(0, writefile.tell())
+        self.assertEqual(0, writefile.tell())
 
         self.assertRaises(NotImplementedError, writefile.seek, 10)
 
@@ -1170,8 +1170,8 @@ Portal-Type: testtype
         writefile.write(body[10:])
         writefile.close()
 
-        self.assertEquals(True, writefile.closed)
-        self.assertEquals(69, writefile.tell())
+        self.assertEqual(True, writefile.closed)
+        self.assertEqual(69, writefile.tell())
 
 
 class TestDAVTraversal(MockTestCase):
@@ -1192,8 +1192,8 @@ class TestDAVTraversal(MockTestCase):
 
         r = traversal.publishTraverse(request, 'item')
 
-        self.failUnless(isinstance(r, NullResource))
-        self.assertEquals(container, r.aq_parent)
+        self.assertTrue(isinstance(r, NullResource))
+        self.assertEqual(container, r.aq_parent)
 
     def test_acquire_without_dav(self):
         container = Container('container')
@@ -1211,8 +1211,8 @@ class TestDAVTraversal(MockTestCase):
 
         r = traversal.publishTraverse(request, 'item')
 
-        self.assertEquals(r.aq_base, outer['item'].aq_base)
-        self.assertEquals(container, r.aq_parent)
+        self.assertEqual(r.aq_base, outer['item'].aq_base)
+        self.assertEqual(container, r.aq_parent)
 
     def test_folder_data_traversal_dav(self):
         container = Container('test')
@@ -1225,9 +1225,9 @@ class TestDAVTraversal(MockTestCase):
 
         r = traversal.publishTraverse(request, DAV_FOLDER_DATA_ID)
 
-        self.assertEquals(DAV_FOLDER_DATA_ID, r.__name__)
-        self.assertEquals(container, r.__parent__)
-        self.assertEquals(container, r.aq_parent)
+        self.assertEqual(DAV_FOLDER_DATA_ID, r.__name__)
+        self.assertEqual(container, r.__parent__)
+        self.assertEqual(container, r.aq_parent)
 
 
     def test_folder_data_traversal_without_dav(self):
@@ -1255,7 +1255,7 @@ class TestDAVTraversal(MockTestCase):
 
         self.replay()
 
-        self.assertEquals((container, (),), traversal.browserDefault(request))
+        self.assertEqual((container, (),), traversal.browserDefault(request))
 
     def test_browser_default_dav_get(self):
         class TestContainer(Container):
@@ -1271,7 +1271,7 @@ class TestDAVTraversal(MockTestCase):
 
         self.replay()
 
-        self.assertEquals((container, ('foo',),), traversal.browserDefault(request))
+        self.assertEqual((container, ('foo',),), traversal.browserDefault(request))
 
     def test_browser_default_without_dav(self):
         class TestContainer(Container):
@@ -1287,7 +1287,7 @@ class TestDAVTraversal(MockTestCase):
 
         self.replay()
 
-        self.assertEquals((container, ('foo',),), traversal.browserDefault(request))
+        self.assertEqual((container, ('foo',),), traversal.browserDefault(request))
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
