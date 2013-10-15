@@ -4,7 +4,7 @@ Changelog
 2.2.0 (unreleased)
 ------------------
 
-- Date index methods works even if source field is a dexterity field
+- Date index method works even if source field is a dexterity field
   wich provides a  datetime python value.
   [tdesvenain]
 
