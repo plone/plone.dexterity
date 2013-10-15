@@ -380,6 +380,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         date = getattr(self, 'effective_date', None)
         if date is None:
             date = self.modified()
+
+        date = datify(date)
         return date.toZone(zone).ISO()
 
     @security.protected(permissions.View)
@@ -389,7 +391,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
             zone = _zone
         # return unknown if never set properly
         if self.creation_date:
-            return self.creation_date.toZone(zone).ISO()
+            date = datify(self.creation_date)
+            return date.toZone(zone).ISO()
         else:
             return 'Unknown'
 
@@ -399,6 +402,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         if zone is None:
             zone = _zone
         ed = getattr(self, 'effective_date', None)
+        ed = datify(ed)
         return ed and ed.toZone(zone).ISO() or 'None'
 
     @security.protected(permissions.View)
@@ -407,6 +411,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         if zone is None:
             zone = _zone
         ed = getattr(self, 'expiration_date', None)
+        ed = datify(ed)
         return ed and ed.toZone(zone).ISO() or 'None'
 
     @security.protected(permissions.View)
@@ -414,7 +419,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         # Dublin Core Date element - date resource last modified.
         if zone is None:
             zone = _zone
-        return self.modified().toZone(zone).ISO()
+        date = datify(self.modified())
+        return date.toZone(zone).ISO()
 
     @security.protected(permissions.View)
     def Identifier(self):
@@ -438,6 +444,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         # Dublin Core Date element - date resource created.
         # allow for non-existent creation_date, existed always
         date = getattr(self, 'creation_date', None)
+        date = datify(date)
         return date is None and FLOOR_DATE or date
 
     @security.protected(permissions.View)
@@ -446,12 +453,14 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         date = getattr(self, 'effective_date', _marker)
         if date is _marker:
             date = getattr(self, 'creation_date', None)
+        date = datify(date)
         return date is None and FLOOR_DATE or date
 
     @security.protected(permissions.View)
     def expires(self):
         # Dublin Core Date element - date resource expires.
         date = getattr(self, 'expiration_date', None)
+        date = datify(date)
         return date is None and CEILING_DATE or date
 
     @security.protected(permissions.View)
@@ -462,6 +471,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
             # Upgrade.
             date = self.bobobase_modification_time()
             self.modification_date = date
+        date = datify(date)
         return date
 
     @security.protected(permissions.View)

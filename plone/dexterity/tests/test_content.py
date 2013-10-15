@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 from plone.mocktestcase import MockTestCase
+from datetime import date
 
 from zope.interface import Interface, alsoProvides
 from zope.component import provideAdapter, getUtility
@@ -549,6 +550,34 @@ class TestContent(MockTestCase):
         self.assertEqual(i.ModificationDate()[:19], i.modification_date.ISO()[:19])
         self.assertEqual(i.Date(), i.EffectiveDate())
         self.assertEqual(i.Identifier(), i.absolute_url())
+
+    def test_item_dublincore_datetime(self):
+        from DateTime.DateTime import DateTime
+
+        i = Item(
+            title=u"Emperor Penguin",
+            description=u'One of the most magnificent birds.',
+            subject=u'Penguins',
+            contributors=u'admin',
+            effective_date=date(2010, 8, 20),
+            expiration_date=date(2013, 7, 9),
+            format='text/plain',
+            language='de',
+            rights='CC',
+            )
+
+        self.assertEqual(i.effective_date, DateTime('08/20/2010'))
+        self.assertEqual(i.EffectiveDate()[:10], '2010-08-20')
+        self.assertEqual(i.effective(), DateTime('08/20/2010'))
+        self.assertEqual(i.expiration_date, DateTime('07/09/2013'))
+        self.assertEqual(i.ExpirationDate()[:10], '2013-07-09')
+        self.assertEqual(i.expires(), DateTime('07/09/2013'))
+        self.assertEqual(i.creation_date, i.created())
+        self.assertEqual(i.CreationDate()[:19], i.creation_date.ISO()[:19])
+        self.assertEqual(i.modification_date, i.creation_date)
+        self.assertEqual(i.modification_date, i.modified())
+        self.assertEqual(i.ModificationDate()[:19], i.modification_date.ISO()[:19])
+        self.assertEqual(i.Date(), i.EffectiveDate())
 
     def test_item_notifyModified(self):
         i = Item()
