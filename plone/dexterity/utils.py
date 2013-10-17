@@ -251,13 +251,12 @@ def datify(s):
     """Get a DateTime object from a string (or anything parsable by DateTime,
        a datetime.date, a datetime.datetime
     """
-    if s == 'None':
-        s = None
-    elif not isinstance(s, DateTime):
-        if isinstance(s, datetime.date):
+    if not isinstance(s, DateTime):
+        if s == 'None':
+            s = None
+        elif isinstance(s, datetime.date):
             s = DateTime(s.year, s.month, s.day)
-
-        if isinstance(s, datetime.datetime):
+        elif isinstance(s, datetime.datetime):
             s = DateTime(s.isoformat())
         elif s is not None:
             s = DateTime(s)
