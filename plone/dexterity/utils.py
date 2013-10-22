@@ -254,10 +254,10 @@ def datify(s):
     if not isinstance(s, DateTime):
         if s == 'None':
             s = None
-        elif isinstance(s, datetime.date):
-            s = DateTime(s.year, s.month, s.day)
         elif isinstance(s, datetime.datetime):
             s = DateTime(s.isoformat())
+        elif isinstance(s, datetime.date):
+            s = DateTime(s.year, s.month, s.day)
         elif s is not None:
             s = DateTime(s)
 
