@@ -584,19 +584,19 @@ class TestContent(MockTestCase):
             description=u'One of the most magnificent birds.',
             subject=u'Penguins',
             contributors=u'admin',
-            effective_date=datetime(2010, 8, 20, 23, 59, 59, 0, timezone('US/Eastern')),
-            expiration_date=datetime(2013, 7, 9, 23, 59, 59, 0, timezone('US/Eastern')),
+            effective_date=datetime(2010, 8, 20, 12, 59, 59, 0, timezone('US/Eastern')),
+            expiration_date=datetime(2013, 7, 9, 12, 59, 59, 0, timezone('US/Eastern')),
             format='text/plain',
             language='de',
             rights='CC',
             )
 
-        self.assertEqual(i.effective_date, DateTime('08/20/2010 23:59:59 GMT-5'))
-        self.assertEqual(i.EffectiveDate(), '2010-08-21 06:59:59')
+        self.assertEqual(i.effective_date, DateTime('08/20/2010 12:59:59 GMT-5'))
+        self.assertEqual(i.EffectiveDate(zone='GMT+2'), '2010-08-21 17:59:59')
         self.assertEqual(i.effective(), DateTime('08/20/2010 23:59:59 GMT-5'))
-        self.assertEqual(i.expiration_date, DateTime('07/09/2013 23:59:59 GMT-5'))
-        self.assertEqual(i.ExpirationDate(), '2013-07-10 06:59:59')
-        self.assertEqual(i.expires(), DateTime('07/09/2013 23:59:59 GMT-5'))
+        self.assertEqual(i.expiration_date, DateTime('07/09/2013 12:59:59 GMT-5'))
+        self.assertEqual(i.ExpirationDate(zone='GMT+2'), '2013-07-10 17:59:59')
+        self.assertEqual(i.expires(), DateTime('07/09/2013 12:59:59 GMT-5'))
         self.assertEqual(i.creation_date, i.created())
         self.assertEqual(i.CreationDate(), i.creation_date.ISO())
         self.assertEqual(i.modification_date, i.creation_date)
