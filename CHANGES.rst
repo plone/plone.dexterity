@@ -4,6 +4,12 @@ Changelog
 2.2.0 (unreleased)
 ------------------
 
+- Date index method works even if source field is a dexterity field
+  wich provides a  datetime python value.
+  Now you can manually add a field with the name of a common Plone metadata field
+  (as effective_date, publication_date, etc.)
+  [tdesvenain]
+
 - Replace deprecated test assert statements.
   [timo]
 
