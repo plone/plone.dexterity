@@ -520,6 +520,7 @@ class TestContent(MockTestCase):
             rights='CC',
             )
 
+        summer_timezone=i.effective_date.timezone()
         self.assertEqual(i.title, u"Emperor Penguin")
         self.assertEqual(i.Title(), 'Emperor Penguin')
         self.assertEqual(i.description, u'One of the most magnificent birds.')
@@ -531,10 +532,10 @@ class TestContent(MockTestCase):
         self.assertEqual(i.Contributors(), ('admin',))
         self.assertEqual(i.format, 'text/plain')
         self.assertEqual(i.effective_date, DateTime('08/20/2010'))
-        self.assertEqual(i.EffectiveDate(zone='GMT+2')[:10], '2010-08-20')
+        self.assertEqual(i.EffectiveDate(zone=summer_timezone)[:10], '2010-08-20')
         self.assertEqual(i.effective(), DateTime('08/20/2010'))
         self.assertEqual(i.expiration_date, DateTime('07/09/2013'))
-        self.assertEqual(i.ExpirationDate(zone='GMT+2')[:10], '2013-07-09')
+        self.assertEqual(i.ExpirationDate(zone=summer_timezone)[:10], '2013-07-09')
         self.assertEqual(i.expires(), DateTime('07/09/2013'))
         self.assertEqual(i.language, 'de')
         self.assertEqual(i.Language(), 'de')
@@ -563,11 +564,12 @@ class TestContent(MockTestCase):
             rights='CC',
             )
 
+        summer_timezone=DateTime('2010/08/20').timezone()
         self.assertEqual(i.effective_date, DateTime('08/20/2010'))
-        self.assertEqual(i.EffectiveDate(zone='GMT+2')[:10], '2010-08-20')
+        self.assertEqual(i.EffectiveDate(zone=summer_timezone)[:10], '2010-08-20')
         self.assertEqual(i.effective(), DateTime('08/20/2010'))
         self.assertEqual(i.expiration_date, DateTime('07/09/2013'))
-        self.assertEqual(i.ExpirationDate(zone='GMT+2')[:10], '2013-07-09')
+        self.assertEqual(i.ExpirationDate(zone=summer_timezone)[:10], '2013-07-09')
         self.assertEqual(i.expires(), DateTime('07/09/2013'))
         self.assertEqual(i.creation_date, i.created())
         self.assertEqual(i.CreationDate()[:19], i.creation_date.ISO()[:19])
