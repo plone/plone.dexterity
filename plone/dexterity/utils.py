@@ -143,7 +143,7 @@ def createContent(portal_type, **kw):
         for name in schema.names():
             if name in fields:
                 setattr(behavior, name, fields[name])
-                del field[name]
+                del fields[name]
 
     for (key,value) in fields.items():
         setattr(content, key, value)
