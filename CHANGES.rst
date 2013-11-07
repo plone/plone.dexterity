@@ -4,6 +4,8 @@ Changelog
 2.2.0 (unreleased)
 ------------------
 
+- utils.createContent honors behaviors [toutpt]
+
 - Date index method works even if source field is a dexterity field
   wich provides a  datetime python value.
   Now you can manually add a field with the name of a common Plone metadata field
