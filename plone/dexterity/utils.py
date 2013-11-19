@@ -135,8 +135,17 @@ def createContent(portal_type, **kw):
     # to re-define a type through the web that uses the factory from an
     # existing type, but wants a unique portal_type!
     content.portal_type = fti.getId()
+    schemas = iterSchemataForType(portal_type)
+    fields = dict(kw)  # create a copy
 
-    for (key,value) in kw.items():
+    for schema in schemas:
+        behavior = schema(content)
+        for name in schema.names():
+            if name in fields:
+                setattr(behavior, name, fields[name])
+                del fields[name]
+
+    for (key,value) in fields.items():
         setattr(content, key, value)
 
     notify(ObjectCreatedEvent(content))
