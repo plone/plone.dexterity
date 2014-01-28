@@ -30,9 +30,12 @@ class TestContent(MockTestCase):
     def test_provided_by_item(self):
 
         class FauxDataManager(object):
-            def setstate(self, obj): pass
-            def oldstate(self, obj, tid): pass
-            def register(self, obj): pass
+            def setstate(self, obj):
+                pass
+            def oldstate(self, obj, tid):
+                pass
+            def register(self, obj):
+                pass
 
         # Dummy instance
         item = Item(id=u'id')
@@ -87,9 +90,12 @@ class TestContent(MockTestCase):
             pass
 
         class FauxDataManager(object):
-            def setstate(self, obj): pass
-            def oldstate(self, obj, tid): pass
-            def register(self, obj): pass
+            def setstate(self, obj):
+                pass
+            def oldstate(self, obj, tid):
+                pass
+            def register(self, obj):
+                pass
 
         # Dummy instance
         item = MyItem(id=u'id')
@@ -125,12 +131,10 @@ class TestContent(MockTestCase):
         # the cache. This is not the case, as evidenced by .count(1) above.
         self.assertEqual(True, ISchema.providedBy(item))
 
-
         # We also need to ensure that the _v_ attribute doesn't hide any
         # interface set directly on the instance with alsoProvides() or
         # directlyProvides(). This is done by clearing the cache when these
         # are invoked.
-
         alsoProvides(item, IMarker)
 
         self.assertEqual(True, IMarker.providedBy(item))
@@ -179,12 +183,10 @@ class TestContent(MockTestCase):
         # the cache. This is not the case, as evidenced by .count(1) above.
         self.assertEqual(True, ISchema.providedBy(item))
 
-
         # We also need to ensure that the _v_ attribute doesn't hide any
         # interface set directly on the instance with alsoProvides() or
         # directlyProvides(). This is done by clearing the cache when these
         # are invoked.
-
         alsoProvides(item, IMarker)
 
         self.assertEqual(True, IMarker.providedBy(item))
@@ -198,10 +200,12 @@ class TestContent(MockTestCase):
 
         # Fake data manager
         class FauxDataManager(object):
-            def setstate(self, obj): pass
-            def oldstate(self, obj, tid): pass
-            def register(self, obj): pass
-
+            def setstate(self, obj):
+                pass
+            def oldstate(self, obj, tid):
+                pass
+            def register(self, obj):
+                pass
 
         # Dummy instance
         item = MyItem(id=u'id')
@@ -234,8 +238,10 @@ class TestContent(MockTestCase):
         class ISubtype(Interface):
             baz = zope.schema.TextLine(title=u"baz", default=u"baz")
 
-        behavior1 = BehaviorRegistration(u"Behavior1", "", IBehavior1, None, None)
-        behavior2 = BehaviorRegistration(u"Behavior2", "", IBehavior2, ISubtype, None)
+        behavior1 = BehaviorRegistration(
+            u"Behavior1", "", IBehavior1, None, None)
+        behavior2 = BehaviorRegistration(
+            u"Behavior2", "", IBehavior2, ISubtype, None)
 
         self.mock_utility(behavior1, IBehavior, name="behavior1")
         self.mock_utility(behavior2, IBehavior, name="behavior2")
@@ -243,7 +249,8 @@ class TestContent(MockTestCase):
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
         self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
-        self.expect(fti_mock.behaviors).result(['behavior1', 'behavior2']).count(1)
+        self.expect(fti_mock.behaviors).result(
+            ['behavior1', 'behavior2']).count(1)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         self.replay()
@@ -282,10 +289,12 @@ class TestContent(MockTestCase):
 
         # Fake data manager
         class FauxDataManager(object):
-            def setstate(self, obj): pass
-            def oldstate(self, obj, tid): pass
-            def register(self, obj): pass
-
+            def setstate(self, obj):
+                pass
+            def oldstate(self, obj, tid):
+                pass
+            def register(self, obj):
+                pass
 
         # Dummy instance
         item = MyItem(id=u'id')
@@ -321,9 +330,12 @@ class TestContent(MockTestCase):
         class ISubtype2(Interface):
             pass
 
-        behavior1 = BehaviorRegistration(u"Behavior1", "", IBehavior1, None, None)
-        behavior2 = BehaviorRegistration(u"Behavior2", "", IBehavior2, ISubtype1, None)
-        behavior3 = BehaviorRegistration(u"Behavior3", "", IBehavior3, ISubtype2, None)
+        behavior1 = BehaviorRegistration(
+            u"Behavior1", "", IBehavior1, None, None)
+        behavior2 = BehaviorRegistration(
+            u"Behavior2", "", IBehavior2, ISubtype1, None)
+        behavior3 = BehaviorRegistration(
+            u"Behavior3", "", IBehavior3, ISubtype2, None)
 
         self.mock_utility(behavior1, IBehavior, name="behavior1")
         self.mock_utility(behavior2, IBehavior, name="behavior2")
@@ -331,13 +343,16 @@ class TestContent(MockTestCase):
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema).count(2) # twice, since we invalidate
+        # twice, since we invalidate
+        self.expect(fti_mock.lookupSchema()).result(ISchema).count(2)
 
         # First time around, we have only these behaviors
-        self.expect(fti_mock.behaviors).result(['behavior1', 'behavior2']).count(1)
+        self.expect(fti_mock.behaviors).result(
+            ['behavior1', 'behavior2']).count(1)
 
         # Second time around, we add another one
-        self.expect(fti_mock.behaviors).result(['behavior1', 'behavior2', 'behavior3']).count(1)
+        self.expect(fti_mock.behaviors).result(
+            ['behavior1', 'behavior2', 'behavior3']).count(1)
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
@@ -455,14 +470,31 @@ class TestContent(MockTestCase):
         # Make sure we get the expected tabs in the ZMI
 
         containerOptions = [o['label'] for o in Container.manage_options]
-        for tab in ['Security', 'View', 'Contents', 'Properties', 'Undo', 'Ownership', 'Interfaces']:
+        tabs = [
+            'Security',
+            'View',
+            'Contents',
+            'Properties',
+            'Undo',
+            'Ownership',
+            'Interfaces'
+        ]
+        for tab in tabs:
             self.assertTrue(tab in containerOptions, "Tab %s not found" % tab)
 
     def test_ZMI_manage_options_item(self):
         # Make sure we get the expected tabs in the ZMI
 
         containerOptions = [o['label'] for o in Item.manage_options]
-        for tab in ['Security', 'View', 'Properties', 'Undo', 'Ownership', 'Interfaces']:
+        tabs = [
+            'Security',
+            'View',
+            'Properties',
+            'Undo',
+            'Ownership',
+            'Interfaces',
+        ]
+        for tab in tabs:
             self.assertTrue(tab in containerOptions, "Tab %s not found" % tab)
 
     def test_name_and_id_in_sync(self):
@@ -520,7 +552,7 @@ class TestContent(MockTestCase):
             rights='CC',
             )
 
-        summer_timezone=i.effective_date.timezone()
+        summer_timezone = i.effective_date.timezone()
         self.assertEqual(i.title, u"Emperor Penguin")
         self.assertEqual(i.Title(), 'Emperor Penguin')
         self.assertEqual(i.description, u'One of the most magnificent birds.')
@@ -532,10 +564,12 @@ class TestContent(MockTestCase):
         self.assertEqual(i.Contributors(), ('admin',))
         self.assertEqual(i.format, 'text/plain')
         self.assertEqual(i.effective_date, DateTime('08/20/2010'))
-        self.assertEqual(i.EffectiveDate(zone=summer_timezone)[:10], '2010-08-20')
+        self.assertEqual(
+            i.EffectiveDate(zone=summer_timezone)[:10], '2010-08-20')
         self.assertEqual(i.effective(), DateTime('08/20/2010'))
         self.assertEqual(i.expiration_date, DateTime('07/09/2013'))
-        self.assertEqual(i.ExpirationDate(zone=summer_timezone)[:10], '2013-07-09')
+        self.assertEqual(
+            i.ExpirationDate(zone=summer_timezone)[:10], '2013-07-09')
         self.assertEqual(i.expires(), DateTime('07/09/2013'))
         self.assertEqual(i.language, 'de')
         self.assertEqual(i.Language(), 'de')
@@ -545,7 +579,8 @@ class TestContent(MockTestCase):
         self.assertEqual(i.CreationDate()[:19], i.creation_date.ISO()[:19])
         self.assertEqual(i.modification_date, i.creation_date)
         self.assertEqual(i.modification_date, i.modified())
-        self.assertEqual(i.ModificationDate()[:19], i.modification_date.ISO()[:19])
+        self.assertEqual(
+            i.ModificationDate()[:19], i.modification_date.ISO()[:19])
         self.assertEqual(i.Date(), i.EffectiveDate())
         self.assertEqual(i.Identifier(), i.absolute_url())
 
@@ -564,18 +599,21 @@ class TestContent(MockTestCase):
             rights='CC',
             )
 
-        summer_timezone=DateTime('2010/08/20').timezone()
+        summer_timezone = DateTime('2010/08/20').timezone()
         self.assertEqual(i.effective_date, DateTime('08/20/2010'))
-        self.assertEqual(i.EffectiveDate(zone=summer_timezone)[:10], '2010-08-20')
+        self.assertEqual(
+            i.EffectiveDate(zone=summer_timezone)[:10], '2010-08-20')
         self.assertEqual(i.effective(), DateTime('08/20/2010'))
         self.assertEqual(i.expiration_date, DateTime('07/09/2013'))
-        self.assertEqual(i.ExpirationDate(zone=summer_timezone)[:10], '2013-07-09')
+        self.assertEqual(
+            i.ExpirationDate(zone=summer_timezone)[:10], '2013-07-09')
         self.assertEqual(i.expires(), DateTime('07/09/2013'))
         self.assertEqual(i.creation_date, i.created())
         self.assertEqual(i.CreationDate()[:19], i.creation_date.ISO()[:19])
         self.assertEqual(i.modification_date, i.creation_date)
         self.assertEqual(i.modification_date, i.modified())
-        self.assertEqual(i.ModificationDate()[:19], i.modification_date.ISO()[:19])
+        self.assertEqual(
+            i.ModificationDate()[:19], i.modification_date.ISO()[:19])
         self.assertEqual(i.Date(), i.EffectiveDate())
 
     def test_item_dublincore_datetime(self):
@@ -586,21 +624,28 @@ class TestContent(MockTestCase):
             description=u'One of the most magnificent birds.',
             subject=u'Penguins',
             contributors=u'admin',
-            effective_date=datetime(2010, 8, 20, 12, 59, 59, 0, timezone('US/Eastern')),
-            expiration_date=datetime(2013, 7, 9, 12, 59, 59, 0, timezone('US/Eastern')),
+            effective_date=datetime(
+                2010, 8, 20, 12, 59, 59, 0, timezone('US/Eastern')),
+            expiration_date=datetime(
+                2013, 7, 9, 12, 59, 59, 0, timezone('US/Eastern')),
             format='text/plain',
             language='de',
             rights='CC',
             )
 
-        summer_timezone=DateTime('2010/08/20').timezone()
-        self.assertEqual(i.effective_date, DateTime('08/20/2010 12:59:59 GMT-5'))
-        self.assertEqual(i.EffectiveDate(zone=summer_timezone), 
-                         DateTime('2010-08-20 12:59:59 GMT-5').toZone(summer_timezone).ISO())
+        summer_timezone = DateTime('2010/08/20').timezone()
+        self.assertEqual(
+            i.effective_date, DateTime('08/20/2010 12:59:59 GMT-5'))
+        self.assertEqual(
+            i.EffectiveDate(zone=summer_timezone),
+            DateTime('2010-08-20 12:59:59 GMT-5').toZone(summer_timezone).ISO()
+        )
         self.assertEqual(i.effective(), DateTime('08/20/2010 12:59:59 GMT-5'))
         self.assertEqual(i.expiration_date, DateTime('07/09/2013 12:59:59 GMT-5'))
-        self.assertEqual(i.ExpirationDate(zone=summer_timezone), 
-                         DateTime('2013-07-09 12:59:59 GMT-5').toZone(summer_timezone).ISO())
+        self.assertEqual(
+            i.ExpirationDate(zone=summer_timezone),
+            DateTime('2013-07-09 12:59:59 GMT-5').toZone(summer_timezone).ISO()
+        )
         self.assertEqual(i.expires(), DateTime('2013/07/09 12:59:59 GMT-5'))
         self.assertEqual(i.creation_date, i.created())
         self.assertEqual(i.CreationDate(), i.creation_date.ISO())
@@ -645,7 +690,11 @@ class TestContent(MockTestCase):
 
     def test_container_init_dublincore(self):
         from DateTime.DateTime import DateTime
-        c = Container(title=u"Test title", language="en", effective_date="2010-08-20")
+        c = Container(
+            title=u"Test title",
+            language="en",
+            effective_date="2010-08-20"
+        )
         self.assertEqual(c.title, u"Test title")
         self.assertEqual(c.language, "en")
         self.assertTrue(isinstance(c.effective_date, DateTime))
@@ -769,9 +818,12 @@ class TestContent(MockTestCase):
         # shallow copies.
 
         class FauxDataManager(object):
-            def setstate(self, obj): pass
-            def oldstate(self, obj, tid): pass
-            def register(self, obj): pass
+            def setstate(self, obj):
+                pass
+            def oldstate(self, obj, tid):
+                pass
+            def register(self, obj):
+                pass
 
         # Dummy instances
         foo = Item(id=u'foo')
@@ -788,7 +840,7 @@ class TestContent(MockTestCase):
 
         # Dummy schema
         class ISchema(Interface):
-            listfield = zope.schema.List(title=u"listfield", default=[1,2])
+            listfield = zope.schema.List(title=u"listfield", default=[1, 2])
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
@@ -805,8 +857,8 @@ class TestContent(MockTestCase):
         # the field's value on one object does not change the value on the
         # other.
         foo.listfield.append(3)
-        self.assertEqual(bar.listfield, [1,2])
-        self.assertEqual(baz.listfield, [1,2])
+        self.assertEqual(bar.listfield, [1, 2])
+        self.assertEqual(baz.listfield, [1, 2])
 
     def test_container_manage_delObjects(self):
         # OFS does not check the delete permission for each object being
@@ -834,7 +886,8 @@ class TestContent(MockTestCase):
                 fti = getUtility(IDexterityFTI, name=u"testtype")
                 return [fti]
 
-        self.mock_adapter(DummyConstrainTypes, IConstrainTypes, (IDexterityContainer, ))
+        self.mock_adapter(
+            DummyConstrainTypes, IConstrainTypes, (IDexterityContainer, ))
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
@@ -846,7 +899,12 @@ class TestContent(MockTestCase):
         folder = Container(id="testfolder")
 
         self.assertEqual(folder.allowedContentTypes(), [fti_mock])
-        self.assertRaises(ValueError, folder.invokeFactory, u"disallowed_type", id="test")
+        self.assertRaises(
+            ValueError,
+            folder.invokeFactory,
+            u"disallowed_type",
+            id="test"
+        )
 
     def test_verifyObjectPaste_paste_without_portal_type(self):
         original_container = Container(id='parent')
@@ -884,7 +942,12 @@ class TestContent(MockTestCase):
         self.expect(pt.getTypeInfo(container)).result(None)
         self.mock_tool(pt, 'portal_types')
         self.replay()
-        self.assertRaises(ValueError, container._verifyObjectPaste, content, True)
+        self.assertRaises(
+            ValueError,
+            container._verifyObjectPaste,
+            content,
+            True
+        )
 
     def test_verifyObjectPaste_fti_does_allow_content(self):
         from Products.CMFCore.interfaces import ITypeInformation
