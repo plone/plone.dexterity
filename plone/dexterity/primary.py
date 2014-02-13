@@ -1,9 +1,8 @@
 from plone.dexterity.interfaces import IDexterityContent
-from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.utils import iterSchemata
 from plone.rfc822.interfaces import IPrimaryField
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from zope.component import adapts
-from zope.component import getUtility
 from zope.interface import implements
 from zope.schema import getFieldsInOrder
 
@@ -14,16 +13,17 @@ class PrimaryFieldInfo(object):
 
     def __init__(self, context):
         self.context = context
-        fti = getUtility(IDexterityFTI, name=context.portal_type)
-        self.schema = fti.lookupSchema()
-        primary = [
-            (name, field) for name, field in getFieldsInOrder(self.schema)
-            if IPrimaryField.providedBy(field)
-            ]
+        primary = None
+        for i in iterSchemata(context):
+            fields = getFieldsInOrder(i)
+            for name, field in fields:
+                if IPrimaryField.providedBy(field):
+                    primary = (name, field)
+                    break
         if not primary:
             raise TypeError('Could not adapt', context, IPrimaryFieldInfo)
-        self.fieldname, self.field = primary[0]
-    
+        self.fieldname, self.field = primary
+
     @property
     def value(self):
         return self.field.get(self.context)
