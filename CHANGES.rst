@@ -4,6 +4,10 @@ Changelog
 2.2.1 (unreleased)
 ------------------
 
+- Also check behavior-fields for IPrimaryField since plone.app.contenttypes
+  uses fields provided by behaviors as primary fields
+  [pbauer]
+
 
 2.2.0 (2014-01-31)
 ------------------
