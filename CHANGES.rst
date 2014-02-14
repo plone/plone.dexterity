@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.2.1 (unreleased)
+2.2.1 (2014-02-14)
 ------------------
 
 - Also check behavior-fields for IPrimaryField since plone.app.contenttypes
