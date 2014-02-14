@@ -51,8 +51,8 @@ class TestContent(MockTestCase):
             pass
 
         # Schema is not implemented by class or provided by instance
-        self.assertEqual(False, ISchema.implementedBy(Item))
-        self.assertEqual(False, ISchema.providedBy(item))
+        self.assertFalse(ISchema.implementedBy(Item))
+        self.assertFalse(ISchema.providedBy(item))
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
@@ -61,15 +61,15 @@ class TestContent(MockTestCase):
 
         self.replay()
 
-        self.assertEqual(False, ISchema.implementedBy(Item))
+        self.assertFalse(ISchema.implementedBy(Item))
 
         # Schema as looked up in FTI is now provided by item ...
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
         # If the _v_ attribute cache does not work, then we'd expect to have
         # to look up the schema more than once (since we invalidated)
         # the cache. This is not the case, as evidenced by .count(1) above.
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
         # We also need to ensure that the _v_ attribute doesn't hide any
         # interface set directly on the instance with alsoProvides() or
@@ -78,8 +78,8 @@ class TestContent(MockTestCase):
 
         alsoProvides(item, IMarker)
 
-        self.assertEqual(True, IMarker.providedBy(item))
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(IMarker.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
     def test_provided_by_subclass(self):
 
@@ -111,8 +111,8 @@ class TestContent(MockTestCase):
             pass
 
         # Schema is not implemented by class or provided by instance
-        self.assertEqual(False, ISchema.implementedBy(MyItem))
-        self.assertEqual(False, ISchema.providedBy(item))
+        self.assertFalse(ISchema.implementedBy(MyItem))
+        self.assertFalse(ISchema.providedBy(item))
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
@@ -121,15 +121,15 @@ class TestContent(MockTestCase):
 
         self.replay()
 
-        self.assertEqual(False, ISchema.implementedBy(MyItem))
+        self.assertFalse(ISchema.implementedBy(MyItem))
 
         # Schema as looked up in FTI is now provided by item ...
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
         # If the _v_ attribute cache does not work, then we'd expect to have
         # to look up the schema more than once (since we invalidated)
         # the cache. This is not the case, as evidenced by .count(1) above.
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
         # We also need to ensure that the _v_ attribute doesn't hide any
         # interface set directly on the instance with alsoProvides() or
@@ -137,8 +137,8 @@ class TestContent(MockTestCase):
         # are invoked.
         alsoProvides(item, IMarker)
 
-        self.assertEqual(True, IMarker.providedBy(item))
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(IMarker.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
     def test_provided_by_subclass_nojar(self):
 
@@ -163,8 +163,8 @@ class TestContent(MockTestCase):
             pass
 
         # Schema is not implemented by class or provided by instance
-        self.assertEqual(False, ISchema.implementedBy(MyItem))
-        self.assertEqual(False, ISchema.providedBy(item))
+        self.assertFalse(ISchema.implementedBy(MyItem))
+        self.assertFalse(ISchema.providedBy(item))
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
@@ -173,15 +173,15 @@ class TestContent(MockTestCase):
 
         self.replay()
 
-        self.assertEqual(False, ISchema.implementedBy(MyItem))
+        self.assertFalse(ISchema.implementedBy(MyItem))
 
         # Schema as looked up in FTI is now provided by item ...
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
         # If the _v_ attribute cache does not work, then we'd expect to have
         # to look up the schema more than once (since we invalidated)
         # the cache. This is not the case, as evidenced by .count(1) above.
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
         # We also need to ensure that the _v_ attribute doesn't hide any
         # interface set directly on the instance with alsoProvides() or
@@ -189,8 +189,8 @@ class TestContent(MockTestCase):
         # are invoked.
         alsoProvides(item, IMarker)
 
-        self.assertEqual(True, IMarker.providedBy(item))
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(IMarker.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
     def test_provided_by_behavior_subtype(self):
 
@@ -224,8 +224,8 @@ class TestContent(MockTestCase):
             pass
 
         # Schema is not implemented by class or provided by instance
-        self.assertEqual(False, ISchema.implementedBy(MyItem))
-        self.assertEqual(False, ISchema.providedBy(item))
+        self.assertFalse(ISchema.implementedBy(MyItem))
+        self.assertFalse(ISchema.providedBy(item))
 
         # Behaviors - one with a subtype and one without
 
@@ -255,17 +255,17 @@ class TestContent(MockTestCase):
 
         self.replay()
 
-        self.assertEqual(False, ISchema.implementedBy(MyItem))
+        self.assertFalse(ISchema.implementedBy(MyItem))
 
         # Schema as looked up in FTI is now provided by item ...
-        self.assertEqual(True, ISubtype.providedBy(item))
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISubtype.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
         # If the _v_ attribute cache does not work, then we'd expect to have
         # to look up the schema more than once (since we invalidated)
         # the cache. This is not the case, as evidenced by .count(1) above.
-        self.assertEqual(True, ISubtype.providedBy(item))
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISubtype.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
         # Subtypes provide field defaults.
         self.assertEqual(u"baz", getattr(item, "baz", None))
@@ -277,9 +277,9 @@ class TestContent(MockTestCase):
 
         alsoProvides(item, IMarker)
 
-        self.assertEqual(True, IMarker.providedBy(item))
-        self.assertEqual(True, ISubtype.providedBy(item))
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(IMarker.providedBy(item))
+        self.assertTrue(ISubtype.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
     def test_provided_by_behavior_subtype_invalidation(self):
 
@@ -310,8 +310,8 @@ class TestContent(MockTestCase):
             bar = zope.schema.TextLine(title=u"bar")
 
         # Schema is not implemented by class or provided by instance
-        self.assertEqual(False, ISchema.implementedBy(MyItem))
-        self.assertEqual(False, ISchema.providedBy(item))
+        self.assertFalse(ISchema.implementedBy(MyItem))
+        self.assertFalse(ISchema.providedBy(item))
 
         # Behaviors - one with a subtype and one without
 
@@ -358,19 +358,19 @@ class TestContent(MockTestCase):
 
         self.replay()
 
-        self.assertEqual(False, ISchema.implementedBy(MyItem))
+        self.assertFalse(ISchema.implementedBy(MyItem))
 
         # Schema as looked up in FTI is now provided by item ...
-        self.assertEqual(True, ISubtype1.providedBy(item))
-        self.assertEqual(False, ISubtype2.providedBy(item))
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISubtype1.providedBy(item))
+        self.assertFalse(ISubtype2.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
         # If the _v_ attribute cache does not work, then we'd expect to have
         # to look up the schema more than once (since we invalidated)
         # the cache. This is not the case, as evidenced by .count(1) above.
-        self.assertEqual(True, ISubtype1.providedBy(item))
-        self.assertEqual(False, ISubtype2.providedBy(item))
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISubtype1.providedBy(item))
+        self.assertFalse(ISubtype2.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
         # If we now invalidate the schema cache, we should get the second set
         # of behaviors
@@ -378,16 +378,16 @@ class TestContent(MockTestCase):
 
         # Schema as looked up in FTI is now provided by item ...
 
-        self.assertEqual(True, ISubtype1.providedBy(item))
-        self.assertEqual(True, ISubtype2.providedBy(item))
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISubtype1.providedBy(item))
+        self.assertTrue(ISubtype2.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
         # If the _v_ attribute cache does not work, then we'd expect to have
         # to look up the schema more than once (since we invalidated)
         # the cache. This is not the case, as evidenced by .count(1) above.
-        self.assertEqual(True, ISubtype1.providedBy(item))
-        self.assertEqual(True, ISubtype2.providedBy(item))
-        self.assertEqual(True, ISchema.providedBy(item))
+        self.assertTrue(ISubtype1.providedBy(item))
+        self.assertTrue(ISubtype2.providedBy(item))
+        self.assertTrue(ISchema.providedBy(item))
 
     def test_getattr_consults_schema_item(self):
 
@@ -550,7 +550,7 @@ class TestContent(MockTestCase):
             format='text/plain',
             language='de',
             rights='CC',
-            )
+        )
 
         summer_timezone = i.effective_date.timezone()
         self.assertEqual(i.title, u"Emperor Penguin")
@@ -597,7 +597,7 @@ class TestContent(MockTestCase):
             format='text/plain',
             language='de',
             rights='CC',
-            )
+        )
 
         summer_timezone = DateTime('2010/08/20').timezone()
         self.assertEqual(i.effective_date, DateTime('08/20/2010'))
@@ -631,7 +631,7 @@ class TestContent(MockTestCase):
             format='text/plain',
             language='de',
             rights='CC',
-            )
+        )
 
         summer_timezone = DateTime('2010/08/20').timezone()
         self.assertEqual(
@@ -641,7 +641,10 @@ class TestContent(MockTestCase):
             DateTime('2010-08-20 12:59:59 GMT-5').toZone(summer_timezone).ISO()
         )
         self.assertEqual(i.effective(), DateTime('08/20/2010 12:59:59 GMT-5'))
-        self.assertEqual(i.expiration_date, DateTime('07/09/2013 12:59:59 GMT-5'))
+        self.assertEqual(
+            i.expiration_date,
+            DateTime('07/09/2013 12:59:59 GMT-5')
+        )
         self.assertEqual(
             i.ExpirationDate(zone=summer_timezone),
             DateTime('2013-07-09 12:59:59 GMT-5').toZone(summer_timezone).ISO()
