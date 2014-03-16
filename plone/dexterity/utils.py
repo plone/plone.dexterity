@@ -173,7 +173,8 @@ def addContentToContainer(container, object, checkConstraints=True):
         if container_fti is not None and not container_fti.allowType(object.portal_type):
             raise ValueError("Disallowed subobject type: %s" % object.portal_type)
 
-    name = INameChooser(container).chooseName(None, object)
+    name = getattr(aq_base(object), 'id', None)
+    name = INameChooser(container).chooseName(name, object)
     object.id = name
 
     newName = container._setObject(name, object)

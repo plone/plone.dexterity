@@ -4,6 +4,8 @@ Changelog
 2.2.2 (unreleased)
 ------------------
 
+- If an object being added to a container already has an id, preserve it.
+  [davisagli]
 
 2.2.1 (2014-02-14)
 ------------------

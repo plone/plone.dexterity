@@ -84,6 +84,37 @@ class TestUtils(MockTestCase):
         schemata = schematas[0]
         self.assertTrue(schemata is IBehaviorSchema)
 
+    def testAddContentToContainer_preserves_existing_id(self):
+        from plone.dexterity.content import Item
+        from plone.dexterity.content import Container
+        container = Container()
+        container._ordering = u'unordered'
+
+        from zope.component import provideAdapter, provideUtility
+        from zope.container.interfaces import INameChooser
+        from zope.interface import Interface
+        from plone.app.content.namechooser import NormalizingNameChooser
+        from plone.folder.interfaces import IOrdering
+        from plone.folder.unordered import UnorderedOrdering
+        from plone.i18n.normalizer.interfaces import IURLNormalizer
+        from plone.i18n.normalizer import URLNormalizer
+        provideAdapter(NormalizingNameChooser, [Interface], INameChooser)
+        provideUtility(URLNormalizer(), IURLNormalizer)
+        provideAdapter(UnorderedOrdering, [Interface], IOrdering)
+
+        # if the item has an id already, use it
+        from plone.dexterity.utils import addContentToContainer
+        item = Item()
+        item.id = 'foo'
+        item = addContentToContainer(container, item, checkConstraints=False)
+        self.assertEqual(item.id, 'foo')
+
+        # unless it's a duplicate
+        item = Item()
+        item.id = 'foo'
+        item = addContentToContainer(container, item, checkConstraints=False)
+        self.assertEqual(item.id, 'foo-1')
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

@@ -130,6 +130,7 @@ class TestAddView(MockTestCase):
         obj.id = u"newid"
 
         self.expect(obj.id).result(u"newid")
+        self.expect(obj.id).result(u"newid")
         self.expect(obj.portal_type).result("testtype").count(0,None)
 
         # New object's FTI
