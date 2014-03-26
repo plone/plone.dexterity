@@ -27,7 +27,7 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
             self.status = self.formErrorsMessage
             return
         self.applyChanges(data)
-        IStatusMessage(self.request).addStatusMessage(_(u"Changes saved"), "info")
+        IStatusMessage(self.request).addStatusMessage(_(u"Changes saved"), "info success")
         self.request.response.redirect(self.nextURL())
         notify(EditFinishedEvent(self.context))
     

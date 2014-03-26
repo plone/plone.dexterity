@@ -4,6 +4,11 @@ Changelog
 2.2.2 (unreleased)
 ------------------
 
+- Add a 'success' class to the status message shown after successfully
+  adding or editing an item.  The previous 'info' class is also
+  retained for backwards-compatibility.
+  [davisagli]
+
 - If an object being added to a container already has an id, preserve it.
   [davisagli]
 

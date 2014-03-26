@@ -100,7 +100,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         if obj is not None:
             # mark only as finished if we get the new object
             self._finishedAdd = True
-            IStatusMessage(self.request).addStatusMessage(_(u"Item created"), "info")
+            IStatusMessage(self.request).addStatusMessage(_(u"Item created"), "info success")
     
     @button.buttonAndHandler(_(u'Cancel'), name='cancel')
     def handleCancel(self, action):
