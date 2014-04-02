@@ -4,6 +4,10 @@ Changelog
 2.2.2 (unreleased)
 ------------------
 
+- Let utils.createContent also handle setting of attributes on behaviors, which
+  derive from other behaviors.
+  [thet]
+
 - Add a 'success' class to the status message shown after successfully
   adding or editing an item.  The previous 'info' class is also
   retained for backwards-compatibility.
@@ -23,7 +27,8 @@ Changelog
 2.2.0 (2014-01-31)
 ------------------
 
-- utils.createContent honors behaviors [toutpt]
+- utils.createContent honors behaviors.
+  [toutpt]
 
 - Date index method works even if source field is a dexterity field
   wich provides a  datetime python value.
