@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.2.2 (unreleased)
+2.2.2 (2014-04-13)
 ------------------
 
 - Add a 'success' class to the status message shown after successfully
