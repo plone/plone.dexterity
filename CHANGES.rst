@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.2.3 (unreleased)
+2.2.3 (2014-04-15)
 ------------------
 
 - Re-release 2.2.2 which was a brown bag release.
