@@ -4,7 +4,8 @@ Changelog
 2.2.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Re-release 2.2.2 which was a brown bag release.
+  [timo]
 
 
 2.2.2 (2014-04-13)
