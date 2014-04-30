@@ -255,13 +255,15 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         if schema is not None:
             field = schema.get(name, None)
             if field is not None:
-                return deepcopy(field.default)
+                bound = field.bind(self)
+                return deepcopy(bound.default)
 
         # do the same for each subtype
         for schema in SCHEMA_CACHE.subtypes(self.portal_type):
             field = schema.get(name, None)
             if field is not None:
-                return deepcopy(field.default)
+                bound = field.bind(self)
+                return deepcopy(bound.default)
 
         raise AttributeError(name)
 

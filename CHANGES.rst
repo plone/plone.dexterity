@@ -4,7 +4,9 @@ Changelog
 2.2.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix the default attribute accessor to bind field to context when finding
+  the field default.
+  [datakurre]
 
 
 2.2.3 (2014-04-15)

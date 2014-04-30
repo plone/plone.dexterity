@@ -433,6 +433,36 @@ class TestContent(MockTestCase):
         self.assertEqual(u"id", content.id)
         self.assertRaises(AttributeError, getattr, content, 'baz')
 
+    def test_getattr_consults_schema_item_default_factory_with_context(self):
+
+        content = Item()
+        content.id = u"id"
+        content.portal_type = u"testtype"
+
+        from zope.interface import provider
+        from zope.schema.interfaces import IContextAwareDefaultFactory
+
+        @provider(IContextAwareDefaultFactory)
+        def defaultFactory(context):
+            return u"{0:s}_{1:s}".format(context.id, context.portal_type)
+
+        class ISchema(Interface):
+            foo = zope.schema.TextLine(title=u"foo",
+                                       defaultFactory=defaultFactory)
+            bar = zope.schema.TextLine(title=u"bar")
+
+        # FTI mock
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+
+        self.replay()
+
+        self.assertEqual(u"id_testtype", content.foo)
+        self.assertEqual(None, content.bar)
+        self.assertEqual(u"id", content.id)
+        self.assertRaises(AttributeError, getattr, content, 'baz')
+
     def test_getattr_on_container_returns_children(self):
 
         content = Container()
