@@ -14,6 +14,8 @@ from zope.interface.declarations import implementedBy
 from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import ObjectSpecificationDescriptor
 
+from zope.schema.interfaces import IContextAwareDefaultFactory
+
 from zope.security.interfaces import IPermission
 
 from zope.annotation import IAttributeAnnotatable
@@ -255,15 +257,23 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         if schema is not None:
             field = schema.get(name, None)
             if field is not None:
-                bound = field.bind(self)
-                return deepcopy(bound.default)
+                if IContextAwareDefaultFactory.providedBy(
+                        getattr(field, 'defaultFactory', None)):
+                    bound = field.bind(self)
+                    return deepcopy(bound.default)
+                else:
+                    return deepcopy(field.default)
 
         # do the same for each subtype
         for schema in SCHEMA_CACHE.subtypes(self.portal_type):
             field = schema.get(name, None)
             if field is not None:
-                bound = field.bind(self)
-                return deepcopy(bound.default)
+                if IContextAwareDefaultFactory.providedBy(
+                        getattr(field, 'defaultFactory', None)):
+                    bound = field.bind(self)
+                    return deepcopy(bound.default)
+                else:
+                    return deepcopy(field.default)
 
         raise AttributeError(name)
 
