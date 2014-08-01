@@ -165,6 +165,30 @@ class AttributeValidator(Explicit):
 
 
 class PasteBehaviourMixin(object):
+
+    def _notifyOfCopyTo(self, container, op=0):
+        """Keep AT reference info internally when op == 1 (move)
+        because in those cases we need to keep AT refs
+        """
+        # AT BaseObject does this to prevent destroying AT refs.
+        # This isn't really safe for concurrent usage, but the
+        # worse case is not that bad and could be fixed with a reindex
+        # on the archetype tool:
+        if op == 1:
+            self._v_cp_refs = 1
+            self._v_is_cp = 0
+        if op == 0:
+            self._v_cp_refs = 0
+            self._v_is_cp = 1
+
+        # AT BaseFolderMixin does also this, so probably this is required.
+        if isinstance(self, PortalFolderBase):
+            for child in self.objectValues():
+                try:
+                    child._notifyOfCopyTo(self, op)
+                except AttributeError:
+                    pass
+
     def _verifyObjectPaste(self, obj, validate_src=True):
         # Extend the paste checks from OFS.CopySupport.CopyContainer
         # (permission checks) and
