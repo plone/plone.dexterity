@@ -21,37 +21,37 @@ from Products.statusmessages.interfaces import IStatusMessage
 
 class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     """Standard add form, which is wrapped by DefaultAddView (see below).
-    
+
     This form is capable of rendering the fields of any Dexterity schema,
     including behaviours. To do that, needs to know the portal_type, which
     can be set as a class variable (in a subclass), or on a created instance.
-    
+
     By default, the DefaultAddView (see below) will set the portal_type based
     on the FTI.
     """
-    
+
     portal_type = None
     immediate_view = None
-    
+
     def __init__(self, context, request, ti=None):
         super(DefaultAddForm, self).__init__(context, request)
         if ti is not None:
             self.ti = ti
             self.portal_type = ti.getId()
         self.request['disable_border'] = True
-    
+
     @property
     def additionalSchemata(self):
         return getAdditionalSchemata(portal_type=self.portal_type)
 
     # API
-    
+
     def create(self, data):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
-        
+
         container = aq_inner(self.context)
         content = createObject(fti.factory)
-        
+
         # Note: The factory may have done this already, but we want to be sure
         # that the created type has the right portal type. It is possible
         # to re-define a type through the web that uses the factory from an
@@ -59,7 +59,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
 
         if hasattr(content, '_setPortalTypeName'):
             content._setPortalTypeName(fti.getId())
-        
+
         # Acquisition wrap temporarily to satisfy things like vocabularies
         # depending on tools
         if IAcquirer.providedBy(content):
@@ -72,11 +72,11 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         return aq_base(content)
 
     def add(self, object):
-        
+
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         container = aq_inner(self.context)
         new_object = addContentToContainer(container, object)
-        
+
         if fti.immediate_view:
             self.immediate_view = "%s/%s/%s" % (container.absolute_url(), new_object.id, fti.immediate_view,)
         else:
@@ -87,9 +87,9 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
             return self.immediate_view
         else:
             return self.context.absolute_url()
-    
+
     # Buttons
-    
+
     @button.buttonAndHandler(_('Save'), name='save')
     def handleAdd(self, action):
         data, errors = self.extractData()
@@ -101,24 +101,24 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
             # mark only as finished if we get the new object
             self._finishedAdd = True
             IStatusMessage(self.request).addStatusMessage(_(u"Item created"), "info success")
-    
+
     @button.buttonAndHandler(_(u'Cancel'), name='cancel')
     def handleCancel(self, action):
         IStatusMessage(self.request).addStatusMessage(_(u"Add New Item operation cancelled"), "info")
         self.request.response.redirect(self.nextURL())
         notify(AddCancelledEvent(self.context))
-    
+
     def update(self):
         super(DefaultAddForm, self).update()
         # fire the edit begun only if no action was executed
         if len(self.actions.executedActions) == 0:
             notify(AddBegunEvent(self.context))
-    
+
     def updateActions(self):
         super(DefaultAddForm, self).updateActions()
         if 'save' in self.actions:
             self.actions["save"].addClass("context")
-        
+
         if 'cancel' in self.actions:
             self.actions["cancel"].addClass("standalone")
 
@@ -132,19 +132,19 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
 
 class DefaultAddView(layout.FormWrapper, BrowserPage):
     """This is the default add view as looked up by the ++add++ traversal
-    namespace adapter in CMF. It is an unnamed adapter on 
+    namespace adapter in CMF. It is an unnamed adapter on
     (context, request, fti).
-    
+
     Note that this is registered in ZCML as a simple <adapter />, but we
     also use the <class /> directive to set up security.
     """
-    
+
     form = DefaultAddForm
-    
+
     def __init__(self, context, request, ti):
         super(DefaultAddView, self).__init__(context, request)
         self.ti = ti
 
         # Set portal_type name on newly created form instance
-        if self.form_instance is not None and not getattr(self.form_instance, 'portal_type', None): 
+        if self.form_instance is not None and not getattr(self.form_instance, 'portal_type', None):
             self.form_instance.portal_type = ti.getId()

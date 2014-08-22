@@ -21,7 +21,7 @@ class PrimaryFieldInfoTestCase(MockTestCase):
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookupSchema()).result(ITest).count(0, None)
         self.expect(fti_mock.behaviors).result([]).count(0, None)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")        
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         self.replay()
 
         item = Item('item')

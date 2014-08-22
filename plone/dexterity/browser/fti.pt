@@ -37,7 +37,7 @@
    &nbsp;
   </td>
   <td>
-   <input class="form-element" type="submit" name="submit_add" value="Add" /> 
+   <input class="form-element" type="submit" name="submit_add" value="Add" />
   </td>
  </tr>
 </table>

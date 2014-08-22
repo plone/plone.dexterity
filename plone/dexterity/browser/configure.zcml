@@ -2,7 +2,7 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
     i18n_domain="plone.dexterity">
-  
+
     <!-- Standard view -->
     <browser:page
         for="..interfaces.IDexterityContent"
@@ -11,7 +11,7 @@
         template="item.pt"
         permission="zope2.View"
         />
-    
+
     <!-- Content core views -->
 
     <browser:page
@@ -32,7 +32,7 @@
 
     <!-- Standard IPublishTraverse adapter -->
     <adapter factory=".traversal.DexterityPublishTraverse" />
-    
+
     <!-- Standard add view and form - invoked from ++add++ traverser -->
     <adapter
         for="Products.CMFCore.interfaces.IFolderish
@@ -55,7 +55,7 @@
         class=".edit.DefaultEditView"
         permission="cmf.ModifyPortalContent"
         />
-  
+
     <!-- FTI add form -->
     <browser:page
         for="zope.browser.interfaces.IAdding"
@@ -64,14 +64,14 @@
         class=".fti.FTIAddView"
         permission="cmf.ManagePortal"
         />
-        
+
     <!-- Resources for icons -->
-    
+
     <browser:resource
         name="plone.dexterity.item.gif"
         file="icons/item_icon.gif"
         />
-    
+
     <browser:resource
         name="plone.dexterity.container.gif"
         file="icons/container_icon.gif"
@@ -80,6 +80,6 @@
     <browser:resource
         name="plone.dexterity.fti.gif"
         file="icons/typeinfo.gif"
-        />  
+        />
 
 </configure>

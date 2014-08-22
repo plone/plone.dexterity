@@ -24,7 +24,7 @@ class IDexterityFTI(ITypeInformation):
     def lookupSchema():
         """Return an InterfaceClass that represents the schema of this type.
         Raises a ValueError if it cannot be found.
-        
+
         If a schema interface is specified, return this. Otherwise, look up
         the model from either the TTW model source string or a specified
         model XML file, and build a schema from the unnamed schema
@@ -35,19 +35,19 @@ class IDexterityFTI(ITypeInformation):
         """Return the IModel specified in either the model_source or
         model_file (the former takes precedence). See plone.supermodel for
         more information about this type.
-        
+
         If neither a model_source or a model_file is given, but a schema is
         given, return a faux model that contains just this schema.
-        
+
         Note that model.schema is not necessarily going to be the same as
         the schema returned by lookupSchema().
         """
-    
+
     add_permission = zope.schema.DottedName(
             title=u"Add permission",
             description=u"Zope 3 permission name for the permission required to construct this content",
         )
-    
+
     behaviors = zope.schema.List(
             title=u"Behaviors",
             description=u"A list of behaviors that are enabled for this type. "
@@ -70,11 +70,11 @@ class IDexterityFTI(ITypeInformation):
 
     model_file = zope.schema.Text(
             title=u"Model file",
-            description=u"A file that contains an XML model. " 
-                        u"This may be an absolute path, or one relative to a " 
+            description=u"A file that contains an XML model. "
+                        u"This may be an absolute path, or one relative to a "
                         u"package, e.g. my.package:model.xml"
         )
-    
+
     hasDynamicSchema = zope.schema.Bool(
             title=u"Whether or not the FTI uses a dynamic schema.",
             readonly=True
@@ -83,19 +83,19 @@ class IDexterityFTI(ITypeInformation):
 class IDexterityFTIModificationDescription(IModificationDescription):
     """Descriptor passed with an IObjectModifiedEvent for a Dexterity FTI.
     """
-    
+
     attribute = zope.schema.ASCII(title=u"Name of the attribute that was modified")
     oldValue = Attribute("Old value")
 
 class IDexterityFactory(IFactory):
     """A factory that can create Dexterity objects.
-    
+
     This factory will create an object by looking up the klass property of
-    the FTI with the given portal type. It will also set the portal_type 
+    the FTI with the given portal type. It will also set the portal_type
     on the instance and mark the instance as providing the schema interface
     if it does not do so already.
     """
-    
+
     portal_type = zope.schema.TextLine(title=u"Portal type name",
                                        description=u"The portal type this is an FTI for")
 
@@ -109,11 +109,11 @@ class IDexteritySchema(Interface):
 
 class ISchemaInvalidatedEvent(Interface):
     """Event fired when the schema cache should be invalidated.
-    
+
     If the portal_type is not given, all schemata will be cleared from the
     cache.
     """
-    
+
     portal_type = zope.schema.TextLine(title=u"FTI name", required=False)
 
 # Content
@@ -125,7 +125,7 @@ class IDexterityContent(Interface):
 class IDexterityItem(IDexterityContent):
     """Marker interface applied to dexterity-managed non-folderish objects
     """
-    
+
 class IDexterityContainer(IDexterityContent):
     """Marker interface applied to dexterity-managed folderish objects
     """

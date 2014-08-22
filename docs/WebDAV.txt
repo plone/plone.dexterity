@@ -79,7 +79,7 @@ By default ``Resource.PUT()`` fails with 405 Method Not Allowed. That is, it
 is not by default possible to PUT to a resource that already exists. The same
 is true of ``Collection.PUT()``.
 
-In Dexterity, the ``PUT()`` method is overridden to adapt self to 
+In Dexterity, the ``PUT()`` method is overridden to adapt self to
 ``zope.filerepresentation.IRawWriteFile``, and call its ``write()`` method one
 or more times, writing the contents of the request body, before calling
 ``close()``. The ``mimeType`` and ``encoding`` properties will also be set
@@ -149,7 +149,7 @@ status.
 
 The ``PropertyManager`` mixin class defines the ``propertysheets`` variable to
 be an instance of ``DefaultPropertySheets``. This in turn has two property
-sheets, ``default``, a ``DefaultProperties`` instance, and ``webdav``, a 
+sheets, ``default``, a ``DefaultProperties`` instance, and ``webdav``, a
 ``DAVProperties`` instance.
 
 The ``DefaultProperties`` instance contains the main property sheet. This

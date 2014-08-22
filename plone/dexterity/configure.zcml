@@ -14,29 +14,29 @@
     <include package="plone.rfc822" />
     <include package="plone.uuid" />
     <include package="plone.z3cform" />
-    
+
     <include package=".browser" />
     <include package=".fti" />
-    
+
     <!-- Re-index content when it's modified -->
     <subscriber
         for=".interfaces.IDexterityContent
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".content.reindexOnModify"
         />
-    
+
     <!-- Support for dynamic schemata -->
-    
+
     <utility
         factory=".schema.DexteritySchemaPolicy"
         name="dexterity"
         />
-        
+
     <utility
         factory=".schema.SchemaModuleFactory"
         name="plone.dexterity.schema.generated"
         />
-                
+
     <!-- Schema cache -->
     <subscriber handler=".schema.invalidate_schema" />
 
@@ -51,7 +51,7 @@
         icon="plone.dexterity.item.gif"
         />
     <class class=".content.Item" />
-        
+
     <five:registerClass
         class=".content.Container"
         meta_type="Dexterity Container"
@@ -59,7 +59,7 @@
         icon="plone.dexterity.item.gif"
         />
     <class class=".content.Container" />
-        
+
     <!-- Register FTI class -->
     <five:registerClass
         class=".fti.DexterityFTI"
@@ -69,37 +69,37 @@
         icon="plone.dexterity.fti.gif"
         global="False"
         />
-        
+
     <!-- Register FTI add/remove/modify handlers -->
-    
+
     <subscriber
         for=".interfaces.IDexterityFTI
              zope.container.interfaces.IObjectAddedEvent"
         handler=".fti.ftiAdded"
         />
-        
+
     <subscriber
         for=".interfaces.IDexterityFTI
              zope.container.interfaces.IObjectRemovedEvent"
         handler=".fti.ftiRemoved"
         />
-        
+
     <subscriber
         for=".interfaces.IDexterityFTI
              zope.container.interfaces.IObjectMovedEvent"
         handler=".fti.ftiRenamed"
         />
-    
+
     <subscriber
         for=".interfaces.IDexterityFTI
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".fti.ftiModified"
         />
-    
+
     <!-- File representation (FTP/WebDAV support) -->
     <adapter factory=".filerepresentation.DefaultDirectoryFactory" />
     <adapter factory=".filerepresentation.DefaultFileFactory" />
-    
+
     <adapter
         provides="zope.filerepresentation.interfaces.IRawReadFile"
         factory=".filerepresentation.DefaultReadFile"
