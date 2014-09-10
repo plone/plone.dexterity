@@ -167,10 +167,15 @@ class AttributeValidator(Explicit):
 class PasteBehaviourMixin(object):
 
     def _notifyOfCopyTo(self, container, op=0):
-        """Keep AT reference info internally when op == 1 (move)
-        because in those cases we need to keep AT refs
+        """Keep Archetypes' reference info internally when op == 1 (move)
+        because in those cases we need to keep Archetypes' refeferences.
+
+        This is only required to support legacy Archetypes' references related
+        to content within Dexterity container objects.
         """
-        # AT BaseObject does this to prevent destroying AT refs.
+        # AT BaseObject does this to prevent removing AT refs on object move
+        # See: Products.Archetypes.Referenceable.Referenceable._notifyOfCopyTo
+
         # This isn't really safe for concurrent usage, but the
         # worse case is not that bad and could be fixed with a reindex
         # on the archetype tool:
@@ -181,7 +186,9 @@ class PasteBehaviourMixin(object):
             self._v_cp_refs = 0
             self._v_is_cp = 1
 
-        # AT BaseFolderMixin does also this, so probably this is required.
+        # AT BaseFolderMixin does this to propagate the notify to its children
+        # See: Products.Archetypes.BaseFolder.BaseFolderMixin._notifyOfCopyTo
+
         if isinstance(self, PortalFolderBase):
             for child in self.objectValues():
                 try:
