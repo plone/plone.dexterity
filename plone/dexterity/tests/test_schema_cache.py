@@ -1,12 +1,11 @@
-import unittest
-from plone.mocktestcase import MockTestCase
-
-from zope.interface import Interface
-
-from plone.dexterity.interfaces import IDexterityFTI
-
+# -*- coding: utf-8 -*-
 from plone.dexterity.fti import DexterityFTI
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
+from plone.mocktestcase import MockTestCase
+from zope.interface import Interface
+import unittest
+
 
 class TestSchemaCache(MockTestCase):
 
@@ -41,7 +40,7 @@ class TestSchemaCache(MockTestCase):
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
         self.expect(fti_mock.lookupSchema()).result(ISchema1)
-        self.expect(fti_mock.lookupSchema()).result(ISchema2).count(0,None)
+        self.expect(fti_mock.lookupSchema()).result(ISchema2).count(0, None)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         self.replay()
@@ -62,7 +61,7 @@ class TestSchemaCache(MockTestCase):
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
         self.expect(fti_mock.lookupSchema()).result(ISchema1)
-        self.expect(fti_mock.lookupSchema()).result(ISchema2).count(0,None)
+        self.expect(fti_mock.lookupSchema()).result(ISchema2).count(0, None)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         self.replay()
@@ -134,6 +133,7 @@ class TestSchemaCache(MockTestCase):
 
         self.assertTrue(schema1 is None)
         self.assertTrue(schema2 is schema3 is ISchema1)
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

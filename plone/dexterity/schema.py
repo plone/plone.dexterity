@@ -1,33 +1,28 @@
-import new
-import functools
-
-from threading import RLock
-from plone.synchronize import synchronized
-
-from zope.interface import implements, alsoProvides
-from zope.interface.interface import InterfaceClass
-
-from zope.component import adapter
-from zope.component import queryUtility, getAllUtilitiesRegisteredFor
-
+# -*- coding: utf-8 -*-
+from plone.alterego import dynamic
+from plone.alterego.interfaces import IDynamicObjectFactory
 from plone.behavior.interfaces import IBehavior
-
+from plone.dexterity import utils
+from plone.dexterity.interfaces import IContentType
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.interfaces import IDexteritySchema
+from plone.dexterity.interfaces import ISchemaInvalidatedEvent
 from plone.supermodel.parser import ISchemaPolicy
 from plone.supermodel.utils import syncSchema
-
-from plone.alterego.interfaces import IDynamicObjectFactory
-
-from plone.dexterity.interfaces import IContentType
-from plone.dexterity.interfaces import IDexteritySchema
-from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.interfaces import ISchemaInvalidatedEvent
-
-from plone.dexterity import utils
-from plone.alterego import dynamic
+from plone.synchronize import synchronized
+from threading import RLock
+from zope.component import adapter
+from zope.component import queryUtility, getAllUtilitiesRegisteredFor
+from zope.interface import implementer
+from zope.interface import alsoProvides
+from zope.interface.interface import InterfaceClass
+import functools
+import new
 
 # Dynamic modules
 generated = dynamic.create('plone.dexterity.schema.generated')
 transient = new.module("transient")
+
 
 def invalidate_cache(fti):
     fti._p_activate()
@@ -111,7 +106,6 @@ class SchemaCache(object):
         for fti in getAllUtilitiesRegisteredFor(IDexterityFTI):
             invalidate_cache(fti)
 
-
     @synchronized(lock)
     def invalidate(self, portal_type):
         fti = queryUtility(IDexterityFTI, name=portal_type)
@@ -121,11 +115,13 @@ class SchemaCache(object):
 
 SCHEMA_CACHE = SchemaCache()
 
+
+@implementer(ISchemaInvalidatedEvent)
 class SchemaInvalidatedEvent(object):
-    implements(ISchemaInvalidatedEvent)
 
     def __init__(self, portal_type):
         self.portal_type = portal_type
+
 
 @adapter(ISchemaInvalidatedEvent)
 def invalidate_schema(event):
@@ -134,13 +130,12 @@ def invalidate_schema(event):
     else:
         SCHEMA_CACHE.clear()
 
-# Dynamic module factory
 
+# Dynamic module factory
+@implementer(IDynamicObjectFactory)
 class SchemaModuleFactory(object):
     """Create dynamic schema interfaces on the fly
     """
-
-    implements(IDynamicObjectFactory)
 
     lock = RLock()
     _transient_SCHEMA_CACHE = {}
@@ -199,13 +194,14 @@ class SchemaModuleFactory(object):
 
         return schema
 
+
+@implementer(ISchemaPolicy)
 class DexteritySchemaPolicy(object):
     """Determines how and where imported dynamic interfaces are created.
     Note that these schemata are never used directly. Rather, they are merged
     into a schema with a proper name and module, either dynamically or
     in code.
     """
-    implements(ISchemaPolicy)
 
     def module(self, schemaName, tree):
         return 'plone.dexterity.schema.transient'
@@ -218,4 +214,3 @@ class DexteritySchemaPolicy(object):
         # when it's first used, we know the portal_type and site, and can
         # thus update it
         return '__tmp__' + schemaName
-

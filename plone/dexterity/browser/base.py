@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 from plone.autoform.form import AutoExtensibleForm
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import getAdditionalSchemata

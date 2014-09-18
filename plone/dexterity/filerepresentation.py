@@ -1,43 +1,35 @@
-import tempfile
-
-# capitalised for Python 2.4 compatibility
-from email.Generator import Generator
-from email.Parser import FeedParser
-from email.Message import Message
-
-from zope.interface import implements
-from zope.component import adapts
-from zope.schema import getFieldsInOrder
-from zope.event import notify
-from zope.lifecycleevent import modified, ObjectCreatedEvent
-
-from zope.interface.interfaces import IInterface
-from zope.size.interfaces import ISized
-from zope.component import createObject
-
+# -*- coding: utf-8 -*-
 from Acquisition import aq_base, Implicit
-from zExceptions import Unauthorized, MethodNotAllowed
-from webdav.Resource import Resource
-from ZPublisher.Iterators import IStreamIterator
 from Products.CMFCore.utils import getToolByName
-
-from zope.filerepresentation.interfaces import IRawReadFile
-from zope.filerepresentation.interfaces import IRawWriteFile
-
-from zope.filerepresentation.interfaces import IDirectoryFactory
-from zope.filerepresentation.interfaces import IFileFactory
-
-from plone.rfc822.interfaces import IPrimaryField
-from plone.rfc822 import constructMessageFromSchemata
-from plone.rfc822 import initializeObjectFromSchemata
-
-from plone.dexterity.interfaces import IDexterityContent
-from plone.dexterity.interfaces import IDexterityContainer
-
+from ZPublisher.Iterators import IStreamIterator
+from email.generator import Generator
+from email.message import Message
+from email.parser import FeedParser
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
-
+from plone.dexterity.interfaces import IDexterityContainer
+from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.utils import iterSchemata
 from plone.memoize.instance import memoize
+from plone.rfc822 import constructMessageFromSchemata
+from plone.rfc822 import initializeObjectFromSchemata
+from plone.rfc822.interfaces import IPrimaryField
+from webdav.Resource import Resource
+from zExceptions import MethodNotAllowed
+from zExceptions import Unauthorized
+from zope.component import adapts
+from zope.component import createObject
+from zope.event import notify
+from zope.filerepresentation.interfaces import IDirectoryFactory
+from zope.filerepresentation.interfaces import IFileFactory
+from zope.filerepresentation.interfaces import IRawReadFile
+from zope.filerepresentation.interfaces import IRawWriteFile
+from zope.interface import implements
+from zope.interface.interfaces import IInterface
+from zope.lifecycleevent import modified, ObjectCreatedEvent
+from zope.schema import getFieldsInOrder
+from zope.size.interfaces import ISized
+import tempfile
+
 
 class DAVResourceMixin(object):
     """Mixin class for WebDAV resource support.
@@ -98,7 +90,9 @@ class DAVResourceMixin(object):
 
         if mimeType is not None:
             if encoding is not None:
-                response.setHeader('Content-Type', '%s; charset="%s"' % (mimeType, encoding,))
+                response.setHeader(
+                    'Content-Type', '%s; charset="%s"' % (mimeType, encoding,)
+                )
             else:
                 response.setHeader('Content-Type', mimeType)
 
@@ -108,13 +102,13 @@ class DAVResourceMixin(object):
 
         # if the reader is an iterator that the publisher can handle, return
         # it as-is. Otherwise, read the full contents
-
-        if ((IInterface.providedBy(IStreamIterator) and IStreamIterator.providedBy(reader))
-         or (not IInterface.providedBy(IStreamIterator) and IStreamIterator.isImplementedBy(reader))
-        ):
+        is_iface = IInterface.providedBy(IStreamIterator)
+        if is_iface and IStreamIterator.providedBy(reader):
             return reader
-        else:
-            return reader.read()
+        if not is_iface and IStreamIterator.isImplementedBy(reader):
+            return reader
+
+        return reader.read()
 
     def PUT(self, REQUEST=None, RESPONSE=None):
         """WebDAV method to replace self with a new resource. This is also
@@ -131,11 +125,15 @@ class DAVResourceMixin(object):
 
         infile = request.get('BODYFILE', None)
         if infile is None:
-            raise MethodNotAllowed("Cannot complete PUT request: No BODYFILE in request")
+            raise MethodNotAllowed(
+                "Cannot complete PUT request: No BODYFILE in request"
+            )
 
         writer = IRawWriteFile(self, None)
         if writer is None:
-            raise MethodNotAllowed("Cannot complete PUT request: No IRawWriteFile adapter found")
+            raise MethodNotAllowed(
+                "Cannot complete PUT request: No IRawWriteFile adapter found"
+            )
 
         contentTypeHeader = request.get_header('content-type', None)
 
@@ -174,7 +172,9 @@ class DAVCollectionMixin(DAVResourceMixin):
         """
         factory = IDirectoryFactory(self, None)
         if factory is None:
-            raise MethodNotAllowed("Cannot create collection: No IDirectoryFactory adapter found")
+            raise MethodNotAllowed(
+                "Cannot create collection: No IDirectoryFactory adapter found"
+            )
         factory(id)
 
     def PUT_factory(self, name, contentType, body):
@@ -314,22 +314,31 @@ class FolderDataResource(Implicit, Resource):
     def MKCOL(self, REQUEST, RESPONSE):
         """MKCOL request: not allowed
         """
-        raise MethodNotAllowed('Cannot create a collection inside a folder data: try at the folder level instead')
+        raise MethodNotAllowed(
+            'Cannot create a collection inside a folder data: try at the '
+            'folder level instead'
+        )
 
     def DELETE(self, REQUEST, RESPONSE):
         """DELETE request: not allowed
         """
-        raise MethodNotAllowed('Cannot delete folder data: delete folder instead')
+        raise MethodNotAllowed(
+            'Cannot delete folder data: delete folder instead'
+        )
 
     def COPY(self, REQUEST, RESPONSE):
         """COPY request: not allowed
         """
-        raise MethodNotAllowed('Cannot copy folder data: copy the folder instead')
+        raise MethodNotAllowed(
+            'Cannot copy folder data: copy the folder instead'
+        )
 
     def MOVE(self, REQUEST, RESPONSE):
         """MOVE request: not allowed
         """
-        raise MethodNotAllowed('Cannot move folder data: move the folder instead')
+        raise MethodNotAllowed(
+            'Cannot move folder data: move the folder instead'
+        )
 
     def manage_DAVget(self):
         """DAV content access: delete to manage_FTPget()
@@ -352,7 +361,7 @@ class StringStreamIterator(object):
     """
     implements(IStreamIterator)
 
-    def __init__(self, data, size=None, chunk=1<<16):
+    def __init__(self, data, size=None, chunk=1 << 16):
         """Consume data (a str) into a temporary file and prepare streaming.
 
         size is the length of the data. If not given, the length of the data
@@ -430,17 +439,17 @@ class DefaultFileFactory(object):
 
         registry = getToolByName(self.context, 'content_type_registry', None)
         if registry is None:
-            return None # fall back on default
+            return None  # fall back on default
 
         typeObjectName = registry.findTypeName(name, contentType, data)
         if typeObjectName is None:
-            return # fall back on default
+            return  # fall back on default
 
         typesTool = getToolByName(self.context, 'portal_types')
 
         targetType = typesTool.getTypeInfo(typeObjectName)
         if targetType is None:
-            return # fall back on default
+            return  # fall back on default
 
         # There are two possibilities here: either we have a new-style
         # IFactory utility, in which case all is good. We can call the
@@ -451,22 +460,28 @@ class DefaultFileFactory(object):
         # NullResource.PUT(). Naturally this sucks. At least, let's do the
         # sane thing for content with new-style factories.
 
-        if targetType.product: # boo :(
+        if targetType.product:  # boo :(
 
             newName = self.context.invokeFactory(typeObjectName, name)
             obj = aq_base(self.context._getOb(newName))
             self.context._delObject(newName)
             return obj
 
-        else: # yay
+        else:  # yay
 
             contextType = typesTool.getTypeInfo(self.context)
             if contextType is not None:
                 if not contextType.allowType(typeObjectName):
-                    raise Unauthorized("Creating a %s object here is not allowed" % typeObjectName)
+                    raise Unauthorized(
+                        "Creating a %s object here is not allowed" %
+                        typeObjectName
+                    )
 
             if not targetType.isConstructionAllowed(self.context):
-                raise Unauthorized("Creating a %s object here is not allowed" % typeObjectName)
+                raise Unauthorized(
+                    "Creating a %s object here is not allowed" %
+                    typeObjectName
+                )
 
             obj = createObject(targetType.factory)
 
@@ -480,6 +495,7 @@ class DefaultFileFactory(object):
             notify(ObjectCreatedEvent(obj))
 
         return obj
+
 
 class ReadFileBase(object):
     """Convenience base class for read files which delegate to another stream
@@ -605,7 +621,10 @@ class DefaultReadFile(ReadFileBase):
     def _getMessage(self):
         """Construct message on demand
         """
-        message = constructMessageFromSchemata(self.context, iterSchemata(self.context))
+        message = constructMessageFromSchemata(
+            self.context,
+            iterSchemata(self.context)
+        )
 
         # Store the portal type in a header, to allow it to be identifed later
         message['Portal-Type'] = self.context.portal_type
@@ -755,7 +774,12 @@ class DefaultWriteFile(object):
     def close(self):
         self._message = self._parser.close()
         self._closed = True
-        initializeObjectFromSchemata(self.context, iterSchemata(self.context), self._message, self._encoding)
+        initializeObjectFromSchemata(
+            self.context,
+            iterSchemata(self.context),
+            self._message,
+            self._encoding
+        )
 
     def write(self, data):
         if self._closed:
@@ -769,7 +793,10 @@ class DefaultWriteFile(object):
 
     def truncate(self, size=None):
         if (size is None and self._written != 0) and size != 0:
-            raise NotImplementedError("The 'size' argument to truncate() must be 0 - partial truncation is not supported")
+            raise NotImplementedError(
+                "The 'size' argument to truncate() must be 0 - partial "
+                "truncation is not supported"
+            )
         if self._closed:
             raise ValueError("File is closed")
         self._parser = FeedParser()
@@ -777,4 +804,3 @@ class DefaultWriteFile(object):
 
     def flush(self):
         pass
-

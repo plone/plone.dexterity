@@ -1,11 +1,11 @@
-from zope.interface import implements
-from zope.component import adapts, getUtility, queryUtility
-
+# -*- coding: utf-8 -*-
 from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
-
-from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityContent
+from plone.dexterity.interfaces import IDexterityFTI
+from zope.component import adapts, getUtility, queryUtility
+from zope.interface import implements
+
 
 class DexterityBehaviorAssignable(object):
     """Support plone.behavior behaviors stored in the FTI

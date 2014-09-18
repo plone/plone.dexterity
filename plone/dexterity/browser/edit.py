@@ -1,21 +1,18 @@
-from zope.component import getUtility
-from zope.event import notify
-from zope.interface import classImplements
-
-from z3c.form import form, button
-from plone.z3cform import layout
-
-from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.i18n import MessageFactory as _
+# -*- coding: utf-8 -*-
+from Products.CMFCore.utils import getToolByName
+from Products.statusmessages.interfaces import IStatusMessage
+from plone.dexterity.browser.base import DexterityExtensibleForm
 from plone.dexterity.events import EditBegunEvent
 from plone.dexterity.events import EditCancelledEvent
 from plone.dexterity.events import EditFinishedEvent
-
-from plone.dexterity.browser.base import DexterityExtensibleForm
+from plone.dexterity.i18n import MessageFactory as _
 from plone.dexterity.interfaces import IDexterityEditForm
-
-from Products.CMFCore.utils import getToolByName
-from Products.statusmessages.interfaces import IStatusMessage
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.z3cform import layout
+from z3c.form import form, button
+from zope.component import getUtility
+from zope.event import notify
+from zope.interface import classImplements
 
 
 class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
@@ -27,13 +24,17 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
             self.status = self.formErrorsMessage
             return
         self.applyChanges(data)
-        IStatusMessage(self.request).addStatusMessage(_(u"Changes saved"), "info success")
+        IStatusMessage(self.request).addStatusMessage(
+            _(u"Changes saved"), "info success"
+        )
         self.request.response.redirect(self.nextURL())
         notify(EditFinishedEvent(self.context))
 
     @button.buttonAndHandler(_(u'Cancel'), name='cancel')
     def handleCancel(self, action):
-        IStatusMessage(self.request).addStatusMessage(_(u"Edit cancelled"), "info")
+        IStatusMessage(self.request).addStatusMessage(
+            _(u"Edit cancelled"), "info"
+        )
         self.request.response.redirect(self.nextURL())
         notify(EditCancelledEvent(self.context))
 
@@ -41,10 +42,17 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
         view_url = self.context.absolute_url()
         portal_properties = getToolByName(self, 'portal_properties', None)
         if portal_properties is not None:
-            site_properties = getattr(portal_properties, 'site_properties', None)
+            site_properties = getattr(
+                portal_properties,
+                'site_properties',
+                None
+            )
             portal_type = self.portal_type
             if site_properties is not None and portal_type is not None:
-                use_view_action = site_properties.getProperty('typesUseViewActionInListings', ())
+                use_view_action = site_properties.getProperty(
+                    'typesUseViewActionInListings',
+                    ()
+                )
                 if portal_type in use_view_action:
                     view_url = view_url + '/view'
         return view_url

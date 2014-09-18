@@ -1,14 +1,15 @@
-import unittest
+# -*- coding: utf-8 -*-
 from plone.dexterity.content import Item
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.primary import PrimaryFieldInfo
 from plone.mocktestcase import MockTestCase
 from plone.rfc822.interfaces import IPrimaryField
-from plone.rfc822.interfaces import IPrimaryFieldInfo
 from zope import schema
 from zope.interface import Interface
 from zope.interface import alsoProvides
+import unittest
+
 
 class PrimaryFieldInfoTestCase(MockTestCase):
     def test_primary_field_info(self):

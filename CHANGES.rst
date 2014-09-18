@@ -4,7 +4,10 @@ Changelog
 2.2.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- overhaul (no logic chnaged): 
+  pep8, sorted imports plone.api style, readability, utf8header, 
+  remove bbb code (plone 3)
+  [jensens]
 
 
 2.2.3 (2014-04-15)

@@ -1,23 +1,20 @@
-from zope.component import getUtility, createObject
-from zope.publisher.browser import BrowserPage
-from zope.event import notify
-
-from z3c.form import form, button
-from plone.z3cform import layout
-
-from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.i18n import MessageFactory as _
-
-from plone.dexterity.browser.base import DexterityExtensibleForm
-from plone.dexterity.utils import addContentToContainer
-from plone.dexterity.events import AddBegunEvent
-from plone.dexterity.events import AddCancelledEvent
-from plone.dexterity.utils import getAdditionalSchemata
-
+# -*- coding: utf-8 -*-
 from Acquisition import aq_inner, aq_base
 from Acquisition.interfaces import IAcquirer
-
 from Products.statusmessages.interfaces import IStatusMessage
+from plone.dexterity.browser.base import DexterityExtensibleForm
+from plone.dexterity.events import AddBegunEvent
+from plone.dexterity.events import AddCancelledEvent
+from plone.dexterity.i18n import MessageFactory as _
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.utils import addContentToContainer
+from plone.dexterity.utils import getAdditionalSchemata
+from plone.z3cform import layout
+from z3c.form import form, button
+from zope.component import getUtility, createObject
+from zope.event import notify
+from zope.publisher.browser import BrowserPage
+
 
 class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     """Standard add form, which is wrapped by DefaultAddView (see below).
@@ -78,9 +75,13 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         new_object = addContentToContainer(container, object)
 
         if fti.immediate_view:
-            self.immediate_view = "%s/%s/%s" % (container.absolute_url(), new_object.id, fti.immediate_view,)
+            self.immediate_view = "/".join(
+                [container.absolute_url(), new_object.id, fti.immediate_view]
+            )
         else:
-            self.immediate_view = "%s/%s" % (container.absolute_url(), new_object.id)
+            self.immediate_view = "/".join(
+                [container.absolute_url(), new_object.id]
+            )
 
     def nextURL(self):
         if self.immediate_view is not None:
@@ -100,11 +101,15 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         if obj is not None:
             # mark only as finished if we get the new object
             self._finishedAdd = True
-            IStatusMessage(self.request).addStatusMessage(_(u"Item created"), "info success")
+            IStatusMessage(self.request).addStatusMessage(
+                _(u"Item created"), "info success"
+            )
 
     @button.buttonAndHandler(_(u'Cancel'), name='cancel')
     def handleCancel(self, action):
-        IStatusMessage(self.request).addStatusMessage(_(u"Add New Item operation cancelled"), "info")
+        IStatusMessage(self.request).addStatusMessage(
+            _(u"Add New Item operation cancelled"), "info"
+        )
         self.request.response.redirect(self.nextURL())
         notify(AddCancelledEvent(self.context))
 
@@ -146,5 +151,6 @@ class DefaultAddView(layout.FormWrapper, BrowserPage):
         self.ti = ti
 
         # Set portal_type name on newly created form instance
-        if self.form_instance is not None and not getattr(self.form_instance, 'portal_type', None):
+        if self.form_instance is not None \
+           and not getattr(self.form_instance, 'portal_type', None):
             self.form_instance.portal_type = ti.getId()

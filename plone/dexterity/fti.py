@@ -1,39 +1,29 @@
-import os.path
-import logging
-
-from zope.interface import implements
-
-from zope.component.interfaces import IFactory
-from zope.component import getUtility, queryUtility, getAllUtilitiesRegisteredFor
-
-from zope.event import notify
-
-from zope.security.interfaces import IPermission
-
-from zope.lifecycleevent import modified
-
-from zope.site.hooks import getSiteManager
-from zope.i18nmessageid import Message
-
+# -*- coding: utf-8 -*-
+from AccessControl import getSecurityManager
+from Acquisition import aq_base
+from Products.CMFCore.interfaces import ISiteRoot
+from Products.CMFDynamicViewFTI import fti as base
+from plone.dexterity import utils
+from plone.dexterity.factory import DexterityFactory
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.interfaces import IDexterityFTIModificationDescription
+from plone.dexterity.schema import SchemaInvalidatedEvent
 from plone.supermodel import loadString, loadFile
 from plone.supermodel.model import Model
 from plone.supermodel.utils import syncSchema
-
-from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.interfaces import IDexterityFTIModificationDescription
-from plone.dexterity import utils
-
-from plone.dexterity.factory import DexterityFactory
-
-from Acquisition import aq_base
-from AccessControl import getSecurityManager
-
-from Products.CMFCore.interfaces import ISiteRoot
-from Products.CMFDynamicViewFTI import fti as base
-
+from zope.component import getAllUtilitiesRegisteredFor
+from zope.component import getUtility
+from zope.component import queryUtility
+from zope.component.interfaces import IFactory
+from zope.event import notify
+from zope.i18nmessageid import Message
+from zope.interface import implements
+from zope.lifecycleevent import modified
+from zope.security.interfaces import IPermission
+from zope.site.hooks import getSiteManager
+import logging
+import os.path
 import plone.dexterity.schema
-
-from plone.dexterity.schema import SchemaInvalidatedEvent
 
 
 class DexterityFTIModificationDescription(object):
@@ -53,70 +43,88 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     meta_type = "Dexterity FTI"
 
     _properties = base.DynamicViewTypeInformation._properties + (
-        { 'id': 'add_permission',
-          'type': 'selection',
-          'select_variable': 'possiblePermissionIds',
-          'mode': 'w',
-          'label': 'Add permission',
-          'description': 'Permission needed to be able to add content of this type'
+        {
+            'id': 'add_permission',
+            'type': 'selection',
+            'select_variable': 'possiblePermissionIds',
+            'mode': 'w',
+            'label': 'Add permission',
+            'description': 'Permission needed to be able to add content of '
+                           'this type',
         },
-        { 'id': 'klass',
-          'type': 'string',
-          'mode': 'w',
-          'label': 'Content type class',
-          'description': 'Dotted name to the class that contains the content type'
+        {
+            'id': 'klass',
+            'type': 'string',
+            'mode': 'w',
+            'label': 'Content type class',
+            'description': 'Dotted name to the class that contains the '
+                           'content type'
         },
-        { 'id': 'behaviors',
-          'type': 'lines',
-          'mode': 'w',
-          'label': 'Behaviors',
-          'description': 'Named of enabled behaviors type'
+        {
+            'id': 'behaviors',
+            'type': 'lines',
+            'mode': 'w',
+            'label': 'Behaviors',
+            'description': 'Named of enabled behaviors type'
         },
-        { 'id': 'schema',
-          'type': 'string',
-          'mode': 'w',
-          'label': 'Schema',
-          'description': "Dotted name to the interface describing content type's schema. " +
-                         "This does not need to be given if model_source or model_file are given, " +
-                         "and either contains an unnamed (default) schema."
+        {
+            'id': 'schema',
+            'type': 'string',
+            'mode': 'w',
+            'label': 'Schema',
+            'description': "Dotted name to the interface describing content "
+                           "type's schema.  This does not need to be given "
+                           "if model_source or model_file are given, and "
+                           "either contains an unnamed (default) schema."
         },
-        { 'id': 'model_source',
-          'type': 'text',
-          'mode': 'w',
-          'label': 'Model source',
-          'description': "XML source for the type's model. Note that this takes " +
-                         "precedence over any model file."
+        {
+            'id': 'model_source',
+            'type': 'text',
+            'mode': 'w',
+            'label': 'Model source',
+            'description': "XML source for the type's model. Note that this "
+                           "takes precedence over any model file."
         },
-        { 'id': 'model_file',
-          'type': 'string',
-          'mode': 'w',
-          'label': 'Model file',
-          'description': "Path to file containing the schema model. This can be " +
-                         "relative to a package, e.g. 'my.package:myschema.xml'."
+        {
+            'id': 'model_file',
+            'type': 'string',
+            'mode': 'w',
+            'label': 'Model file',
+            'description': "Path to file containing the schema model. "
+                           "This can be relative to a package, e.g. "
+                           "'my.package:myschema.xml'."
         },
-        { 'id': 'schema_policy',
-          'type': 'string',
-          'mode': 'w',
-          'label': 'Content type schema policy',
-          'description': 'Name of the schema policy.'
+        {
+            'id': 'schema_policy',
+            'type': 'string',
+            'mode': 'w',
+            'label': 'Content type schema policy',
+            'description': 'Name of the schema policy.'
         },
 
     )
 
-    default_aliases = {'(Default)': '(dynamic view)',
-                       'view': '(selected layout)',
-                       'edit': '@@edit',
-                       'sharing': '@@sharing',}
+    default_aliases = {
+        '(Default)': '(dynamic view)',
+        'view': '(selected layout)',
+        'edit': '@@edit',
+        'sharing': '@@sharing',
+    }
 
-    default_actions = [{'id': 'view',
-                        'title': 'View',
-                        'action': 'string:${object_url}',
-                        'permissions': ('View',)},
-                       {'id': 'edit',
-                        'title': 'Edit',
-                        'action': 'string:${object_url}/edit',
-                        'permissions': ('Modify portal content',)},
-                        ]
+    default_actions = [
+        {
+            'id': 'view',
+            'title': 'View',
+            'action': 'string:${object_url}',
+            'permissions': ('View',)
+        },
+        {
+            'id': 'edit',
+            'title': 'Edit',
+            'action': 'string:${object_url}/edit',
+            'permissions': ('Modify portal content',)
+        },
+    ]
 
     immediate_view = 'view'
     default_view = 'view'
@@ -170,7 +178,10 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         # for any Dexterity schema.
 
         if not self.add_view_expr:
-            add_view_expr = kwargs.get('add_view_expr', "string:${folder_url}/++add++%s" % self.getId())
+            add_view_expr = kwargs.get(
+                'add_view_expr',
+                "string:${folder_url}/++add++%s" % self.getId()
+            )
             self._setPropValue('add_view_expr', add_view_expr)
 
         # Set the content_meta_type from the klass
@@ -191,9 +202,15 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     def Description(self):
         if self.description and self.i18n_domain:
             try:
-                return Message(self.description.decode('utf8'), self.i18n_domain)
+                return Message(
+                    self.description.decode('utf8'),
+                    self.i18n_domain
+                )
             except UnicodeDecodeError:
-                return Message(self.description.decode('latin-1'), self.i18n_domain)
+                return Message(
+                    self.description.decode('latin-1'),
+                    self.i18n_domain
+                )
         else:
             return self.description
 
@@ -218,7 +235,10 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             try:
                 schema = utils.resolveDottedName(self.schema)
             except ImportError:
-                logging.warning(u"Schema %s set for type %s cannot be resolved" % (self.schema, self.getId()))
+                logging.warning(
+                    u"Schema %s set for type %s cannot be resolved" %
+                    (self.schema, self.getId())
+                )
                 # fall through to return a fake class with no
                 # fields so that end user code doesn't break
 
@@ -245,7 +265,10 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             schema = self.lookupSchema()
             return Model({u"": schema})
 
-        raise ValueError("Neither model source, nor model file, nor schema is specified in FTI %s" % self.getId())
+        raise ValueError(
+            "Neither model source, nor model file, nor schema is specified in "
+            "FTI %s" % self.getId()
+        )
 
     #
     # Base class overrides
@@ -283,7 +306,12 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         if permission is None:
             return False
 
-        return bool(getSecurityManager().checkPermission(permission.title, container))
+        return bool(
+            getSecurityManager().checkPermission(
+                permission.title,
+                container
+            )
+        )
 
     #
     # Helper methods
@@ -310,12 +338,20 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             model_file = os.path.join(os.path.split(mod.__file__)[0], filename)
         else:
             if not os.path.isabs(model_file):
-                raise ValueError(u"Model file name %s is not an absolute path and does not contain a package name in %s" % (model_file, self.getId(),))
+                raise ValueError(
+                    u"Model file name %s is not an absolute path and does "
+                    u"not contain a package name in %s"
+                    % (model_file, self.getId(),)
+                )
 
         if not os.path.isfile(model_file):
-            raise ValueError(u"Model file %s in %s cannot be found" % (model_file, self.getId(),))
+            raise ValueError(
+                u"Model file %s in %s cannot be found"
+                % (model_file, self.getId(),)
+            )
 
         return model_file
+
 
 def _fixProperties(class_, ignored=['product', 'content_meta_type']):
     """Remove properties with the given ids, and ensure that later properties
@@ -340,8 +376,8 @@ def _fixProperties(class_, ignored=['product', 'content_meta_type']):
     class_._properties = tuple(reversed(properties))
 _fixProperties(DexterityFTI)
 
-# Event handlers
 
+# Event handlers
 def register(fti):
     """Helper method to:
 
@@ -350,7 +386,7 @@ def register(fti):
          - register an add view
     """
 
-    fti = aq_base(fti) # remove acquisition wrapper
+    fti = aq_base(fti)  # remove acquisition wrapper
     site = getUtility(ISiteRoot)
     site_manager = getSiteManager(site)
 
@@ -358,11 +394,22 @@ def register(fti):
 
     fti_utility = queryUtility(IDexterityFTI, name=portal_type)
     if fti_utility is None:
-        site_manager.registerUtility(fti, IDexterityFTI, portal_type, info='plone.dexterity.dynamic')
+        site_manager.registerUtility(
+            fti,
+            IDexterityFTI,
+            portal_type,
+            info='plone.dexterity.dynamic'
+        )
 
     factory_utility = queryUtility(IFactory, name=fti.factory)
     if factory_utility is None:
-        site_manager.registerUtility(DexterityFactory(portal_type), IFactory, fti.factory, info='plone.dexterity.dynamic')
+        site_manager.registerUtility(
+            DexterityFactory(portal_type),
+            IFactory,
+            fti.factory,
+            info='plone.dexterity.dynamic'
+        )
+
 
 def unregister(fti, old_name=None):
     """Helper method to:
@@ -384,20 +431,24 @@ def unregister(fti, old_name=None):
     site_manager.unregisterUtility(provided=IDexterityFTI, name=portal_type)
     unregister_factory(fti.factory, site_manager)
 
+
 def unregister_factory(factory_name, site_manager):
     """Helper method to unregister factories when unused by any dexterity
     type
     """
     utilities = list(site_manager.registeredUtilities())
     # Do nothing if an FTI is still using it
-    if factory_name in [f.component.factory for f in utilities
-                        if (f.provided, f.info) == (IDexterityFTI, 'plone.dexterity.dynamic')]:
+    if factory_name in [
+        f.component.factory for f in utilities
+        if (f.provided, f.info) == (IDexterityFTI, 'plone.dexterity.dynamic')
+    ]:
         return
 
     # If a factory with a matching name exists, remove it
     if [f for f in utilities
         if (f.provided, f.name, f.info) == (IFactory, factory_name, 'plone.dexterity.dynamic')]:
         site_manager.unregisterUtility(provided=IFactory, name=factory_name)
+
 
 def ftiAdded(object, event):
     """When the FTI is created, install local components
@@ -408,6 +459,7 @@ def ftiAdded(object, event):
 
     register(event.object)
 
+
 def ftiRemoved(object, event):
     """When the FTI is removed, uninstall local coponents
     """
@@ -417,6 +469,7 @@ def ftiRemoved(object, event):
 
     unregister(event.object)
 
+
 def ftiRenamed(object, event):
     """When the FTI is modified, ensure local components are still valid
     """
@@ -424,11 +477,14 @@ def ftiRenamed(object, event):
     if not IDexterityFTI.providedBy(event.object):
         return
 
-    if event.oldParent is None or event.newParent is None or event.oldName == event.newName:
+    if event.oldParent is None \
+       or event.newParent is None \
+       or event.oldName == event.newName:
         return
 
     unregister(event.object, event.oldName)
     register(event.object)
+
 
 def ftiModified(object, event):
     """When an FTI is modified, re-sync and invalidate the schema, if
@@ -462,13 +518,22 @@ def ftiModified(object, event):
         # Register a new local factory if one doesn't exist already
         new_factory_utility = queryUtility(IFactory, name=fti.factory)
         if new_factory_utility is None:
-            site_manager.registerUtility(DexterityFactory(portal_type), IFactory, fti.factory, info='plone.dexterity.dynamic')
+            site_manager.registerUtility(
+                DexterityFactory(portal_type),
+                IFactory,
+                fti.factory,
+                info='plone.dexterity.dynamic'
+            )
 
     # Determine if we need to invalidate the schema at all
-    if 'behaviors' in mod or 'schema' in mod or 'model_source' in mod or 'model_file' in mod:
+    if 'behaviors' in mod \
+       or 'schema' in mod \
+       or 'model_source' in mod \
+       or 'model_file' in mod:
 
         # Determine if we need to re-sync a dynamic schema
-        if (fti.model_source or fti.model_file) and ('model_source' in mod or 'model_file' in mod):
+        if (fti.model_source or fti.model_file) \
+           and ('model_source' in mod or 'model_file' in mod):
 
             schemaName = utils.portalTypeToSchemaName(portal_type)
             schema = getattr(plone.dexterity.schema.generated, schemaName)

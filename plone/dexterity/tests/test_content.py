@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
-import unittest
-from plone.mocktestcase import MockTestCase
-
-from datetime import date, datetime
-from pytz import timezone
-
-from zope.annotation.attribute import AttributeAnnotations
-from zope.interface import Interface, alsoProvides
-from zope.component import provideAdapter, getUtility
-import zope.schema
-
 from Products.CMFPlone.interfaces import IConstrainTypes
-from plone.dexterity.interfaces import IDexterityFTI, IDexterityContainer
-from plone.dexterity.fti import DexterityFTI
-from plone.dexterity.schema import SCHEMA_CACHE
-from plone.dexterity.content import Item, Container
+from datetime import date, datetime
 from plone.behavior.interfaces import IBehavior
 from plone.behavior.registration import BehaviorRegistration
+from plone.dexterity.content import Item, Container
+from plone.dexterity.fti import DexterityFTI
+from plone.dexterity.interfaces import IDexterityFTI, IDexterityContainer
+from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
+from plone.mocktestcase import MockTestCase
+from pytz import timezone
+from zope.annotation.attribute import AttributeAnnotations
+from zope.component import provideAdapter, getUtility
+from zope.interface import Interface, alsoProvides
+import unittest
+import zope.schema
 
 
 class TestContent(MockTestCase):
@@ -32,8 +29,10 @@ class TestContent(MockTestCase):
         class FauxDataManager(object):
             def setstate(self, obj):
                 pass
+
             def oldstate(self, obj, tid):
                 pass
+
             def register(self, obj):
                 pass
 
@@ -92,8 +91,10 @@ class TestContent(MockTestCase):
         class FauxDataManager(object):
             def setstate(self, obj):
                 pass
+
             def oldstate(self, obj, tid):
                 pass
+
             def register(self, obj):
                 pass
 
@@ -202,8 +203,10 @@ class TestContent(MockTestCase):
         class FauxDataManager(object):
             def setstate(self, obj):
                 pass
+
             def oldstate(self, obj, tid):
                 pass
+
             def register(self, obj):
                 pass
 
@@ -291,8 +294,10 @@ class TestContent(MockTestCase):
         class FauxDataManager(object):
             def setstate(self, obj):
                 pass
+
             def oldstate(self, obj, tid):
                 pass
+
             def register(self, obj):
                 pass
 
@@ -823,8 +828,10 @@ class TestContent(MockTestCase):
         class FauxDataManager(object):
             def setstate(self, obj):
                 pass
+
             def oldstate(self, obj, tid):
                 pass
+
             def register(self, obj):
                 pass
 

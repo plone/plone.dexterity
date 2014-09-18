@@ -1,59 +1,47 @@
-from Acquisition import Explicit, aq_base, aq_parent
-from DateTime import DateTime
-from zExceptions import Unauthorized
-from OFS.PropertyManager import PropertyManager
-from OFS.SimpleItem import SimpleItem
-
-from copy import deepcopy
-
-from zope.component import queryUtility
-
-from zope.interface import implements
-from zope.interface.declarations import Implements
-from zope.interface.declarations import implementedBy
-from zope.interface.declarations import getObjectSpecification
-from zope.interface.declarations import ObjectSpecificationDescriptor
-
-from zope.security.interfaces import IPermission
-
-from zope.annotation import IAttributeAnnotatable
-
-from plone.dexterity.interfaces import IDexterityContent
-from plone.dexterity.interfaces import IDexterityItem
-from plone.dexterity.interfaces import IDexterityContainer
-
-from plone.dexterity.schema import SCHEMA_CACHE
-
-from zope.container.contained import Contained
-
-import AccessControl.Permissions
+# -*- coding: utf-8 -*-
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
-
+from Acquisition import Explicit, aq_base, aq_parent
+from DateTime import DateTime
+from OFS.PropertyManager import PropertyManager
+from OFS.SimpleItem import SimpleItem
 from Products.CMFCore import permissions
+from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.PortalFolder import PortalFolderBase
-from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
-from Products.CMFPlone.interfaces import IConstrainTypes
-from Products.CMFCore.interfaces import ITypeInformation
 from Products.CMFCore.interfaces import ICatalogableDublinCore
 from Products.CMFCore.interfaces import IDublinCore
 from Products.CMFCore.interfaces import IMutableDublinCore
-
+from Products.CMFCore.interfaces import ITypeInformation
 from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
-
+from Products.CMFPlone.interfaces import IConstrainTypes
+from copy import deepcopy
+from plone.autoform.interfaces import READ_PERMISSIONS_KEY
+from plone.dexterity.filerepresentation import DAVCollectionMixin
+from plone.dexterity.filerepresentation import DAVResourceMixin
+from plone.dexterity.interfaces import IDexterityContainer
+from plone.dexterity.interfaces import IDexterityContent
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.interfaces import IDexterityItem
+from plone.dexterity.schema import SCHEMA_CACHE
+from plone.dexterity.utils import datify
+from plone.dexterity.utils import safe_unicode
+from plone.dexterity.utils import safe_utf8
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
+from plone.supermodel.utils import mergedTaggedValueDict
 from plone.uuid.interfaces import IAttributeUUID
 from plone.uuid.interfaces import IUUID
-
-from plone.autoform.interfaces import READ_PERMISSIONS_KEY
-from plone.supermodel.utils import mergedTaggedValueDict
-
-from plone.dexterity.filerepresentation import DAVResourceMixin, DAVCollectionMixin
-from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.utils import datify
-from plone.dexterity.utils import safe_utf8
-from plone.dexterity.utils import safe_unicode
+from zExceptions import Unauthorized
+from zope.annotation import IAttributeAnnotatable
+from zope.component import queryUtility
+from zope.container.contained import Contained
+from zope.interface import implements
+from zope.interface.declarations import Implements
+from zope.interface.declarations import ObjectSpecificationDescriptor
+from zope.interface.declarations import getObjectSpecification
+from zope.interface.declarations import implementedBy
+from zope.security.interfaces import IPermission
+import AccessControl.Permissions
 
 _marker = object()
 _zone = DateTime().timezone()
@@ -150,7 +138,9 @@ class AttributeValidator(Explicit):
 
         permission = queryUtility(IPermission, name=info[name])
         if permission is not None:
-            return getSecurityManager().checkPermission(permission.title, context)
+            return getSecurityManager().checkPermission(
+                permission.title, context
+            )
 
         return 0
 
@@ -177,10 +167,13 @@ class PasteBehaviourMixin(object):
             if portal_type:
                 fti = queryUtility(ITypeInformation, name=portal_type)
                 if fti is not None and not fti.isConstructionAllowed(self):
-                    raise ValueError('You can not add the copied content here.')
+                    raise ValueError(
+                        'You can not add the copied content here.'
+                    )
 
 
-class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contained):
+class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
+                       Contained):
     """Base class for Dexterity content
     """
     implements(
@@ -271,9 +264,10 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
 
     def _get__name__(self):
         return unicode(self.id)
+
     def _set__name__(self, value):
         if isinstance(value, unicode):
-            value = str(value) # may throw, but that's OK - id must be ASCII
+            value = str(value)  # may throw, but that's OK - id must be ASCII
         self.id = value
     __name__ = property(_get__name__, _set__name__)
 
@@ -621,9 +615,13 @@ class Container(
             ids = [ids]
         for id in ids:
             item = self._getOb(id)
-            if not getSecurityManager().checkPermission(permissions.DeleteObjects, item):
-                raise Unauthorized, (
-                    "Do not have permissions to remove this object")
+            if not getSecurityManager().checkPermission(
+                permissions.DeleteObjects,
+                item
+            ):
+                raise Unauthorized(
+                    "Do not have permissions to remove this object"
+                )
         return super(Container, self).manage_delObjects(ids, REQUEST=REQUEST)
 
     # override PortalFolder's allowedContentTypes to respect IConstrainTypes
@@ -645,10 +643,19 @@ class Container(
         """
         constrains = IConstrainTypes(self, None)
 
-        if constrains and not type_name in [fti.getId() for fti in constrains.allowedContentTypes()]:
-            raise ValueError('Subobject type disallowed by IConstrainTypes adapter: %s' % type_name)
+        if constrains:
+            allowed_ids = [
+                fti.getId() for fti in constrains.allowedContentTypes()
+            ]
+            if type_name not in allowed_ids:
+                raise ValueError(
+                    'Subobject type disallowed by IConstrainTypes adapter: %s'
+                    % type_name
+                )
 
-        return super(Container, self).invokeFactory(type_name, id, RESPONSE, *args, **kw)
+        return super(Container, self).invokeFactory(
+            type_name, id, RESPONSE, *args, **kw
+        )
 
 
 def reindexOnModify(content, event):

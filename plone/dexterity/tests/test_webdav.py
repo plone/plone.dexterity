@@ -1,64 +1,49 @@
-import re
-import unittest
-from StringIO import StringIO
-from email.Message import Message
-from mocker import ANY
-
-from plone.mocktestcase import MockTestCase
-
+# -*- coding: utf-8 -*-
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
-from zExceptions import Unauthorized, MethodNotAllowed, Forbidden
-
-from webdav.NullResource import NullResource
-
-from plone.dexterity.content import Item, Container
-from zope.publisher.browser import TestRequest
-
-from zope.interface import Interface
-from zope.interface import implements
-from zope.interface import alsoProvides
-
-from zope.component.interfaces import IFactory
-
-from zope.lifecycleevent.interfaces import IObjectModifiedEvent
-from zope.size.interfaces import ISized
-
-from zope import schema
-
-from zope.filerepresentation.interfaces import IRawReadFile
-from zope.filerepresentation.interfaces import IRawWriteFile
-
-from zope.filerepresentation.interfaces import IDirectoryFactory
-from zope.filerepresentation.interfaces import IFileFactory
-
-from ZPublisher.Iterators import IStreamIterator
+from StringIO import StringIO
 from ZPublisher.HTTPResponse import HTTPResponse
-
-from plone.rfc822.interfaces import IPrimaryField
+from ZPublisher.Iterators import IStreamIterator
+from email.Message import Message
+from mocker import ANY
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehaviorAssignable
-
-from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
-from plone.dexterity.interfaces import IDexterityFTI
-
-from plone.dexterity.filerepresentation import FolderDataResource
-
+from plone.dexterity.browser.traversal import DexterityPublishTraverse
+from plone.dexterity.content import Item, Container
 from plone.dexterity.filerepresentation import DefaultDirectoryFactory
 from plone.dexterity.filerepresentation import DefaultFileFactory
-
 from plone.dexterity.filerepresentation import DefaultReadFile
 from plone.dexterity.filerepresentation import DefaultWriteFile
-from plone.dexterity.schema import SCHEMA_CACHE
-
+from plone.dexterity.filerepresentation import FolderDataResource
 from plone.dexterity.fti import DexterityFTI
+from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.schema import SCHEMA_CACHE
+from plone.mocktestcase import MockTestCase
+from plone.rfc822.interfaces import IPrimaryField
+from webdav.NullResource import NullResource
+from zExceptions import Unauthorized, MethodNotAllowed, Forbidden
+from zope import schema
+from zope.component.interfaces import IFactory
+from zope.filerepresentation.interfaces import IDirectoryFactory
+from zope.filerepresentation.interfaces import IFileFactory
+from zope.filerepresentation.interfaces import IRawReadFile
+from zope.filerepresentation.interfaces import IRawWriteFile
+from zope.interface import Interface
+from zope.interface import alsoProvides
+from zope.interface import implements
+from zope.lifecycleevent.interfaces import IObjectModifiedEvent
+from zope.publisher.browser import TestRequest
+from zope.size.interfaces import ISized
+import re
+import unittest
 
-from plone.dexterity.browser.traversal import DexterityPublishTraverse
 
 class ITestBehavior(Interface):
     foo = schema.Int()
     bar = schema.Bytes()
 alsoProvides(ITestBehavior, IFormFieldProvider)
+
 
 class DAVTestRequest(TestRequest):
 
@@ -81,8 +66,10 @@ class TestWebZope2DAVAPI(MockTestCase):
         class SizedAdapter(object):
             def __init__(self, context):
                 self.context = context
+
             def sizeForSorting(self):
                 return 'lines', 10
+
             def sizeForDisplay(self):
                 '10 lines'
         self.mock_adapter(SizedAdapter, ISized, (Item,))
@@ -96,8 +83,10 @@ class TestWebZope2DAVAPI(MockTestCase):
         class SizedAdapter(object):
             def __init__(self, context):
                 self.context = context
+
             def sizeForSorting(self):
                 return 'bytes', 10
+
             def sizeForDisplay(self):
                 '10 bytes'
         self.mock_adapter(SizedAdapter, ISized, (Item,))
@@ -142,8 +131,10 @@ class TestWebZope2DAVAPI(MockTestCase):
                 self.context = context
             mimeType = 'text/foo'
             encoding = 'latin1'
+
             def size(self):
                 return 10
+
             def read(self, size=None):
                 return '1234567890'
         self.mock_adapter(ReadFileAdapter, IRawReadFile, (Item,))
@@ -156,7 +147,10 @@ class TestWebZope2DAVAPI(MockTestCase):
         self.replay()
 
         self.assertEqual('1234567890', item.manage_DAVget())
-        self.assertEqual('text/foo; charset="latin1"', request.response.getHeader('Content-Type'))
+        self.assertEqual(
+            'text/foo; charset="latin1"',
+            request.response.getHeader('Content-Type')
+        )
         self.assertEqual('10', request.response.getHeader('Content-Length'))
 
     def test_get_minimal_adapter(self):
@@ -165,8 +159,10 @@ class TestWebZope2DAVAPI(MockTestCase):
                 self.context = context
             mimeType = None
             encoding = None
+
             def size(self):
                 return None
+
             def read(self, size=None):
                 return '1234567890'
         self.mock_adapter(ReadFileAdapter, IRawReadFile, (Item,))
@@ -185,16 +181,20 @@ class TestWebZope2DAVAPI(MockTestCase):
     def test_get_streaming(self):
         class ReadFileAdapter(object):
             implements(IStreamIterator)
+
             def __init__(self, context):
                 self.context = context
             mimeType = None
             encoding = None
+
             def size(self):
                 return 10
+
             def read(self, size=None):
                 return '1234567890'
 
         adapterInstance = ReadFileAdapter(None)
+
         def factory(context):
             return adapterInstance
         self.mock_adapter(factory, IRawReadFile, (Item,))
@@ -236,12 +236,15 @@ class TestWebZope2DAVAPI(MockTestCase):
                 self._closed = False
             mimeType = None
             encoding = None
+
             def write(self, data):
                 self._written += data
+
             def close(self):
                 self._closed = True
 
         adapterInstance = WriteFile(None)
+
         def factory(context):
             return adapterInstance
 
@@ -268,23 +271,32 @@ class TestWebZope2DAVAPI(MockTestCase):
                 self._closed = False
             mimeType = None
             encoding = None
+
             def write(self, data):
                 self._written += data
+
             def close(self):
                 self._closed = True
 
         adapterInstance = WriteFile(None)
+
         def factory(context):
             return adapterInstance
 
         events = []
+
         def handler(event):
             events.append(event)
 
         self.mock_adapter(factory, IRawWriteFile, (Item,))
         self.mock_handler(handler, (IObjectModifiedEvent,))
 
-        request = DAVTestRequest(environ={'BODYFILE': StringIO('data'), 'HTTP_CONTENT_TYPE': 'text/foo'})
+        request = DAVTestRequest(
+            environ={
+                'BODYFILE': StringIO('data'),
+                'HTTP_CONTENT_TYPE': 'text/foo'
+            }
+        )
 
         item = Item('item')
         item.REQUEST = request
@@ -306,23 +318,32 @@ class TestWebZope2DAVAPI(MockTestCase):
                 self._closed = False
             mimeType = None
             encoding = None
+
             def write(self, data):
                 self._written += data
+
             def close(self):
                 self._closed = True
 
         adapterInstance = WriteFile(None)
+
         def factory(context):
             return adapterInstance
 
         events = []
+
         def handler(event):
             events.append(event)
 
         self.mock_adapter(factory, IRawWriteFile, (Item,))
         self.mock_handler(handler, (IObjectModifiedEvent,))
 
-        request = DAVTestRequest(environ={'BODYFILE': StringIO('data'), 'HTTP_CONTENT_TYPE': 'text/foo; charset="latin1"'})
+        request = DAVTestRequest(
+            environ={
+                'BODYFILE': StringIO('data'),
+                'HTTP_CONTENT_TYPE': 'text/foo; charset="latin1"'
+            }
+        )
 
         item = Item('item')
         item.REQUEST = request
@@ -343,9 +364,11 @@ class TestWebZope2DAVAPI(MockTestCase):
 
     def test_mkcol_simple_adapter(self):
         created = []
+
         class DirectoryFactory(object):
             def __init__(self, context):
                 self.context = context
+
             def __call__(self, id):
                 created.append(id)
         self.mock_adapter(DirectoryFactory, IDirectoryFactory, (Container,))
@@ -358,19 +381,27 @@ class TestWebZope2DAVAPI(MockTestCase):
     def test_put_factory_no_adapter(self):
         container = Container('container')
         self.replay()
-        self.assertEqual(None, container.PUT_factory('test', 'text/foo', 'body'))
+        self.assertEqual(
+            None,
+            container.PUT_factory('test', 'text/foo', 'body')
+        )
 
     def test_put_factory_simple_adapter(self):
         instance = object()
+
         class FileFactory(object):
             def __init__(self, context):
                 self.context = context
+
             def __call__(self, name, contentType, body):
                 return instance
         self.mock_adapter(FileFactory, IFileFactory, (Container,))
         container = Container('container')
         self.replay()
-        self.assertEqual(instance, container.PUT_factory('test', 'text/foo', 'body'))
+        self.assertEqual(
+            instance,
+            container.PUT_factory('test', 'text/foo', 'body')
+        )
 
     def test_list_without_items(self):
 
@@ -430,14 +461,19 @@ class TestFolderDataResource(MockTestCase):
         container = TestContainer('container')
         r = FolderDataResource('fdata', container).__of__(container)
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://example.org/site/container'}
+        )
         response = request.response
 
         self.replay()
 
         self.assertEqual(response, r.HEAD(request, request.response))
         self.assertEqual(200, response.getStatus())
-        self.assertEqual('close', response.getHeader('Connection', literal=True))
+        self.assertEqual(
+            'close',
+            response.getHeader('Connection', literal=True)
+        )
         self.assertEqual('text/foo', response.getHeader('Content-Type'))
         self.assertEqual('10', response.getHeader('Content-Length'))
 
@@ -453,14 +489,23 @@ class TestFolderDataResource(MockTestCase):
         container = TestContainer('container')
         r = FolderDataResource('fdata', container).__of__(container)
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://example.org/site/container'}
+        )
         response = request.response
 
         self.replay()
 
         self.assertEqual(response, r.OPTIONS(request, request.response))
-        self.assertEqual('close', response.getHeader('Connection', literal=True))
-        self.assertEqual('GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE, PROPFIND, PROPPATCH, MKCOL, COPY, MOVE, LOCK, UNLOCK', response.getHeader('Allow'))
+        self.assertEqual(
+            'close',
+            response.getHeader('Connection', literal=True)
+        )
+        self.assertEqual(
+            'GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE, PROPFIND, '
+            'PROPPATCH, MKCOL, COPY, MOVE, LOCK, UNLOCK',
+            response.getHeader('Allow')
+        )
 
     def test_TRACE(self):
         class TestContainer(Container):
@@ -474,7 +519,9 @@ class TestFolderDataResource(MockTestCase):
         container = TestContainer('container')
         r = FolderDataResource('fdata', container).__of__(container)
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://example.org/site/container'}
+        )
 
         self.replay()
 
@@ -493,15 +540,22 @@ class TestFolderDataResource(MockTestCase):
         container.manage_changeProperties(title="Container")
         r = FolderDataResource('fdata', container).__of__(container)
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://example.org/site/container'}
+        )
         response = request.response
 
         self.replay()
 
         self.assertEqual(response, r.PROPFIND(request, response))
 
-        self.assertEqual('close', response.getHeader('connection', literal=True))
-        self.assertEqual('text/xml; charset="utf-8"', response.getHeader('Content-Type'))
+        self.assertEqual(
+            'close',
+            response.getHeader('connection', literal=True)
+        )
+        self.assertEqual(
+            'text/xml; charset="utf-8"', response.getHeader('Content-Type')
+        )
         self.assertEqual(207, response.getStatus())
 
         body = """\
@@ -541,7 +595,11 @@ class TestFolderDataResource(MockTestCase):
 """
 
         result = response.getBody()
-        result = re.sub(r'<n:getlastmodified>.+</n:getlastmodified>', '<n:getlastmodified>...</n:getlastmodified>', result)
+        result = re.sub(
+            r'<n:getlastmodified>.+</n:getlastmodified>',
+            '<n:getlastmodified>...</n:getlastmodified>',
+            result
+        )
 
         self.assertEqual(result.strip(), body.strip())
 
@@ -569,7 +627,12 @@ class TestFolderDataResource(MockTestCase):
 </D:propertyupdate>
 """
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container', 'BODY': requestBody})
+        request = DAVTestRequest(
+            environ={
+                'URL': 'http://example.org/site/container',
+                'BODY': requestBody
+            }
+        )
         response = request.response
 
         self.replay()
@@ -578,8 +641,12 @@ class TestFolderDataResource(MockTestCase):
 
         self.assertEqual('New title', container.getProperty('title'))
 
-        self.assertEqual('close', response.getHeader('connection', literal=True))
-        self.assertEqual('text/xml; charset="utf-8"', response.getHeader('Content-Type'))
+        self.assertEqual(
+            'close', response.getHeader('connection', literal=True)
+        )
+        self.assertEqual(
+            'text/xml; charset="utf-8"', response.getHeader('Content-Type')
+        )
         self.assertEqual(207, response.getStatus())
 
         body = """\
@@ -614,7 +681,9 @@ The operation succeded.
         container = TestContainer('container')
         r = FolderDataResource('fdata', container).__of__(container)
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://example.org/site/container'}
+        )
         response = request.response
 
         self.replay()
@@ -633,7 +702,9 @@ The operation succeded.
         container = TestContainer('container')
         r = FolderDataResource('fdata', container).__of__(container)
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://example.org/site/container'}
+        )
         response = request.response
 
         self.replay()
@@ -651,7 +722,9 @@ The operation succeded.
         container = TestContainer('container')
         r = FolderDataResource('fdata', container).__of__(container)
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://example.org/site/container'}
+        )
         response = request.response
 
         self.replay()
@@ -665,7 +738,9 @@ The operation succeded.
 
         self.replay()
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://example.org/site/container'}
+        )
         response = request.response
 
         self.assertRaises(MethodNotAllowed, r.MKCOL, request, response)
@@ -676,7 +751,9 @@ The operation succeded.
 
         self.replay()
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://example.org/site/container'}
+        )
         response = request.response
 
         self.assertRaises(MethodNotAllowed, r.DELETE, request, response)
@@ -687,7 +764,9 @@ The operation succeded.
 
         self.replay()
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://example.org/site/container'}
+        )
         response = request.response
 
         self.assertRaises(MethodNotAllowed, r.COPY, request, response)
@@ -698,7 +777,9 @@ The operation succeded.
 
         self.replay()
 
-        request = DAVTestRequest(environ={'URL': 'http://example.org/site/container'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://example.org/site/container'}
+        )
         response = request.response
 
         self.assertRaises(MethodNotAllowed, r.MOVE, request, response)
@@ -737,6 +818,7 @@ The operation succeded.
 
         self.assertEqual([], r.listDAVObjects())
 
+
 class TestFileRepresentation(MockTestCase):
 
     def test_directory_factory(self):
@@ -759,15 +841,32 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertRaises(Unauthorized, factory, '.DS_Store', 'application/octet-stream', 'xxx')
-        self.assertRaises(Unauthorized, factory, '._test', 'application/octet-stream', 'xxx')
-
+        self.assertRaises(
+            Unauthorized,
+            factory,
+            '.DS_Store',
+            'application/octet-stream',
+            'xxx'
+        )
+        self.assertRaises(
+            Unauthorized,
+            factory,
+            '._test',
+            'application/octet-stream',
+            'xxx'
+        )
 
     def test_file_factory_no_ctr(self):
         container = Container('container')
 
-        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
-        self.expect(getToolByName_mock(container, 'content_type_registry', None)).result(None)
+        getToolByName_mock = self.mocker.replace(
+            'Products.CMFCore.utils.getToolByName'
+        )
+        self.expect(
+            getToolByName_mock(
+                container, 'content_type_registry', None
+                )
+        ).result(None)
 
         factory = DefaultFileFactory(container)
 
@@ -779,10 +878,18 @@ class TestFileRepresentation(MockTestCase):
         container = Container('container')
 
         ctr_mock = self.mocker.mock()
-        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
+        getToolByName_mock = self.mocker.replace(
+            'Products.CMFCore.utils.getToolByName'
+        )
 
-        self.expect(getToolByName_mock(container, 'content_type_registry', None)).result(ctr_mock)
-        self.expect(ctr_mock.findTypeName('test.html', 'text/html', '<html />')).result(None)
+        self.expect(
+            getToolByName_mock(
+                container, 'content_type_registry', None
+            )
+        ).result(ctr_mock)
+        self.expect(
+            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
+        ).result(None)
 
         factory = DefaultFileFactory(container)
 
@@ -798,12 +905,22 @@ class TestFileRepresentation(MockTestCase):
         container_fti_mock = self.mocker.mock()
         ctr_mock = self.mocker.mock()
         pt_mock = self.mocker.mock()
-        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
+        getToolByName_mock = self.mocker.replace(
+            'Products.CMFCore.utils.getToolByName'
+        )
 
-        self.expect(getToolByName_mock(container, 'content_type_registry', None)).result(ctr_mock)
-        self.expect(getToolByName_mock(container, 'portal_types')).result(pt_mock)
+        self.expect(
+            getToolByName_mock(
+                container, 'content_type_registry', None
+            )
+        ).result(ctr_mock)
+        self.expect(
+            getToolByName_mock(
+                container, 'portal_types')).result(pt_mock)
 
-        self.expect(ctr_mock.findTypeName('test.html', 'text/html', '<html />')).result('childtype')
+        self.expect(
+            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
+        ).result('childtype')
 
         self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
         self.expect(pt_mock.getTypeInfo(container)).result(container_fti_mock)
@@ -816,7 +933,13 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertRaises(Unauthorized, factory, 'test.html', 'text/html', '<html />')
+        self.assertRaises(
+            Unauthorized,
+            factory,
+            'test.html',
+            'text/html',
+            '<html />'
+        )
 
     def test_file_factory_construction_not_allowed(self):
         container = Container('container')
@@ -826,12 +949,22 @@ class TestFileRepresentation(MockTestCase):
         container_fti_mock = self.mocker.mock()
         ctr_mock = self.mocker.mock()
         pt_mock = self.mocker.mock()
-        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
+        getToolByName_mock = self.mocker.replace(
+            'Products.CMFCore.utils.getToolByName'
+        )
 
-        self.expect(getToolByName_mock(container, 'content_type_registry', None)).result(ctr_mock)
-        self.expect(getToolByName_mock(container, 'portal_types')).result(pt_mock)
+        self.expect(
+            getToolByName_mock(
+                container, 'content_type_registry', None
+            )
+        ).result(ctr_mock)
+        self.expect(
+            getToolByName_mock(
+                container, 'portal_types')).result(pt_mock)
 
-        self.expect(ctr_mock.findTypeName('test.html', 'text/html', '<html />')).result('childtype')
+        self.expect(
+            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
+        ).result('childtype')
 
         self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
         self.expect(pt_mock.getTypeInfo(container)).result(container_fti_mock)
@@ -839,13 +972,21 @@ class TestFileRepresentation(MockTestCase):
         self.expect(child_fti_mock.product).result(None)
 
         self.expect(container_fti_mock.allowType('childtype')).result(True)
-        self.expect(child_fti_mock.isConstructionAllowed(container)).result(False)
+        self.expect(
+            child_fti_mock.isConstructionAllowed(container)
+        ).result(False)
 
         factory = DefaultFileFactory(container)
 
         self.replay()
 
-        self.assertRaises(Unauthorized, factory, 'test.html', 'text/html', '<html />')
+        self.assertRaises(
+            Unauthorized,
+            factory,
+            'test.html',
+            'text/html',
+            '<html />'
+        )
 
     def test_file_factory_factory_method(self):
 
@@ -856,17 +997,31 @@ class TestFileRepresentation(MockTestCase):
 
         result_dummy = self.create_dummy()
 
-        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
+        getToolByName_mock = self.mocker.replace(
+            'Products.CMFCore.utils.getToolByName'
+        )
 
-        self.expect(getToolByName_mock(container_mock, 'content_type_registry', None)).result(ctr_mock)
-        self.expect(getToolByName_mock(container_mock, 'portal_types')).result(pt_mock)
+        self.expect(
+            getToolByName_mock(
+                container_mock, 'content_type_registry', None
+            )
+        ).result(ctr_mock)
+        self.expect(
+            getToolByName_mock(
+                container_mock, 'portal_types')).result(pt_mock)
 
-        self.expect(ctr_mock.findTypeName('test.html', 'text/html', '<html />')).result('childtype')
+        self.expect(
+            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
+        ).result('childtype')
 
-        self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
+        self.expect(
+            pt_mock.getTypeInfo('childtype')
+        ).result(child_fti_mock)
 
         self.expect(child_fti_mock.product).result('FooProduct')
-        self.expect(container_mock.invokeFactory('childtype', 'test.html')).result('test-1.html')
+        self.expect(
+            container_mock.invokeFactory('childtype', 'test.html')
+        ).result('test-1.html')
 
         self.expect(container_mock._getOb('test-1.html')).result(result_dummy)
         self.expect(container_mock._delObject('test-1.html'))
@@ -875,7 +1030,10 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertEqual(result_dummy, factory('test.html', 'text/html', '<html />'))
+        self.assertEqual(
+            result_dummy,
+            factory('test.html', 'text/html', '<html />')
+        )
 
     def test_file_factory_factory_utility(self):
         container_mock = self.mocker.mock()
@@ -886,18 +1044,39 @@ class TestFileRepresentation(MockTestCase):
 
         result_dummy = self.create_dummy()
 
-        getToolByName_mock = self.mocker.replace('Products.CMFCore.utils.getToolByName')
+        getToolByName_mock = self.mocker.replace(
+            'Products.CMFCore.utils.getToolByName'
+        )
 
-        self.expect(getToolByName_mock(container_mock, 'content_type_registry', None)).result(ctr_mock)
-        self.expect(getToolByName_mock(container_mock, 'portal_types')).result(pt_mock)
+        self.expect(
+            getToolByName_mock(
+                container_mock, 'content_type_registry', None
+            )
+        ).result(ctr_mock)
 
-        self.expect(ctr_mock.findTypeName('test.html', 'text/html', '<html />')).result('childtype')
+        self.expect(
+            getToolByName_mock(
+                container_mock, 'portal_types')).result(pt_mock)
 
-        self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
-        self.expect(pt_mock.getTypeInfo(container_mock)).result(container_fti_mock)
+        self.expect(
+            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
+        ).result('childtype')
 
-        self.expect(container_fti_mock.allowType('childtype')).result(True)
-        self.expect(child_fti_mock.isConstructionAllowed(container_mock)).result(True)
+        self.expect(
+            pt_mock.getTypeInfo('childtype')
+        ).result(child_fti_mock)
+
+        self.expect(
+            pt_mock.getTypeInfo(container_mock)
+        ).result(container_fti_mock)
+
+        self.expect(
+            container_fti_mock.allowType('childtype')
+        ).result(True)
+
+        self.expect(
+            child_fti_mock.isConstructionAllowed(container_mock)
+        ).result(True)
 
         self.expect(child_fti_mock.product).result(None)
         self.expect(child_fti_mock.factory).result('childtype-factory')
@@ -910,7 +1089,10 @@ class TestFileRepresentation(MockTestCase):
 
         self.replay()
 
-        self.assertEqual(result_dummy, factory('test.html', 'text/html', '<html />'))
+        self.assertEqual(
+            result_dummy,
+            factory('test.html', 'text/html', '<html />')
+        )
 
     def test_readfile_mimetype_no_message_no_fields(self):
 
@@ -1006,6 +1188,7 @@ class TestFileRepresentation(MockTestCase):
 
         class ITest(Interface):
             title = schema.TextLine()
+
         class ITestAdditional(Interface):
             # Additional behavior on an item
             body = schema.Text()
@@ -1013,12 +1196,15 @@ class TestFileRepresentation(MockTestCase):
         alsoProvides(ITestAdditional['body'], IPrimaryField)
         alsoProvides(ITestAdditional['stuff'], IPrimaryField)
         alsoProvides(ITestAdditional, IFormFieldProvider)
+
         class MockBehavior(object):
             def __init__(self, iface):
                 self.interface = iface
+
         class MockBehaviorAssignable(object):
             def __init__(self, context):
                 self.context = context
+
             def enumerateBehaviors(self):
                 yield MockBehavior(ITestAdditional)
         SCHEMA_CACHE.clear()
@@ -1046,7 +1232,9 @@ class TestFileRepresentation(MockTestCase):
 
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookupSchema()).result(ITest).count(0, None)
-        self.expect(fti_mock.behaviors).result([ITestBehavior.__identifier__]).count(0, None)
+        self.expect(
+            fti_mock.behaviors
+        ).result([ITestBehavior.__identifier__]).count(0, None)
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
@@ -1061,8 +1249,12 @@ class TestFileRepresentation(MockTestCase):
         message['bar'] = 'xyz'
         message.set_payload('<p>body</p>')
 
-        constructMessageFromSchemata_mock = self.mocker.replace('plone.rfc822.constructMessageFromSchemata')
-        self.expect(constructMessageFromSchemata_mock(item, ANY)).result(message)
+        constructMessageFromSchemata_mock = self.mocker.replace(
+            'plone.rfc822.constructMessageFromSchemata'
+        )
+        self.expect(
+            constructMessageFromSchemata_mock(item, ANY)
+        ).result(message)
 
         self.replay()
 
@@ -1088,7 +1280,7 @@ Portal-Type: testtype
         self.assertEqual('tl', readfile.read(2))
         self.assertEqual(4, readfile.tell())
 
-        readfile.seek(0,2)
+        readfile.seek(0, 2)
         self.assertEqual(69, readfile.tell())
 
         readfile.seek(0)
@@ -1118,7 +1310,9 @@ Portal-Type: testtype
 
         fti_mock = self.mocker.mock(DexterityFTI)
         self.expect(fti_mock.lookupSchema()).result(ITest).count(0, None)
-        self.expect(fti_mock.behaviors).result([ITestBehavior.__identifier__]).count(0, None)
+        self.expect(
+            fti_mock.behaviors
+        ).result([ITestBehavior.__identifier__]).count(0, None)
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
@@ -1139,8 +1333,17 @@ Portal-Type: testtype
 
 <p>body</p>"""
 
-        initializeObjectFromSchemata_mock = self.mocker.replace('plone.rfc822.initializeObjectFromSchemata')
-        self.expect(initializeObjectFromSchemata_mock(item, ANY, self.match_type(Message), 'latin1'))
+        initializeObjectFromSchemata_mock = self.mocker.replace(
+            'plone.rfc822.initializeObjectFromSchemata'
+        )
+        self.expect(
+            initializeObjectFromSchemata_mock(
+                item,
+                ANY,
+                self.match_type(Message),
+                'latin1'
+            )
+        )
 
         self.replay()
 
@@ -1183,10 +1386,15 @@ class TestDAVTraversal(MockTestCase):
         outer._setOb('item', SimpleItem('item'))
         outer._setOb('container', container)
 
-        request = DAVTestRequest(environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'PUT'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'PUT'}
+        )
         request.maybe_webdav_client = True
 
-        traversal = DexterityPublishTraverse(container.__of__(outer), request)
+        traversal = DexterityPublishTraverse(
+            container.__of__(outer),
+            request
+        )
 
         self.replay()
 
@@ -1202,7 +1410,9 @@ class TestDAVTraversal(MockTestCase):
         outer._setObject('item', SimpleItem('item'))
         outer._setOb('container', container)
 
-        request = DAVTestRequest(environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'GET'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'GET'}
+        )
         request.maybe_webdav_client = False
 
         traversal = DexterityPublishTraverse(container.__of__(outer), request)
@@ -1216,7 +1426,9 @@ class TestDAVTraversal(MockTestCase):
 
     def test_folder_data_traversal_dav(self):
         container = Container('test')
-        request = DAVTestRequest(environ={'URL': 'http://site/test'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://site/test'}
+        )
         request.maybe_webdav_client = True
 
         traversal = DexterityPublishTraverse(container, request)
@@ -1229,17 +1441,23 @@ class TestDAVTraversal(MockTestCase):
         self.assertEqual(container, r.__parent__)
         self.assertEqual(container, r.aq_parent)
 
-
     def test_folder_data_traversal_without_dav(self):
         container = Container('test')
-        request = DAVTestRequest(environ={'URL': 'http://site/test'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://site/test'}
+        )
         request.maybe_webdav_client = False
 
         traversal = DexterityPublishTraverse(container, request)
 
         self.replay()
 
-        self.assertRaises(Forbidden, traversal.publishTraverse, request, DAV_FOLDER_DATA_ID)
+        self.assertRaises(
+            Forbidden,
+            traversal.publishTraverse,
+            request,
+            DAV_FOLDER_DATA_ID
+        )
 
     def test_browser_default_dav(self):
         class TestContainer(Container):
@@ -1248,7 +1466,9 @@ class TestDAVTraversal(MockTestCase):
                 return self, ('foo',)
 
         container = TestContainer('container')
-        request = DAVTestRequest(environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'PROPFIND'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'PROPFIND'}
+        )
         request.maybe_webdav_client = True
 
         traversal = DexterityPublishTraverse(container, request)
@@ -1264,14 +1484,19 @@ class TestDAVTraversal(MockTestCase):
                 return self, ('foo',)
 
         container = TestContainer('container')
-        request = DAVTestRequest(environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'GET'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'GET'}
+        )
         request.maybe_webdav_client = True
 
         traversal = DexterityPublishTraverse(container, request)
 
         self.replay()
 
-        self.assertEqual((container, ('foo',),), traversal.browserDefault(request))
+        self.assertEqual(
+            (container, ('foo',),),
+            traversal.browserDefault(request)
+        )
 
     def test_browser_default_without_dav(self):
         class TestContainer(Container):
@@ -1280,14 +1505,20 @@ class TestDAVTraversal(MockTestCase):
                 return self, ('foo',)
 
         container = TestContainer('container')
-        request = DAVTestRequest(environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'PROPFIND'})
+        request = DAVTestRequest(
+            environ={'URL': 'http://site/test', 'REQUEST_METHOD': 'PROPFIND'}
+        )
         request.maybe_webdav_client = False
 
         traversal = DexterityPublishTraverse(container, request)
 
         self.replay()
 
-        self.assertEqual((container, ('foo',),), traversal.browserDefault(request))
+        self.assertEqual(
+            (container, ('foo',),),
+            traversal.browserDefault(request)
+        )
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 
 
@@ -6,7 +7,8 @@ class ExportImportTests(unittest.TestCase):
     def test_export(self):
         # Make sure our exporter delegates to manage_FTPget()
         from plone.dexterity.content import Item
-        from plone.dexterity.exportimport import DexterityContentExporterImporter
+        from plone.dexterity.exportimport import \
+            DexterityContentExporterImporter
         from Products.GenericSetup.tests.common import DummyExportContext
 
         class DummyItem(Item):
@@ -26,7 +28,8 @@ class ExportImportTests(unittest.TestCase):
     def test_import(self):
         # Make sure our importer delegates to PUT()
         from plone.dexterity.content import Item
-        from plone.dexterity.exportimport import DexterityContentExporterImporter
+        from plone.dexterity.exportimport import \
+            DexterityContentExporterImporter
         from Products.GenericSetup.tests.common import DummyImportContext
 
         class DummyItem(Item):

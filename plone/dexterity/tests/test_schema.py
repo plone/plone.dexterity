@@ -1,21 +1,17 @@
-import unittest
-from plone.mocktestcase import MockTestCase
-
-from zope.interface import Interface
-from zope.interface.interface import InterfaceClass
-
-import zope.schema
-
+# -*- coding: utf-8 -*-
+from plone.dexterity import schema
+from plone.dexterity import utils
+from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IContentType
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexteritySchema
-
-from plone.dexterity.fti import DexterityFTI
-
-from plone.dexterity import schema
-from plone.dexterity import utils
-
+from plone.mocktestcase import MockTestCase
 from plone.supermodel.model import Model
+from zope.interface import Interface
+from zope.interface.interface import InterfaceClass
+import unittest
+import zope.schema
+
 
 class TestSchemaModuleFactory(MockTestCase):
 
@@ -65,6 +61,7 @@ class TestSchemaModuleFactory(MockTestCase):
         # Mock schema model
         class IDummy(Interface):
             dummy = zope.schema.TextLine(title=u"Dummy")
+
         class INamedDummy(Interface):
             named = zope.schema.TextLine(title=u"Named")
         mock_model = Model({u"": IDummy,
@@ -80,11 +77,18 @@ class TestSchemaModuleFactory(MockTestCase):
 
         factory = schema.SchemaModuleFactory()
 
-        schemaName = utils.portalTypeToSchemaName('testtype', schema=u"named", prefix='site')
+        schemaName = utils.portalTypeToSchemaName(
+            'testtype',
+            schema=u"named",
+            prefix='site'
+        )
         klass = factory(schemaName, schema.generated)
 
         self.assertTrue(isinstance(klass, InterfaceClass))
-        self.assertFalse(klass.isOrExtends(IDexteritySchema)) # only default schema gets this
+
+        # only default schema gets this:
+        self.assertFalse(klass.isOrExtends(IDexteritySchema))
+
         self.assertFalse(IContentType.providedBy(klass))
         self.assertEqual(schemaName, klass.__name__)
         self.assertEqual('plone.dexterity.schema.generated', klass.__module__)
@@ -138,6 +142,7 @@ class TestSchemaModuleFactory(MockTestCase):
 
         # Now we get the fields from the FTI's model
         self.assertEqual(('dummy',), tuple(zope.schema.getFieldNames(klass)))
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
