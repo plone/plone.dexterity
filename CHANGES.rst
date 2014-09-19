@@ -4,7 +4,13 @@ Changelog
 2.2.4 (unreleased)
 ------------------
 
-- overhaul (no logic chnaged): 
+- fix: when Dexterity container or its children contains any AT content with 
+  AT references in them, any move or rename operation for the parent 
+  Dexterity object will cause AT ReferenceEngine to remove those references.
+  see #20.
+  [datakurre]
+
+- overhaul (no logic changed): 
   pep8, sorted imports plone.api style, readability, utf8header, 
   remove bbb code (plone 3)
   [jensens]
