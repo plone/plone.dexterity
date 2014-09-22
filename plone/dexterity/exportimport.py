@@ -11,9 +11,10 @@ from StringIO import StringIO
 from csv import reader
 from csv import writer
 from zope.component import queryAdapter
-from zope.interface import implements
+from zope.interface import implementer
 
 
+@implementer(IFilesystemExporter, IFilesystemImporter)
 class DexterityContentExporterImporter(FolderishExporterImporter):
     """ Tree-walking exporter / importer for Dexterity types.
 
@@ -34,8 +35,6 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
     Subobjects themselves are represented as individual files or
     subdirectories within the parent's directory.
     """
-
-    implements(IFilesystemExporter, IFilesystemImporter)
 
     def __init__(self, context):
         self.context = context

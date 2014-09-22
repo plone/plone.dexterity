@@ -5,15 +5,14 @@ from plone.dexterity.interfaces import IDexterityFactory
 from plone.dexterity.utils import resolveDottedName
 from zope.component import getUtility
 from zope.component.factory import Factory
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface.declarations import Implements
 
 
+@implementer(IDexterityFactory)
 class DexterityFactory(Persistent, Factory):
     """A factory for Dexterity content.
     """
-
-    implements(IDexterityFactory)
 
     def __init__(self, portal_type):
         self.portal_type = portal_type
