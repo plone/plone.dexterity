@@ -133,9 +133,9 @@ def createContent(portal_type, **kw):
 
     for schema in schemas:
         behavior = schema(content)
-        for name in schema.names():
-            if name in fields:
-                setattr(behavior, name, fields[name])
+        for name, value in fields.items():
+            if hasattr(behavior, name):
+                setattr(behavior, name, value)
                 del fields[name]
 
     for (key, value) in fields.items():
