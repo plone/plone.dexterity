@@ -7,7 +7,7 @@
           <div tal:content="structure widget/render" />
       </div>
   </tal:block>
-          
+
   <fieldset tal:repeat="group view/groups"
             tal:attributes="id python:''.join((group.prefix, 'groups.', group.__name__)).replace('.', '-')">
       <legend tal:content="group/label" />
@@ -17,7 +17,7 @@
           <div tal:content="structure widget/render" />
       </div>
   </fieldset>
-  
+
   <fieldset id="folder-listing">
       <legend>Contents</legend>
       <tal:block define="listing_macro context/folder_listing/macros/listing">

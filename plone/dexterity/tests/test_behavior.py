@@ -1,26 +1,28 @@
-import unittest
-from plone.mocktestcase import MockTestCase
-
-from zope.interface import Interface
-
+# -*- coding: utf-8 -*-
 from plone.behavior.interfaces import IBehavior
-
-from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.fti import DexterityFTI
-
 from plone.dexterity.behavior import DexterityBehaviorAssignable
+from plone.dexterity.fti import DexterityFTI
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.mocktestcase import MockTestCase
+from zope.interface import Interface
+import unittest
+
 
 class IOne(Interface):
     pass
 
+
 class ITwo(Interface):
     pass
+
 
 class IThree(Interface):
     pass
 
+
 class IFour(IThree):
     pass
+
 
 class TestBehavior(MockTestCase):
 
@@ -30,10 +32,18 @@ class TestBehavior(MockTestCase):
         context_dummy = self.create_dummy(portal_type=u"testtype")
 
         # Behavior mock
-        behavior_dummy_1 = self.create_dummy(interface = IOne)
-        self.mock_utility(behavior_dummy_1, IBehavior, name=IOne.__identifier__)
-        behavior_dummy_4 = self.create_dummy(interface = IFour)
-        self.mock_utility(behavior_dummy_4, IBehavior, name=IFour.__identifier__)
+        behavior_dummy_1 = self.create_dummy(interface=IOne)
+        self.mock_utility(
+            behavior_dummy_1,
+            IBehavior,
+            name=IOne.__identifier__
+        )
+        behavior_dummy_4 = self.create_dummy(interface=IFour)
+        self.mock_utility(
+            behavior_dummy_4,
+            IBehavior,
+            name=IFour.__identifier__
+        )
 
         # FTI mock
         fti = DexterityFTI(u"testtype")
@@ -67,7 +77,10 @@ class TestBehavior(MockTestCase):
 
         assignable = DexterityBehaviorAssignable(context_dummy)
 
-        self.assertEqual([behavior_dummy], list(assignable.enumerateBehaviors()))
+        self.assertEqual(
+            [behavior_dummy],
+            list(assignable.enumerateBehaviors())
+        )
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

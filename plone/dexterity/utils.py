@@ -1,33 +1,23 @@
-import datetime
-import logging
-
+# -*- coding: utf-8 -*-
+from AccessControl import Unauthorized
 from Acquisition import aq_base
 from Acquisition import aq_inner
-from AccessControl import Unauthorized
 from DateTime import DateTime
-
-from zope.component import getUtility, queryUtility
+from Products.CMFCore.interfaces import ISiteRoot
+from plone.app.uuid.utils import uuidToObject
+from plone.autoform.interfaces import IFormFieldProvider
+from plone.behavior.interfaces import IBehavior
+from plone.behavior.interfaces import IBehaviorAssignable
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.uuid.interfaces import IUUID
 from zope.component import createObject
-
+from zope.component import getUtility, queryUtility
+from zope.container.interfaces import INameChooser
 from zope.dottedname.resolve import resolve
 from zope.event import notify
 from zope.lifecycleevent import ObjectCreatedEvent
-
-from plone.behavior.interfaces import IBehavior
-from plone.autoform.interfaces import IFormFieldProvider
-from plone.behavior.interfaces import IBehaviorAssignable
-from plone.dexterity.interfaces import IDexterityFTI
-
-from Products.CMFCore.interfaces import ISiteRoot
-
-from zope.container.interfaces import INameChooser
-
-try:
-    from plone.uuid.interfaces import IUUID
-    from plone.app.uuid.utils import uuidToObject
-    HAS_UUID = True
-except ImportError:
-    HAS_UUID = False
+import datetime
+import logging
 
 log = logging.getLogger(__name__)
 
@@ -43,8 +33,8 @@ def resolveDottedName(dottedName):
         _dottedCache[dottedName] = resolve(dottedName)
     return _dottedCache[dottedName]
 
-# Schema name encoding
 
+# Schema name encoding
 class SchemaNameEncoder(object):
 
     key = (
@@ -52,15 +42,15 @@ class SchemaNameEncoder(object):
         ('.', '_2_'),
         ('-', '_3_'),
         ('/', '_4_'),
-        )
+    )
 
     def encode(self, s):
-        for k,v in self.key:
+        for k, v in self.key:
             s = s.replace(k, v)
         return s
 
     def decode(self, s):
-        for k,v in self.key:
+        for k, v in self.key:
             s = s.replace(v, k)
         return s
 
@@ -69,6 +59,7 @@ class SchemaNameEncoder(object):
 
     def split(self, s):
         return [self.decode(a) for a in s.split('_0_')]
+
 
 def portalTypeToSchemaName(portal_type, schema=u"", prefix=None):
     """Return a canonical interface name for a generated schema interface.
@@ -79,11 +70,13 @@ def portalTypeToSchemaName(portal_type, schema=u"", prefix=None):
     encoder = SchemaNameEncoder()
     return encoder.join(prefix, portal_type, schema)
 
+
 def schemaNameToPortalType(schemaName):
     """Return a the portal_type part of a schema name
     """
     encoder = SchemaNameEncoder()
     return encoder.split(schemaName)[1]
+
 
 def splitSchemaName(schemaName):
     """Return a tuple prefix, portal_type, schemaName
@@ -139,13 +132,22 @@ def createContent(portal_type, **kw):
     fields = dict(kw)  # create a copy
 
     for schema in schemas:
+        # schema.names() doesn't return attributes from superclasses in derived
+        # schemas. therefore we have to iterate over all items from the passed
+        # keywords arguments and set it, if the behavior has the questioned
+        # attribute.
         behavior = schema(content)
-        for name in schema.names():
-            if name in fields:
-                setattr(behavior, name, fields[name])
-                del fields[name]
+        for name, value in fields.items():
+            try:
+                # hasattr swallows exceptions.
+                if getattr(behavior, name):
+                    setattr(behavior, name, value)
+                    del fields[name]
+            except AttributeError:
+                # fieldname not available
+                pass
 
-    for (key,value) in fields.items():
+    for (key, value) in fields.items():
         setattr(content, key, value)
 
     notify(ObjectCreatedEvent(content))
@@ -170,8 +172,11 @@ def addContentToContainer(container, object, checkConstraints=True):
         if not fti.isConstructionAllowed(container):
             raise Unauthorized("Cannot create %s" % object.portal_type)
 
-        if container_fti is not None and not container_fti.allowType(object.portal_type):
-            raise ValueError("Disallowed subobject type: %s" % object.portal_type)
+        if container_fti is not None \
+           and not container_fti.allowType(object.portal_type):
+            raise ValueError(
+                "Disallowed subobject type: %s" % object.portal_type
+            )
 
     name = getattr(aq_base(object), 'id', None)
     name = INameChooser(container).chooseName(name, object)
@@ -181,18 +186,18 @@ def addContentToContainer(container, object, checkConstraints=True):
     try:
         return container._getOb(newName)
     except AttributeError:
-        if HAS_UUID:
-            # work around edge case where a content rule may have moved the item
-            uuid = IUUID(object)
-            return uuidToObject(uuid)
-        else:
-            # no way to know where it is
-            raise
+        uuid = IUUID(object)
+        return uuidToObject(uuid)
 
 
-def createContentInContainer(container, portal_type, checkConstraints=True, **kw):
+def createContentInContainer(container, portal_type, checkConstraints=True,
+                             **kw):
     content = createContent(portal_type, **kw)
-    return addContentToContainer(container, content, checkConstraints=checkConstraints)
+    return addContentToContainer(
+        container,
+        content,
+        checkConstraints=checkConstraints
+    )
 
 
 def getAdditionalSchemata(context=None, portal_type=None):

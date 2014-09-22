@@ -4,5 +4,5 @@
 
     <!-- Include ZCML directive from plone.behavior -->
     <include package="plone.behavior" file="meta.zcml" />
-    
+
 </configure>

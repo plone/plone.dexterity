@@ -4,9 +4,26 @@ Changelog
 2.2.4 (unreleased)
 ------------------
 
+<<<<<<< HEAD
 - Fix the default attribute accessor to bind field to context when finding
   the field default.
   [datakurre]
+=======
+- fix: when Dexterity container or its children contains any AT content with 
+  AT references in them, any move or rename operation for the parent 
+  Dexterity object will cause AT ReferenceEngine to remove those references.
+  see #20.
+  [datakurre]
+
+- Let utils.createContent also handle setting of attributes on behaviors, which
+  derive from other behaviors.
+  [thet]
+
+- overhaul (no logic changed): 
+  pep8, sorted imports plone.api style, readability, utf8header, 
+  remove bbb code (plone 3)
+  [jensens]
+>>>>>>> master
 
 
 2.2.3 (2014-04-15)
@@ -38,7 +55,8 @@ Changelog
 2.2.0 (2014-01-31)
 ------------------
 
-- utils.createContent honors behaviors [toutpt]
+- utils.createContent honors behaviors.
+  [toutpt]
 
 - Date index method works even if source field is a dexterity field
   wich provides a  datetime python value.

@@ -1,15 +1,15 @@
-import unittest
-from plone.mocktestcase import MockTestCase
-
-from zope.interface import Interface
-
-from plone.dexterity.interfaces import IDexterityFTI
-
-from plone.dexterity.fti import DexterityFTI
+# -*- coding: utf-8 -*-
 from plone.dexterity.factory import DexterityFactory
+from plone.dexterity.fti import DexterityFTI
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.mocktestcase import MockTestCase
+from zope.interface import Interface
+import unittest
+
 
 class IDummy(Interface):
     pass
+
 
 class TestFactory(MockTestCase):
 
@@ -53,7 +53,6 @@ class TestFactory(MockTestCase):
     #   - callable is called to get an object
     #   - portal_type is set if not set already
 
-
     def test_create_with_schema_already_provided_and_portal_type_set(self):
 
         # Object returned by class
@@ -65,8 +64,12 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_mock)
 
         # Resolver
-        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolveDottedName")
-        self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
+        resolver_mock = self.mocker.replace(
+            "plone.dexterity.utils.resolveDottedName"
+        )
+        self.expect(
+            resolver_mock("my.mocked.ContentTypeClass")
+        ).result(klass_mock)
 
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
@@ -82,7 +85,10 @@ class TestFactory(MockTestCase):
 
         # Object returned by class
         obj_mock = self.mocker.mock()
-        self.expect(obj_mock.portal_type).throw(AttributeError) # -> need to set portal_type
+        self.expect(
+            obj_mock.portal_type
+        ).throw(AttributeError)  # -> need to set portal_type
+
         obj_mock.portal_type = u"testtype"
 
         # Class set by factory
@@ -90,8 +96,12 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_mock)
 
         # Resolver
-        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolveDottedName")
-        self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
+        resolver_mock = self.mocker.replace(
+            "plone.dexterity.utils.resolveDottedName"
+        )
+        self.expect(
+            resolver_mock("my.mocked.ContentTypeClass")
+        ).result(klass_mock)
 
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
@@ -107,7 +117,9 @@ class TestFactory(MockTestCase):
 
         # Object returned by class
         obj_mock = self.mocker.mock()
-        self.expect(obj_mock.portal_type).result('othertype') # -> need to fix portal_type
+        self.expect(
+            obj_mock.portal_type
+        ).result('othertype')  # -> need to fix portal_type
         obj_mock.portal_type = u"testtype"
 
         # Class set by factory
@@ -115,8 +127,12 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_mock)
 
         # Resolver
-        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolveDottedName")
-        self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
+        resolver_mock = self.mocker.replace(
+            "plone.dexterity.utils.resolveDottedName"
+        )
+        self.expect(
+            resolver_mock("my.mocked.ContentTypeClass")
+        ).result(klass_mock)
 
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
@@ -139,8 +155,12 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock()).result(obj_mock)
 
         # Resolver
-        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolveDottedName")
-        self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
+        resolver_mock = self.mocker.replace(
+            "plone.dexterity.utils.resolveDottedName"
+        )
+        self.expect(
+            resolver_mock("my.mocked.ContentTypeClass")
+        ).result(klass_mock)
 
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
@@ -163,8 +183,12 @@ class TestFactory(MockTestCase):
         self.expect(klass_mock(u"id", title=u"title")).result(obj_mock)
 
         # Resolver
-        resolver_mock = self.mocker.replace("plone.dexterity.utils.resolveDottedName")
-        self.expect(resolver_mock("my.mocked.ContentTypeClass")).result(klass_mock)
+        resolver_mock = self.mocker.replace(
+            "plone.dexterity.utils.resolveDottedName"
+        )
+        self.expect(
+            resolver_mock("my.mocked.ContentTypeClass")
+        ).result(klass_mock)
 
         # FTI
         fti_mock = self.mocker.mock(DexterityFTI)
@@ -175,6 +199,7 @@ class TestFactory(MockTestCase):
 
         factory = DexterityFactory(portal_type=u"testtype")
         self.assertEqual(obj_mock, factory(u"id", title=u"title"))
+
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

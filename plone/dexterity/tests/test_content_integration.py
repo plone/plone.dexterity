@@ -1,5 +1,6 @@
-import unittest
+# -*- coding: utf-8 -*-
 from plone.testing.zca import UNIT_TESTING
+import unittest
 
 # TODO: End to end tests that ensure components are properly wired up
 #  - for now, we have some tests in example.dexterity, but we should have
@@ -7,9 +8,9 @@ from plone.testing.zca import UNIT_TESTING
 
 
 class TestUUIDIntegration(unittest.TestCase):
-    
+
     layer = UNIT_TESTING
-    
+
     def setUp(self):
         import zope.component.testing
         import plone.uuid
@@ -18,7 +19,7 @@ class TestUUIDIntegration(unittest.TestCase):
 
         zope.component.testing.setUp()
         xmlconfig.file('configure.zcml', plone.uuid)
-    
+
     def test_uuid_assigned_on_creation(self):
         from plone.dexterity.content import Item
         from plone.uuid.interfaces import IUUID

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.utils import iterSchemata
 from plone.rfc822.interfaces import IPrimaryField
