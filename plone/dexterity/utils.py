@@ -42,7 +42,7 @@ class SchemaNameEncoder(object):
         ('.', '_2_'),
         ('-', '_3_'),
         ('/', '_4_'),
-        )
+    )
 
     def encode(self, s):
         for k, v in self.key:
@@ -132,11 +132,20 @@ def createContent(portal_type, **kw):
     fields = dict(kw)  # create a copy
 
     for schema in schemas:
+        # schema.names() doesn't return attributes from superclasses in derived
+        # schemas. therefore we have to iterate over all items from the passed
+        # keywords arguments and set it, if the behavior has the questioned
+        # attribute.
         behavior = schema(content)
         for name, value in fields.items():
-            if hasattr(behavior, name):
-                setattr(behavior, name, value)
-                del fields[name]
+            try:
+                # hasattr swallows exceptions.
+                if getattr(behavior, name):
+                    setattr(behavior, name, value)
+                    del fields[name]
+            except AttributeError:
+                # fieldname not available
+                pass
 
     for (key, value) in fields.items():
         setattr(content, key, value)

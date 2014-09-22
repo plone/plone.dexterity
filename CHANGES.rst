@@ -10,6 +10,10 @@ Changelog
   see #20.
   [datakurre]
 
+- Let utils.createContent also handle setting of attributes on behaviors, which
+  derive from other behaviors.
+  [thet]
+
 - overhaul (no logic changed): 
   pep8, sorted imports plone.api style, readability, utf8header, 
   remove bbb code (plone 3)
@@ -25,10 +29,6 @@ Changelog
 
 2.2.2 (2014-04-13)
 ------------------
-
-- Let utils.createContent also handle setting of attributes on behaviors, which
-  derive from other behaviors.
-  [thet]
 
 - Add a 'success' class to the status message shown after successfully
   adding or editing an item.  The previous 'info' class is also
