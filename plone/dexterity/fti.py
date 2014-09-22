@@ -17,7 +17,7 @@ from zope.component import queryUtility
 from zope.component.interfaces import IFactory
 from zope.event import notify
 from zope.i18nmessageid import Message
-from zope.interface import implements
+from zope.interface import implementer
 from zope.lifecycleevent import modified
 from zope.security.interfaces import IPermission
 from zope.site.hooks import getSiteManager
@@ -26,19 +26,18 @@ import os.path
 import plone.dexterity.schema
 
 
+@implementer(IDexterityFTIModificationDescription)
 class DexterityFTIModificationDescription(object):
-    implements(IDexterityFTIModificationDescription)
 
     def __init__(self, attribute, oldValue):
         self.attribute = attribute
         self.oldValue = oldValue
 
 
+@implementer(IDexterityFTI)
 class DexterityFTI(base.DynamicViewTypeInformation):
     """A Dexterity FTI
     """
-
-    implements(IDexterityFTI)
 
     meta_type = "Dexterity FTI"
 
@@ -446,7 +445,8 @@ def unregister_factory(factory_name, site_manager):
 
     # If a factory with a matching name exists, remove it
     if [f for f in utilities
-        if (f.provided, f.name, f.info) == (IFactory, factory_name, 'plone.dexterity.dynamic')]:
+        if (f.provided, f.name, f.info)
+            == (IFactory, factory_name, 'plone.dexterity.dynamic')]:
         site_manager.unregisterUtility(provided=IFactory, name=factory_name)
 
 

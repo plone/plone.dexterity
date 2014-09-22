@@ -36,7 +36,7 @@ from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
 from zope.component import queryUtility
 from zope.container.contained import Contained
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface.declarations import Implements
 from zope.interface.declarations import ObjectSpecificationDescriptor
 from zope.interface.declarations import getObjectSpecification
@@ -204,13 +204,18 @@ class PasteBehaviourMixin(object):
                     )
 
 
+@implementer(
+    IDexterityContent,
+    IAttributeAnnotatable,
+    IAttributeUUID,
+    IDublinCore,
+    ICatalogableDublinCore,
+    IMutableDublinCore
+)
 class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
                        Contained):
     """Base class for Dexterity content
     """
-    implements(
-        IDexterityContent, IAttributeAnnotatable, IAttributeUUID,
-        IDublinCore, ICatalogableDublinCore, IMutableDublinCore)
 
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
@@ -579,11 +584,11 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         self.rights = safe_unicode(rights)
 
 
+@implementer(IDexterityItem)
 class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
     """A non-containerish, CMFish item
     """
 
-    implements(IDexterityItem)
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
 
@@ -598,13 +603,13 @@ class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
     __getattr__ = DexterityContent.__getattr__
 
 
+@implementer(IDexterityContainer)
 class Container(
         PasteBehaviourMixin, DAVCollectionMixin, BrowserDefaultMixin,
         CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
     """Base class for folderish items
     """
 
-    implements(IDexterityContainer)
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
 

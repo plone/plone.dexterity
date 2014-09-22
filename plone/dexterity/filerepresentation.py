@@ -16,14 +16,14 @@ from plone.rfc822.interfaces import IPrimaryField
 from webdav.Resource import Resource
 from zExceptions import MethodNotAllowed
 from zExceptions import Unauthorized
-from zope.component import adapts
+from zope.component import adapter
 from zope.component import createObject
 from zope.event import notify
 from zope.filerepresentation.interfaces import IDirectoryFactory
 from zope.filerepresentation.interfaces import IFileFactory
 from zope.filerepresentation.interfaces import IRawReadFile
 from zope.filerepresentation.interfaces import IRawWriteFile
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface.interfaces import IInterface
 from zope.lifecycleevent import modified, ObjectCreatedEvent
 from zope.schema import getFieldsInOrder
@@ -356,10 +356,10 @@ class FolderDataResource(Implicit, Resource):
         return []
 
 
+@implementer(IStreamIterator)
 class StringStreamIterator(object):
     """Simple stream iterator to allow efficient data streaming.
     """
-    implements(IStreamIterator)
 
     def __init__(self, data, size=None, chunk=1 << 16):
         """Consume data (a str) into a temporary file and prepare streaming.
@@ -397,15 +397,14 @@ class StringStreamIterator(object):
         return self.size
 
 
+@implementer(IDirectoryFactory)
+@adapter(IDexterityContainer)
 class DefaultDirectoryFactory(object):
     """Default directory factory, invoked when an FTP/WebDAV operation
     attempts to create a new folder via a MKCOL request.
 
     The default implementation simply calls manage_addFolder().
     """
-
-    implements(IDirectoryFactory)
-    adapts(IDexterityContainer)
 
     def __init__(self, context):
         self.context = context
@@ -414,6 +413,8 @@ class DefaultDirectoryFactory(object):
         self.context.manage_addFolder(name)
 
 
+@implementer(IFileFactory)
+@adapter(IDexterityContainer)
 class DefaultFileFactory(object):
     """Default file factory, invoked when an FTP/WebDAV operation
     attempts to create a new resource via a PUT request.
@@ -422,9 +423,6 @@ class DefaultFileFactory(object):
     type to add, and then creates an instance using the portal_types
     tool.
     """
-
-    implements(IFileFactory)
-    adapts(IDexterityContainer)
 
     def __init__(self, context):
         self.context = context
@@ -497,14 +495,13 @@ class DefaultFileFactory(object):
         return obj
 
 
+@implementer(IRawReadFile)
 class ReadFileBase(object):
     """Convenience base class for read files which delegate to another stream
     type (e.g. a temporary file or StringIO)
 
     Override _getStream() and any required methods.
     """
-
-    implements(IRawReadFile)
 
     def __init__(self, context):
         self.context = context
@@ -566,6 +563,8 @@ class ReadFileBase(object):
         raise NotImplementedError("Subclass and override this _getStream()")
 
 
+@implementer(IStreamIterator)
+@adapter(IDexterityContent)
 class DefaultReadFile(ReadFileBase):
     """IRawReadFile adapter for Dexterity objects.
 
@@ -575,9 +574,6 @@ class DefaultReadFile(ReadFileBase):
     to return it to the publisher directly. In particular, the size() method
     will return an accurate file size.
     """
-
-    implements(IStreamIterator)
-    adapts(IDexterityContent)
 
     def __init__(self, context):
         self.context = context
@@ -646,14 +642,13 @@ class DefaultReadFile(ReadFileBase):
         return out
 
 
+@implementer(IRawWriteFile)
 class WriteFileBase(object):
     """Convenience base class for write files which delegate to another
     stream, e.g. a file or StringIO.
 
     Implement _getStream() and override any methods required.
     """
-
-    implements(IRawWriteFile)
 
     def __init__(self, context):
         self.context = context
@@ -708,14 +703,13 @@ class WriteFileBase(object):
         raise NotImplementedError("Subclass and override this _getStream()")
 
 
+@implementer(IRawWriteFile)
+@adapter(IDexterityContent)
 class DefaultWriteFile(object):
     """IRawWriteFile file adapter for Dexterity objects.
 
     Uses RFC822 marshaler.
     """
-
-    implements(IRawWriteFile)
-    adapts(IDexterityContent)
 
     def __init__(self, context):
         self.context = context

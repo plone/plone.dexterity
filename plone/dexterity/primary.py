@@ -3,14 +3,14 @@ from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.utils import iterSchemata
 from plone.rfc822.interfaces import IPrimaryField
 from plone.rfc822.interfaces import IPrimaryFieldInfo
-from zope.component import adapts
-from zope.interface import implements
+from zope.component import adapter
+from zope.interface import implementer
 from zope.schema import getFieldsInOrder
 
 
+@implementer(IPrimaryFieldInfo)
+@adapter(IDexterityContent)
 class PrimaryFieldInfo(object):
-    implements(IPrimaryFieldInfo)
-    adapts(IDexterityContent)
 
     def __init__(self, context):
         self.context = context
