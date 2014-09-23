@@ -209,7 +209,7 @@ The Factory Type Information (FTI)
    which can be entered TTW if there is no file or schema interface to use),
    and export it as a GenericSetup extension profile.
 
-Behaviours
+Behaviors
 
    Behaviors are a way write make re-usable bits of functionality that can
    be toggled on or off on a per-type basis. Examples may include common
@@ -322,3 +322,9 @@ ways to use Dexterity.
 See also Dexterity's pages on plone.org (http://plone.org/products/dexterity)
 where you will also find extensive documentation.
 
+Source Code
+===========
+
+Contributors please read the document `Process for Plone core's development <http://docs.plone.org/develop/plone-coredev/index.html>`_
+
+Sources are at the `Plone code repository hosted at Github <https://github.com/plone/plone.dexterity>`_.
