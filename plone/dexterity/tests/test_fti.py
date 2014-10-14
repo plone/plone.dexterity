@@ -247,7 +247,7 @@ class TestFTI(MockTestCase):
         fti._updateProperty('title', "New title")  # fires event caught above
         fti._updateProperty('allow_discussion', False)  # does not fire
 
-    def test_fires_modified_event_on_change_properties_per_changed_property(self):
+    def test_fires_modified_event_on_change_props_per_changed_property(self):
         fti = DexterityFTI(u"testtype")
         fti.title = "Old title"
         fti.allow_discussion = False
