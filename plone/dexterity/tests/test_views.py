@@ -7,23 +7,30 @@ from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.browser.edit import DefaultEditForm
 from plone.dexterity.browser.view import DefaultView
-from plone.dexterity.content import Item, Container
+from plone.dexterity.content import Container
+from plone.dexterity.content import Item
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IAddBegunEvent
 from plone.dexterity.interfaces import IAddCancelledEvent
+from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IEditBegunEvent
 from plone.dexterity.interfaces import IEditCancelledEvent
 from plone.dexterity.interfaces import IEditFinishedEvent
+from plone.dexterity.schema import SCHEMA_CACHE
 from plone.mocktestcase import MockTestCase
 from z3c.form.action import Actions
 from z3c.form.field import FieldWidgets
 from z3c.form.interfaces import IActions
 from z3c.form.interfaces import IWidgets
-from zope.component import adapts, provideAdapter
+from zope.component import adapter
 from zope.container.interfaces import INameChooser
-from zope.interface import implements, Interface, alsoProvides
+from zope.interface import Interface
+from zope.interface import alsoProvides
+from zope.interface import implementer
+from zope.interface import provider
 from zope.publisher.browser import TestRequest as TestRequestBase
+
 import mocker
 import unittest
 
@@ -40,25 +47,26 @@ class ISchema(Interface):
     pass
 
 
+@provider(IFormFieldProvider)
 class IBehaviorOne(Interface):
     pass
-alsoProvides(IBehaviorOne, IFormFieldProvider)
 
 
+@provider(IFormFieldProvider)
 class IBehaviorTwo(Interface):
     pass
-alsoProvides(IBehaviorTwo, IFormFieldProvider)
 
 
+# intentionally no form field provider!
 class IBehaviorThree(Interface):
     pass
 
 
+@implementer(IBehaviorAssignable)
+@adapter(Interface)
 class NoBehaviorAssignable(object):
     # We will use this simple class to check that registering our own
     # IBehaviorAssignable adapter has an effect.
-    implements(IBehaviorAssignable)
-    adapts(Interface)
 
     def __init__(self, context):
         self.context = context
@@ -150,8 +158,8 @@ class TestAddView(MockTestCase):
         self.expect(container.getTypeInfo()).result(container_fti_mock)
 
         # Name chooser
+        @implementer(INameChooser)
         class NameChooser(object):
-            implements(INameChooser)
 
             def __init__(self, context):
                 pass
@@ -254,7 +262,7 @@ class TestAddView(MockTestCase):
         self.assertEqual(u"Add ${name}", unicode(label))
         self.assertEqual(u"Test title", label.mapping['name'])
 
-    def test_schema_lookup(self):
+    def test_schema_lookup_add(self):
 
         # Context and request
 
@@ -275,25 +283,74 @@ class TestAddView(MockTestCase):
             )
         )
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        self.expect(fti_mock.behaviors).result([])
 
-        # Form
+        from plone.behavior.interfaces import IBehavior
+        from plone.behavior.registration import BehaviorRegistration
+        registration = BehaviorRegistration(
+            title=u"Test Behavior 1",
+            description=u"Provides test behavior",
+            interface=IBehaviorOne,
+            marker=None,
+            factory=None
+        )
+        self.mock_utility(
+            registration,
+            IBehavior,
+            IBehaviorOne.__identifier__
+        )
+        registration = BehaviorRegistration(
+            title=u"Test Behavior 2",
+            description=u"Provides test behavior",
+            interface=IBehaviorTwo,
+            marker=None,
+            factory=None
+        )
+        self.mock_utility(
+            registration,
+            IBehavior,
+            IBehaviorTwo.__identifier__
+        )
+        registration = BehaviorRegistration(
+            title=u"Test Behavior 3",
+            description=u"Provides test behavior",
+            interface=IBehaviorThree,
+            marker=None,
+            factory=None
+        )
+        self.mock_utility(
+            registration,
+            IBehavior,
+            IBehaviorThree.__identifier__
+        )
 
+        # start testing
         self.replay()
 
+        # Form
         view = DefaultAddForm(context_mock, request_mock)
         view.portal_type = u"testtype"
 
         self.assertEqual(ISchema, view.schema)
+
+        # we expect here only formfieldprovider!
         self.assertEqual(
-            [IBehaviorOne, IBehaviorTwo],
-            list(view.additionalSchemata,)
+            (IBehaviorOne, IBehaviorTwo),
+            tuple(view.additionalSchemata)
         )
 
         # When we register our own IBehaviorAssignable we can
-        # influence what goes into the additionalSchemata:
-        provideAdapter(NoBehaviorAssignable)
-        self.assertEqual([], list(view.additionalSchemata,))
+        # influence what goes into the additionalSchemata. But in an Addform
+        # this never grips, since its an adapter on context, and contextless
+        # there is always the FTI the only valid source
+        self.mock_adapter(
+            NoBehaviorAssignable,
+            IBehaviorAssignable,
+            [Interface]
+        )
+        self.assertEqual(
+            (IBehaviorOne, IBehaviorTwo),
+            tuple(view.additionalSchemata)
+        )
 
     def test_fires_add_begun_event(self):
 
@@ -341,8 +398,8 @@ class TestAddView(MockTestCase):
         request_mock = TestRequest()
 
         # mock status message
+        @implementer(IStatusMessage)
         class StatusMessage(object):
-            implements(IStatusMessage)
 
             def __init__(self, request):
                 pass
@@ -365,6 +422,9 @@ class TestAddView(MockTestCase):
 
 
 class TestEditView(MockTestCase):
+
+    def setUp(self):
+        SCHEMA_CACHE.clear()
 
     def test_label(self):
 
@@ -394,41 +454,93 @@ class TestEditView(MockTestCase):
         self.assertEqual(u"Edit ${name}", unicode(label))
         self.assertEqual(u"Test title", label.mapping['name'])
 
-    def test_schema_lookup(self):
+    def test_schema_lookup_edit(self):
 
         # Context and request
+        class IMarker(IDexterityContent):
+            pass
 
         context_mock = self.create_dummy(portal_type=u'testtype')
+        alsoProvides(context_mock, IMarker)
         request_mock = TestRequest()
 
         # FTI
-
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
         self.expect(fti_mock.lookupSchema()).result(ISchema)
-        self.expect(fti_mock.behaviors).result((IBehaviorOne.__identifier__,
-                                                IBehaviorTwo.__identifier__,
-                                                IBehaviorThree.__identifier__))
+        self.expect(
+            fti_mock.behaviors
+        ).result(
+            (
+                IBehaviorOne.__identifier__,
+                IBehaviorTwo.__identifier__,
+                IBehaviorThree.__identifier__
+            )
+        )
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
-        # Form
+        from plone.behavior.interfaces import IBehavior
+        from plone.behavior.registration import BehaviorRegistration
+        registration = BehaviorRegistration(
+            title=u"Test Behavior 1",
+            description=u"Provides test behavior",
+            interface=IBehaviorOne,
+            marker=None,
+            factory=None
+        )
+        self.mock_utility(
+            registration,
+            IBehavior,
+            IBehaviorOne.__identifier__
+        )
+        registration = BehaviorRegistration(
+            title=u"Test Behavior 2",
+            description=u"Provides test behavior",
+            interface=IBehaviorTwo,
+            marker=None,
+            factory=None
+        )
+        self.mock_utility(
+            registration,
+            IBehavior,
+            IBehaviorTwo.__identifier__
+        )
+        registration = BehaviorRegistration(
+            title=u"Test Behavior 3",
+            description=u"Provides test behavior",
+            interface=IBehaviorThree,
+            marker=None,
+            factory=None
+        )
+        self.mock_utility(
+            registration,
+            IBehavior,
+            IBehaviorThree.__identifier__
+        )
 
+        # start testing
         self.replay()
 
+        # Form
         view = DefaultEditForm(context_mock, request_mock)
-
-        # emulate update()
         view.portal_type = u"testtype"
 
         self.assertEqual(ISchema, view.schema)
+
+        # we expect here only formfieldprovider!
         self.assertEqual(
-            [IBehaviorOne, IBehaviorTwo],
-            list(view.additionalSchemata,)
+            (IBehaviorOne, IBehaviorTwo),
+            tuple(view.additionalSchemata)
         )
 
         # When we register our own IBehaviorAssignable we can
-        # influence what goes into the additionalSchemata:
-        provideAdapter(NoBehaviorAssignable)
-        self.assertEqual([], list(view.additionalSchemata,))
+        # influence what goes into the additionalSchemata.
+        self.mock_adapter(
+            NoBehaviorAssignable,
+            IBehaviorAssignable,
+            [IMarker]
+        )
+        additionalSchemata = tuple(view.additionalSchemata)
+        self.assertEqual(tuple(), tuple(additionalSchemata))
 
     def test_fires_edit_begun_event(self):
 
@@ -475,8 +587,8 @@ class TestEditView(MockTestCase):
         request_mock = TestRequest()
 
         # mock status message
+        @implementer(IStatusMessage)
         class StatusMessage(object):
-            implements(IStatusMessage)
 
             def __init__(self, request):
                 pass
@@ -507,8 +619,8 @@ class TestEditView(MockTestCase):
         request_mock = TestRequest()
 
         # mock status message
+        @implementer(IStatusMessage)
         class StatusMessage(object):
-            implements(IStatusMessage)
 
             def __init__(self, request):
                 pass
@@ -534,15 +646,17 @@ class TestEditView(MockTestCase):
 
 class TestDefaultView(MockTestCase):
 
-    def test_schema_lookup(self):
+    def test_schema_lookup_default_view(self):
 
         # Context and request
+        class IMarker(IDexterityContent):
+            pass
 
         context_mock = self.create_dummy(portal_type=u'testtype')
-        request_mock = self.create_dummy()
+        alsoProvides(context_mock, IMarker)
+        request_mock = TestRequest()
 
         # FTI
-
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
         self.expect(fti_mock.lookupSchema()).result(ISchema)
         self.expect(
@@ -556,22 +670,69 @@ class TestDefaultView(MockTestCase):
         )
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
-        # Form
+        from plone.behavior.interfaces import IBehavior
+        from plone.behavior.registration import BehaviorRegistration
+        registration = BehaviorRegistration(
+            title=u"Test Behavior 1",
+            description=u"Provides test behavior",
+            interface=IBehaviorOne,
+            marker=None,
+            factory=None
+        )
+        self.mock_utility(
+            registration,
+            IBehavior,
+            IBehaviorOne.__identifier__
+        )
+        registration = BehaviorRegistration(
+            title=u"Test Behavior 2",
+            description=u"Provides test behavior",
+            interface=IBehaviorTwo,
+            marker=None,
+            factory=None
+        )
+        self.mock_utility(
+            registration,
+            IBehavior,
+            IBehaviorTwo.__identifier__
+        )
+        registration = BehaviorRegistration(
+            title=u"Test Behavior 3",
+            description=u"Provides test behavior",
+            interface=IBehaviorThree,
+            marker=None,
+            factory=None
+        )
+        self.mock_utility(
+            registration,
+            IBehavior,
+            IBehaviorThree.__identifier__
+        )
 
+        # start testing
         self.replay()
 
+        # Form
         view = DefaultView(context_mock, request_mock)
+        view.portal_type = u"testtype"
 
         self.assertEqual(ISchema, view.schema)
+
+        # we expect here only formfieldprovider!
         self.assertEqual(
-            [IBehaviorOne, IBehaviorTwo],
-            list(view.additionalSchemata,)
+            (IBehaviorOne, IBehaviorTwo),
+            tuple(view.additionalSchemata)
         )
 
         # When we register our own IBehaviorAssignable we can
-        # influence what goes into the additionalSchemata:
-        provideAdapter(NoBehaviorAssignable)
-        self.assertEqual([], list(view.additionalSchemata,))
+        # influence what goes into the additionalSchemata.
+        self.mock_adapter(
+            NoBehaviorAssignable,
+            IBehaviorAssignable,
+            [IMarker]
+        )
+        additionalSchemata = tuple(view.additionalSchemata)
+        self.assertEqual(tuple(), tuple(additionalSchemata))
 
 
 def test_suite():

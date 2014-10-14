@@ -2,17 +2,25 @@
 from Products.CMFPlone.interfaces import IConstrainTypes
 from datetime import date, datetime
 from plone.behavior.interfaces import IBehavior
+from plone.behavior.interfaces import IBehaviorAssignable
 from plone.behavior.registration import BehaviorRegistration
-from plone.dexterity.content import Item, Container
+from plone.dexterity.behavior import DexterityBehaviorAssignable
+from plone.dexterity.content import Container
+from plone.dexterity.content import Item
 from plone.dexterity.fti import DexterityFTI
-from plone.dexterity.interfaces import IDexterityFTI, IDexterityContainer
+from plone.dexterity.interfaces import IDexterityContainer
+from plone.dexterity.interfaces import IDexterityContent
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
 from plone.mocktestcase import MockTestCase
 from pytz import timezone
 from zope.annotation.attribute import AttributeAnnotations
-from zope.component import provideAdapter, getUtility
-from zope.interface import Interface, alsoProvides
+from zope.component import getUtility
+from zope.component import provideAdapter
+from zope.interface import Interface
+from zope.interface import alsoProvides
+
 import unittest
 import zope.schema
 
@@ -38,7 +46,7 @@ class TestContent(MockTestCase):
 
         # Dummy instance
         item = Item(id=u'id')
-        item.portal_type = 'testtype'
+        item.portal_type = u'testtype'
         item._p_jar = FauxDataManager()
 
         # Dummy schema
@@ -49,14 +57,11 @@ class TestContent(MockTestCase):
         class IMarker(Interface):
             pass
 
-        # Schema is not implemented by class or provided by instance
-        self.assertFalse(ISchema.implementedBy(Item))
-        self.assertFalse(ISchema.providedBy(item))
-
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
 
         self.replay()
 
@@ -74,9 +79,7 @@ class TestContent(MockTestCase):
         # interface set directly on the instance with alsoProvides() or
         # directlyProvides(). This is done by clearing the cache when these
         # are invoked.
-
         alsoProvides(item, IMarker)
-
         self.assertTrue(IMarker.providedBy(item))
         self.assertTrue(ISchema.providedBy(item))
 
@@ -110,10 +113,6 @@ class TestContent(MockTestCase):
 
         class IMarker(Interface):
             pass
-
-        # Schema is not implemented by class or provided by instance
-        self.assertFalse(ISchema.implementedBy(MyItem))
-        self.assertFalse(ISchema.providedBy(item))
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
@@ -163,10 +162,6 @@ class TestContent(MockTestCase):
         class IMarker(Interface):
             pass
 
-        # Schema is not implemented by class or provided by instance
-        self.assertFalse(ISchema.implementedBy(MyItem))
-        self.assertFalse(ISchema.providedBy(item))
-
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
         self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
@@ -199,6 +194,9 @@ class TestContent(MockTestCase):
         class MyItem(Item):
             pass
 
+        class IMarkerCustom(Interface):
+            pass
+
         # Fake data manager
         class FauxDataManager(object):
             def setstate(self, obj):
@@ -223,52 +221,70 @@ class TestContent(MockTestCase):
             foo = zope.schema.TextLine(title=u"foo", default=u"foo_default")
             bar = zope.schema.TextLine(title=u"bar")
 
-        class IMarker(Interface):
-            pass
-
         # Schema is not implemented by class or provided by instance
-        self.assertFalse(ISchema.implementedBy(MyItem))
-        self.assertFalse(ISchema.providedBy(item))
+        # XXX :no assert before replay
+        # self.assertFalse(ISchema.implementedBy(MyItem))
+        # self.assertFalse(ISchema.providedBy(item))
 
         # Behaviors - one with a subtype and one without
+        self.mock_adapter(
+            DexterityBehaviorAssignable,
+            IBehaviorAssignable,
+            (IDexterityContent,)
+        )
 
         class IBehavior1(Interface):
             pass
 
-        class IBehavior2(Interface):
-            pass
+        behavior1 = BehaviorRegistration(
+            u"Behavior1",
+            "",
+            IBehavior1,
+            None,
+            None
+        )
+        self.mock_utility(behavior1, IBehavior, name="behavior1")
 
-        class ISubtype(Interface):
+        class IBehavior2(Interface):
             baz = zope.schema.TextLine(title=u"baz", default=u"baz")
 
-        behavior1 = BehaviorRegistration(
-            u"Behavior1", "", IBehavior1, None, None)
-        behavior2 = BehaviorRegistration(
-            u"Behavior2", "", IBehavior2, ISubtype, None)
+        class IMarker2(Interface):
+            pass
 
-        self.mock_utility(behavior1, IBehavior, name="behavior1")
+        behavior2 = BehaviorRegistration(
+            u"Behavior2",
+            "",
+            IBehavior2,
+            IMarker2,
+            None
+        )
         self.mock_utility(behavior2, IBehavior, name="behavior2")
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
-        self.expect(fti_mock.behaviors).result(
-            ['behavior1', 'behavior2']).count(1)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+
+        # expectations
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
+        self.expect(fti_mock.behaviors).result(['behavior1', 'behavior2'])
 
         self.replay()
 
+        # start clean
+        SCHEMA_CACHE.clear()
+
+        # implementedBy does not look into the fti
         self.assertFalse(ISchema.implementedBy(MyItem))
 
-        # Schema as looked up in FTI is now provided by item ...
-        self.assertTrue(ISubtype.providedBy(item))
+        # Main schema as looked up in FTI is now provided by item ...
         self.assertTrue(ISchema.providedBy(item))
 
-        # If the _v_ attribute cache does not work, then we'd expect to have
-        # to look up the schema more than once (since we invalidated)
-        # the cache. This is not the case, as evidenced by .count(1) above.
-        self.assertTrue(ISubtype.providedBy(item))
-        self.assertTrue(ISchema.providedBy(item))
+        # behavior1 does not provide a marker, so the schema interface is used
+        # as a marker
+        self.assertTrue(IBehavior1.providedBy(item))
+
+        # behavior2 provides a marker, so it is used as a marker
+        self.assertTrue(IMarker2.providedBy(item))
 
         # Subtypes provide field defaults.
         self.assertEqual(u"baz", getattr(item, "baz", None))
@@ -277,12 +293,14 @@ class TestContent(MockTestCase):
         # interface set directly on the instance with alsoProvides() or
         # directlyProvides(). This is done by clearing the cache when these
         # are invoked.
+        alsoProvides(item, IMarkerCustom)
+        self.assertTrue(IMarkerCustom.providedBy(item))
 
-        alsoProvides(item, IMarker)
-
-        self.assertTrue(IMarker.providedBy(item))
-        self.assertTrue(ISubtype.providedBy(item))
+        # after directly setting an interface the main-schema and behavior
+        # interfaces are still there
         self.assertTrue(ISchema.providedBy(item))
+        self.assertTrue(IBehavior1.providedBy(item))
+        self.assertTrue(IMarker2.providedBy(item))
 
     def test_provided_by_behavior_subtype_invalidation(self):
 
@@ -315,39 +333,62 @@ class TestContent(MockTestCase):
             bar = zope.schema.TextLine(title=u"bar")
 
         # Schema is not implemented by class or provided by instance
-        self.assertFalse(ISchema.implementedBy(MyItem))
-        self.assertFalse(ISchema.providedBy(item))
+        # XXX :no assert before replay
+        # self.assertFalse(ISchema.implementedBy(MyItem))
+        # self.assertFalse(ISchema.providedBy(item))
 
-        # Behaviors - one with a subtype and one without
-
+        # Behaviors - one with a marker and one without
         class IBehavior1(Interface):
             pass
+
+        behavior1 = BehaviorRegistration(
+            u"Behavior1",
+            "",
+            IBehavior1,
+            None,
+            None
+        )
+        self.mock_utility(behavior1, IBehavior, name="behavior1")
 
         class IBehavior2(Interface):
             pass
 
+        class IMarker2(Interface):
+            pass
+
+        behavior2 = BehaviorRegistration(
+            u"Behavior2",
+            "",
+            IBehavior2,
+            IMarker2,
+            None
+        )
+        self.mock_utility(behavior2, IBehavior, name="behavior2")
+
         class IBehavior3(Interface):
             pass
 
-        class ISubtype1(Interface):
+        class IMarker3(Interface):
             pass
 
-        class ISubtype2(Interface):
-            pass
-
-        behavior1 = BehaviorRegistration(
-            u"Behavior1", "", IBehavior1, None, None)
-        behavior2 = BehaviorRegistration(
-            u"Behavior2", "", IBehavior2, ISubtype1, None)
         behavior3 = BehaviorRegistration(
-            u"Behavior3", "", IBehavior3, ISubtype2, None)
-
-        self.mock_utility(behavior1, IBehavior, name="behavior1")
-        self.mock_utility(behavior2, IBehavior, name="behavior2")
+            u"Behavior3",
+            "",
+            IBehavior3,
+            IMarker3,
+            None
+        )
         self.mock_utility(behavior3, IBehavior, name="behavior3")
+
+        self.mock_adapter(
+            DexterityBehaviorAssignable,
+            IBehaviorAssignable,
+            (IDexterityContent,)
+        )
 
         # FTI mock
         fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+
         # twice, since we invalidate
         self.expect(fti_mock.lookupSchema()).result(ISchema).count(2)
 
@@ -363,36 +404,41 @@ class TestContent(MockTestCase):
 
         self.replay()
 
-        self.assertFalse(ISchema.implementedBy(MyItem))
-
-        # Schema as looked up in FTI is now provided by item ...
-        self.assertTrue(ISubtype1.providedBy(item))
-        self.assertFalse(ISubtype2.providedBy(item))
-        self.assertTrue(ISchema.providedBy(item))
-
-        # If the _v_ attribute cache does not work, then we'd expect to have
-        # to look up the schema more than once (since we invalidated)
-        # the cache. This is not the case, as evidenced by .count(1) above.
-        self.assertTrue(ISubtype1.providedBy(item))
-        self.assertFalse(ISubtype2.providedBy(item))
-        self.assertTrue(ISchema.providedBy(item))
-
-        # If we now invalidate the schema cache, we should get the second set
-        # of behaviors
+        # start clean
         SCHEMA_CACHE.invalidate('testtype')
 
-        # Schema as looked up in FTI is now provided by item ...
+        # implementedBy does not look into the fti
+        self.assertFalse(ISchema.implementedBy(MyItem))
 
-        self.assertTrue(ISubtype1.providedBy(item))
-        self.assertTrue(ISubtype2.providedBy(item))
+        # Main schema as looked up in FTI is now provided by item ...
         self.assertTrue(ISchema.providedBy(item))
+
+        # Behaviors with its behavior or if provided merker as looked up in
+        # FTI is now provided by item ...
+        self.assertTrue(IBehavior1.providedBy(item))
+        self.assertTrue(IMarker2.providedBy(item))
+        self.assertFalse(IMarker3.providedBy(item))
+
+        # If we now invalidate the schema cache, we should get the
+        # SECOND set of behaviors (which includes behavior3)
+        SCHEMA_CACHE.invalidate('testtype')
+
+        # Main schema as looked up in FTI is now provided by item ...
+        self.assertTrue(ISchema.providedBy(item))
+
+        # Behaviors with its behavior or if provided merker as looked up in
+        # FTI is now provided by item ...
+        self.assertTrue(IBehavior1.providedBy(item))
+        self.assertTrue(IMarker2.providedBy(item))
+        self.assertTrue(IMarker3.providedBy(item))
 
         # If the _v_ attribute cache does not work, then we'd expect to have
         # to look up the schema more than once (since we invalidated)
         # the cache. This is not the case, as evidenced by .count(1) above.
-        self.assertTrue(ISubtype1.providedBy(item))
-        self.assertTrue(ISubtype2.providedBy(item))
         self.assertTrue(ISchema.providedBy(item))
+        self.assertTrue(IBehavior1.providedBy(item))
+        self.assertTrue(IMarker2.providedBy(item))
+        self.assertTrue(IMarker3.providedBy(item))
 
     def test_getattr_consults_schema_item(self):
 
@@ -410,6 +456,8 @@ class TestContent(MockTestCase):
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         self.replay()
+
+        SCHEMA_CACHE.invalidate('testtype')
 
         self.assertEqual(u"foo_default", content.foo)
         self.assertEqual(None, content.bar)
@@ -432,6 +480,8 @@ class TestContent(MockTestCase):
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         self.replay()
+
+        SCHEMA_CACHE.invalidate('testtype')
 
         self.assertEqual(u"foo_default", content.foo)
         self.assertEqual(None, content.bar)
@@ -463,6 +513,8 @@ class TestContent(MockTestCase):
 
         self.replay()
 
+        SCHEMA_CACHE.invalidate('testtype')
+
         self.assertEqual(u"id_testtype", content.foo)
         self.assertEqual(None, content.bar)
         self.assertEqual(u"id", content.id)
@@ -487,6 +539,9 @@ class TestContent(MockTestCase):
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         self.replay()
+
+        SCHEMA_CACHE.invalidate('testtype')
+
         # Schema field masks contained item
         self.assertEqual(u"foo_default", content.foo)
 

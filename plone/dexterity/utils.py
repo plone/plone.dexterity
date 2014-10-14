@@ -3,21 +3,40 @@ from AccessControl import Unauthorized
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from DateTime import DateTime
-from Products.CMFCore.interfaces import ISiteRoot
 from plone.app.uuid.utils import uuidToObject
 from plone.autoform.interfaces import IFormFieldProvider
-from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.schema import SCHEMA_CACHE
+from plone.dexterity.schema import SchemaNameEncoder  # noqa bbb
+from plone.dexterity.schema import portalTypeToSchemaName  # noqa bbb
+from plone.dexterity.schema import schemaNameToPortalType  # noqa bbb
+from plone.dexterity.schema import splitSchemaName  # noqa bbb
+from plone.supermodel.utils import mergedTaggedValueDict
 from plone.uuid.interfaces import IUUID
+from zope import deprecation
 from zope.component import createObject
-from zope.component import getUtility, queryUtility
+from zope.component import getUtility
 from zope.container.interfaces import INameChooser
 from zope.dottedname.resolve import resolve
 from zope.event import notify
 from zope.lifecycleevent import ObjectCreatedEvent
+
 import datetime
 import logging
+
+deprecation.deprecated(
+    'SchemaNameEncoder',
+    'moved to plone.dexterity.schema')
+deprecation.deprecated(
+    'portalTypeToSchemaName',
+    'moved to plone.dexterity.schema')
+deprecation.deprecated(
+    'schemaNameToPortalType',
+    'moved to plone.dexterity.schema')
+deprecation.deprecated(
+    'splitSchemaName',
+    'moved to plone.dexterity.schema')
 
 log = logging.getLogger(__name__)
 
@@ -34,89 +53,67 @@ def resolveDottedName(dottedName):
     return _dottedCache[dottedName]
 
 
-# Schema name encoding
-class SchemaNameEncoder(object):
-
-    key = (
-        (' ', '_1_'),
-        ('.', '_2_'),
-        ('-', '_3_'),
-        ('/', '_4_'),
-    )
-
-    def encode(self, s):
-        for k, v in self.key:
-            s = s.replace(k, v)
-        return s
-
-    def decode(self, s):
-        for k, v in self.key:
-            s = s.replace(v, k)
-        return s
-
-    def join(self, *args):
-        return '_0_'.join([self.encode(a) for a in args if a])
-
-    def split(self, s):
-        return [self.decode(a) for a in s.split('_0_')]
-
-
-def portalTypeToSchemaName(portal_type, schema=u"", prefix=None):
-    """Return a canonical interface name for a generated schema interface.
-    """
-    if prefix is None:
-        prefix = '/'.join(getUtility(ISiteRoot).getPhysicalPath())[1:]
-
-    encoder = SchemaNameEncoder()
-    return encoder.join(prefix, portal_type, schema)
-
-
-def schemaNameToPortalType(schemaName):
-    """Return a the portal_type part of a schema name
-    """
-    encoder = SchemaNameEncoder()
-    return encoder.split(schemaName)[1]
-
-
-def splitSchemaName(schemaName):
-    """Return a tuple prefix, portal_type, schemaName
-    """
-    encoder = SchemaNameEncoder()
-    items = encoder.split(schemaName)
-    if len(items) == 2:
-        return items[0], items[1], u""
-    elif len(items) == 3:
-        return items[0], items[1], items[2]
-    else:
-        raise ValueError("Schema name %s is invalid" % schemaName)
-
-
 def iterSchemataForType(portal_type):
     """XXX: came from plone.app.deco.utils, very similar to iterSchemata
 
     Not fully merged codewise with iterSchemata as that breaks
     test_webdav.test_readline_mimetype_additional_schemata.
     """
-    fti = queryUtility(IDexterityFTI, name=portal_type)
-    if fti is None:
-        return
-
-    yield fti.lookupSchema()
+    main_schema = SCHEMA_CACHE.get(portal_type)
+    if main_schema:
+        yield main_schema
     for schema in getAdditionalSchemata(portal_type=portal_type):
         yield schema
 
 
-def iterSchemata(content):
+def iterSchemata(context):
     """Return an iterable containing first the object's schema, and then
     any form field schemata for any enabled behaviors.
     """
-    fti = queryUtility(IDexterityFTI, name=content.portal_type)
-    if fti is None:
-        return
-
-    yield fti.lookupSchema()
-    for schema in getAdditionalSchemata(context=content):
+    main_schema = SCHEMA_CACHE.get(context.portal_type)
+    if main_schema:
+        yield main_schema
+    for schema in getAdditionalSchemata(context=context):
         yield schema
+
+
+def getAdditionalSchemata(context=None, portal_type=None):
+    """Get additional schemata for this context or this portal_type.
+
+    Additional form field schemata can be defined in behaviors.
+
+    Usually either context or portal_type should be set, not both.
+    The idea is that for edit forms or views you pass in a context
+    (and we get the portal_type from there) and for add forms you pass
+    in a portal_type (and the context is irrelevant then).  If both
+    are set, the portal_type might get ignored, depending on which
+    code path is taken.
+    """
+    log.debug("getAdditionalSchemata with context %r and portal_type %s",
+              context, portal_type)
+    if context is None and portal_type is None:
+        return
+    if context:
+        behavior_assignable = IBehaviorAssignable(context, None)
+    else:
+        behavior_assignable = None
+    if behavior_assignable is None:
+        log.debug("No behavior assignable found, only checking fti.")
+        # Usually an add-form.
+        if portal_type is None:
+            portal_type = context.portal_type
+        for schema_interface in SCHEMA_CACHE.behavior_schema_interfaces(
+            portal_type
+        ):
+            form_schema = IFormFieldProvider(schema_interface, None)
+            if form_schema is not None:
+                yield form_schema
+    else:
+        log.debug("Behavior assignable found for context.")
+        for behavior_reg in behavior_assignable.enumerateBehaviors():
+            form_schema = IFormFieldProvider(behavior_reg.interface, None)
+            if form_schema is not None:
+                yield form_schema
 
 
 def createContent(portal_type, **kw):
@@ -200,56 +197,6 @@ def createContentInContainer(container, portal_type, checkConstraints=True,
     )
 
 
-def getAdditionalSchemata(context=None, portal_type=None):
-    """Get additional schemata for this context or this portal_type.
-
-    Additional schemata can be defined in behaviors.
-
-    Usually either context or portal_type should be set, not both.
-    The idea is that for edit forms or views you pass in a context
-    (and we get the portal_type from there) and for add forms you pass
-    in a portal_type (and the context is irrelevant then).  If both
-    are set, the portal_type might get ignored, depending on which
-    code path is taken.
-    """
-    log.debug("getAdditionalSchemata with context %r and portal_type %s",
-              context, portal_type)
-    if context is None and portal_type is None:
-        return
-    if context:
-        behavior_assignable = IBehaviorAssignable(context, None)
-    else:
-        behavior_assignable = None
-    if behavior_assignable is None:
-        log.debug("No behavior assignable found, only checking fti.")
-        # Usually an add-form.
-        if portal_type is None:
-            portal_type = context.portal_type
-        fti = getUtility(IDexterityFTI, name=portal_type)
-        for behavior_name in fti.behaviors:
-            behavior_interface = None
-            behavior_instance = queryUtility(IBehavior, name=behavior_name)
-            if not behavior_instance:
-                try:
-                    behavior_interface = resolveDottedName(behavior_name)
-                except (ValueError, ImportError):
-                    log.warning("Error resolving behaviour %s", behavior_name)
-                    continue
-            else:
-                behavior_interface = behavior_instance.interface
-
-            if behavior_interface is not None:
-                behavior_schema = IFormFieldProvider(behavior_interface, None)
-                if behavior_schema is not None:
-                    yield behavior_schema
-    else:
-        log.debug("Behavior assignable found for context.")
-        for behavior_reg in behavior_assignable.enumerateBehaviors():
-            behavior_schema = IFormFieldProvider(behavior_reg.interface, None)
-            if behavior_schema is not None:
-                yield behavior_schema
-
-
 def safe_utf8(s):
     if isinstance(s, unicode):
         s = s.encode('utf8')
@@ -277,3 +224,14 @@ def datify(s):
             s = DateTime(s)
 
     return s
+
+
+def all_merged_tagged_values_dict(ifaces, key):
+    """mergedTaggedValueDict of all interfaces for a given key
+
+    usally interfaces is a list of schemas
+    """
+    info = dict()
+    for iface in ifaces:
+        info.update(mergedTaggedValueDict(iface, key))
+    return info

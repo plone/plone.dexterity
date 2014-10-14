@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from Products.CMFCore.interfaces import ISiteRoot
 from plone.dexterity import schema
-from plone.dexterity import utils
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IContentType
 from plone.dexterity.interfaces import IDexterityFTI
@@ -9,6 +9,7 @@ from plone.mocktestcase import MockTestCase
 from plone.supermodel.model import Model
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
+
 import unittest
 import zope.schema
 
@@ -19,7 +20,7 @@ class TestSchemaModuleFactory(MockTestCase):
 
         # No IDexterityFTI registered
         factory = schema.SchemaModuleFactory()
-        schemaName = utils.portalTypeToSchemaName('testtype', prefix='site')
+        schemaName = schema.portalTypeToSchemaName('testtype', prefix='site')
         klass = factory(schemaName, schema.generated)
 
         self.assertTrue(isinstance(klass, InterfaceClass))
@@ -46,7 +47,7 @@ class TestSchemaModuleFactory(MockTestCase):
 
         factory = schema.SchemaModuleFactory()
 
-        schemaName = utils.portalTypeToSchemaName('testtype', prefix='site')
+        schemaName = schema.portalTypeToSchemaName('testtype', prefix='site')
         klass = factory(schemaName, schema.generated)
 
         self.assertTrue(isinstance(klass, InterfaceClass))
@@ -77,7 +78,7 @@ class TestSchemaModuleFactory(MockTestCase):
 
         factory = schema.SchemaModuleFactory()
 
-        schemaName = utils.portalTypeToSchemaName(
+        schemaName = schema.portalTypeToSchemaName(
             'testtype',
             schema=u"named",
             prefix='site'
@@ -97,7 +98,7 @@ class TestSchemaModuleFactory(MockTestCase):
     def test_transient_schema_made_concrete(self):
 
         factory = schema.SchemaModuleFactory()
-        schemaName = utils.portalTypeToSchemaName('testtype', prefix='site')
+        schemaName = schema.portalTypeToSchemaName('testtype', prefix='site')
 
         # No IDexterityFTI registered
 
@@ -143,6 +144,61 @@ class TestSchemaModuleFactory(MockTestCase):
         # Now we get the fields from the FTI's model
         self.assertEqual(('dummy',), tuple(zope.schema.getFieldNames(klass)))
 
+    def test_portalTypeToSchemaName_with_schema_and_prefix(self):
+        self.assertEqual(
+            'prefix_0_type_0_schema',
+            schema.portalTypeToSchemaName('type', 'schema', 'prefix')
+        )
+        self.assertEqual(
+            'prefix_0_type',
+            schema.portalTypeToSchemaName('type', '', 'prefix')
+        )
+        self.assertEqual(
+            'prefix_0_type_1_one_2_two',
+            schema.portalTypeToSchemaName('type one.two', '', 'prefix')
+        )
+
+    def test_portalTypeToSchemaName_looks_up_portal_for_prefix(self):
+        portal_mock = self.mocker.mock()
+        self.expect(
+            portal_mock.getPhysicalPath()
+        ).result(('', 'foo', 'portalid'))
+        self.mock_utility(portal_mock, ISiteRoot)
+
+        self.replay()
+
+        self.assertEqual(
+            'foo_4_portalid_0_type',
+            schema.portalTypeToSchemaName('type')
+        )
+
+    def test_schemaNameToPortalType(self):
+        self.assertEqual(
+            'type',
+            schema.schemaNameToPortalType('prefix_0_type_0_schema')
+        )
+        self.assertEqual(
+            'type',
+            schema.schemaNameToPortalType('prefix_0_type')
+        )
+        self.assertEqual(
+            'type one.two',
+            schema.schemaNameToPortalType('prefix_0_type_1_one_2_two')
+        )
+
+    def test_splitSchemaName(self):
+        self.assertEqual(
+            ('prefix', 'type', 'schema',),
+            schema.splitSchemaName('prefix_0_type_0_schema')
+        )
+        self.assertEqual(
+            ('prefix', 'type', '',),
+            schema.splitSchemaName('prefix_0_type')
+        )
+        self.assertEqual(
+            ('prefix', 'type one.two', '',),
+            schema.splitSchemaName('prefix_0_type_1_one_2_two')
+        )
 
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

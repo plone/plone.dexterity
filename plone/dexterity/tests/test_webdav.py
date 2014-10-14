@@ -9,7 +9,8 @@ from mocker import ANY
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.browser.traversal import DexterityPublishTraverse
-from plone.dexterity.content import Item, Container
+from plone.dexterity.content import Container
+from plone.dexterity.content import Item
 from plone.dexterity.filerepresentation import DefaultDirectoryFactory
 from plone.dexterity.filerepresentation import DefaultFileFactory
 from plone.dexterity.filerepresentation import DefaultReadFile
@@ -22,7 +23,9 @@ from plone.dexterity.schema import SCHEMA_CACHE
 from plone.mocktestcase import MockTestCase
 from plone.rfc822.interfaces import IPrimaryField
 from webdav.NullResource import NullResource
-from zExceptions import Unauthorized, MethodNotAllowed, Forbidden
+from zExceptions import Forbidden
+from zExceptions import MethodNotAllowed
+from zExceptions import Unauthorized
 from zope import schema
 from zope.component.interfaces import IFactory
 from zope.filerepresentation.interfaces import IDirectoryFactory
@@ -35,6 +38,7 @@ from zope.interface import implements
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.publisher.browser import TestRequest
 from zope.size.interfaces import ISized
+
 import re
 import unittest
 
@@ -1099,7 +1103,7 @@ class TestFileRepresentation(MockTestCase):
         class ITest(Interface):
             pass
 
-        fti_mock = self.mocker.mock(DexterityFTI)
+        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
         SCHEMA_CACHE.clear()
         self.expect(fti_mock.lookupSchema()).result(ITest)
         self.expect(fti_mock.behaviors).result([])
@@ -1121,7 +1125,7 @@ class TestFileRepresentation(MockTestCase):
             title = schema.TextLine()
 
         SCHEMA_CACHE.clear()
-        fti_mock = self.mocker.mock(DexterityFTI)
+        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
         self.expect(fti_mock.lookupSchema()).result(ITest)
         self.expect(fti_mock.behaviors).result([])
 
@@ -1144,7 +1148,7 @@ class TestFileRepresentation(MockTestCase):
         alsoProvides(ITest['body'], IPrimaryField)
 
         SCHEMA_CACHE.clear()
-        fti_mock = self.mocker.mock(DexterityFTI)
+        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
         self.expect(fti_mock.lookupSchema()).result(ITest)
         self.expect(fti_mock.behaviors).result([])
 
@@ -1169,7 +1173,7 @@ class TestFileRepresentation(MockTestCase):
         alsoProvides(ITest['stuff'], IPrimaryField)
 
         SCHEMA_CACHE.clear()
-        fti_mock = self.mocker.mock(DexterityFTI)
+        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
         self.expect(fti_mock.lookupSchema()).result(ITest)
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
@@ -1208,7 +1212,7 @@ class TestFileRepresentation(MockTestCase):
             def enumerateBehaviors(self):
                 yield MockBehavior(ITestAdditional)
         SCHEMA_CACHE.clear()
-        fti_mock = self.mocker.mock(DexterityFTI)
+        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
         self.expect(fti_mock.lookupSchema()).result(ITest)
 
         self.mock_adapter(MockBehaviorAssignable, IBehaviorAssignable,
@@ -1230,7 +1234,7 @@ class TestFileRepresentation(MockTestCase):
             body = schema.Text()
         alsoProvides(ITest['body'], IPrimaryField)
 
-        fti_mock = self.mocker.mock(DexterityFTI)
+        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
         self.expect(fti_mock.lookupSchema()).result(ITest).count(0, None)
         self.expect(
             fti_mock.behaviors
@@ -1308,7 +1312,7 @@ Portal-Type: testtype
             body = schema.Text()
         alsoProvides(ITest['body'], IPrimaryField)
 
-        fti_mock = self.mocker.mock(DexterityFTI)
+        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
         self.expect(fti_mock.lookupSchema()).result(ITest).count(0, None)
         self.expect(
             fti_mock.behaviors

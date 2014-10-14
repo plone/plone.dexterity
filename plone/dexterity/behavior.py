@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.interfaces import IDexterityContent
-from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.schema import SCHEMA_CACHE
 from zope.component import adapter
-from zope.component import getUtility
-from zope.component import queryUtility
 from zope.interface import implementer
 
 
@@ -16,7 +13,7 @@ class DexterityBehaviorAssignable(object):
     """
 
     def __init__(self, context):
-        self.fti = getUtility(IDexterityFTI, name=context.portal_type)
+        self.context = context
 
     def supports(self, behavior_interface):
         for behavior in self.enumerateBehaviors():
@@ -25,7 +22,7 @@ class DexterityBehaviorAssignable(object):
         return False
 
     def enumerateBehaviors(self):
-        for name in self.fti.behaviors:
-            behavior = queryUtility(IBehavior, name=name)
-            if behavior is not None:
-                yield behavior
+        for behavior in SCHEMA_CACHE.behavior_registrations(
+            self.context.portal_type
+        ):
+            yield behavior

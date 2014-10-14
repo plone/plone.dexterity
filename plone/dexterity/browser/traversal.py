@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
-try:
-    from repoze.zope2.publishtraverse import DefaultPublishTraverse
-except ImportError:
-    from ZPublisher.BaseRequest import DefaultPublishTraverse
-
-from Acquisition import aq_inner, aq_parent
+from Acquisition import aq_inner
+from Acquisition import aq_parent
 from Acquisition.interfaces import IAcquirer
 from plone.dexterity.filerepresentation import FolderDataResource
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
@@ -12,6 +8,11 @@ from plone.dexterity.interfaces import IDexterityContent
 from webdav.NullResource import NullResource
 from zope.component import adapts
 from zope.publisher.interfaces.browser import IBrowserRequest
+
+try:
+    from repoze.zope2.publishtraverse import DefaultPublishTraverse
+except ImportError:
+    from ZPublisher.BaseRequest import DefaultPublishTraverse
 
 
 class DexterityPublishTraverse(DefaultPublishTraverse):

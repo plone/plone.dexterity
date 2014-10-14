@@ -8,6 +8,7 @@ from plone.rfc822.interfaces import IPrimaryField
 from zope import schema
 from zope.interface import Interface
 from zope.interface import alsoProvides
+
 import unittest
 
 
@@ -19,7 +20,7 @@ class PrimaryFieldInfoTestCase(MockTestCase):
             body = schema.Text()
         alsoProvides(ITest['body'], IPrimaryField)
 
-        fti_mock = self.mocker.mock(DexterityFTI)
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
         self.expect(fti_mock.lookupSchema()).result(ITest).count(0, None)
         self.expect(fti_mock.behaviors).result([]).count(0, None)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")

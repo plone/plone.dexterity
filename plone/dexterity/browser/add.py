@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from Acquisition import aq_inner, aq_base
+from Acquisition import aq_base
+from Acquisition import aq_inner
 from Acquisition.interfaces import IAcquirer
 from Products.statusmessages.interfaces import IStatusMessage
 from plone.dexterity.browser.base import DexterityExtensibleForm
@@ -10,8 +11,10 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import addContentToContainer
 from plone.dexterity.utils import getAdditionalSchemata
 from plone.z3cform import layout
-from z3c.form import form, button
-from zope.component import getUtility, createObject
+from z3c.form import button
+from z3c.form import form
+from zope.component import createObject
+from zope.component import getUtility
 from zope.event import notify
 from zope.publisher.browser import BrowserPage
 
