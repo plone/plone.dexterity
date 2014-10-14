@@ -64,7 +64,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             'type': 'lines',
             'mode': 'w',
             'label': 'Behaviors',
-            'description': 'Named of enabled behaviors type'
+            'description': 'Names of enabled behaviors type'
         },
         {
             'id': 'schema',
