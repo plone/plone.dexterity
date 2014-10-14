@@ -2,7 +2,9 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl import Permissions as acpermissions
 from AccessControl import getSecurityManager
-from Acquisition import Explicit, aq_base, aq_parent
+from Acquisition import Explicit
+from Acquisition import aq_base
+from Acquisition import aq_parent
 from DateTime import DateTime
 from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
@@ -18,18 +20,19 @@ from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 from Products.CMFPlone.interfaces import IConstrainTypes
 from copy import deepcopy
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
+from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.filerepresentation import DAVCollectionMixin
 from plone.dexterity.filerepresentation import DAVResourceMixin
 from plone.dexterity.interfaces import IDexterityContainer
 from plone.dexterity.interfaces import IDexterityContent
-from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.schema import SCHEMA_CACHE
+from plone.dexterity.utils import all_merged_tagged_values_dict
 from plone.dexterity.utils import datify
+from plone.dexterity.utils import iterSchemata
 from plone.dexterity.utils import safe_unicode
 from plone.dexterity.utils import safe_utf8
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
-from plone.supermodel.utils import mergedTaggedValueDict
 from plone.uuid.interfaces import IAttributeUUID
 from plone.uuid.interfaces import IUUID
 from zExceptions import Unauthorized
@@ -70,17 +73,18 @@ def _default_from_schema(context, schema, fieldname):
 
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
     """A __providedBy__ decorator that returns the interfaces provided by
-    the object, plus the schema interface set in the FTI.
-    """
+    the object, plus the schema interface set in the FTI.    """
 
     def __get__(self, inst, cls=None):
         # We're looking at a class - fall back on default
         if inst is None:
             return getObjectSpecification(cls)
 
-        # Find the data we need to know if our cache needs to be invalidated
         direct_spec = getattr(inst, '__provides__', None)
-        portal_type = getattr(inst, 'portal_type', None)
+
+        # avoid recursion - fall back on default
+        if getattr(self, '__recursion__', False):
+            return direct_spec
 
         spec = direct_spec
 
@@ -89,47 +93,63 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         if spec is None:
             spec = implementedBy(cls)
 
+        # Find the data we need to know if our cache needs to be invalidated
+        portal_type = getattr(inst, 'portal_type', None)
+
         # If the instance has no portal type, then we're done.
         if portal_type is None:
             return spec
 
-        fti = queryUtility(IDexterityFTI, name=portal_type)
-        if fti is None:
-            return spec
-
-        schema = SCHEMA_CACHE.get(portal_type)
-        subtypes = SCHEMA_CACHE.subtypes(portal_type)
-
         # Find the cached value. This calculation is expensive and called
         # hundreds of times during each request, so we require a fast cache
         cache = getattr(inst, '_v__providedBy__', None)
-        updated = inst._p_mtime, schema, subtypes, direct_spec
 
-        # See if we have a valid cache. Reasons to do this include:
+        # See if we have a current cache. Reasons to do this include:
         #
-        #  - The schema was modified.
-        #  - The subtypes were modified.
+        #  - The FTI was modified.
         #  - The instance was modified and persisted since the cache was built.
         #  - The instance has a different direct specification.
-        if cache is not None:
-            cached_mtime, cached_schema, cached_subtypes, \
-                cached_direct_spec, cached_spec = cache
+        updated = (
+            inst._p_mtime,
+            SCHEMA_CACHE.modified(portal_type),
+            SCHEMA_CACHE.invalidations,
+            hash(direct_spec)
+        )
+        if cache is not None and cache[:-1] == updated:
+            if cache[-1] is not None:
+                return cache[-1]
+            return spec
 
-            if cache[:-1] == updated:
-                return cached_spec
+        main_schema = SCHEMA_CACHE.get(portal_type)
+        if main_schema:
+            dynamically_provided = [main_schema]
+        else:
+            dynamically_provided = []
 
-        dynamically_provided = [] if schema is None else [schema]
-        dynamically_provided.extend(subtypes)
-
-        # If we have neither a schema, nor a subtype, then we're also done.
+        # block recursion
+        self.__recursion__ = True
+        assignable = IBehaviorAssignable(inst, None)
+        if assignable is not None:
+            for behavior_registration in assignable.enumerateBehaviors():
+                if behavior_registration.marker:
+                    dynamically_provided.append(
+                        behavior_registration.marker
+                    )
+                elif behavior_registration.interface:
+                    dynamically_provided.append(
+                        behavior_registration.interface
+                    )
+        del self.__recursion__
         if not dynamically_provided:
+            # rare case if no schema nor behaviors with markers are set
+            inst._v__providedBy__ = updated + (None, )
             return spec
 
         dynamically_provided.append(spec)
-        spec = Implements(*dynamically_provided)
-        inst._v__providedBy__ = updated + (spec, )
+        all_spec = Implements(*dynamically_provided)
+        inst._v__providedBy__ = updated + (all_spec, )
 
-        return spec
+        return all_spec
 
 
 class AttributeValidator(Explicit):
@@ -139,38 +159,31 @@ class AttributeValidator(Explicit):
     """
 
     def __call__(self, name, value):
-
         # Short circuit for things like views or viewlets
         if name == '':
             return 1
 
         context = aq_parent(self)
 
-        schema = self._get_schema(context)
-        if schema is None:
+        # we may want to cache this based on the combined mod-times
+        # of fti and context, but even this is not save in the case someone
+        # decides to have behaviors bound on something different than context
+        # or fti, i.e. schemas for subtrees.
+        protection_dict = all_merged_tagged_values_dict(
+            iterSchemata(context),
+            READ_PERMISSIONS_KEY
+        )
+
+        if name not in protection_dict:
             return 1
 
-        info = mergedTaggedValueDict(schema, READ_PERMISSIONS_KEY)
-
-        if name not in info:
-            return 1
-
-        permission = queryUtility(IPermission, name=info[name])
+        permission = queryUtility(IPermission, name=protection_dict[name])
         if permission is not None:
             return getSecurityManager().checkPermission(
                 permission.title, context
             )
 
         return 0
-
-    def _get_schema(self, inst):
-        portal_type = getattr(inst, 'portal_type', None)
-        if portal_type is not None:
-            try:
-                return SCHEMA_CACHE.get(portal_type)
-            except (ValueError, AttributeError,):
-                pass
-        return None
 
 
 class PasteBehaviourMixin(object):
@@ -297,7 +310,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         # such as __conform__ that we can disregard (because we
         # wouldn't be in here if the class had such an attribute
         # defined).
-        if name.startswith('__'):
+        # also handle special dynamic providedBy cache here.
+        if name.startswith('__') or name == '_v__providedBy__':
             raise AttributeError(name)
 
         # attribute was not found; try to look it up in the schema and return
@@ -311,10 +325,17 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
             return value
 
         # do the same for each subtype
-        for schema in SCHEMA_CACHE.subtypes(self.portal_type):
-            value = _default_from_schema(self, schema, name)
-            if value is not _marker:
-                return value
+        assignable = IBehaviorAssignable(self, None)
+        if assignable is not None:
+            for behavior_registration in assignable.enumerateBehaviors():
+                if behavior_registration.interface:
+                    value = _default_from_schema(
+                        self,
+                        behavior_registration.interface,
+                        name
+                    )
+                    if value is not _marker:
+                        return value
 
         raise AttributeError(name)
 
@@ -329,6 +350,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         if isinstance(value, unicode):
             value = str(value)  # may throw, but that's OK - id must be ASCII
         self.id = value
+
     __name__ = property(_get__name__, _set__name__)
 
     def UID(self):

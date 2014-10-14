@@ -25,6 +25,7 @@ from zope.interface import Interface
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.security.interfaces import IPermission
+
 import mocker
 import os.path
 import plone.dexterity.schema.generated
