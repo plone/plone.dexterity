@@ -290,6 +290,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
             setattr(self, k, v)
 
     def __getattr__(self, name):
+        # python basics:  __getattr__ is only invoked if the attribute wasn't
+        # found by __getattribute__
+        #
         # optimization: sometimes we're asked for special attributes
         # such as __conform__ that we can disregard (because we
         # wouldn't be in here if the class had such an attribute
