@@ -50,6 +50,24 @@ FLOOR_DATE = DateTime(1970, 0)  # always effective
 CEILING_DATE = DateTime(2500, 0)  # never expires
 
 
+def _default_from_schema(context, schema, fieldname):
+    """helper to lookup default value of a field
+    """
+    if schema is None:
+        return _marker
+    field = schema.get(fieldname, None)
+    if field is None:
+        return _marker
+    if IContextAwareDefaultFactory.providedBy(
+            getattr(field, 'defaultFactory', None)
+    ):
+        bound = field.bind(context)
+        return deepcopy(bound.default)
+    else:
+        return deepcopy(field.default)
+    return _marker
+
+
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
     """A __providedBy__ decorator that returns the interfaces provided by
     the object, plus the schema interface set in the FTI.
@@ -281,27 +299,19 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
 
         # attribute was not found; try to look it up in the schema and return
         # a default
-        schema = SCHEMA_CACHE.get(self.portal_type)
-        if schema is not None:
-            field = schema.get(name, None)
-            if field is not None:
-                if IContextAwareDefaultFactory.providedBy(
-                        getattr(field, 'defaultFactory', None)):
-                    bound = field.bind(self)
-                    return deepcopy(bound.default)
-                else:
-                    return deepcopy(field.default)
+        value = _default_from_schema(
+            self,
+            SCHEMA_CACHE.get(self.portal_type),
+            name
+        )
+        if value is not _marker:
+            return value
 
         # do the same for each subtype
         for schema in SCHEMA_CACHE.subtypes(self.portal_type):
-            field = schema.get(name, None)
-            if field is not None:
-                if IContextAwareDefaultFactory.providedBy(
-                        getattr(field, 'defaultFactory', None)):
-                    bound = field.bind(self)
-                    return deepcopy(bound.default)
-                else:
-                    return deepcopy(field.default)
+            value = _default_from_schema(self, schema, name)
+            if value is not _marker:
+                return value
 
         raise AttributeError(name)
 
