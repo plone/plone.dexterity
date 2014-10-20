@@ -5,13 +5,16 @@ from setuptools import find_packages
 
 version = '2.2.4.dev0'
 
+short_description = """\
+Framework for content types as filesystem code and TTW (Zope/CMF/Plone)\
+"""
 long_description = open("README.rst").read() + "\n"
 long_description += open("CHANGES.rst").read()
 
 setup(
     name='plone.dexterity',
     version=version,
-    description="Flexible CMF content",
+    description=short_description,
     long_description=long_description,
     # Get more strings from
     # http://www.python.org/pypi?%3Aaction=list_classifiers
