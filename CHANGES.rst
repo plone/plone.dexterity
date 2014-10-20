@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.2.4 (unreleased)
+2.2.4 (2014-10-20)
 ------------------
 
 - Fix the default attribute accessor to bind field to context when finding
