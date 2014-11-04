@@ -133,10 +133,6 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
                     dynamically_provided.append(
                         behavior_registration.marker
                     )
-                elif behavior_registration.interface:
-                    dynamically_provided.append(
-                        behavior_registration.interface
-                    )
         del self.__recursion__
         if not dynamically_provided:
             # rare case if no schema nor behaviors with markers are set

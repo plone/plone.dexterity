@@ -279,9 +279,9 @@ class TestContent(MockTestCase):
         # Main schema as looked up in FTI is now provided by item ...
         self.assertTrue(ISchema.providedBy(item))
 
-        # behavior1 does not provide a marker, so the schema interface is used
-        # as a marker
-        self.assertTrue(IBehavior1.providedBy(item))
+        # behavior1 does not provide a marker, the schema interface
+        # is NOT used as a marker
+        self.assertFalse(IBehavior1.providedBy(item))
 
         # behavior2 provides a marker, so it is used as a marker
         self.assertTrue(IMarker2.providedBy(item))
@@ -299,7 +299,7 @@ class TestContent(MockTestCase):
         # after directly setting an interface the main-schema and behavior
         # interfaces are still there
         self.assertTrue(ISchema.providedBy(item))
-        self.assertTrue(IBehavior1.providedBy(item))
+        self.assertFalse(IBehavior1.providedBy(item))
         self.assertTrue(IMarker2.providedBy(item))
 
     def test_provided_by_behavior_subtype_invalidation(self):
@@ -415,7 +415,7 @@ class TestContent(MockTestCase):
 
         # Behaviors with its behavior or if provided merker as looked up in
         # FTI is now provided by item ...
-        self.assertTrue(IBehavior1.providedBy(item))
+        self.assertFalse(IBehavior1.providedBy(item))
         self.assertTrue(IMarker2.providedBy(item))
         self.assertFalse(IMarker3.providedBy(item))
 
@@ -428,7 +428,7 @@ class TestContent(MockTestCase):
 
         # Behaviors with its behavior or if provided merker as looked up in
         # FTI is now provided by item ...
-        self.assertTrue(IBehavior1.providedBy(item))
+        self.assertFalse(IBehavior1.providedBy(item))
         self.assertTrue(IMarker2.providedBy(item))
         self.assertTrue(IMarker3.providedBy(item))
 
@@ -436,7 +436,7 @@ class TestContent(MockTestCase):
         # to look up the schema more than once (since we invalidated)
         # the cache. This is not the case, as evidenced by .count(1) above.
         self.assertTrue(ISchema.providedBy(item))
-        self.assertTrue(IBehavior1.providedBy(item))
+        self.assertFalse(IBehavior1.providedBy(item))
         self.assertTrue(IMarker2.providedBy(item))
         self.assertTrue(IMarker3.providedBy(item))
 
