@@ -128,18 +128,20 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
 
         # block recursion
         self.__recursion__ = True
-        assignable = IBehaviorAssignable(inst, None)
-        if assignable is not None:
-            for behavior_registration in assignable.enumerateBehaviors():
-                if behavior_registration.marker:
-                    dynamically_provided.append(
-                        behavior_registration.marker
-                    )
-                elif behavior_registration.interface:
-                    dynamically_provided.append(
-                        behavior_registration.interface
-                    )
-        del self.__recursion__
+        try:
+            assignable = IBehaviorAssignable(inst, None)
+            if assignable is not None:
+                for behavior_registration in assignable.enumerateBehaviors():
+                    if behavior_registration.marker:
+                        dynamically_provided.append(
+                            behavior_registration.marker
+                        )
+                    elif behavior_registration.interface:
+                        dynamically_provided.append(
+                            behavior_registration.interface
+                        )
+        finally:
+            del self.__recursion__
         if not dynamically_provided:
             # rare case if no schema nor behaviors with markers are set
             inst._v__providedBy__ = updated + (None, )
