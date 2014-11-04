@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.0.0 (unreleased)
+2.3.0 (unreleased)
 ------------------
 
 - Big major overhaul to use always the same way everywhere how to fetch

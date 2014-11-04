@@ -2,7 +2,9 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl import Permissions as acpermissions
 from AccessControl import getSecurityManager
-from Acquisition import Explicit, aq_base, aq_parent
+from Acquisition import Explicit
+from Acquisition import aq_base
+from Acquisition import aq_parent
 from DateTime import DateTime
 from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
@@ -126,14 +128,17 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
 
         # block recursion
         self.__recursion__ = True
-        assignable = IBehaviorAssignable(inst, None)
-        if assignable is not None:
-            for behavior_registration in assignable.enumerateBehaviors():
-                if behavior_registration.marker:
-                    dynamically_provided.append(
-                        behavior_registration.marker
-                    )
-        del self.__recursion__
+        try:
+            assignable = IBehaviorAssignable(inst, None)
+            if assignable is not None:
+                for behavior_registration in assignable.enumerateBehaviors():
+                    if behavior_registration.marker:
+                        dynamically_provided.append(
+                            behavior_registration.marker
+                        )
+        finally:
+            del self.__recursion__
+
         if not dynamically_provided:
             # rare case if no schema nor behaviors with markers are set
             inst._v__providedBy__ = updated + (None, )
