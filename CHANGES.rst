@@ -4,18 +4,18 @@ Changelog
 2.3.0 (unreleased)
 ------------------
 
-- Big major overhaul to use always the same way everywhere how to fetch
-  main-schema, behavior-schemas and its markers. This was very scrmabled:
-  Sometime never took into account stuff from behaviors, or only from FTI
-  based behaviors and not from IBehaviorAssignable adapter. Also the caching
-  was cleaned up. The tests are now better readable (at least i hope so).
-  In order to avoid circular imports some methods where moved fro ``utils.py``
-  to ``schema.py``. Deprecations are in place.
+- Big major overhaul to use everywhere the same way to fetch the main schema,
+  behavior schemata and its markers. This was very scrmabled: sometimes
+  behaviors weren't taken into account, or only FTI based behaviors but not
+  those returned by the IBehaviorAssignable adapter. Also the caching was
+  cleaned up. The tests are now better readable (at least I hope so).  In order
+  to avoid circular imports some methods where moved fro ``utils.py`` to
+  ``schema.py``.  Deprecations are in place.
   [jensens]
 
-- Fix (security): Attribute access to schema fields can be protected. This worked
-  for direct schemas, but was not implemented for permissions coming from
-  behaviors.
+- Fix (security): Attribute access to schema fields can be protected. This
+  worked for direct schemas, but was not implemented for permissions coming
+  from behaviors.
   [jensens]
 
 2.2.4 (2014-10-20)

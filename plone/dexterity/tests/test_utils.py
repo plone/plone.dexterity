@@ -123,6 +123,5 @@ class TestUtils(MockTestCase):
         )
 
 
-
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

@@ -630,7 +630,7 @@ class TestFTIEvents(MockTestCase):
         self.assertEqual(None, queryUtility(IDexterityFTI, name=portal_type))
         self.assertEqual(None, queryUtility(IFactory, name=portal_type))
 
-    def test_components_unregistered_on_delete_does_not_error_with_no_components(self):
+    def test_components_unregistered_on_delete_does_not_error_with_no_components(self):  # noqa
         portal_type = u"testtype"
         fti = DexterityFTI(portal_type)
         container_dummy = self.create_dummy()

@@ -67,7 +67,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
             text=stream.getvalue(),
             content_type='text/comma-separated-values',
             subdir=subdir,
-            )
+        )
 
         props = context.manage_FTPget()
         if hasattr(props, 'read'):
@@ -77,7 +77,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
             text=props,
             content_type='text/plain',
             subdir=subdir,
-            )
+        )
 
         for object_id, object, adapter in exportable:
             if adapter is not None:

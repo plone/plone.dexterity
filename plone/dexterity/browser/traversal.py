@@ -41,7 +41,7 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
            and name == DAV_FOLDER_DATA_ID:
             return FolderDataResource(
                 DAV_FOLDER_DATA_ID, context
-                ).__of__(context)
+            ).__of__(context)
 
         defaultTraversal = super(
             DexterityPublishTraverse,

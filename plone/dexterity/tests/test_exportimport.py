@@ -23,7 +23,7 @@ class ExportImportTests(unittest.TestCase):
         self.assertEqual(
             export_context._wrote[-1],
             ('.data', 'title: Foo', 'text/plain')
-            )
+        )
 
     def test_import(self):
         # Make sure our importer delegates to PUT()

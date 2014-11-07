@@ -797,7 +797,7 @@ class TestContent(MockTestCase):
         self.assertEqual(c.foo, "bar")
 
     def test_setTitle_converts_to_unicode(self):
-        #fix http://code.google.com/p/dexterity/issues/detail?id=145
+        # fix http://code.google.com/p/dexterity/issues/detail?id=145
         i = Item()
         i.setTitle("é")
         self.assertEqual(i.title, u"é")

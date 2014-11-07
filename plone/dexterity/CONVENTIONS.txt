@@ -1,6 +1,7 @@
 Dexterity coding conventions
 ============================
 
-Follow the `plone.api code conventions <http://docs.plone.org/external/plone.api/docs/contribute/conventions.html>_
+Follow the `plone.api code conventions
+<http://docs.plone.org/external/plone.api/docs/contribute/conventions.html>_
 
 Dont use grok.

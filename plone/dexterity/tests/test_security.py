@@ -290,7 +290,7 @@ class TestAttributeProtection(MockTestCase):
             container.__allow_access_to_unprotected_subobjects__(
                 'test',
                 u"foo"
-                )
+            )
         )
 
         # # run 2: schema and no behavior access to known non schema attribute
@@ -299,7 +299,7 @@ class TestAttributeProtection(MockTestCase):
             container.__allow_access_to_unprotected_subobjects__(
                 'foo',
                 u"bar"
-                )
+            )
         )
 
         # # run 3: schema and no behavior, unknown attributes are allowed
@@ -308,7 +308,7 @@ class TestAttributeProtection(MockTestCase):
             container.__allow_access_to_unprotected_subobjects__(
                 'random',
                 u"stuff"
-                )
+            )
         )
 
         # # run 4: schema and behavior
@@ -317,7 +317,7 @@ class TestAttributeProtection(MockTestCase):
             container.__allow_access_to_unprotected_subobjects__(
                 'test2',
                 u"foo2"
-                )
+            )
         )
 
         # run 5: no schema but behavior
@@ -326,7 +326,7 @@ class TestAttributeProtection(MockTestCase):
             container.__allow_access_to_unprotected_subobjects__(
                 'test2',
                 u"foo2"
-                )
+            )
         )
 
     def test_no_tagged_value(self):

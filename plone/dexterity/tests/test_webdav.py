@@ -869,7 +869,7 @@ class TestFileRepresentation(MockTestCase):
         self.expect(
             getToolByName_mock(
                 container, 'content_type_registry', None
-                )
+            )
         ).result(None)
 
         factory = DefaultFileFactory(container)

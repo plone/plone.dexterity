@@ -73,7 +73,8 @@ def _default_from_schema(context, schema, fieldname):
 
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
     """A __providedBy__ decorator that returns the interfaces provided by
-    the object, plus the schema interface set in the FTI.    """
+    the object, plus the schema interface set in the FTI.
+    """
 
     def __get__(self, inst, cls=None):
         # We're looking at a class - fall back on default
@@ -374,7 +375,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
             creator = user and user.getId()
 
         # call self.listCreators() to make sure self.creators exists
-        if creator and not creator in self.listCreators():
+        if creator and creator not in self.listCreators():
             self.creators = self.creators + (creator, )
 
     @security.protected(permissions.ModifyPortalContent)
@@ -631,7 +632,7 @@ class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
     manage_options = PropertyManager.manage_options + ({
         'label': 'View',
         'action': 'view',
-        },) + CMFCatalogAware.manage_options + SimpleItem.manage_options
+    },) + CMFCatalogAware.manage_options + SimpleItem.manage_options
 
     # Be explicit about which __getattr__ to use
     __getattr__ = DexterityContent.__getattr__

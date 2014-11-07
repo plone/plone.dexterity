@@ -200,5 +200,6 @@ class TestSchemaModuleFactory(MockTestCase):
             schema.splitSchemaName('prefix_0_type_1_one_2_two')
         )
 
+
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
