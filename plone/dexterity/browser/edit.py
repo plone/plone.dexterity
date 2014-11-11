@@ -9,7 +9,8 @@ from plone.dexterity.i18n import MessageFactory as _
 from plone.dexterity.interfaces import IDexterityEditForm
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.z3cform import layout
-from z3c.form import form, button
+from z3c.form import button
+from z3c.form import form
 from zope.component import getUtility
 from zope.event import notify
 from zope.interface import classImplements

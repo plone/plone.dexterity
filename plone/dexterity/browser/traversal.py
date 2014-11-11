@@ -6,7 +6,7 @@ from plone.dexterity.filerepresentation import FolderDataResource
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.interfaces import IDexterityContent
 from webdav.NullResource import NullResource
-from zope.component import adapts
+from zope.component import adapter
 from zope.publisher.interfaces.browser import IBrowserRequest
 
 try:
@@ -15,6 +15,7 @@ except ImportError:
     from ZPublisher.BaseRequest import DefaultPublishTraverse
 
 
+@adapter(IDexterityContent, IBrowserRequest)
 class DexterityPublishTraverse(DefaultPublishTraverse):
     """Override the default browser publisher to make WebDAV work for
     Dexterity objects.
@@ -23,8 +24,6 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
     DAV requests difficult, and in part it adds support for the '_data'
     pseudo-resource that is shown for folderish content items.
     """
-
-    adapts(IDexterityContent, IBrowserRequest)
 
     def __init__(self, context, request):
         self.context = context
