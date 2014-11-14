@@ -28,18 +28,17 @@ from plone.dexterity.interfaces import IDexterityContainer
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.schema import SCHEMA_CACHE
+from plone.dexterity.utils import BehaviorInfo
 from plone.dexterity.utils import all_merged_tagged_values_dict
 from plone.dexterity.utils import datify
 from plone.dexterity.utils import iterSchemata
 from plone.dexterity.utils import safe_unicode
 from plone.dexterity.utils import safe_utf8
-from plone.dexterity.utils import BehaviorInfo
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
 from plone.uuid.interfaces import IAttributeUUID
 from plone.uuid.interfaces import IUUID
 from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
-from plone.behavior.registration import lookup_behavior_registration
 from zope.component import queryUtility
 from zope.container.contained import Contained
 from zope.interface import implementer
@@ -49,6 +48,7 @@ from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import implementedBy
 from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
+import textwrap
 
 _marker = object()
 _zone = DateTime().timezone()
@@ -285,6 +285,34 @@ class BehaviorAPI(Explicit):
         return _BEHAVIOR_API_REPR.format(behaviors=u'\n'.join(lines), **info)
 
 
+class BehaviorAPI(Explicit):
+    """
+    api for working with behaviors
+    """
+
+    def __call__(self, name=None, identifier=None):
+        """lookup behavior by name or interface identifier.
+        """
+        behavior_registration = lookup_behavior_registration(
+            name=name,
+            identifier=identifier
+        )
+        return behavior_registration.interface(self)
+
+    def __repr__(self):
+        """verbose repr for better introspection
+        """
+        lines = list()
+        behavior_assignable = IBehaviorAssignable(self.context, [])
+        for behavior_reg in behavior_assignable.enumerateBehaviors():
+            lines.append(
+                '\n'.join(
+                    ['  ' + _ for _ in repr(behavior_reg).split('\n')]
+                )
+            )
+        return u'\n'.join(lines)
+
+
 @implementer(
     IDexterityContent,
     IAttributeAnnotatable,
@@ -409,15 +437,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     def UID(self):
         """Returns the item's globally unique id."""
         return IUUID(self)
-
-    def behavior(self, name=None, identifier=None):
-        """Return behavior by name or interface identifier.
-        """
-        behavior_registration = lookup_behavior_registration(
-            name=name,
-            identifier=identifier
-        )
-        return behavior_registration.interface(self)
 
     @property
     def behaviors(self):
