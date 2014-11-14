@@ -24,7 +24,6 @@ from zope.lifecycleevent import ObjectCreatedEvent
 
 import datetime
 import logging
-import textwrap
 
 deprecation.deprecated(
     'SchemaNameEncoder',
@@ -236,44 +235,3 @@ def all_merged_tagged_values_dict(ifaces, key):
     for iface in ifaces:
         info.update(mergedTaggedValueDict(iface, key))
     return info
-
-
-class BehaviorInfo(object):
-    """Helper class for debugging dexterity type behaviors
-    """
-
-    def __init__(self, context):
-        self.context = context
-
-    def indent(self, text, ind=4, width=80):
-        """Text indentation helper.
-        """
-        return textwrap.fill(text, width, initial_indent=ind*u' ')
-
-    def __repr__(self):
-        lines = list()
-        behavior_assignable = IBehaviorAssignable(self.context, [])
-        for behavior_reg in behavior_assignable.enumerateBehaviors():
-            lines.append(u'Behavior {0} ({1}):'.format(
-                behavior_reg.interface.__identifier__,
-                behavior_reg.name
-            ))
-            lines.append(self.indent(behavior_reg.title))
-            if behavior_reg.description:
-                lines.append(self.indent(behavior_reg.description, ind=8))
-            if behavior_reg.marker is not None \
-                    and behavior_reg.marker is not behavior_reg.interface:
-                lines.append(self.indent(
-                    u'Marker: {0}'.format(behavior_reg.marker.__identifier__)
-                ))
-            if behavior_reg.factory:
-                lines.append(self.indent(
-                    u'Factory: {0}'.format(unicode(behavior_reg.factory))
-                ))
-            form_schema = IFormFieldProvider(behavior_reg.interface, None)
-            if form_schema is None:
-                continue
-            import pdb;pdb.set_trace()
-            lines.append(self.indent(u'Fields:'))
-            lines.append(u'')
-        return u'\n'.join(lines)

@@ -1092,7 +1092,11 @@ class TestContent(MockTestCase):
             name=u'behavior1',
         )
         self.mock_utility(behavior1, IBehavior1, name='behavior1')
-        self.mock_utility(behavior1, IBehavior1, name=IBehavior1.__identifier__)
+        self.mock_utility(
+            behavior1,
+            IBehavior1,
+            name=IBehavior1.__identifier__
+        )
 
         @provider(IFormFieldProvider)
         class IBehavior2(model.Schema):
@@ -1107,18 +1111,23 @@ class TestContent(MockTestCase):
             name=u'behavior2',
         )
         self.mock_utility(behavior2, IBehavior2, name='behavior2')
-        self.mock_utility(behavior2, IBehavior2, name=IBehavior2.__identifier__)
+        self.mock_utility(
+            behavior2, IBehavior2,
+            name=IBehavior2.__identifier__
+        )
 
         # FTI mock
         fti = DexterityFTI(u"testtype")
         fti.behaviors = [IBehavior1.__identifier__, IBehavior2.__identifier__]
         self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
+        # Item
+        item = Item(id=u'id')
+        item.portal_type = u'testtype'
+
         self.replay()
 
-        assignable = DexterityBehaviorAssignable(context_dummy)
-
-        context_dummy.behaviors
+        item.behaviors
 
 
 def test_suite():
