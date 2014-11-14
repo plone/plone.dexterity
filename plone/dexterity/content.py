@@ -28,7 +28,6 @@ from plone.dexterity.interfaces import IDexterityContainer
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.schema import SCHEMA_CACHE
-from plone.dexterity.utils import BehaviorInfo
 from plone.dexterity.utils import all_merged_tagged_values_dict
 from plone.dexterity.utils import datify
 from plone.dexterity.utils import iterSchemata
@@ -48,7 +47,6 @@ from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import implementedBy
 from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
-import textwrap
 
 _marker = object()
 _zone = DateTime().timezone()
@@ -293,24 +291,37 @@ class BehaviorAPI(Explicit):
     def __call__(self, name=None, identifier=None):
         """lookup behavior by name or interface identifier.
         """
+        context = aq_parent(self)
         behavior_registration = lookup_behavior_registration(
             name=name,
             identifier=identifier
         )
-        return behavior_registration.interface(self)
+        return behavior_registration.interface(context)
 
     def __repr__(self):
         """verbose repr for better introspection
         """
+        context = aq_parent(self)
         lines = list()
-        behavior_assignable = IBehaviorAssignable(self.context, [])
-        for behavior_reg in behavior_assignable.enumerateBehaviors():
-            lines.append(
-                '\n'.join(
-                    ['  ' + _ for _ in repr(behavior_reg).split('\n')]
+        info = {
+            'class': self.__class__.__name__,
+            'id': id(self),
+            'context_class': context.__class__.__name__,
+            'portal_type': context.portal_type,
+        }
+        behavior_assignable = IBehaviorAssignable(context, None)
+        if behavior_assignable:
+            for behavior_reg in behavior_assignable.enumerateBehaviors():
+                lines.append(
+                    '\n'.join(
+                        ['    ' + _ for _ in repr(behavior_reg).split('\n')]
+                    )
                 )
+        else:
+            lines.append(
+                '    There is no behavior set.'
             )
-        return u'\n'.join(lines)
+        return _BEHAVIOR_API_REPR.format(behaviors=u'\n'.join(lines), **info)
 
 
 @implementer(
@@ -437,12 +448,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     def UID(self):
         """Returns the item's globally unique id."""
         return IUUID(self)
-
-    @property
-    def behaviors(self):
-        """Return information of behaviors this object is built of.
-        """
-        return BehaviorInfo(self)
 
     @security.private
     def notifyModified(self):
