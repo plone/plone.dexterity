@@ -33,11 +33,13 @@ from plone.dexterity.utils import datify
 from plone.dexterity.utils import iterSchemata
 from plone.dexterity.utils import safe_unicode
 from plone.dexterity.utils import safe_utf8
+from plone.dexterity.utils import BehaviorInfo
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
 from plone.uuid.interfaces import IAttributeUUID
 from plone.uuid.interfaces import IUUID
 from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
+from plone.behavior.registration import lookup_behavior_registration
 from zope.component import queryUtility
 from zope.container.contained import Contained
 from zope.interface import implementer
@@ -407,6 +409,21 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     def UID(self):
         """Returns the item's globally unique id."""
         return IUUID(self)
+
+    def behavior(self, name=None, identifier=None):
+        """Return behavior by name or interface identifier.
+        """
+        behavior_registration = lookup_behavior_registration(
+            name=name,
+            identifier=identifier
+        )
+        return behavior_registration.interface(self)
+
+    @property
+    def behaviors(self):
+        """Return information of behaviors this object is built of.
+        """
+        return BehaviorInfo(self)
 
     @security.private
     def notifyModified(self):

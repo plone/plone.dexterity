@@ -1129,6 +1129,5 @@ class TestContent(MockTestCase):
 
         item.behaviors
 
-
 def test_suite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
