@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from Products.CMFPlone.interfaces import IConstrainTypes
-from datetime import date, datetime
+from datetime import date
+from datetime import datetime
+from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.behavior.registration import BehaviorRegistration
@@ -14,12 +16,14 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
 from plone.mocktestcase import MockTestCase
+from plone.supermodel import model
 from pytz import timezone
 from zope.annotation.attribute import AttributeAnnotations
 from zope.component import getUtility
 from zope.component import provideAdapter
 from zope.interface import Interface
 from zope.interface import alsoProvides
+from zope.interface import provider
 
 import unittest
 import zope.schema
@@ -1067,6 +1071,54 @@ class TestContent(MockTestCase):
         self.mock_tool(pt, 'portal_types')
         self.replay()
         container._verifyObjectPaste(content, True)
+
+    def test_behavior_access_api(self):
+        self.mock_adapter(
+            DexterityBehaviorAssignable,
+            IBehaviorAssignable,
+            (IDexterityContent,)
+        )
+
+        @provider(IFormFieldProvider)
+        class IBehavior1(model.Schema):
+            behavior_1_attr = zope.schema.TextLine(title=u'Attribute 1')
+
+        behavior1 = BehaviorRegistration(
+            title=u'Behavior1',
+            description=u'',
+            interface=IBehavior1,
+            marker=None,
+            factory=None,
+            name=u'behavior1',
+        )
+        self.mock_utility(behavior1, IBehavior1, name='behavior1')
+        self.mock_utility(behavior1, IBehavior1, name=IBehavior1.__identifier__)
+
+        @provider(IFormFieldProvider)
+        class IBehavior2(model.Schema):
+            behavior_2_attr = zope.schema.TextLine(title=u'Attribute 2')
+
+        behavior2 = BehaviorRegistration(
+            title=u'Behavior2',
+            description=u'',
+            interface=IBehavior2,
+            marker=None,
+            factory=None,
+            name=u'behavior2',
+        )
+        self.mock_utility(behavior2, IBehavior2, name='behavior2')
+        self.mock_utility(behavior2, IBehavior2, name=IBehavior2.__identifier__)
+
+        # FTI mock
+        fti = DexterityFTI(u"testtype")
+        fti.behaviors = [IBehavior1.__identifier__, IBehavior2.__identifier__]
+        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
+
+        self.replay()
+
+        assignable = DexterityBehaviorAssignable(context_dummy)
+
+        context_dummy.behaviors
 
 
 def test_suite():
