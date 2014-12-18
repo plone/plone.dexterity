@@ -2,39 +2,38 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plone.dexterity 1.0b3\n"
 "POT-Creation-Date: 2013-01-02 11:53+0100\n"
-"PO-Revision-Date: 2010-11-06 15:00+0100\n"
-"Last-Translator: Israel Saeta Pérez <dukebody@gmail.com>\n"
-"Language-Team: es <LL@li.org>\n"
+"PO-Revision-Date: 2014-12-12 12:21+0100\n"
+"Last-Translator: Roberto Diaz <roberto.diaz@upcnet.es>\n"
+"Language-Team: Plone Team@UPCnet <plone.team@upcnet.es>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"Language-Code: en\n"
-"Language-Name: English\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: ca\n"
+"Language-Name: Catalan\n"
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: DOMAIN\n"
-"Report-Msgid-Bugs-To: dexterity-development@googlegroups.com\n"
-"Generated-By: Babel 0.9.6\n"
+
 
 #: plone/dexterity/browser/add.py:130
 msgid "Add ${name}"
-msgstr "Añadir ${name}"
+msgstr "Afegir ${name}"
 
 #: plone/dexterity/browser/add.py:107
 msgid "Add New Item operation cancelled"
-msgstr "Se ha cancelado la creación del nuevo elemento"
+msgstr "S'ha cancel·lat la creació del nou element"
 
 #: plone/dexterity/browser/add.py:105 plone/dexterity/browser/edit.py:32
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "Cancel·lar"
 
 #: plone/dexterity/browser/edit.py:28
 msgid "Changes saved"
-msgstr "Se han guardado los cambios"
+msgstr "S'han guardat els canvis"
 
 #: plone/dexterity/browser/base.py:14
 msgid "Content"
-msgstr "Contenido"
+msgstr "Contingut"
 
 #: plone/dexterity/browser/edit.py:74
 msgid "Edit ${name}"
@@ -42,11 +41,11 @@ msgstr "Editar ${name}"
 
 #: plone/dexterity/browser/edit.py:34
 msgid "Edit cancelled"
-msgstr "Edición cancelada"
+msgstr "Edició cancel·lada"
 
 #: plone/dexterity/browser/add.py:103
 msgid "Item created"
-msgstr "Elemento creado"
+msgstr "Element creat"
 
 #: plone/dexterity/browser/add.py:93 plone/dexterity/browser/edit.py:21
 msgid "Save"
