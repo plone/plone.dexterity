@@ -235,6 +235,7 @@ class PasteBehaviourMixin(object):
                         'You can not add the copied content here.'
                     )
 
+
 _BEHAVIOR_API_REPR = """\
 <{class} for {context_class} (portal_type={portal_type}) at {id}
   Behaviors used:
@@ -243,49 +244,7 @@ _BEHAVIOR_API_REPR = """\
 
 
 class BehaviorAPI(Explicit):
-    """
-    api for working with behaviors
-    """
-
-    def __call__(self, name=None, identifier=None):
-        """lookup behavior by name or interface identifier.
-        """
-        context = aq_parent(self)
-        behavior_registration = lookup_behavior_registration(
-            name=name,
-            identifier=identifier
-        )
-        return behavior_registration.interface(context)
-
-    def __repr__(self):
-        """verbose repr for better introspection
-        """
-        context = aq_parent(self)
-        lines = list()
-        info = {
-            'class': self.__class__.__name__,
-            'id': id(self),
-            'context_class': context.__class__.__name__,
-            'portal_type': context.portal_type,
-        }
-        behavior_assignable = IBehaviorAssignable(context, None)
-        if behavior_assignable:
-            for behavior_reg in behavior_assignable.enumerateBehaviors():
-                lines.append(
-                    '\n'.join(
-                        ['    ' + _ for _ in repr(behavior_reg).split('\n')]
-                    )
-                )
-        else:
-            lines.append(
-                '    There is no behavior set.'
-            )
-        return _BEHAVIOR_API_REPR.format(behaviors=u'\n'.join(lines), **info)
-
-
-class BehaviorAPI(Explicit):
-    """
-    api for working with behaviors
+    """API for working with behaviors
     """
 
     def __call__(self, name=None, identifier=None):
