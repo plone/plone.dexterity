@@ -32,6 +32,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
 
     portal_type = None
     immediate_view = None
+    success_message = _(u"Item created")
 
     def __init__(self, context, request, ti=None):
         super(DefaultAddForm, self).__init__(context, request)
@@ -105,7 +106,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
             # mark only as finished if we get the new object
             self._finishedAdd = True
             IStatusMessage(self.request).addStatusMessage(
-                _(u"Item created"), "info success"
+                self.success_message, "info success"
             )
 
     @button.buttonAndHandler(_(u'Cancel'), name='cancel')

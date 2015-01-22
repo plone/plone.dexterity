@@ -4,6 +4,10 @@ Changelog
 2.3.0 (unreleased)
 ------------------
 
+- Use attribute for DefaultAddForm and DefaultEditForm success message so it can
+  be easily customized.
+  [cedricmessiant]
+
 - Big major overhaul to use everywhere the same way to fetch the main schema,
   behavior schemata and its markers. This was very scrmabled: sometimes
   behaviors weren't taken into account, or only FTI based behaviors but not

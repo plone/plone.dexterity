@@ -18,6 +18,8 @@ from zope.interface import classImplements
 
 class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
 
+    success_message = _(u"Changes saved")
+
     @button.buttonAndHandler(_(u'Save'), name='save')
     def handleApply(self, action):
         data, errors = self.extractData()
@@ -26,7 +28,7 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
             return
         self.applyChanges(data)
         IStatusMessage(self.request).addStatusMessage(
-            _(u"Changes saved"), "info success"
+            self.success_message, "info success"
         )
         self.request.response.redirect(self.nextURL())
         notify(EditFinishedEvent(self.context))
