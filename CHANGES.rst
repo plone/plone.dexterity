@@ -1,6 +1,14 @@
 Changelog
 =========
 
+2.2.5 (unreleased)
+------------------
+
+- Use attribute for DefaultAddForm and DefaultEditForm success message so it can
+  be easily customized.
+  [cedricmessiant]
+
+
 2.2.4 (2014-10-20)
 ------------------
 
