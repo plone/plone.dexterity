@@ -628,7 +628,16 @@ class TestContent(MockTestCase):
         self.assertTrue(isinstance(i.getId(), str))
 
     def test_item_dublincore(self):
-        from DateTime.DateTime import DateTime
+        from DateTime import DateTime
+        # Mock Zope DateTime
+        import mock
+        import plone.dexterity
+        datetime_patcher = mock.patch.object(
+            plone.dexterity.content, 'DateTime'
+        )
+        mocked_datetime = datetime_patcher.start()
+        mocked_datetime.return_value = DateTime(2013, 11, 7)
+        self.addCleanup(datetime_patcher.stop)
 
         i = Item(
             title=u"Emperor Penguin",
@@ -675,7 +684,16 @@ class TestContent(MockTestCase):
         self.assertEqual(i.Identifier(), i.absolute_url())
 
     def test_item_dublincore_date(self):
-        from DateTime.DateTime import DateTime
+        from DateTime import DateTime
+        # Mock Zope DateTime
+        import mock
+        import plone.dexterity
+        datetime_patcher = mock.patch.object(
+            plone.dexterity.content, 'DateTime'
+        )
+        mocked_datetime = datetime_patcher.start()
+        mocked_datetime.return_value = DateTime(2013, 11, 7)
+        self.addCleanup(datetime_patcher.stop)
 
         i = Item(
             title=u"Emperor Penguin",
@@ -707,7 +725,16 @@ class TestContent(MockTestCase):
         self.assertEqual(i.Date(), i.EffectiveDate())
 
     def test_item_dublincore_datetime(self):
-        from DateTime.DateTime import DateTime
+        from DateTime import DateTime
+        # Mock Zope DateTime
+        import mock
+        import plone.dexterity
+        datetime_patcher = mock.patch.object(
+            plone.dexterity.content, 'DateTime'
+        )
+        mocked_datetime = datetime_patcher.start()
+        mocked_datetime.return_value = DateTime(2013, 11, 7)
+        self.addCleanup(datetime_patcher.stop)
 
         i = Item(
             title=u"Emperor Penguin",
