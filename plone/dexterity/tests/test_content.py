@@ -636,7 +636,7 @@ class TestContent(MockTestCase):
             plone.dexterity.content, 'DateTime'
         )
         mocked_datetime = datetime_patcher.start()
-        mocked_datetime.return_value = DateTime(2013, 11, 7)
+        mocked_datetime.return_value = DateTime(2014, 6, 1)
         self.addCleanup(datetime_patcher.stop)
 
         i = Item(
@@ -675,7 +675,7 @@ class TestContent(MockTestCase):
         self.assertEqual(i.rights, 'CC')
         self.assertEqual(i.Rights(), 'CC')
         self.assertEqual(i.creation_date, i.created())
-        self.assertEqual(i.CreationDate()[:19], i.creation_date.ISO()[:19])
+        self.assertEqual(i.CreationDate(zone=summer_timezone)[:19], i.creation_date.ISO()[:19])
         self.assertEqual(i.modification_date, i.creation_date)
         self.assertEqual(i.modification_date, i.modified())
         self.assertEqual(
@@ -692,7 +692,7 @@ class TestContent(MockTestCase):
             plone.dexterity.content, 'DateTime'
         )
         mocked_datetime = datetime_patcher.start()
-        mocked_datetime.return_value = DateTime(2013, 11, 7)
+        mocked_datetime.return_value = DateTime(2014, 6, 1)
         self.addCleanup(datetime_patcher.stop)
 
         i = Item(
@@ -717,7 +717,7 @@ class TestContent(MockTestCase):
             i.ExpirationDate(zone=summer_timezone)[:10], '2013-07-09')
         self.assertEqual(i.expires(), DateTime('07/09/2013'))
         self.assertEqual(i.creation_date, i.created())
-        self.assertEqual(i.CreationDate()[:19], i.creation_date.ISO()[:19])
+        self.assertEqual(i.CreationDate(zone=summer_timezone)[:19], i.creation_date.ISO()[:19])
         self.assertEqual(i.modification_date, i.creation_date)
         self.assertEqual(i.modification_date, i.modified())
         self.assertEqual(
@@ -733,7 +733,7 @@ class TestContent(MockTestCase):
             plone.dexterity.content, 'DateTime'
         )
         mocked_datetime = datetime_patcher.start()
-        mocked_datetime.return_value = DateTime(2013, 11, 7)
+        mocked_datetime.return_value = DateTime(2014, 6, 1)
         self.addCleanup(datetime_patcher.stop)
 
         i = Item(
@@ -768,7 +768,7 @@ class TestContent(MockTestCase):
         )
         self.assertEqual(i.expires(), DateTime('2013/07/09 12:59:59 GMT-5'))
         self.assertEqual(i.creation_date, i.created())
-        self.assertEqual(i.CreationDate(), i.creation_date.ISO())
+        self.assertEqual(i.CreationDate(zone=summer_timezone), i.creation_date.ISO())
         self.assertEqual(i.modification_date, i.creation_date)
         self.assertEqual(i.modification_date, i.modified())
         self.assertEqual(i.ModificationDate(), i.modification_date.ISO())
