@@ -137,12 +137,12 @@ def createContent(portal_type, **kw):
         for name, value in fields.items():
             try:
                 # hasattr swallows exceptions.
-                if getattr(behavior, name):
-                    setattr(behavior, name, value)
-                    del fields[name]
+                getattr(behavior, name)
             except AttributeError:
                 # fieldname not available
-                pass
+                continue
+            setattr(behavior, name, value)
+            del fields[name]
 
     for (key, value) in fields.items():
         setattr(content, key, value)
