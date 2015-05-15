@@ -4,7 +4,8 @@ Changelog
 2.3.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- fix #27: createContent ignores empty fields
+  [jensens]
 
 
 2.3.0 (2015-03-13)
