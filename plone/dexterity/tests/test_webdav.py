@@ -1098,6 +1098,66 @@ class TestFileRepresentation(MockTestCase):
             factory('test.html', 'text/html', '<html />')
         )
 
+    def test_file_factory_content_type_factory_utility(self):
+        container_mock = self.mocker.mock()
+        child_fti_mock = self.mocker.mock()
+        container_fti_mock = self.mocker.mock()
+        ctr_mock = self.mocker.mock()
+        pt_mock = self.mocker.mock()
+
+        getToolByName_mock = self.mocker.replace(
+            'Products.CMFCore.utils.getToolByName'
+        )
+
+        self.expect(
+            getToolByName_mock(
+                container_mock, 'content_type_registry', None
+            )
+        ).result(ctr_mock)
+
+        self.expect(
+            getToolByName_mock(
+                container_mock, 'portal_types')).result(pt_mock)
+
+        self.expect(
+            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
+        ).result('childtype')
+
+        self.expect(
+            pt_mock.getTypeInfo('childtype')
+        ).result(child_fti_mock)
+
+        self.expect(
+            pt_mock.getTypeInfo(container_mock)
+        ).result(container_fti_mock)
+
+        self.expect(
+            container_fti_mock.allowType('childtype')
+        ).result(True)
+
+        self.expect(
+            child_fti_mock.isConstructionAllowed(container_mock)
+        ).result(True)
+
+        self.expect(
+            child_fti_mock.getId()
+        ).result('childtype')
+
+        self.expect(child_fti_mock.product).result(None)
+        self.expect(child_fti_mock.factory).result('childtype-factory')
+
+        def factory(*args, **kwargs):
+            return Item(*args, **kwargs)
+        self.mock_utility(factory, IFactory, name=u'childtype-factory')
+
+        factory = DefaultFileFactory(container_mock)
+
+        self.replay()
+
+        item = factory('test.html', 'text/html', '<html />')
+
+        self.assertEqual('test.html', item.id)
+
     def test_readfile_mimetype_no_message_no_fields(self):
 
         class ITest(Interface):

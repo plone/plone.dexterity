@@ -481,7 +481,7 @@ class DefaultFileFactory(object):
                     typeObjectName
                 )
 
-            obj = createObject(targetType.factory)
+            obj = createObject(targetType.factory, name)
 
             if hasattr(obj, '_setPortalTypeName'):
                 obj._setPortalTypeName(targetType.getId())

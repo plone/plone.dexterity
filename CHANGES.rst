@@ -4,6 +4,8 @@ Changelog
 2.3.1 (unreleased)
 ------------------
 
+- Fix issue where webdav PUT created items with empty id
+  [datakurre]
 - fix #27: createContent ignores empty fields
   [jensens]
 
