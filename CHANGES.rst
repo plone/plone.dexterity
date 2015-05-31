@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.3.1 (unreleased)
+2.3.1 (2015-05-31)
 ------------------
 
 - Fix issue where webdav PUT created items with empty id
