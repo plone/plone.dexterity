@@ -6,6 +6,7 @@ Changelog
 
 - Fix issue where webdav PUT created items with empty id
   [datakurre]
+
 - fix #27: createContent ignores empty fields
   [jensens]
 
