@@ -118,6 +118,12 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         notify(AddCancelledEvent(self.context))
 
     def update(self):
+        allowed_ids = [fti.getId() for fti in self.context.allowedContentTypes()]
+        if self.portal_type not in allowed_ids:
+            raise ValueError(
+                'Subobject type disallowed by IConstrainTypes adapter: %s'
+                % self.portal_type
+            )
         super(DefaultAddForm, self).update()
         # fire the edit begun only if no action was executed
         if len(self.actions.executedActions) == 0:
