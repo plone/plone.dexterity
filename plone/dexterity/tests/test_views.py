@@ -356,7 +356,9 @@ class TestAddView(MockTestCase):
 
         # Context and request
 
-        context_mock = self.create_dummy(portal_type=u'testtype')
+        context_mock = self.create_dummy(
+            portal_type=u'testtype',
+            allowedContentTypes=lambda: [self.create_dummy(getId=lambda: 'testtype')])
         request_mock = TestRequest()
 
         # FTI
