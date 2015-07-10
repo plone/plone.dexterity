@@ -40,6 +40,7 @@ def invalidate_cache(fti):
     fti.__dict__.pop('_v_schema_behavior_registrations', None)
     fti.__dict__.pop('_v_schema_subtypes', None)
     fti.__dict__.pop('_v_schema_schema_interfaces', None)
+    fti.__dict__.pop('_v_schema_modified', None)
     fti.__dict__.pop('_v_schema_behavior_schema_interfaces', None)
 
 
