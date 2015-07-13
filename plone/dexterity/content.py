@@ -661,6 +661,7 @@ class Container(
         permissions.ModifyPortalContent, 'manage_renameObjects')
 
     isPrincipiaFolderish = 1
+    description = u''
 
     # make sure CMFCatalogAware's manage_options don't take precedence
     manage_options = PortalFolderBase.manage_options

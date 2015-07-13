@@ -4,6 +4,9 @@ Changelog
 2.3.2 (unreleased)
 ------------------
 
+- fix Container default description to be unicode too.
+  [jone]
+
 - check allowed types for add form
   [vangheem]
 
@@ -479,4 +482,3 @@ Changelog
 ------------------
 
 * Initial release
-
