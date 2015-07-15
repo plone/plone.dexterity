@@ -280,7 +280,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
             pass
 
         super(DexterityContent, self).__before_publishing_traverse__(
-            self, arg1, arg2)
+            self, REQUEST)
 
     def __init__(
             self,
