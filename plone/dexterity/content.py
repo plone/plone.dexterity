@@ -289,9 +289,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
                 return
 
         super(DexterityContent, self).__before_publishing_traverse__(
-            self,
-            REQUEST
-        )
+            arg1, arg2)
 
     def __init__(
             self,
@@ -696,6 +694,21 @@ class Container(
     setTitle = DexterityContent.setTitle
     Description = DexterityContent.Description
     setDescription = DexterityContent.setDescription
+
+    def __before_publishing_traverse__(self, arg1, arg2=None):
+        """ Pre-traversal hook. To avoid default view
+        """
+        REQUEST = arg2 or arg1
+
+        try:
+            from plone.rest.interfaces import IAPIRequest
+            if IAPIRequest.providedBy(REQUEST):
+                return
+        except ImportError:
+            pass
+
+        super(DexterityContent, self).__before_publishing_traverse__(
+            arg1, arg2)
 
     def __init__(self, id=None, **kwargs):
         CMFOrderedBTreeFolderBase.__init__(self, id)
