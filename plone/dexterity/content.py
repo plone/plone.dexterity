@@ -47,6 +47,16 @@ from zope.interface.declarations import implementedBy
 from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
 
+import pkg_resources
+
+try:
+    pkg_resources.get_distribution('plone.rest')
+except pkg_resources.DistributionNotFound:
+    HAS_PLONE_REST = False
+else:
+    HAS_PLONE_REST = True
+
+
 _marker = object()
 _zone = DateTime().timezone()
 FLOOR_DATE = DateTime(1970, 0)  # always effective
@@ -268,19 +278,20 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     rights = ''
 
     def __before_publishing_traverse__(self, arg1, arg2=None):
-        """ Pre-traversal hook. To avoid default view
+        """Pre-traversal hook that stops traversal to prevent the default view
+           to be appended. Appending the default view will break REST calls.
         """
         REQUEST = arg2 or arg1
 
-        try:
+        if HAS_PLONE_REST:
             from plone.rest.interfaces import IAPIRequest
             if IAPIRequest.providedBy(REQUEST):
                 return
-        except ImportError:
-            pass
 
         super(DexterityContent, self).__before_publishing_traverse__(
-            self, REQUEST)
+            self,
+            REQUEST
+        )
 
     def __init__(
             self,
