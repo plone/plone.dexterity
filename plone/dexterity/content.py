@@ -620,12 +620,13 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
 
 
 @implementer(IDexterityItem)
-class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
+class Item(
+    DexterityContent,
+    PasteBehaviourMixin,
+    BrowserDefaultMixin
+):
     """A non-containerish, CMFish item
     """
-
-    __providedBy__ = FTIAwareSpecification()
-    __allow_access_to_unprotected_subobjects__ = AttributeValidator()
 
     isPrincipiaFolderish = 0
 
@@ -634,19 +635,19 @@ class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
         'action': 'view',
     },) + CMFCatalogAware.manage_options + SimpleItem.manage_options
 
-    # Be explicit about which __getattr__ to use
-    __getattr__ = DexterityContent.__getattr__
-
 
 @implementer(IDexterityContainer)
 class Container(
-        PasteBehaviourMixin, DAVCollectionMixin, BrowserDefaultMixin,
-        CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
+    DexterityContent,
+    PasteBehaviourMixin,
+    DAVCollectionMixin,
+    BrowserDefaultMixin,
+    CMFCatalogAware,
+    CMFOrderedBTreeFolderBase,
+    DexterityContent
+):
     """Base class for folderish items
     """
-
-    __providedBy__ = FTIAwareSpecification()
-    __allow_access_to_unprotected_subobjects__ = AttributeValidator()
 
     security = ClassSecurityInfo()
     security.declareProtected(
@@ -664,12 +665,6 @@ class Container(
 
     # make sure CMFCatalogAware's manage_options don't take precedence
     manage_options = PortalFolderBase.manage_options
-
-    # Make sure PortalFolder's accessors and mutators don't take precedence
-    Title = DexterityContent.Title
-    setTitle = DexterityContent.setTitle
-    Description = DexterityContent.Description
-    setDescription = DexterityContent.setDescription
 
     def __init__(self, id=None, **kwargs):
         CMFOrderedBTreeFolderBase.__init__(self, id)

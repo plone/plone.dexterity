@@ -4,6 +4,10 @@ Changelog
 2.3.3 (unreleased)
 ------------------
 
+- fix MRO so no duplicate definitions are needed for DexterityItem and
+  DexterityContainer.
+  [jensens]
+
 - Check add_permission before checking constrains. Refs #37
   [jaroel]
 
