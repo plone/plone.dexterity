@@ -463,7 +463,7 @@ class TestFolderDataResource(MockTestCase):
                 return 'text/foo'
 
         container = TestContainer('container')
-        r = FolderDataResource('fdata', container).__of__(container)
+        fdr = FolderDataResource('fdata', container).__of__(container)
 
         request = DAVTestRequest(
             environ={'URL': 'http://example.org/site/container'}
@@ -472,12 +472,9 @@ class TestFolderDataResource(MockTestCase):
 
         self.replay()
 
-        self.assertEqual(response, r.HEAD(request, request.response))
+        self.assertEqual(response, fdr.HEAD(request, request.response))
         self.assertEqual(200, response.getStatus())
-        self.assertEqual(
-            'close',
-            response.getHeader('Connection', literal=True)
-        )
+        self.assertEqual('close', response.getHeader('Connection'))
         self.assertEqual('text/foo', response.getHeader('Content-Type'))
         self.assertEqual('10', response.getHeader('Content-Length'))
 
@@ -501,9 +498,7 @@ class TestFolderDataResource(MockTestCase):
         self.replay()
 
         self.assertEqual(response, r.OPTIONS(request, request.response))
-        self.assertEqual(
-            'close',
-            response.getHeader('Connection', literal=True)
+        self.assertEqual('close', response.getHeader('Connection')
         )
         self.assertEqual(
             'GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE, PROPFIND, '
@@ -555,7 +550,7 @@ class TestFolderDataResource(MockTestCase):
 
         self.assertEqual(
             'close',
-            response.getHeader('connection', literal=True)
+            response.getHeader('connection')
         )
         self.assertEqual(
             'text/xml; charset="utf-8"', response.getHeader('Content-Type')
@@ -646,7 +641,7 @@ class TestFolderDataResource(MockTestCase):
         self.assertEqual('New title', container.getProperty('title'))
 
         self.assertEqual(
-            'close', response.getHeader('connection', literal=True)
+            'close', response.getHeader('connection')
         )
         self.assertEqual(
             'text/xml; charset="utf-8"', response.getHeader('Content-Type')
