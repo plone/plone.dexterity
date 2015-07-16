@@ -644,7 +644,6 @@ class Container(
     BrowserDefaultMixin,
     CMFCatalogAware,
     CMFOrderedBTreeFolderBase,
-    DexterityContent
 ):
     """Base class for folderish items
     """
