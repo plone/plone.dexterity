@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from AccessControl.SecurityManagement import getSecurityManager
 from Acquisition import Implicit
 from Acquisition import aq_base
+from Products.CMFCore.permissions import ManagePortal
 from Products.CMFCore.utils import getToolByName
 from ZPublisher.Iterators import IStreamIterator
 from email.generator import Generator
@@ -194,16 +196,23 @@ class DAVCollectionMixin(DAVResourceMixin):
         We add a non-folderish pseudo object which contains the "body" data
         for this container.
         """
-        parentList = super(DAVCollectionMixin, self).listDAVObjects()
-        if not parentList:
-            parentList = []
+        # first fetch the values the same way as done in PortalFolder
+        # implementation of listDAVObjects.
+        if getSecurityManager().checkPermission(ManagePortal, self):
+            dav_objects_list = self.objectValues()
         else:
-            parentList = list(parentList)
+            dav_objects_list = self.listFolderContents()
 
-        # insert the FolderDataResource pseudo child
+        # safety belts
+        if not dav_objects_list:
+            dav_objects_list = []
+        else:
+            dav_objects_list = list(dav_objects_list)
+
+        # insert the FolderDataResource pseudo child at beginning
         faux = FolderDataResource(DAV_FOLDER_DATA_ID, self).__of__(self)
-        parentList.insert(0, faux)
-        return parentList
+        dav_objects_list.insert(0, faux)
+        return dav_objects_list
 
 
 class FolderDataResource(Implicit, Resource):
