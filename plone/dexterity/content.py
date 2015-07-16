@@ -243,8 +243,13 @@ class PasteBehaviourMixin(object):
     ICatalogableDublinCore,
     IMutableDublinCore
 )
-class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
-                       Contained):
+class DexterityContent(
+    PasteBehaviourMixin,
+    BrowserDefaultMixin,
+    PortalContent,
+    PropertyManager,
+    Contained
+):
     """Base class for Dexterity content
     """
 
@@ -621,12 +626,14 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
 
 @implementer(IDexterityItem)
 class Item(
+    DAVResourceMixin,  # a DAV collection is a leaf in the tree
     DexterityContent,
-    PasteBehaviourMixin,
-    BrowserDefaultMixin
 ):
     """A non-containerish, CMFish item
     """
+
+    # explicit needed here, inheritance does not grip here.
+    __providedBy__ = FTIAwareSpecification()
 
     isPrincipiaFolderish = 0
 
@@ -639,14 +646,15 @@ class Item(
 @implementer(IDexterityContainer)
 class Container(
     DexterityContent,
-    PasteBehaviourMixin,
-    DAVCollectionMixin,
-    BrowserDefaultMixin,
-    CMFCatalogAware,
+    DAVCollectionMixin,  # a DAV collection is a node in the tree
+    CMFCatalogAware,  # this adds: CatalogAware WorkflowAware OpaqueItemManager
     CMFOrderedBTreeFolderBase,
 ):
     """Base class for folderish items
     """
+
+    # explicit needed here, inheritance does not grip here.
+    __providedBy__ = FTIAwareSpecification()
 
     security = ClassSecurityInfo()
     security.declareProtected(
