@@ -626,7 +626,7 @@ class DexterityContent(
 
 @implementer(IDexterityItem)
 class Item(
-    DAVResourceMixin,  # a DAV collection is a leaf in the tree
+    DAVResourceMixin,  # a DAV resource is a leaf in the tree
     DexterityContent,
 ):
     """A non-containerish, CMFish item
@@ -645,8 +645,8 @@ class Item(
 
 @implementer(IDexterityContainer)
 class Container(
-    DexterityContent,
     DAVCollectionMixin,  # a DAV collection is a node in the tree
+    DexterityContent,
     CMFCatalogAware,  # this adds: CatalogAware WorkflowAware OpaqueItemManager
     CMFOrderedBTreeFolderBase,
 ):
