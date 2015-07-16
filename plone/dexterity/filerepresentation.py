@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from Acquisition import aq_base, Implicit
+from Acquisition import Implicit
+from Acquisition import aq_base
 from Products.CMFCore.utils import getToolByName
 from ZPublisher.Iterators import IStreamIterator
 from email.generator import Generator
@@ -25,7 +26,8 @@ from zope.filerepresentation.interfaces import IRawReadFile
 from zope.filerepresentation.interfaces import IRawWriteFile
 from zope.interface import implementer
 from zope.interface.interfaces import IInterface
-from zope.lifecycleevent import modified, ObjectCreatedEvent
+from zope.lifecycleevent import ObjectCreatedEvent
+from zope.lifecycleevent import modified
 from zope.schema import getFieldsInOrder
 from zope.size.interfaces import ISized
 import tempfile
