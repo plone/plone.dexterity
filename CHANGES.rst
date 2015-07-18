@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.3.2 (unreleased)
+2.3.2 (2015-07-18)
 ------------------
 
 - Check allowed types for add form.
