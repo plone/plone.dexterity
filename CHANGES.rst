@@ -4,7 +4,7 @@ Changelog
 2.3.2 (unreleased)
 ------------------
 
-- check allowed types for add form
+- Check allowed types for add form.
   [vangheem]
 
 
