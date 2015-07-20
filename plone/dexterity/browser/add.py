@@ -106,7 +106,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
             # mark only as finished if we get the new object
             self._finishedAdd = True
             IStatusMessage(self.request).addStatusMessage(
-                self.success_message, "info success"
+                self.success_message, "info"
             )
 
     @button.buttonAndHandler(_(u'Cancel'), name='cancel')
