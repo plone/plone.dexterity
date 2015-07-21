@@ -781,6 +781,8 @@ class TestContent(MockTestCase):
             mock_addCreator.called = True
         i.addCreator = mock_addCreator
 
+        import time
+        time.sleep(1.0/500)
         i.notifyModified()
         self.assertNotEqual(i.modification_date, i.creation_date)
         self.assertTrue(mock_addCreator.called)
