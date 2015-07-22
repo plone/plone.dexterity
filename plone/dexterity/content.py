@@ -726,6 +726,12 @@ class Container(
         constrains = IConstrainTypes(self, None)
 
         if constrains:
+            # Do permission check before constrain checking so we'll get
+            # an Unauthorized over a ValueError.
+            fti = queryUtility(ITypeInformation, name=type_name)
+            if fti is not None and not fti.isConstructionAllowed(self):
+                raise Unauthorized('Cannot create %s' % fti.getId())
+
             allowed_ids = [
                 fti.getId() for fti in constrains.allowedContentTypes()
             ]
