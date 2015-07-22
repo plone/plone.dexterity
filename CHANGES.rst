@@ -4,7 +4,8 @@ Changelog
 2.3.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Remove obsolete css-class and text from statusmessages.
+  [pbauer]
 
 
 2.3.2 (2015-07-18)
