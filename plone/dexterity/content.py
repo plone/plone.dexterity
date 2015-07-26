@@ -250,7 +250,7 @@ class DexterityContent(
     PropertyManager,
     Contained
 ):
-    """Base class for Dexterity content
+    """Abstract Base class for Dexterity content
     """
 
     __providedBy__ = FTIAwareSpecification()
@@ -341,8 +341,7 @@ class DexterityContent(
                     )
                     if value is not _marker:
                         return value
-
-        raise AttributeError(name)
+        return super(DexterityContent, self).__getattr__(name)
 
     # Let __name__ and id be identical. Note that id must be ASCII in Zope 2,
     # but __name__ should be unicode. Note that setting the name to something
@@ -648,7 +647,7 @@ class Container(
     DAVCollectionMixin,  # a DAV collection is a node in the tree
     DexterityContent,
     CMFCatalogAware,  # this adds: CatalogAware WorkflowAware OpaqueItemManager
-    CMFOrderedBTreeFolderBase,
+    CMFOrderedBTreeFolderBase,  # OrderedBTreeFolderBase with PortalFolderBase
 ):
     """Base class for folderish items
     """
@@ -676,15 +675,6 @@ class Container(
     def __init__(self, id=None, **kwargs):
         CMFOrderedBTreeFolderBase.__init__(self, id)
         DexterityContent.__init__(self, id, **kwargs)
-
-    def __getattr__(self, name):
-        try:
-            return DexterityContent.__getattr__(self, name)
-        except AttributeError:
-            pass
-
-        # Be specific about the implementation we use
-        return CMFOrderedBTreeFolderBase.__getattr__(self, name)
 
     @security.protected(permissions.DeleteObjects)
     def manage_delObjects(self, ids=None, REQUEST=None):
