@@ -14,6 +14,9 @@ Changelog
 - Check allowed types for add form.
   [vangheem]
 
+- Complete invalidate_cache.
+  [adamcheasley]
+
 
 2.3.1 (2015-05-31)
 ------------------
@@ -486,4 +489,3 @@ Changelog
 ------------------
 
 * Initial release
-

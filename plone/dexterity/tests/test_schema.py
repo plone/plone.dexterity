@@ -5,6 +5,8 @@ from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IContentType
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexteritySchema
+from plone.dexterity.schema import invalidate_cache
+from plone.dexterity.schema import SCHEMA_CACHE
 from plone.mocktestcase import MockTestCase
 from plone.supermodel.model import Model
 from zope.interface import Interface
@@ -199,6 +201,18 @@ class TestSchemaModuleFactory(MockTestCase):
             ('prefix', 'type one.two', '',),
             schema.splitSchemaName('prefix_0_type_1_one_2_two')
         )
+
+    def test_invalidate_cache(self):
+        portal_type = u"testtype"
+        fti = DexterityFTI(portal_type)
+        SCHEMA_CACHE.get(portal_type)
+        SCHEMA_CACHE.behavior_schema_interfaces(fti)
+        self.assertIn('_v_schema_behavior_schema_interfaces',
+                      fti.__dict__.keys())
+
+        invalidate_cache(fti)
+        self.assertNotIn('_v_schema_behavior_schema_interfaces',
+                         fti.__dict__.keys())
 
 
 def test_suite():
