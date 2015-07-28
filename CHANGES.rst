@@ -4,6 +4,9 @@ Changelog
 2.3.3 (unreleased)
 ------------------
 
+- Check add_permission before checking constrains. Refs #37
+  [jaroel]
+
 - Remove obsolete css-class and text from statusmessages.
   [pbauer]
 
