@@ -1,5 +1,6 @@
 include *.txt
 include *.rst
+include extract.ini
 
 recursive-include docs *
 recursive-include plone *
