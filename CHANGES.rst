@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.3.3 (unreleased)
+2.3.3 (2015-07-29)
 ------------------
 
 - Check add_permission before checking constrains. Refs #37
