@@ -1,10 +1,12 @@
 Changelog
 =========
 
+
 2.3.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Avoid our own DeprecationWarning about portalTypeToSchemaName.
+  [maurits]
 
 
 2.3.3 (2015-07-29)

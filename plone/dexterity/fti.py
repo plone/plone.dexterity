@@ -8,6 +8,7 @@ from plone.dexterity.factory import DexterityFactory
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityFTIModificationDescription
 from plone.dexterity.schema import SchemaInvalidatedEvent
+from plone.dexterity.schema import portalTypeToSchemaName
 from plone.supermodel import loadString, loadFile
 from plone.supermodel.model import Model
 from plone.supermodel.utils import syncSchema
@@ -248,7 +249,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         # an unnamed schema if it is the first time it is looked up.
         # See schema.py
 
-        schemaName = utils.portalTypeToSchemaName(self.getId())
+        schemaName = portalTypeToSchemaName(self.getId())
         return getattr(plone.dexterity.schema.generated, schemaName)
 
     def lookupModel(self):
@@ -535,7 +536,7 @@ def ftiModified(object, event):
         if (fti.model_source or fti.model_file) \
            and ('model_source' in mod or 'model_file' in mod):
 
-            schemaName = utils.portalTypeToSchemaName(portal_type)
+            schemaName = portalTypeToSchemaName(portal_type)
             schema = getattr(plone.dexterity.schema.generated, schemaName)
 
             model = fti.lookupModel()
