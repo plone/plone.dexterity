@@ -492,6 +492,9 @@ class DefaultFileFactory(object):
             # get object created -> object added -> object modified.
             notify(ObjectCreatedEvent(obj))
 
+            if not obj.Title():
+                obj.setTitle(obj.getId())
+
         return obj
 
 

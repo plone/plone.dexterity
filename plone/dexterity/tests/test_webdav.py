@@ -21,6 +21,7 @@ from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.mocktestcase import MockTestCase
+from plone.mocktestcase.dummy import Dummy
 from plone.rfc822.interfaces import IPrimaryField
 from webdav.NullResource import NullResource
 from zExceptions import Forbidden
@@ -55,6 +56,21 @@ class DAVTestRequest(TestRequest):
 
     def _createResponse(self):
         return HTTPResponse()
+
+
+class ItemDummy(Dummy):
+    """ Dummy objects with title getter and setter """
+
+    title = ''
+
+    def Title(self):
+        return self.title
+
+    def setTitle(self, title):
+        self.title = title
+
+    def getId(self):
+        return self.__dict__.get('id', '')
 
 
 class TestWebZope2DAVAPI(MockTestCase):
@@ -825,6 +841,9 @@ The operation succeded.
 
 class TestFileRepresentation(MockTestCase):
 
+    def create_dummy(self, **kw):
+        return ItemDummy(**kw)
+
     def test_directory_factory(self):
         class TestContainer(Container):
 
@@ -1046,7 +1065,7 @@ class TestFileRepresentation(MockTestCase):
         ctr_mock = self.mocker.mock()
         pt_mock = self.mocker.mock()
 
-        result_dummy = self.create_dummy()
+        result_dummy = self.create_dummy(id='test.html')
 
         getToolByName_mock = self.mocker.replace(
             'Products.CMFCore.utils.getToolByName'
@@ -1097,6 +1116,7 @@ class TestFileRepresentation(MockTestCase):
             result_dummy,
             factory('test.html', 'text/html', '<html />')
         )
+        self.assertEqual(result_dummy.Title(), 'test.html')
 
     def test_file_factory_content_type_factory_utility(self):
         container_mock = self.mocker.mock()

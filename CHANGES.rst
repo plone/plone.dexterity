@@ -8,6 +8,8 @@ Changelog
 - Avoid our own DeprecationWarning about portalTypeToSchemaName.
   [maurits]
 
+- Set title on WebDAV upload
+  [tomgross]
 
 2.3.3 (2015-07-29)
 ------------------
