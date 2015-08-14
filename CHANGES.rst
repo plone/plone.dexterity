@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.3.4 (unreleased)
+2.3.4 (2015-08-14)
 ------------------
 
 - Avoid our own DeprecationWarning about portalTypeToSchemaName.
