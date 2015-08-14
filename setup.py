@@ -27,7 +27,7 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    keywords='',
+    keywords='plone dexterity contenttypes',
     author='Martin Aspeli',
     author_email='optilude@gmail.com',
     url='https://pypi.python.org/pypi/plone.dexterity',
