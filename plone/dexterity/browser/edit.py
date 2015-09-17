@@ -8,6 +8,7 @@ from plone.dexterity.events import EditFinishedEvent
 from plone.dexterity.i18n import MessageFactory as _
 from plone.dexterity.interfaces import IDexterityEditForm
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.registry.interfaces import IRegistry
 from plone.z3cform import layout
 from z3c.form import button
 from z3c.form import form
@@ -43,21 +44,13 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
 
     def nextURL(self):
         view_url = self.context.absolute_url()
-        portal_properties = getToolByName(self, 'portal_properties', None)
-        if portal_properties is not None:
-            site_properties = getattr(
-                portal_properties,
-                'site_properties',
-                None
-            )
-            portal_type = self.portal_type
-            if site_properties is not None and portal_type is not None:
-                use_view_action = site_properties.getProperty(
-                    'typesUseViewActionInListings',
-                    ()
-                )
-                if portal_type in use_view_action:
-                    view_url = view_url + '/view'
+        portal_type = self.portal_type
+        if portal_type is not None:
+            registry = getUtility(IRegistry)
+            use_view_action = registry.get(
+                'plone.types_view_action_in_listings', [])
+            if portal_type in use_view_action:
+                view_url = view_url + '/view'
         return view_url
 
     def update(self):
