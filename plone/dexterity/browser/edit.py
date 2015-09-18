@@ -44,7 +44,7 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
 
     def nextURL(self):
         view_url = self.context.absolute_url()
-        portal_type = self.portal_type
+        portal_type = getattr(self, 'portal_type', None)
         if portal_type is not None:
             registry = getUtility(IRegistry)
             use_view_action = registry.get(
