@@ -19,6 +19,7 @@ from plone.dexterity.interfaces import IEditCancelledEvent
 from plone.dexterity.interfaces import IEditFinishedEvent
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.mocktestcase import MockTestCase
+from plone.z3cform.interfaces import IDeferSecurityCheck
 from z3c.form.action import Actions
 from z3c.form.field import FieldWidgets
 from z3c.form.interfaces import IActions
@@ -389,6 +390,74 @@ class TestAddView(MockTestCase):
         view = DefaultAddForm(context_mock, request_mock)
         view.portal_type = fti_mock.getId()
         view.update()
+
+
+    def test_update_checks_allowed_types(self):
+
+        # Context and request
+
+        context_mock = self.create_dummy(
+            portal_type=u'testtype',
+            allowedContentTypes=lambda: [])
+        request_mock = TestRequest()
+
+        # FTI
+
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
+        self.mocker.count(0, 100)
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+
+        self.mock_adapter(
+            FieldWidgets,
+            IWidgets,
+            (Interface, Interface, Interface)
+        )
+
+        self.mock_adapter(Actions, IActions, (Interface, Interface, Interface))
+
+        # Form
+        self.mocker.replay()
+
+        view = DefaultAddForm(context_mock, request_mock)
+        view.portal_type = fti_mock.getId()
+        self.assertRaises(ValueError, view.update)
+
+    def test_update_ignores_type_check_if_security_check_deferred(self):
+
+        # Context and request
+
+        context_mock = self.create_dummy(
+            portal_type=u'testtype',
+            allowedContentTypes=lambda: [])
+        request_mock = TestRequest()
+        alsoProvides(request_mock, IDeferSecurityCheck)
+
+        # FTI
+
+        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        self.expect(fti_mock.lookupSchema()).result(ISchema)
+        self.mocker.count(0, 100)
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+
+        self.mock_adapter(
+            FieldWidgets,
+            IWidgets,
+            (Interface, Interface, Interface)
+        )
+
+        self.mock_adapter(Actions, IActions, (Interface, Interface, Interface))
+
+        # Form
+        self.mocker.replay()
+
+        view = DefaultAddForm(context_mock, request_mock)
+        view.portal_type = fti_mock.getId()
+        try:
+            view.update()
+        except ValueError:
+            self.fail("Update raised Unauthorized with security checks "
+                      "deferred")
 
     def test_fires_add_cancelled_event(self):
 
