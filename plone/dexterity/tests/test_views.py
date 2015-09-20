@@ -244,7 +244,7 @@ class TestAddView(MockTestCase):
         context_mock = self.mocker.mock()
         request_mock = self.mocker.proxy(TestRequest())
 
-        request_mock['disable_border'] = True
+        request_mock.form['disable_border'] = True
 
         # FTI
 
