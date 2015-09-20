@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.3.5 (unreleased)
+2.3.5 (2015-09-20)
 ------------------
 
 - Use registry lookup for types_use_view_action_in_listings
