@@ -5,7 +5,9 @@ Changelog
 2.3.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Don't check type constraints in AddForm.update() if request provides
+  IDeferSecurityChecks.
+  [alecm]
 
 
 2.3.4 (2015-08-14)

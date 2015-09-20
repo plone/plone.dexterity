@@ -40,7 +40,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         if ti is not None:
             self.ti = ti
             self.portal_type = ti.getId()
-        self.request['disable_border'] = True
+        self.request.form['disable_border'] = True
 
     @property
     def additionalSchemata(self):
