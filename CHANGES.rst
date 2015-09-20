@@ -5,6 +5,9 @@ Changelog
 2.3.5 (unreleased)
 ------------------
 
+- Use registry lookup for types_use_view_action_in_listings
+  [esteele]
+
 - Don't check type constraints in AddForm.update() if request provides
   IDeferSecurityChecks.
   [alecm]
