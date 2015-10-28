@@ -5,6 +5,8 @@ Changelog
 2.3.6 (unreleased)
 ------------------
 
+Fixes:
+
 - No longer rely on deprecated ``bobobase_modification_time`` from
   ``Persistence.Persistent``.
   [thet]
