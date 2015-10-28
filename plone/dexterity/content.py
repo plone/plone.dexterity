@@ -243,9 +243,14 @@ class PasteBehaviourMixin(object):
     ICatalogableDublinCore,
     IMutableDublinCore
 )
-class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
-                       Contained):
-    """Base class for Dexterity content
+class DexterityContent(
+    PasteBehaviourMixin,
+    BrowserDefaultMixin,
+    PortalContent,
+    PropertyManager,
+    Contained
+):
+    """Abstract Base class for Dexterity content
     """
 
     __providedBy__ = FTIAwareSpecification()
@@ -336,8 +341,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
                     )
                     if value is not _marker:
                         return value
-
-        raise AttributeError(name)
+        return super(DexterityContent, self).__getattr__(name)
 
     # Let __name__ and id be identical. Note that id must be ASCII in Zope 2,
     # but __name__ should be unicode. Note that setting the name to something
@@ -620,12 +624,15 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
 
 
 @implementer(IDexterityItem)
-class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
+class Item(
+    DAVResourceMixin,  # a DAV resource is a leaf in the tree
+    DexterityContent,
+):
     """A non-containerish, CMFish item
     """
 
+    # explicit needed here, inheritance does not grip here.
     __providedBy__ = FTIAwareSpecification()
-    __allow_access_to_unprotected_subobjects__ = AttributeValidator()
 
     isPrincipiaFolderish = 0
 
@@ -634,19 +641,19 @@ class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
         'action': 'view',
     },) + CMFCatalogAware.manage_options + SimpleItem.manage_options
 
-    # Be explicit about which __getattr__ to use
-    __getattr__ = DexterityContent.__getattr__
-
 
 @implementer(IDexterityContainer)
 class Container(
-        PasteBehaviourMixin, DAVCollectionMixin, BrowserDefaultMixin,
-        CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
+    DAVCollectionMixin,  # a DAV collection is a node in the tree
+    DexterityContent,
+    CMFCatalogAware,  # this adds: CatalogAware WorkflowAware OpaqueItemManager
+    CMFOrderedBTreeFolderBase,  # OrderedBTreeFolderBase with PortalFolderBase
+):
     """Base class for folderish items
     """
 
+    # explicit needed here, inheritance does not grip here.
     __providedBy__ = FTIAwareSpecification()
-    __allow_access_to_unprotected_subobjects__ = AttributeValidator()
 
     security = ClassSecurityInfo()
     security.declareProtected(
@@ -665,24 +672,9 @@ class Container(
     # make sure CMFCatalogAware's manage_options don't take precedence
     manage_options = PortalFolderBase.manage_options
 
-    # Make sure PortalFolder's accessors and mutators don't take precedence
-    Title = DexterityContent.Title
-    setTitle = DexterityContent.setTitle
-    Description = DexterityContent.Description
-    setDescription = DexterityContent.setDescription
-
     def __init__(self, id=None, **kwargs):
         CMFOrderedBTreeFolderBase.__init__(self, id)
         DexterityContent.__init__(self, id, **kwargs)
-
-    def __getattr__(self, name):
-        try:
-            return DexterityContent.__getattr__(self, name)
-        except AttributeError:
-            pass
-
-        # Be specific about the implementation we use
-        return CMFOrderedBTreeFolderBase.__getattr__(self, name)
 
     @security.protected(permissions.DeleteObjects)
     def manage_delObjects(self, ids=None, REQUEST=None):
