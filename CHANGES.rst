@@ -47,11 +47,17 @@ Fixes:
 2.3.3 (2015-07-29)
 ------------------
 
+- This version is still Plone 4.3.x compatible. Newer versions
+  are only Plone 5 compatible.
+
 - Check add_permission before checking constrains. Refs #37
   [jaroel]
 
 - Remove obsolete css-class and text from statusmessages.
   [pbauer]
+
+- Complete invalidate_cache.
+  [adamcheasley]
 
 
 2.3.2 (2015-07-18)
@@ -59,9 +65,6 @@ Fixes:
 
 - Check allowed types for add form.
   [vangheem]
-
-- Complete invalidate_cache.
-  [adamcheasley]
 
 
 2.3.1 (2015-05-31)
