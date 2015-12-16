@@ -11,7 +11,8 @@ New:
 
 Fixes:
 
-- *add item here*
+- Corrected tests on date comparison (avoid 1h shift)
+  [sgeulette]
 
 
 2.3.6 (2015-10-28)
