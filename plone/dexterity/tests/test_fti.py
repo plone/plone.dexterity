@@ -868,6 +868,59 @@ class TestFTIEvents(MockTestCase):
         self.assertTrue('title' in IBlank)
         self.assertTrue(IBlank['title'].title == u"title")
 
+    def test_dynamic_schema_refreshed_on_modify_schema_policy(self):
+        portal_type = u"testtype"
+        fti = self.mocker.proxy(DexterityFTI(portal_type))
+
+        class INew(Interface):
+            title = zope.schema.TextLine(title=u"title")
+
+        class IBlank(Interface):
+            pass
+
+        class TestSchemaPolicy(DexteritySchemaPolicy):
+            def bases(self, schemaName, tree):
+                return (INew,)
+
+        gsm = getGlobalSiteManager()
+        policy = TestSchemaPolicy()
+        gsm.registerUtility(
+            policy,
+            plone.supermodel.interfaces.ISchemaPolicy,
+            name=u"test"
+        )
+
+        self.expect(fti.schema_policy).passthrough().count(0, None)
+
+        site_dummy = self.create_dummy(
+            getPhysicalPath=lambda: ('', 'siteid')
+        )
+        self.mock_utility(site_dummy, ISiteRoot)
+
+        self.replay()
+
+        # Set source interface
+        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        setattr(plone.dexterity.schema.generated, schemaName, IBlank)
+        original = getattr(plone.dexterity.schema.generated, schemaName)
+        self.assertNotIn(INew, original.__bases__)
+        self.assertNotIn('title', original)
+
+        # Set new schema_policy
+        fti.schema_policy = "test"
+
+        # Sync this with schema
+        ftiModified(
+            fti,
+            ObjectModifiedEvent(
+                fti,
+                DexterityFTIModificationDescription('schema_policy', '')
+            )
+        )
+        updated = getattr(plone.dexterity.schema.generated, schemaName)
+        self.assertIn('title', updated)
+        self.assertIn(INew, updated.__bases__)
+
     def test_concrete_schema_not_refreshed_on_modify_schema(self):
         portal_type = u"testtype"
         fti = self.mocker.proxy(DexterityFTI(portal_type))

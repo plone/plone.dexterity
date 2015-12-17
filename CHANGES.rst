@@ -11,6 +11,9 @@ New:
 
 Fixes:
 
+- Sync schema when schema_policy name is changed (issue #44)
+  [sgeulette]
+
 - Corrected tests on date comparison (avoid 1h shift)
   [sgeulette]
 

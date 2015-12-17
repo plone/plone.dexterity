@@ -530,16 +530,18 @@ def ftiModified(object, event):
     if 'behaviors' in mod \
        or 'schema' in mod \
        or 'model_source' in mod \
-       or 'model_file' in mod:
+       or 'model_file' in mod \
+       or 'schema_policy' in mod:
 
         # Determine if we need to re-sync a dynamic schema
         if (fti.model_source or fti.model_file) \
-           and ('model_source' in mod or 'model_file' in mod):
+           and ('model_source' in mod or 'model_file' in mod or 'schema_policy' in mod):
 
             schemaName = portalTypeToSchemaName(portal_type)
             schema = getattr(plone.dexterity.schema.generated, schemaName)
 
             model = fti.lookupModel()
-            syncSchema(model.schema, schema, overwrite=True)
+            sync_bases = 'schema_policy' in mod and True or False
+            syncSchema(model.schema, schema, overwrite=True, sync_bases=sync_bases)
 
         notify(SchemaInvalidatedEvent(portal_type))
