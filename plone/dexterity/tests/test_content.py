@@ -679,7 +679,7 @@ class TestContent(MockTestCase):
         self.assertEqual(i.modification_date, i.creation_date)
         self.assertEqual(i.modification_date, i.modified())
         self.assertEqual(
-            i.ModificationDate()[:19], i.modification_date.ISO()[:19])
+            i.ModificationDate(zone=summer_timezone)[:19], i.modification_date.ISO()[:19])
         self.assertEqual(i.Date(), i.EffectiveDate())
         self.assertEqual(i.Identifier(), i.absolute_url())
 
@@ -721,7 +721,7 @@ class TestContent(MockTestCase):
         self.assertEqual(i.modification_date, i.creation_date)
         self.assertEqual(i.modification_date, i.modified())
         self.assertEqual(
-            i.ModificationDate()[:19], i.modification_date.ISO()[:19])
+            i.ModificationDate(zone=summer_timezone)[:19], i.modification_date.ISO()[:19])
         self.assertEqual(i.Date(), i.EffectiveDate())
 
     def test_item_dublincore_datetime(self):
@@ -771,7 +771,7 @@ class TestContent(MockTestCase):
         self.assertEqual(i.CreationDate(zone=summer_timezone), i.creation_date.ISO())
         self.assertEqual(i.modification_date, i.creation_date)
         self.assertEqual(i.modification_date, i.modified())
-        self.assertEqual(i.ModificationDate(), i.modification_date.ISO())
+        self.assertEqual(i.ModificationDate(zone=summer_timezone), i.modification_date.ISO())
         self.assertEqual(i.Date(), i.EffectiveDate())
 
     def test_item_notifyModified(self):
