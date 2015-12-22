@@ -541,7 +541,7 @@ def ftiModified(object, event):
             schema = getattr(plone.dexterity.schema.generated, schemaName)
 
             model = fti.lookupModel()
-            sync_bases = 'schema_policy' in mod and True or False
+            sync_bases = 'schema_policy' in mod
             syncSchema(model.schema, schema, overwrite=True, sync_bases=sync_bases)
 
         notify(SchemaInvalidatedEvent(portal_type))
