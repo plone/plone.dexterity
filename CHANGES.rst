@@ -5,10 +5,6 @@ Changelog
 2.3.7 (unreleased)
 ------------------
 
-New:
-
-- *add item here*
-
 Fixes:
 
 - Sync schema when schema_policy name is changed (issue #44)
