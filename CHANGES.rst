@@ -11,7 +11,9 @@ New:
 
 Fixes:
 
-- *add item here*
+- Fix: duplicate aq_base w/o using Aqcuistion API resulted in an AttributeError
+  that was masqued in the calling hasattr and resulted in wrong conclusion.
+  [jensens]
 
 
 2.3.7 (2016-01-08)

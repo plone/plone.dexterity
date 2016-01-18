@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from Acquisition import aq_base, Implicit
-from Products.CMFCore.utils import getToolByName
-from ZPublisher.Iterators import IStreamIterator
+from Acquisition import aq_base
+from Acquisition import Implicit
 from email.generator import Generator
 from email.message import Message
 from email.parser import FeedParser
@@ -13,6 +12,7 @@ from plone.memoize.instance import memoize
 from plone.rfc822 import constructMessageFromSchemata
 from plone.rfc822 import initializeObjectFromSchemata
 from plone.rfc822.interfaces import IPrimaryField
+from Products.CMFCore.utils import getToolByName
 from webdav.Resource import Resource
 from zExceptions import MethodNotAllowed
 from zExceptions import Unauthorized
@@ -28,6 +28,7 @@ from zope.interface.interfaces import IInterface
 from zope.lifecycleevent import modified, ObjectCreatedEvent
 from zope.schema import getFieldsInOrder
 from zope.size.interfaces import ISized
+from ZPublisher.Iterators import IStreamIterator
 import tempfile
 
 
@@ -233,7 +234,7 @@ class FolderDataResource(Implicit, Resource):
         """Fall back on parent for certain things, even if we're aq_base'd.
         This makes propertysheet access work.
         """
-        if hasattr(self.__parent__.aq_base, name):
+        if hasattr(aq_base(self.__parent__), name):
             return getattr(self.__parent__, name)
         raise AttributeError(name)
 
