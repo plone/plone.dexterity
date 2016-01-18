@@ -638,7 +638,8 @@ class TestFolderDataResource(MockTestCase):
 
         requestBody = """\
 <?xml version="1.0" encoding="utf-8" ?>
-<D:propertyupdate xmlns:D="DAV:" xmlns:n="http://www.zope.org/propsets/default">
+<D:propertyupdate xmlns:D="DAV:"
+                  xmlns:n="http://www.zope.org/propsets/default">
     <D:set>
         <D:prop>
             <n:title>New title</n:title>
