@@ -675,11 +675,16 @@ class TestContent(MockTestCase):
         self.assertEqual(i.rights, 'CC')
         self.assertEqual(i.Rights(), 'CC')
         self.assertEqual(i.creation_date, i.created())
-        self.assertEqual(i.CreationDate(zone=summer_timezone)[:19], i.creation_date.ISO()[:19])
+        self.assertEqual(
+            i.CreationDate(zone=summer_timezone)[:19],
+            i.creation_date.ISO()[:19]
+        )
         self.assertEqual(i.modification_date, i.creation_date)
         self.assertEqual(i.modification_date, i.modified())
         self.assertEqual(
-            i.ModificationDate(zone=summer_timezone)[:19], i.modification_date.ISO()[:19])
+            i.ModificationDate(zone=summer_timezone)[:19],
+            i.modification_date.ISO()[:19]
+        )
         self.assertEqual(i.Date(), i.EffectiveDate())
         self.assertEqual(i.Identifier(), i.absolute_url())
 
@@ -717,11 +722,16 @@ class TestContent(MockTestCase):
             i.ExpirationDate(zone=summer_timezone)[:10], '2013-07-09')
         self.assertEqual(i.expires(), DateTime('07/09/2013'))
         self.assertEqual(i.creation_date, i.created())
-        self.assertEqual(i.CreationDate(zone=summer_timezone)[:19], i.creation_date.ISO()[:19])
+        self.assertEqual(
+            i.CreationDate(zone=summer_timezone)[:19],
+            i.creation_date.ISO()[:19]
+        )
         self.assertEqual(i.modification_date, i.creation_date)
         self.assertEqual(i.modification_date, i.modified())
         self.assertEqual(
-            i.ModificationDate(zone=summer_timezone)[:19], i.modification_date.ISO()[:19])
+            i.ModificationDate(zone=summer_timezone)[:19],
+            i.modification_date.ISO()[:19]
+        )
         self.assertEqual(i.Date(), i.EffectiveDate())
 
     def test_item_dublincore_datetime(self):
@@ -735,7 +745,6 @@ class TestContent(MockTestCase):
         mocked_datetime = datetime_patcher.start()
         mocked_datetime.return_value = DateTime(2014, 6, 1)
         self.addCleanup(datetime_patcher.stop)
-
         i = Item(
             title=u"Emperor Penguin",
             description=u'One of the most magnificent birds.',
@@ -752,26 +761,48 @@ class TestContent(MockTestCase):
 
         summer_timezone = DateTime('2010/08/20').timezone()
         self.assertEqual(
-            i.effective_date, DateTime('08/20/2010 12:59:59 GMT-5'))
+            i.effective_date,
+            DateTime('2010/08/20 12:59:59 US/Eastern')
+        )
         self.assertEqual(
             i.EffectiveDate(zone=summer_timezone),
-            DateTime('2010-08-20 12:59:59 GMT-5').toZone(summer_timezone).ISO()
+            DateTime(
+                '2010/08/20 12:59:59 US/Eastern'
+            ).toZone(
+                summer_timezone
+            ).ISO()
         )
-        self.assertEqual(i.effective(), DateTime('08/20/2010 12:59:59 GMT-5'))
+        self.assertEqual(
+            i.effective(),
+            DateTime('2010/08/20 12:59:59 US/Eastern')
+        )
         self.assertEqual(
             i.expiration_date,
-            DateTime('07/09/2013 12:59:59 GMT-5')
+            DateTime('07/09/2013 12:59:59 US/Eastern')
         )
         self.assertEqual(
             i.ExpirationDate(zone=summer_timezone),
-            DateTime('2013-07-09 12:59:59 GMT-5').toZone(summer_timezone).ISO()
+            DateTime(
+                '2013-07-09 12:59:59 US/Eastern'
+            ).toZone(
+                summer_timezone
+            ).ISO()
         )
-        self.assertEqual(i.expires(), DateTime('2013/07/09 12:59:59 GMT-5'))
+        self.assertEqual(
+            i.expires(),
+            DateTime('2013/07/09 12:59:59 US/Eastern')
+        )
         self.assertEqual(i.creation_date, i.created())
-        self.assertEqual(i.CreationDate(zone=summer_timezone), i.creation_date.ISO())
+        self.assertEqual(
+            i.CreationDate(zone=summer_timezone),
+            i.creation_date.ISO()
+        )
         self.assertEqual(i.modification_date, i.creation_date)
         self.assertEqual(i.modification_date, i.modified())
-        self.assertEqual(i.ModificationDate(zone=summer_timezone), i.modification_date.ISO())
+        self.assertEqual(
+            i.ModificationDate(zone=summer_timezone),
+            i.modification_date.ISO()
+        )
         self.assertEqual(i.Date(), i.EffectiveDate())
 
     def test_item_notifyModified(self):

@@ -3,7 +3,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-version = '2.3.8.dev0'
+version = '2.4.0.dev0'
 
 short_description = """\
 Framework for content types as filesystem code and TTW (Zope/CMF/Plone)\
@@ -37,11 +37,7 @@ setup(
     install_requires=[
         # 'Acquisition',
         # 'AccessControl',
-        'Products.CMFCore',
-        'Products.CMFDynamicViewFTI',
-        'Products.statusmessages',
-        'ZODB3',
-        'Zope2',
+        'DateTime>=4.0.1',
         'plone.alterego',
         'plone.autoform>=1.0b2',
         'plone.behavior>=1.0b5',
@@ -52,7 +48,11 @@ setup(
         'plone.synchronize',
         'plone.uuid',
         'plone.z3cform>=0.6.0',
+        'Products.CMFCore',
+        'Products.CMFDynamicViewFTI',
+        'Products.statusmessages',
         'setuptools',
+        'ZODB3',
         'zope.annotation',
         'zope.browser',
         'zope.component',
@@ -66,6 +66,7 @@ setup(
         'zope.schema',
         'zope.security',
         'zope.size',
+        'Zope2',
     ],
     extras_require={
         'test': [

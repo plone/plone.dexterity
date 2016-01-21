@@ -2,14 +2,19 @@ Changelog
 =========
 
 
-2.3.8 (unreleased)
+2.4.0 (unreleased)
 ------------------
 
 New:
 
-- *add item here*
+- Update to/ depend on pytz 2015.7 and DateTime 4.0.1
+  [jensens]
 
 Fixes:
+
+- make utils/datify work with newer DateTime and pytz. Adjust tests to reflect
+  changes.
+  [jensens]
 
 - Fix: duplicate aq_base w/o using Aqcuistion API resulted in an AttributeError
   that was masqued in the calling hasattr and resulted in wrong conclusion.

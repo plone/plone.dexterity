@@ -197,33 +197,33 @@ def createContentInContainer(container, portal_type, checkConstraints=True,
     )
 
 
-def safe_utf8(s):
-    if isinstance(s, unicode):
-        s = s.encode('utf8')
-    return s
+def safe_utf8(st):
+    if isinstance(st, unicode):
+        st = st.encode('utf8')
+    return st
 
 
-def safe_unicode(s):
-    if isinstance(s, str):
-        s = s.decode('utf8')
-    return s
+def safe_unicode(st):
+    if isinstance(st, str):
+        st = st.decode('utf8')
+    return st
 
 
-def datify(s):
+def datify(in_date):
     """Get a DateTime object from a string (or anything parsable by DateTime,
        a datetime.date, a datetime.datetime
     """
-    if not isinstance(s, DateTime):
-        if s == 'None':
-            s = None
-        elif isinstance(s, datetime.datetime):
-            s = DateTime(s.isoformat())
-        elif isinstance(s, datetime.date):
-            s = DateTime(s.year, s.month, s.day)
-        elif s is not None:
-            s = DateTime(s)
-
-    return s
+    if isinstance(in_date, DateTime):
+        return in_date
+    if in_date == 'None':
+        in_date = None
+    elif isinstance(in_date, datetime.datetime):
+        in_date = DateTime(in_date)
+    elif isinstance(in_date, datetime.date):
+        in_date = DateTime(in_date.year, in_date.month, in_date.day)
+    elif in_date is not None:
+        in_date = DateTime(in_date)
+    return in_date
 
 
 def all_merged_tagged_values_dict(ifaces, key):
