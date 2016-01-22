@@ -7,6 +7,9 @@ Changelog
 
 New:
 
+-Add Russian translation.
+  [serge73]
+  
 - Update to/ depend on pytz 2015.7 and DateTime 4.0.1
   [jensens]
 
