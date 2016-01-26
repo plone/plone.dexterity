@@ -20,6 +20,8 @@ Fixes:
   that was masqued in the calling hasattr and resulted in wrong conclusion.
   [jensens]
 
+- Make modification test more stable.
+  [do3cc]
 
 2.3.7 (2016-01-08)
 ------------------

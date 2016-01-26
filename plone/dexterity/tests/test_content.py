@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from DateTime import DateTime
 from Products.CMFPlone.interfaces import IConstrainTypes
 from datetime import date, datetime
 from plone.behavior.interfaces import IBehavior
@@ -812,8 +813,11 @@ class TestContent(MockTestCase):
             mock_addCreator.called = True
         i.addCreator = mock_addCreator
 
+        i.setModificationDate(DateTime(0))
+
         i.notifyModified()
         self.assertNotEqual(i.modification_date, i.creation_date)
+        self.assertNotEqual(i.modification_date, DateTime(0))
         self.assertTrue(mock_addCreator.called)
 
     def test_item_addCreator(self):
