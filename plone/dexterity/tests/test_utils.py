@@ -2,12 +2,16 @@
 from plone.dexterity import utils
 from plone.dexterity.fti import DexterityFTI
 from plone.mocktestcase import MockTestCase
+from pkg_resources import get_distribution
 
 import unittest
+
+has_zope4 = get_distribution('Zope2').version.startswith('4')
 
 
 class TestUtils(MockTestCase):
 
+    @unittest.skipIf(has_zope4, 'Broken with zope4, see https://community.plone.org/t/problems-with-mocktestcase-in-plone-dexterity/1484')  # noqa
     def test_getAdditionalSchemata(self):
         from plone.dexterity.interfaces import IDexterityFTI
         from plone.behavior.interfaces import IBehavior
@@ -45,11 +49,17 @@ class TestUtils(MockTestCase):
 
         self.mock_utility(behavior_mock, IBehavior, behavior_name)
         self.mock_utility(fti_mock, IDexterityFTI, portal_type)
+
+        import zope.interface.registry
+        orig_getName = zope.interface.registry._getName
+        zope.interface._getName = lambda component: u''
         self.mock_adapter(
             provider_mock,
             IFormFieldProvider,
             (providedBy(IBehaviorInterface), )
         )
+        #zope.interface._getName = orig_getName
+
 
         self.replay()
 
