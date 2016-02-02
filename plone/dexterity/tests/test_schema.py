@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from Products.CMFCore.interfaces import ISiteRoot
 from pkg_resources import get_distribution
 from plone.dexterity import schema
 from plone.dexterity.fti import DexterityFTI
@@ -10,11 +9,13 @@ from plone.dexterity.schema import invalidate_cache
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.mocktestcase import MockTestCase
 from plone.supermodel.model import Model
+from Products.CMFCore.interfaces import ISiteRoot
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
 import unittest
 import zope.schema
+
 
 has_zope4 = get_distribution('Zope2').version.startswith('4')
 

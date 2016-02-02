@@ -15,6 +15,9 @@ New:
 
 Fixes:
 
+- Skip the tests ``test_portalTypeToSchemaName_looks_up_portal_for_prefix`` and ``test_getAdditionalSchemata`` with isolation problems in Zope 4.
+  [pbauer]
+
 - make utils/datify work with newer DateTime and pytz. Adjust tests to reflect
   changes.
   [jensens]

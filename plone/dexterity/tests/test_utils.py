@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+from pkg_resources import get_distribution
 from plone.dexterity import utils
 from plone.dexterity.fti import DexterityFTI
 from plone.mocktestcase import MockTestCase
-from pkg_resources import get_distribution
 
 import unittest
+
 
 has_zope4 = get_distribution('Zope2').version.startswith('4')
 
@@ -50,16 +51,11 @@ class TestUtils(MockTestCase):
         self.mock_utility(behavior_mock, IBehavior, behavior_name)
         self.mock_utility(fti_mock, IDexterityFTI, portal_type)
 
-        import zope.interface.registry
-        orig_getName = zope.interface.registry._getName
-        zope.interface._getName = lambda component: u''
         self.mock_adapter(
             provider_mock,
             IFormFieldProvider,
             (providedBy(IBehaviorInterface), )
         )
-        #zope.interface._getName = orig_getName
-
 
         self.replay()
 
