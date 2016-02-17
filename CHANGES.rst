@@ -7,27 +7,26 @@ Changelog
 
 New:
 
--Add Russian translation.
-  [serge73]
-  
-- Update to/ depend on pytz 2015.7 and DateTime 4.0.1
-  [jensens]
+- Added Russian translation.  [serge73]
+
+- Updated to and depended on pytz 2015.7 and DateTime 4.0.1.  [jensens]
 
 Fixes:
 
-- Skip the tests ``test_portalTypeToSchemaName_looks_up_portal_for_prefix`` and ``test_getAdditionalSchemata`` with isolation problems in Zope 4.
+- Skipped the tests
+  ``test_portalTypeToSchemaName_looks_up_portal_for_prefix`` and
+  ``test_getAdditionalSchemata`` with isolation problems in Zope 4.
   [pbauer]
 
-- make utils/datify work with newer DateTime and pytz. Adjust tests to reflect
-  changes.
-  [jensens]
+- Made utils/datify work with newer DateTime and pytz.  Adjust tests
+  to reflect changes.  [jensens]
 
-- Fix: duplicate aq_base w/o using Aqcuistion API resulted in an AttributeError
-  that was masqued in the calling hasattr and resulted in wrong conclusion.
-  [jensens]
+- Fixed: duplicate aq_base without using Acquistion API resulted in an
+  AttributeError that was masqued in the calling hasattr and resulted
+  in wrong conclusion.  [jensens]
 
-- Make modification test more stable.
-  [do3cc]
+- Made modification test more stable.  [do3cc]
+
 
 2.3.7 (2016-01-08)
 ------------------
