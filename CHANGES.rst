@@ -4,6 +4,8 @@ Changelog
 2.2.5 (unreleased)
 ------------------
 
+New:
+
 - Use attribute for DefaultAddForm and DefaultEditForm success message so it can
   be easily customized.
   [cedricmessiant]
@@ -449,4 +451,3 @@ Changelog
 ------------------
 
 * Initial release
-
