@@ -10,8 +10,8 @@ New:
 
 Fixes:
 
-- *add item here*
-
+- Sync schema when schema_policy name is changed (issue #44)
+  [sgeulette]
 
 2.2.5 (2016-02-18)
 ------------------
