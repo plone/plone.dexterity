@@ -5,6 +5,12 @@ Changelog
 2.4.1 (unreleased)
 ------------------
 
+Incompatibilities:
+
+- addCreator should not add if a creator is already set for content. This prevents every
+  editor on content from adding to the list of creators for an object.
+  [vangheem]
+
 New:
 
 - *add item here*
