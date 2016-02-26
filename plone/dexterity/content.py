@@ -370,6 +370,10 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     def addCreator(self, creator=None):
         """ Add creator to Dublin Core creators.
         """
+        if len(self.creators) > 0:
+            # do not add creator if one is already set
+            return
+
         if creator is None:
             user = getSecurityManager().getUser()
             creator = user and user.getId()
