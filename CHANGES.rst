@@ -11,14 +11,6 @@ Incompatibilities:
   editor on content from adding to the list of creators for an object.
   [vangheem]
 
-New:
-
-- *add item here*
-
-Fixes:
-
-- *add item here*
-
 
 2.4.0 (2016-02-17)
 ------------------
