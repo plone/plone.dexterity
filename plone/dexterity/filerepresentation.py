@@ -46,13 +46,13 @@ class DAVResourceMixin(object):
 
     @security.protected(permissions.View)
     def get_size(self):
-        """Get the size of the content item in bytes. Used both in folder
-        listings and in DAV PROPFIND requests.
-
-        The default implementation delegates to an ISized adapter and calls
-        getSizeForSorting(). This returns a tuple (unit, value). If the unit
-        is 'bytes', the value is returned, otherwise the size is 0.
-        """
+        # Get the size of the content item in bytes.
+        #
+        # Used both in folder listings and in DAV PROPFIND requests.
+        #
+        # The default implementation delegates to an ISized adapter and calls
+        # getSizeForSorting(). This returns a tuple (unit, value). If the unit
+        # is 'bytes', the value is returned, otherwise the size is 0.
         sized = ISized(self, None)
         if sized is None:
             return 0
@@ -63,8 +63,7 @@ class DAVResourceMixin(object):
 
     @security.protected(permissions.View)
     def content_type(self):
-        """Return the content type (MIME type) of the tiem
-        """
+        # Return the content type (MIME type) of the item.
         readFile = IRawReadFile(self, None)
         if readFile is None:
             return None
@@ -72,8 +71,7 @@ class DAVResourceMixin(object):
 
     @security.protected(permissions.View)
     def Format(self):
-        """Return the content type (MIME type) of the item
-        """
+        # Return the content type (MIME type) of the item.
         return self.content_type()
 
     @security.protected(permissions.View)
@@ -248,16 +246,14 @@ class FolderDataResource(Implicit, Resource):
     # be the container.
 
     def __getattr__(self, name):
-        """Fall back on parent for certain things, even if we're aq_base'd.
-        This makes propertysheet access work.
-        """
+        # Fall back on parent for certain things, even if we're aq_base'd.
+        # This makes propertysheet access work.
         if hasattr(self.__parent__.aq_base, name):
             return getattr(self.__parent__, name)
         raise AttributeError(name)
 
     def __setattr__(self, name, value):
-        """Set certain attributes on the parent
-        """
+        # Set certain attributes on the parent.
         if name in self.__dict__:
             object.__setattr__(self, name, value)
         elif self.__parent__.hasProperty(name):
@@ -278,8 +274,7 @@ class FolderDataResource(Implicit, Resource):
         return self.__name__
 
     def getId(self):
-        """Get id for traveral purposes
-        """
+        # Get id for traveral purposes.
         return self.__name__
 
     @security.protected(permissions.View)
@@ -337,6 +332,7 @@ class FolderDataResource(Implicit, Resource):
         """
         return self.__parent__.PUT(REQUEST, RESPONSE)
 
+    @security.protected(permissions.AddPortalContent)
     def MKCOL(self, REQUEST, RESPONSE):
         """MKCOL request: not allowed
         """
@@ -647,8 +643,7 @@ class DefaultReadFile(ReadFileBase):
 
     @memoize
     def _getMessage(self):
-        """Construct message on demand
-        """
+        # Construct message on demand.
         message = constructMessageFromSchemata(
             self.context,
             iterSchemata(self.context)
@@ -661,7 +656,7 @@ class DefaultReadFile(ReadFileBase):
 
     @memoize
     def _getStream(self):
-        # We write to a TemporayFile instead of a StringIO because we don't
+        # We write to a TemporaryFile instead of a StringIO because we don't
         # want to keep the full file contents around in memory, and because
         # this approach allows us to hand off the stream iterator to the
         # publisher, which will serve it efficiently even after the
