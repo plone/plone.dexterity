@@ -10,7 +10,7 @@ New:
 
 Fixes:
 
-- *add item here*
+- Added security declarations from Products.PloneHotfix20160419.  [maurits]
 
 
 2.2.6 (2016-02-24)
