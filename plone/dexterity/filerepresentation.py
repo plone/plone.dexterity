@@ -31,6 +31,10 @@ from zope.size.interfaces import ISized
 from ZPublisher.Iterators import IStreamIterator
 import tempfile
 
+from AccessControl.class_init import InitializeClass
+from AccessControl import ClassSecurityInfo
+from Products.CMFCore import permissions
+
 
 class DAVResourceMixin(object):
     """Mixin class for WebDAV resource support.
@@ -39,14 +43,17 @@ class DAVResourceMixin(object):
     delegate to more granular adapters.
     """
 
-    def get_size(self):
-        """Get the size of the content item in bytes. Used both in folder
-        listings and in DAV PROPFIND requests.
+    security = ClassSecurityInfo()
 
-        The default implementation delegates to an ISized adapter and calls
-        getSizeForSorting(). This returns a tuple (unit, value). If the unit
-        is 'bytes', the value is returned, otherwise the size is 0.
-        """
+    @security.protected(permissions.View)
+    def get_size(self):
+        # Get the size of the content item in bytes.
+        #
+        # Used both in folder listings and in DAV PROPFIND requests.
+        #
+        # The default implementation delegates to an ISized adapter and calls
+        # getSizeForSorting(). This returns a tuple (unit, value). If the unit
+        # is 'bytes', the value is returned, otherwise the size is 0.
         sized = ISized(self, None)
         if sized is None:
             return 0
@@ -55,24 +62,26 @@ class DAVResourceMixin(object):
             return size
         return 0
 
+    @security.protected(permissions.View)
     def content_type(self):
-        """Return the content type (MIME type) of the tiem
-        """
+        # Return the content type (MIME type) of the item.
         readFile = IRawReadFile(self, None)
         if readFile is None:
             return None
         return readFile.mimeType
 
+    @security.protected(permissions.View)
     def Format(self):
-        """Return the content type (MIME type) of the item
-        """
+        # Return the content type (MIME type) of the item.
         return self.content_type()
 
+    @security.protected(permissions.View)
     def manage_DAVget(self):
         """Get the body of the content item in a WebDAV response.
         """
         return self.manage_FTPget()
 
+    @security.protected(permissions.View)
     def manage_FTPget(self, REQUEST=None, RESPONSE=None):
         """Return the body of the content item in an FTP or WebDAV response.
 
@@ -111,6 +120,7 @@ class DAVResourceMixin(object):
 
         return reader.read()
 
+    @security.protected(permissions.ModifyPortalContent)
     def PUT(self, REQUEST=None, RESPONSE=None):
         """WebDAV method to replace self with a new resource. This is also
         used when initialising an object just created from a NullResource.
@@ -167,6 +177,9 @@ class DAVCollectionMixin(DAVResourceMixin):
     delegate to more granular adapters.
     """
 
+    security = ClassSecurityInfo()
+
+    @security.protected(permissions.AddPortalContent)
     def MKCOL_handler(self, id, REQUEST=None, RESPONSE=None):
         """Handle "make collection" by delegating to an IDirectoryFactory
         adapter.
@@ -178,6 +191,7 @@ class DAVCollectionMixin(DAVResourceMixin):
             )
         factory(id)
 
+    @security.protected(permissions.AddPortalContent)
     def PUT_factory(self, name, contentType, body):
         """Handle constructing a new object upon a PUT request by delegating
         to an IFileFactory adapter
@@ -187,6 +201,7 @@ class DAVCollectionMixin(DAVResourceMixin):
             return None
         return factory(name, contentType, body)
 
+    @security.protected(permissions.ListFolderContents)
     def listDAVObjects(self):
         """Return objects for WebDAV folder listings.
 
@@ -219,6 +234,7 @@ class FolderDataResource(Implicit, Resource):
     """
 
     __dav_collection__ = 0
+    security = ClassSecurityInfo()
 
     def __init__(self, name, parent):
         self.__dict__.update({'__parent__': parent, '__name__': name})
@@ -231,16 +247,14 @@ class FolderDataResource(Implicit, Resource):
     # be the container.
 
     def __getattr__(self, name):
-        """Fall back on parent for certain things, even if we're aq_base'd.
-        This makes propertysheet access work.
-        """
+        # Fall back on parent for certain things, even if we're aq_base'd.
+        # This makes propertysheet access work.
         if hasattr(aq_base(self.__parent__), name):
             return getattr(self.__parent__, name)
         raise AttributeError(name)
 
     def __setattr__(self, name, value):
-        """Set certain attributes on the parent
-        """
+        # Set certain attributes on the parent.
         if name in self.__dict__:
             object.__setattr__(self, name, value)
         elif self.__parent__.hasProperty(name):
@@ -261,26 +275,29 @@ class FolderDataResource(Implicit, Resource):
         return self.__name__
 
     def getId(self):
-        """Get id for traveral purposes
-        """
+        # Get id for traveral purposes.
         return self.__name__
 
+    @security.protected(permissions.View)
     def HEAD(self, REQUEST, RESPONSE):
         """HEAD request: use the Resource algorithm on the data of the
         parent.
         """
         return Resource.HEAD(self.__parent__, REQUEST, RESPONSE)
 
+    @security.protected(permissions.ListFolderContents)
     def OPTIONS(self, REQUEST, RESPONSE):
         """OPTIONS request: delegate to parent
         """
         return self.__parent__.OPTIONS(REQUEST, RESPONSE)
 
+    @security.protected(permissions.View)
     def TRACE(self, REQUEST, RESPONSE):
         """TRACE request: delegate to parent
         """
         return self.__parent__.TRACE(REQUEST, RESPONSE)
 
+    @security.protected(permissions.View)
     def PROPFIND(self, REQUEST, RESPONSE):
         """PROPFIND request: use Resource algorithm on self, so that we do
         not appear as a folder.
@@ -289,6 +306,7 @@ class FolderDataResource(Implicit, Resource):
         """
         return super(FolderDataResource, self).PROPFIND(REQUEST, RESPONSE)
 
+    @security.protected(permissions.ModifyPortalContent)
     def PROPPATCH(self, REQUEST, RESPONSE):
         """PROPPATCH request: Use Resource algorithm on self, so that we do
         not appear as a folder.
@@ -297,21 +315,25 @@ class FolderDataResource(Implicit, Resource):
         """
         return super(FolderDataResource, self).PROPPATCH(REQUEST, RESPONSE)
 
+    @security.protected(permissions.ModifyPortalContent)
     def LOCK(self, REQUEST, RESPONSE):
         """LOCK request: delegate to parent
         """
         return self.__parent__.LOCK(REQUEST, RESPONSE)
 
+    @security.protected(permissions.ModifyPortalContent)
     def UNLOCK(self, REQUEST, RESPONSE):
         """UNLOCK request: delegate to parent
         """
         return self.__parent__.UNLOCK(REQUEST, RESPONSE)
 
+    @security.protected(permissions.ModifyPortalContent)
     def PUT(self, REQUEST, RESPONSE):
         """PUT request: delegate to parent
         """
         return self.__parent__.PUT(REQUEST, RESPONSE)
 
+    @security.protected(permissions.AddPortalContent)
     def MKCOL(self, REQUEST, RESPONSE):
         """MKCOL request: not allowed
         """
@@ -320,6 +342,7 @@ class FolderDataResource(Implicit, Resource):
             'folder level instead'
         )
 
+    @security.protected(permissions.DeleteObjects)
     def DELETE(self, REQUEST, RESPONSE):
         """DELETE request: not allowed
         """
@@ -327,6 +350,7 @@ class FolderDataResource(Implicit, Resource):
             'Cannot delete folder data: delete folder instead'
         )
 
+    @security.protected(permissions.AddPortalContent)
     def COPY(self, REQUEST, RESPONSE):
         """COPY request: not allowed
         """
@@ -334,6 +358,7 @@ class FolderDataResource(Implicit, Resource):
             'Cannot copy folder data: copy the folder instead'
         )
 
+    @security.protected(permissions.AddPortalContent)
     def MOVE(self, REQUEST, RESPONSE):
         """MOVE request: not allowed
         """
@@ -341,16 +366,19 @@ class FolderDataResource(Implicit, Resource):
             'Cannot move folder data: move the folder instead'
         )
 
+    @security.protected(permissions.View)
     def manage_DAVget(self):
         """DAV content access: delete to manage_FTPget()
         """
         return self.__parent__.manage_DAVget()
 
+    @security.protected(permissions.View)
     def manage_FTPget(self):
         """FTP access: delegate to parent
         """
         return self.__parent__.manage_FTPget()
 
+    @security.protected(permissions.ListFolderContents)
     def listDAVObjects(self):
         """DAV object listing: return nothing
         """
@@ -619,8 +647,7 @@ class DefaultReadFile(ReadFileBase):
 
     @memoize
     def _getMessage(self):
-        """Construct message on demand
-        """
+        # Construct message on demand.
         message = constructMessageFromSchemata(
             self.context,
             iterSchemata(self.context)
@@ -633,7 +660,7 @@ class DefaultReadFile(ReadFileBase):
 
     @memoize
     def _getStream(self):
-        # We write to a TemporayFile instead of a StringIO because we don't
+        # We write to a TemporaryFile instead of a StringIO because we don't
         # want to keep the full file contents around in memory, and because
         # this approach allows us to hand off the stream iterator to the
         # publisher, which will serve it efficiently even after the
@@ -802,3 +829,8 @@ class DefaultWriteFile(object):
 
     def flush(self):
         pass
+
+
+InitializeClass(DAVResourceMixin)
+InitializeClass(DAVCollectionMixin)
+InitializeClass(FolderDataResource)

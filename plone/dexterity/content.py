@@ -354,22 +354,20 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     __name__ = property(_get__name__, _set__name__)
 
     def UID(self):
-        """Returns the item's globally unique id."""
+        # Returns the item's globally unique id.
         return IUUID(self)
 
     @security.private
     def notifyModified(self):
-        """Update creators and modification_date.
-
-        This is called from CMFCatalogAware.reindexObject.
-        """
+        # Update creators and modification_date.
+        # This is called from CMFCatalogAware.reindexObject.
         self.addCreator()
         self.setModificationDate()
 
     @security.protected(permissions.ModifyPortalContent)
     def addCreator(self, creator=None):
-        """ Add creator to Dublin Core creators.
-        """
+        # Add creator to Dublin Core creators.
+
         if len(self.creators) > 0:
             # do not add creator if one is already set
             return
@@ -384,10 +382,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
 
     @security.protected(permissions.ModifyPortalContent)
     def setModificationDate(self, modification_date=None):
-        """ Set the date when the resource was last modified.
-
-        When called without an argument, sets the date to now.
-        """
+        # Set the date when the resource was last modified.
+        # When called without an argument, sets the date to now.
         if modification_date is None:
             self.modification_date = DateTime()
         else:
@@ -725,8 +721,7 @@ class Container(
     # override PortalFolder's invokeFactory to respect IConstrainTypes
     # adapters
     def invokeFactory(self, type_name, id, RESPONSE=None, *args, **kw):
-        """Invokes the portal_types tool
-        """
+        # Invokes the portal_types tool.
         constrains = IConstrainTypes(self, None)
 
         if constrains:
