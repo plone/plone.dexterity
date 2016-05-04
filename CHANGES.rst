@@ -4,10 +4,6 @@ Changelog
 2.2.7 (unreleased)
 ------------------
 
-New:
-
-- *add item here*
-
 Fixes:
 
 - Added security declarations from Products.PloneHotfix20160419.  [maurits]
