@@ -35,7 +35,7 @@ from zope.filerepresentation.interfaces import IRawReadFile
 from zope.filerepresentation.interfaces import IRawWriteFile
 from zope.interface import Interface
 from zope.interface import alsoProvides
-from zope.interface import implements
+from zope.interface import implementer
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.publisher.browser import TestRequest
 from zope.size.interfaces import ISized
@@ -199,8 +199,8 @@ class TestWebZope2DAVAPI(MockTestCase):
         self.assertEqual(None, request.response.getHeader('Content-Length'))
 
     def test_get_streaming(self):
+        @implementer(IStreamIterator)
         class ReadFileAdapter(object):
-            implements(IStreamIterator)
 
             def __init__(self, context):
                 self.context = context
