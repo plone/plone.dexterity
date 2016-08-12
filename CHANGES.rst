@@ -5,14 +5,6 @@ Changelog
 2.4.3 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Use zope.interface decorator.
