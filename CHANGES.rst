@@ -15,7 +15,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fix error when copying DX containers with AT children which caused the
+  children to not have the UID updated properly.  [jone]
 
 
 2.4.3 (2016-08-12)
