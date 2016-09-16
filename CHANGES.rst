@@ -4,14 +4,6 @@ Changelog
 2.2.8 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Fix error when copying DX containers with AT children which caused the
