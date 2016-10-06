@@ -3,9 +3,8 @@ from plone.behavior.interfaces import IBehavior
 from plone.dexterity.behavior import DexterityBehaviorAssignable
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
-from plone.mocktestcase import MockTestCase
 from zope.interface import Interface
-import unittest
+from .case import MockTestCase
 
 
 class IOne(Interface):
@@ -50,8 +49,6 @@ class TestBehavior(MockTestCase):
         fti.behaviors = [IOne.__identifier__, IFour.__identifier__]
         self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
-        self.replay()
-
         assignable = DexterityBehaviorAssignable(context_dummy)
 
         self.assertEqual(True, assignable.supports(IOne))
@@ -73,15 +70,9 @@ class TestBehavior(MockTestCase):
         fti.behaviors = [IOne.__identifier__]
         self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
-        self.replay()
-
         assignable = DexterityBehaviorAssignable(context_dummy)
 
         self.assertEqual(
             [behavior_dummy],
             list(assignable.enumerateBehaviors())
         )
-
-
-def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromName(__name__)
