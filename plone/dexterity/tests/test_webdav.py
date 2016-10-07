@@ -41,7 +41,6 @@ from zope.publisher.browser import TestRequest
 from zope.size.interfaces import ISized
 
 import re
-import unittest
 
 
 class ITestBehavior(Interface):
@@ -1603,7 +1602,3 @@ class TestDAVTraversal(MockTestCase):
             (container, ('foo',),),
             traversal.browserDefault(request)
         )
-
-
-def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromName(__name__)

@@ -33,7 +33,6 @@ from zope.interface import provider
 from zope.publisher.browser import TestRequest as TestRequestBase
 
 import mocker
-import unittest
 
 
 class TestRequest(TestRequestBase):
@@ -804,7 +803,3 @@ class TestDefaultView(MockTestCase):
         )
         additionalSchemata = tuple(view.additionalSchemata)
         self.assertEqual(tuple(), tuple(additionalSchemata))
-
-
-def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromName(__name__)
