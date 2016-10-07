@@ -68,11 +68,16 @@ class MockTestCase(unittest.TestCase):
                 getToolByName, side_effect=get_return_value)
         self._getToolByName_return_values[name] = mock
 
-    def patch_global(self, orig, **kw):
-        mock = Mock(**kw)
+    def patch_global(self, orig, mock=None, **kw):
+        if mock is None:
+            mock = Mock(**kw)
+        elif kw:
+            raise Exception(
+                'Keyword arguments are ignored if a mock instance is passed.')
         _global_replace(orig, mock)
         if self._replaced_globals is None:
             self._replaced_globals = {mock: orig}
+        return mock
 
 
 class Dummy(object):
