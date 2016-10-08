@@ -71,7 +71,6 @@ setup(
     ],
     extras_require={
         'test': [
-            'plone.mocktestcase>=1.0b3',
             'plone.testing',
             'mock',
         ]

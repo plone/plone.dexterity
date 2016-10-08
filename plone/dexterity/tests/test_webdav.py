@@ -5,7 +5,7 @@ from StringIO import StringIO
 from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.Iterators import IStreamIterator
 from email.Message import Message
-from mocker import ANY
+from mock import Mock
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.browser.traversal import DexterityPublishTraverse
@@ -20,8 +20,6 @@ from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
-from plone.mocktestcase import MockTestCase
-from plone.mocktestcase.dummy import Dummy
 from plone.rfc822.interfaces import IPrimaryField
 from webdav.NullResource import NullResource
 from zExceptions import Forbidden
@@ -39,6 +37,8 @@ from zope.interface import implementer
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.publisher.browser import TestRequest
 from zope.size.interfaces import ISized
+from .case import Dummy
+from .case import MockTestCase
 
 import re
 
@@ -77,8 +77,6 @@ class TestWebZope2DAVAPI(MockTestCase):
     def test_get_size_no_adapter(self):
         item = Item('test')
 
-        self.replay()
-
         self.assertEqual(0, item.get_size())
 
     def test_get_size_wrong_adapter(self):
@@ -93,8 +91,6 @@ class TestWebZope2DAVAPI(MockTestCase):
                 '10 lines'
         self.mock_adapter(SizedAdapter, ISized, (Item,))
         item = Item('test')
-
-        self.replay()
 
         self.assertEqual(0, item.get_size())
 
@@ -111,14 +107,10 @@ class TestWebZope2DAVAPI(MockTestCase):
         self.mock_adapter(SizedAdapter, ISized, (Item,))
         item = Item('test')
 
-        self.replay()
-
         self.assertEqual(10, item.get_size())
 
     def test_content_type_no_adapter(self):
         item = Item('test')
-
-        self.replay()
 
         self.assertEqual(None, item.content_type())
         self.assertEqual(None, item.Format())
@@ -132,15 +124,11 @@ class TestWebZope2DAVAPI(MockTestCase):
         self.mock_adapter(ReadFileAdapter, IRawReadFile, (Item,))
         item = Item('test')
 
-        self.replay()
-
         self.assertEqual('text/foo', item.content_type())
         self.assertEqual('text/foo', item.Format())
 
     def test_get_no_adapter(self):
         item = Item('test')
-
-        self.replay()
 
         self.assertEqual('', item.manage_DAVget())
 
@@ -162,8 +150,6 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         item = Item('item')
         item.REQUEST = request
-
-        self.replay()
 
         self.assertEqual('1234567890', item.manage_DAVget())
         self.assertEqual(
@@ -190,8 +176,6 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         item = Item('item')
         item.REQUEST = request
-
-        self.replay()
 
         self.assertEqual('1234567890', item.manage_DAVget())
         self.assertEqual(None, request.response.getHeader('Content-Type'))
@@ -223,8 +207,6 @@ class TestWebZope2DAVAPI(MockTestCase):
         item = Item('item')
         item.REQUEST = request
 
-        self.replay()
-
         self.assertEqual(adapterInstance, item.manage_DAVget())
 
     def test_put_no_adapter(self):
@@ -233,8 +215,6 @@ class TestWebZope2DAVAPI(MockTestCase):
         item = Item('item')
         item.REQUEST = request
 
-        self.replay()
-
         self.assertRaises(MethodNotAllowed, item.PUT)
 
     def test_put_no_body(self):
@@ -242,8 +222,6 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         item = Item('item')
         item.REQUEST = request
-
-        self.replay()
 
         self.assertRaises(MethodNotAllowed, item.PUT)
 
@@ -273,8 +251,6 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         item = Item('item')
         item.REQUEST = request
-
-        self.replay()
 
         item.PUT()
         self.assertEqual(None, adapterInstance.mimeType)
@@ -319,8 +295,6 @@ class TestWebZope2DAVAPI(MockTestCase):
 
         item = Item('item')
         item.REQUEST = request
-
-        self.replay()
 
         item.PUT()
         self.assertEqual('text/foo', adapterInstance.mimeType)
@@ -367,8 +341,6 @@ class TestWebZope2DAVAPI(MockTestCase):
         item = Item('item')
         item.REQUEST = request
 
-        self.replay()
-
         item.PUT()
         self.assertEqual('text/foo', adapterInstance.mimeType)
         self.assertEqual('latin1', adapterInstance.encoding)
@@ -378,7 +350,6 @@ class TestWebZope2DAVAPI(MockTestCase):
 
     def test_mkcol_no_adapter(self):
         container = Container('container')
-        self.replay()
         self.assertRaises(MethodNotAllowed, container.MKCOL_handler, 'test')
 
     def test_mkcol_simple_adapter(self):
@@ -393,13 +364,11 @@ class TestWebZope2DAVAPI(MockTestCase):
         self.mock_adapter(DirectoryFactory, IDirectoryFactory, (Container,))
 
         container = Container('container')
-        self.replay()
         container.MKCOL_handler('test')
         self.assertEqual(['test'], created)
 
     def test_put_factory_no_adapter(self):
         container = Container('container')
-        self.replay()
         self.assertEqual(
             None,
             container.PUT_factory('test', 'text/foo', 'body')
@@ -416,7 +385,6 @@ class TestWebZope2DAVAPI(MockTestCase):
                 return instance
         self.mock_adapter(FileFactory, IFileFactory, (Container,))
         container = Container('container')
-        self.replay()
         self.assertEqual(
             instance,
             container.PUT_factory('test', 'text/foo', 'body')
@@ -430,7 +398,6 @@ class TestWebZope2DAVAPI(MockTestCase):
                 return []
 
         container = DummyContainer('container')
-        self.replay()
 
         objects = container.listDAVObjects()
         self.assertEqual(1, len(objects))
@@ -446,7 +413,6 @@ class TestWebZope2DAVAPI(MockTestCase):
                 return [Item('foo')]
 
         container = DummyContainer('container')
-        self.replay()
 
         objects = container.listDAVObjects()
         self.assertEqual(2, len(objects))
@@ -461,8 +427,6 @@ class TestFolderDataResource(MockTestCase):
     def test_getId(self):
         container = Container('container')
         r = FolderDataResource('fdata', container)
-
-        self.replay()
 
         self.assertEqual('fdata', r.getId())
         self.assertEqual(container, r.__parent__)
@@ -484,8 +448,6 @@ class TestFolderDataResource(MockTestCase):
             environ={'URL': 'http://example.org/site/container'}
         )
         response = request.response
-
-        self.replay()
 
         self.assertEqual(response, r.HEAD(request, request.response))
         self.assertEqual(200, response.getStatus())
@@ -512,8 +474,6 @@ class TestFolderDataResource(MockTestCase):
             environ={'URL': 'http://example.org/site/container'}
         )
         response = request.response
-
-        self.replay()
 
         self.assertEqual(response, r.OPTIONS(request, request.response))
         self.assertEqual(
@@ -542,8 +502,6 @@ class TestFolderDataResource(MockTestCase):
             environ={'URL': 'http://example.org/site/container'}
         )
 
-        self.replay()
-
         self.assertRaises(MethodNotAllowed, r.TRACE, request, request.response)
 
     def test_PROPFIND(self):
@@ -563,8 +521,6 @@ class TestFolderDataResource(MockTestCase):
             environ={'URL': 'http://example.org/site/container'}
         )
         response = request.response
-
-        self.replay()
 
         self.assertEqual(response, r.PROPFIND(request, response))
 
@@ -655,8 +611,6 @@ class TestFolderDataResource(MockTestCase):
         )
         response = request.response
 
-        self.replay()
-
         self.assertEqual(response, r.PROPPATCH(request, response))
 
         self.assertEqual('New title', container.getProperty('title'))
@@ -706,8 +660,6 @@ The operation succeded.
         )
         response = request.response
 
-        self.replay()
-
         self.assertEqual(response, r.LOCK(request, response))
         self.assertEqual((request, response), container._locked)
 
@@ -727,8 +679,6 @@ The operation succeded.
         )
         response = request.response
 
-        self.replay()
-
         self.assertEqual(response, r.UNLOCK(request, response))
         self.assertEqual((request, response), container._unlocked)
 
@@ -747,16 +697,12 @@ The operation succeded.
         )
         response = request.response
 
-        self.replay()
-
         self.assertEqual(response, r.PUT(request, response))
         self.assertEqual((request, response), container._put)
 
     def test_MKCOL(self):
         container = Container('container')
         r = FolderDataResource('fdata', container).__of__(container)
-
-        self.replay()
 
         request = DAVTestRequest(
             environ={'URL': 'http://example.org/site/container'}
@@ -769,8 +715,6 @@ The operation succeded.
         container = Container('container')
         r = FolderDataResource('fdata', container).__of__(container)
 
-        self.replay()
-
         request = DAVTestRequest(
             environ={'URL': 'http://example.org/site/container'}
         )
@@ -782,8 +726,6 @@ The operation succeded.
         container = Container('container')
         r = FolderDataResource('fdata', container).__of__(container)
 
-        self.replay()
-
         request = DAVTestRequest(
             environ={'URL': 'http://example.org/site/container'}
         )
@@ -794,8 +736,6 @@ The operation succeded.
     def test_MOVE(self):
         container = Container('container')
         r = FolderDataResource('fdata', container).__of__(container)
-
-        self.replay()
 
         request = DAVTestRequest(
             environ={'URL': 'http://example.org/site/container'}
@@ -813,8 +753,6 @@ The operation succeded.
         container = TestContainer('container')
         r = FolderDataResource('fdata', container).__of__(container)
 
-        self.replay()
-
         self.assertEqual('data', r.manage_DAVget())
 
     def test_manage_FTPget(self):
@@ -826,15 +764,11 @@ The operation succeded.
         container = TestContainer('container')
         r = FolderDataResource('fdata', container).__of__(container)
 
-        self.replay()
-
         self.assertEqual('data', r.manage_FTPget())
 
     def test_listDAVObjects(self):
         container = Container('container')
         r = FolderDataResource('fdata', container).__of__(container)
-
-        self.replay()
 
         self.assertEqual([], r.listDAVObjects())
 
@@ -853,16 +787,12 @@ class TestFileRepresentation(MockTestCase):
         container = TestContainer('container')
         factory = DefaultDirectoryFactory(container)
 
-        self.replay()
-
         factory('foo')
         self.assertEqual('foo', container._added)
 
     def test_file_factory_finder_cruft(self):
         container = Container('container')
         factory = DefaultFileFactory(container)
-
-        self.replay()
 
         self.assertRaises(
             Unauthorized,
@@ -882,41 +812,21 @@ class TestFileRepresentation(MockTestCase):
     def test_file_factory_no_ctr(self):
         container = Container('container')
 
-        getToolByName_mock = self.mocker.replace(
-            'Products.CMFCore.utils.getToolByName'
-        )
-        self.expect(
-            getToolByName_mock(
-                container, 'content_type_registry', None
-            )
-        ).result(None)
+        from Products.CMFCore.utils import getToolByName
+        self.patch_global(getToolByName, return_value=None)
 
         factory = DefaultFileFactory(container)
-
-        self.replay()
 
         self.assertEqual(None, factory('test.html', 'text/html', '<html />'))
 
     def test_file_factory_no_fti(self):
         container = Container('container')
 
-        ctr_mock = self.mocker.mock()
-        getToolByName_mock = self.mocker.replace(
-            'Products.CMFCore.utils.getToolByName'
-        )
-
-        self.expect(
-            getToolByName_mock(
-                container, 'content_type_registry', None
-            )
-        ).result(ctr_mock)
-        self.expect(
-            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
-        ).result(None)
+        ctr_mock = Mock()
+        ctr_mock.findTypeName = Mock(return_value=None)
+        self.mock_tool(ctr_mock, 'content_type_registry')
 
         factory = DefaultFileFactory(container)
-
-        self.replay()
 
         self.assertEqual(None, factory('test.html', 'text/html', '<html />'))
 
@@ -924,37 +834,19 @@ class TestFileRepresentation(MockTestCase):
         container = Container('container')
         container.portal_type = 'containertype'
 
-        child_fti_mock = self.mocker.mock()
-        container_fti_mock = self.mocker.mock()
-        ctr_mock = self.mocker.mock()
-        pt_mock = self.mocker.mock()
-        getToolByName_mock = self.mocker.replace(
-            'Products.CMFCore.utils.getToolByName'
-        )
-
-        self.expect(
-            getToolByName_mock(
-                container, 'content_type_registry', None
-            )
-        ).result(ctr_mock)
-        self.expect(
-            getToolByName_mock(
-                container, 'portal_types')).result(pt_mock)
-
-        self.expect(
-            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
-        ).result('childtype')
-
-        self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
-        self.expect(pt_mock.getTypeInfo(container)).result(container_fti_mock)
-
-        self.expect(child_fti_mock.product).result(None)
-
-        self.expect(container_fti_mock.allowType('childtype')).result(False)
+        child_fti_mock = Mock()
+        child_fti_mock.product = None
+        container_fti_mock = Mock()
+        container_fti_mock.allowType = Mock(return_value=False)
+        ctr_mock = Mock()
+        ctr_mock.findTypeName = Mock(return_value='childtype')
+        pt_mock = Mock()
+        pt_mock.getTypeInfo = Mock(
+            side_effect=[child_fti_mock, container_fti_mock])
+        self.mock_tool(ctr_mock, 'content_type_registry')
+        self.mock_tool(pt_mock, 'portal_types')
 
         factory = DefaultFileFactory(container)
-
-        self.replay()
 
         self.assertRaises(
             Unauthorized,
@@ -968,40 +860,20 @@ class TestFileRepresentation(MockTestCase):
         container = Container('container')
         container.portal_type = 'containertype'
 
-        child_fti_mock = self.mocker.mock()
-        container_fti_mock = self.mocker.mock()
-        ctr_mock = self.mocker.mock()
-        pt_mock = self.mocker.mock()
-        getToolByName_mock = self.mocker.replace(
-            'Products.CMFCore.utils.getToolByName'
-        )
-
-        self.expect(
-            getToolByName_mock(
-                container, 'content_type_registry', None
-            )
-        ).result(ctr_mock)
-        self.expect(
-            getToolByName_mock(
-                container, 'portal_types')).result(pt_mock)
-
-        self.expect(
-            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
-        ).result('childtype')
-
-        self.expect(pt_mock.getTypeInfo('childtype')).result(child_fti_mock)
-        self.expect(pt_mock.getTypeInfo(container)).result(container_fti_mock)
-
-        self.expect(child_fti_mock.product).result(None)
-
-        self.expect(container_fti_mock.allowType('childtype')).result(True)
-        self.expect(
-            child_fti_mock.isConstructionAllowed(container)
-        ).result(False)
+        child_fti_mock = Mock()
+        child_fti_mock.product = None
+        child_fti_mock.isConstructionAllowed = Mock(return_value=False)
+        container_fti_mock = Mock()
+        container_fti_mock.allowType = Mock(return_value=True)
+        ctr_mock = Mock()
+        ctr_mock.findTypeName = Mock(return_value='childtype')
+        pt_mock = Mock()
+        pt_mock.getTypeInfo = Mock(
+            side_effect=[child_fti_mock, container_fti_mock])
+        self.mock_tool(ctr_mock, 'content_type_registry')
+        self.mock_tool(pt_mock, 'portal_types')
 
         factory = DefaultFileFactory(container)
-
-        self.replay()
 
         self.assertRaises(
             Unauthorized,
@@ -1012,46 +884,21 @@ class TestFileRepresentation(MockTestCase):
         )
 
     def test_file_factory_factory_method(self):
-
-        container_mock = self.mocker.mock()
-        child_fti_mock = self.mocker.mock()
-        ctr_mock = self.mocker.mock()
-        pt_mock = self.mocker.mock()
-
         result_dummy = self.create_dummy()
-
-        getToolByName_mock = self.mocker.replace(
-            'Products.CMFCore.utils.getToolByName'
-        )
-
-        self.expect(
-            getToolByName_mock(
-                container_mock, 'content_type_registry', None
-            )
-        ).result(ctr_mock)
-        self.expect(
-            getToolByName_mock(
-                container_mock, 'portal_types')).result(pt_mock)
-
-        self.expect(
-            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
-        ).result('childtype')
-
-        self.expect(
-            pt_mock.getTypeInfo('childtype')
-        ).result(child_fti_mock)
-
-        self.expect(child_fti_mock.product).result('FooProduct')
-        self.expect(
-            container_mock.invokeFactory('childtype', 'test.html')
-        ).result('test-1.html')
-
-        self.expect(container_mock._getOb('test-1.html')).result(result_dummy)
-        self.expect(container_mock._delObject('test-1.html'))
+        container_mock = Mock()
+        container_mock.invokeFactory = Mock(return_value='test-1.html')
+        container_mock._getOb = Mock(return_value=result_dummy)
+        container_mock._delObject = Mock()
+        child_fti_mock = Mock()
+        child_fti_mock.product = 'FooProduct'
+        ctr_mock = Mock()
+        ctr_mock.findTypeName = Mock(return_value='childtype')
+        pt_mock = Mock()
+        pt_mock.getTypeInfo = Mock(return_value=child_fti_mock)
+        self.mock_tool(ctr_mock, 'content_type_registry')
+        self.mock_tool(pt_mock, 'portal_types')
 
         factory = DefaultFileFactory(container_mock)
-
-        self.replay()
 
         self.assertEqual(
             result_dummy,
@@ -1059,58 +906,27 @@ class TestFileRepresentation(MockTestCase):
         )
 
     def test_file_factory_factory_utility(self):
-        container_mock = self.mocker.mock()
-        child_fti_mock = self.mocker.mock()
-        container_fti_mock = self.mocker.mock()
-        ctr_mock = self.mocker.mock()
-        pt_mock = self.mocker.mock()
-
         result_dummy = self.create_dummy(id='test.html')
-
-        getToolByName_mock = self.mocker.replace(
-            'Products.CMFCore.utils.getToolByName'
-        )
-
-        self.expect(
-            getToolByName_mock(
-                container_mock, 'content_type_registry', None
-            )
-        ).result(ctr_mock)
-
-        self.expect(
-            getToolByName_mock(
-                container_mock, 'portal_types')).result(pt_mock)
-
-        self.expect(
-            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
-        ).result('childtype')
-
-        self.expect(
-            pt_mock.getTypeInfo('childtype')
-        ).result(child_fti_mock)
-
-        self.expect(
-            pt_mock.getTypeInfo(container_mock)
-        ).result(container_fti_mock)
-
-        self.expect(
-            container_fti_mock.allowType('childtype')
-        ).result(True)
-
-        self.expect(
-            child_fti_mock.isConstructionAllowed(container_mock)
-        ).result(True)
-
-        self.expect(child_fti_mock.product).result(None)
-        self.expect(child_fti_mock.factory).result('childtype-factory')
+        container_mock = Mock()
+        child_fti_mock = Mock()
+        child_fti_mock.isConstructionAllowed = Mock(return_value=True)
+        child_fti_mock.product = None
+        child_fti_mock.factory = 'childtype-factory'
+        container_fti_mock = Mock()
+        container_fti_mock.allowType = Mock(return_value=True)
+        ctr_mock = Mock()
+        ctr_mock.findTypeName = Mock(return_value='childtype')
+        pt_mock = Mock()
+        pt_mock.getTypeInfo = Mock(
+            side_effect=[child_fti_mock, container_fti_mock])
+        self.mock_tool(ctr_mock, 'content_type_registry')
+        self.mock_tool(pt_mock, 'portal_types')
 
         def factory(*args, **kwargs):
             return result_dummy
         self.mock_utility(factory, IFactory, name=u'childtype-factory')
 
         factory = DefaultFileFactory(container_mock)
-
-        self.replay()
 
         self.assertEqual(
             result_dummy,
@@ -1119,60 +935,27 @@ class TestFileRepresentation(MockTestCase):
         self.assertEqual(result_dummy.Title(), 'test.html')
 
     def test_file_factory_content_type_factory_utility(self):
-        container_mock = self.mocker.mock()
-        child_fti_mock = self.mocker.mock()
-        container_fti_mock = self.mocker.mock()
-        ctr_mock = self.mocker.mock()
-        pt_mock = self.mocker.mock()
-
-        getToolByName_mock = self.mocker.replace(
-            'Products.CMFCore.utils.getToolByName'
-        )
-
-        self.expect(
-            getToolByName_mock(
-                container_mock, 'content_type_registry', None
-            )
-        ).result(ctr_mock)
-
-        self.expect(
-            getToolByName_mock(
-                container_mock, 'portal_types')).result(pt_mock)
-
-        self.expect(
-            ctr_mock.findTypeName('test.html', 'text/html', '<html />')
-        ).result('childtype')
-
-        self.expect(
-            pt_mock.getTypeInfo('childtype')
-        ).result(child_fti_mock)
-
-        self.expect(
-            pt_mock.getTypeInfo(container_mock)
-        ).result(container_fti_mock)
-
-        self.expect(
-            container_fti_mock.allowType('childtype')
-        ).result(True)
-
-        self.expect(
-            child_fti_mock.isConstructionAllowed(container_mock)
-        ).result(True)
-
-        self.expect(
-            child_fti_mock.getId()
-        ).result('childtype')
-
-        self.expect(child_fti_mock.product).result(None)
-        self.expect(child_fti_mock.factory).result('childtype-factory')
+        container_mock = Mock()
+        child_fti_mock = Mock()
+        child_fti_mock.isConstructionAllowed = Mock(return_value=True)
+        child_fti_mock.getId = Mock(return_value='childtype')
+        child_fti_mock.product = None
+        child_fti_mock.factory = 'childtype-factory'
+        container_fti_mock = Mock()
+        container_fti_mock.allowType = Mock(return_value=True)
+        ctr_mock = Mock()
+        ctr_mock.findTypeName = Mock(return_value='childtype')
+        pt_mock = Mock()
+        pt_mock.getTypeInfo = Mock(
+            side_effect=[child_fti_mock, container_fti_mock])
+        self.mock_tool(ctr_mock, 'content_type_registry')
+        self.mock_tool(pt_mock, 'portal_types')
 
         def factory(*args, **kwargs):
             return Item(*args, **kwargs)
         self.mock_utility(factory, IFactory, name=u'childtype-factory')
 
         factory = DefaultFileFactory(container_mock)
-
-        self.replay()
 
         item = factory('test.html', 'text/html', '<html />')
 
@@ -1183,10 +966,10 @@ class TestFileRepresentation(MockTestCase):
         class ITest(Interface):
             pass
 
-        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
         SCHEMA_CACHE.clear()
-        self.expect(fti_mock.lookupSchema()).result(ITest)
-        self.expect(fti_mock.behaviors).result([])
+        fti_mock = DexterityFTI(u'testtype')
+        fti_mock.lookupSchema = Mock(return_value=ITest)
+        fti_mock.behaviors = []
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
@@ -1194,8 +977,6 @@ class TestFileRepresentation(MockTestCase):
         item.portal_type = 'testtype'
 
         readfile = DefaultReadFile(item)
-
-        self.replay()
 
         self.assertEqual('text/plain', readfile.mimeType)
 
@@ -1205,9 +986,9 @@ class TestFileRepresentation(MockTestCase):
             title = schema.TextLine()
 
         SCHEMA_CACHE.clear()
-        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
-        self.expect(fti_mock.lookupSchema()).result(ITest)
-        self.expect(fti_mock.behaviors).result([])
+        fti_mock = DexterityFTI(u'testtype')
+        fti_mock.lookupSchema = Mock(return_value=ITest)
+        fti_mock.behaviors = []
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
@@ -1215,8 +996,6 @@ class TestFileRepresentation(MockTestCase):
         item.portal_type = 'testtype'
 
         readfile = DefaultReadFile(item)
-
-        self.replay()
 
         self.assertEqual('text/plain', readfile.mimeType)
 
@@ -1228,9 +1007,9 @@ class TestFileRepresentation(MockTestCase):
         alsoProvides(ITest['body'], IPrimaryField)
 
         SCHEMA_CACHE.clear()
-        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
-        self.expect(fti_mock.lookupSchema()).result(ITest)
-        self.expect(fti_mock.behaviors).result([])
+        fti_mock = DexterityFTI(u'testtype')
+        fti_mock.lookupSchema = Mock(return_value=ITest)
+        fti_mock.behaviors = []
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
@@ -1238,8 +1017,6 @@ class TestFileRepresentation(MockTestCase):
         item.portal_type = 'testtype'
 
         readfile = DefaultReadFile(item)
-
-        self.replay()
 
         self.assertEqual('text/plain', readfile.mimeType)
 
@@ -1253,16 +1030,14 @@ class TestFileRepresentation(MockTestCase):
         alsoProvides(ITest['stuff'], IPrimaryField)
 
         SCHEMA_CACHE.clear()
-        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
-        self.expect(fti_mock.lookupSchema()).result(ITest)
+        fti_mock = DexterityFTI(u'testtype')
+        fti_mock.lookupSchema = Mock(return_value=ITest)
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
         item = Item('item')
         item.portal_type = 'testtype'
 
         readfile = DefaultReadFile(item)
-
-        self.replay()
 
         self.assertEqual('message/rfc822', readfile.mimeType)
 
@@ -1291,9 +1066,10 @@ class TestFileRepresentation(MockTestCase):
 
             def enumerateBehaviors(self):
                 yield MockBehavior(ITestAdditional)
+
         SCHEMA_CACHE.clear()
-        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
-        self.expect(fti_mock.lookupSchema()).result(ITest)
+        fti_mock = DexterityFTI(u'testtype')
+        fti_mock.lookupSchema = Mock(return_value=ITest)
 
         self.mock_adapter(MockBehaviorAssignable, IBehaviorAssignable,
                           (Item, ))
@@ -1302,8 +1078,6 @@ class TestFileRepresentation(MockTestCase):
         item.portal_type = 'testtype'
 
         readfile = DefaultReadFile(item)
-
-        self.replay()
 
         self.assertEqual('message/rfc822', readfile.mimeType)
 
@@ -1314,11 +1088,9 @@ class TestFileRepresentation(MockTestCase):
             body = schema.Text()
         alsoProvides(ITest['body'], IPrimaryField)
 
-        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
-        self.expect(fti_mock.lookupSchema()).result(ITest).count(0, None)
-        self.expect(
-            fti_mock.behaviors
-        ).result([ITestBehavior.__identifier__]).count(0, None)
+        fti_mock = DexterityFTI(u'testtype')
+        fti_mock.lookupSchema = Mock(return_value=ITest)
+        fti_mock.behaviors = [ITestBehavior.__identifier__]
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
@@ -1333,14 +1105,8 @@ class TestFileRepresentation(MockTestCase):
         message['bar'] = 'xyz'
         message.set_payload('<p>body</p>')
 
-        constructMessageFromSchemata_mock = self.mocker.replace(
-            'plone.rfc822.constructMessageFromSchemata'
-        )
-        self.expect(
-            constructMessageFromSchemata_mock(item, ANY)
-        ).result(message)
-
-        self.replay()
+        from plone.rfc822 import constructMessageFromSchemata
+        self.patch_global(constructMessageFromSchemata, return_value=message)
 
         body = """\
 title: Test title
@@ -1392,11 +1158,9 @@ Portal-Type: testtype
             body = schema.Text()
         alsoProvides(ITest['body'], IPrimaryField)
 
-        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
-        self.expect(fti_mock.lookupSchema()).result(ITest).count(0, None)
-        self.expect(
-            fti_mock.behaviors
-        ).result([ITestBehavior.__identifier__]).count(0, None)
+        fti_mock = DexterityFTI(u'testtype')
+        fti_mock.lookupSchema = Mock(return_value=ITest)
+        fti_mock.behaviors = [ITestBehavior.__identifier__]
 
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
@@ -1417,19 +1181,8 @@ Portal-Type: testtype
 
 <p>body</p>"""
 
-        initializeObjectFromSchemata_mock = self.mocker.replace(
-            'plone.rfc822.initializeObjectFromSchemata'
-        )
-        self.expect(
-            initializeObjectFromSchemata_mock(
-                item,
-                ANY,
-                self.match_type(Message),
-                'latin1'
-            )
-        )
-
-        self.replay()
+        from plone.rfc822 import initializeObjectFromSchemata
+        self.patch_global(initializeObjectFromSchemata)
 
         writefile.mimeType = 'text/plain'
         self.assertEqual('text/plain', writefile.mimeType)
@@ -1480,8 +1233,6 @@ class TestDAVTraversal(MockTestCase):
             request
         )
 
-        self.replay()
-
         r = traversal.publishTraverse(request, 'item')
 
         self.assertTrue(isinstance(r, NullResource))
@@ -1501,8 +1252,6 @@ class TestDAVTraversal(MockTestCase):
 
         traversal = DexterityPublishTraverse(container.__of__(outer), request)
 
-        self.replay()
-
         r = traversal.publishTraverse(request, 'item')
 
         self.assertEqual(r.aq_base, outer['item'].aq_base)
@@ -1516,8 +1265,6 @@ class TestDAVTraversal(MockTestCase):
         request.maybe_webdav_client = True
 
         traversal = DexterityPublishTraverse(container, request)
-
-        self.replay()
 
         r = traversal.publishTraverse(request, DAV_FOLDER_DATA_ID)
 
@@ -1533,8 +1280,6 @@ class TestDAVTraversal(MockTestCase):
         request.maybe_webdav_client = False
 
         traversal = DexterityPublishTraverse(container, request)
-
-        self.replay()
 
         self.assertRaises(
             Forbidden,
@@ -1557,8 +1302,6 @@ class TestDAVTraversal(MockTestCase):
 
         traversal = DexterityPublishTraverse(container, request)
 
-        self.replay()
-
         self.assertEqual((container, (),), traversal.browserDefault(request))
 
     def test_browser_default_dav_get(self):
@@ -1574,8 +1317,6 @@ class TestDAVTraversal(MockTestCase):
         request.maybe_webdav_client = True
 
         traversal = DexterityPublishTraverse(container, request)
-
-        self.replay()
 
         self.assertEqual(
             (container, ('foo',),),
@@ -1595,8 +1336,6 @@ class TestDAVTraversal(MockTestCase):
         request.maybe_webdav_client = False
 
         traversal = DexterityPublishTraverse(container, request)
-
-        self.replay()
 
         self.assertEqual(
             (container, ('foo',),),
