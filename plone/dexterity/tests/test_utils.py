@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+from mock import Mock
 from pkg_resources import get_distribution
 from plone.dexterity import utils
 from plone.dexterity.fti import DexterityFTI
-from plone.mocktestcase import MockTestCase
+from .case import MockTestCase
 
 import unittest
 
@@ -26,27 +27,16 @@ class TestUtils(MockTestCase):
         class IBehaviorSchema(Interface):
             pass
 
-        behavior_mock = self.mocker.mock()
-        fti_mock = self.mocker.proxy(DexterityFTI(u'testtype'))
-        provider_mock = self.mocker.mock()
+        behavior_mock = Mock()
+        fti_mock = DexterityFTI(u'testtype')
 
         portal_type = 'prefix_0_type_0_schema'
         behavior_name = 'behavior_0'
 
-        self.expect(
-            fti_mock.behaviors
-        ).result(
-            (behavior_name, )
-        )
+        fti_mock.behaviors = (behavior_name,)
+        behavior_mock.interface = IBehaviorInterface
 
-        self.expect(
-            behavior_mock.interface
-        ).result(
-            IBehaviorInterface
-        ).count(2)
-
-        provider_mock(IBehaviorInterface)
-        self.mocker.result(IBehaviorSchema)
+        provider_mock = Mock(return_value=IBehaviorSchema)
 
         self.mock_utility(behavior_mock, IBehavior, behavior_name)
         self.mock_utility(fti_mock, IDexterityFTI, portal_type)
@@ -56,8 +46,6 @@ class TestUtils(MockTestCase):
             IFormFieldProvider,
             (providedBy(IBehaviorInterface), )
         )
-
-        self.replay()
 
         generator = utils.getAdditionalSchemata(None, portal_type)
         schematas = tuple(generator)
@@ -127,7 +115,3 @@ class TestUtils(MockTestCase):
             utils.all_merged_tagged_values_dict((IIFace1, IIFace2), 'foo'),
             {'a': 13, 'b': 14}
         )
-
-
-def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromName(__name__)

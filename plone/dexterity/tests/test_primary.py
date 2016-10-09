@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
+from mock import Mock
 from plone.dexterity.content import Item
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.primary import PrimaryFieldInfo
-from plone.mocktestcase import MockTestCase
 from plone.rfc822.interfaces import IPrimaryField
 from zope import schema
 from zope.interface import Interface
 from zope.interface import alsoProvides
-
-import unittest
+from .case import MockTestCase
 
 
 class PrimaryFieldInfoTestCase(MockTestCase):
@@ -20,11 +19,10 @@ class PrimaryFieldInfoTestCase(MockTestCase):
             body = schema.Text()
         alsoProvides(ITest['body'], IPrimaryField)
 
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ITest).count(0, None)
-        self.expect(fti_mock.behaviors).result([]).count(0, None)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-        self.replay()
+        fti = DexterityFTI(u"testtype")
+        fti.lookupSchema = Mock(return_value=ITest)
+        fti.behaviors = []
+        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
         item = Item('item')
         item.portal_type = 'testtype'
@@ -34,7 +32,3 @@ class PrimaryFieldInfoTestCase(MockTestCase):
         assert info.fieldname == 'body'
         assert info.field == ITest['body']
         assert info.value == 'body text'
-
-
-def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromName(__name__)

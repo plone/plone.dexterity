@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from mock import Mock
 from Products.CMFCore.interfaces import ISiteRoot
 from plone.dexterity import utils
 from plone.dexterity.factory import DexterityFactory
@@ -11,7 +12,6 @@ from plone.dexterity.fti import ftiRenamed
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.dexterity.tests.schemata import ITestSchema
-from plone.mocktestcase import MockTestCase
 from plone.supermodel.model import Model
 from zope.component import getGlobalSiteManager
 from zope.component import queryUtility
@@ -25,11 +25,10 @@ from zope.interface import Interface
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.security.interfaces import IPermission
+from .case import MockTestCase
 
-import mocker
 import os.path
 import plone.dexterity.schema.generated
-import unittest
 import zope.schema
 
 
@@ -102,12 +101,8 @@ class TestFTI(MockTestCase):
 
         model_dummy = Model()
 
-        loadString_mock = self.mocker.replace("plone.supermodel.loadString")
-        self.expect(
-            loadString_mock(fti.model_source, policy=u"dexterity")
-        ).result(model_dummy)
-
-        self.replay()
+        from plone.supermodel import loadString
+        self.patch_global(loadString, return_value=model_dummy)
 
         model = fti.lookupModel()
         self.assertIs(model_dummy, model)
@@ -127,15 +122,13 @@ class TestFTI(MockTestCase):
             "test.xml"
         )
 
-        loadFile_mock = self.mocker.replace("plone.supermodel.loadFile")
-        self.expect(
-            loadFile_mock(abs_file, reload=True, policy=u"dexterity")
-        ).result(model_dummy)
-
-        self.replay()
+        from plone.supermodel import loadFile
+        loadFile_mock = self.patch_global(loadFile, return_value=model_dummy)
 
         model = fti.lookupModel()
         self.assertIs(model_dummy, model)
+        loadFile_mock.assert_called_once_with(
+            abs_file, reload=True, policy=u"dexterity")
 
     def test_lookupModel_from_file_with_absolute_path(self):
 
@@ -152,15 +145,13 @@ class TestFTI(MockTestCase):
 
         model_dummy = Model()
 
-        loadFile_mock = self.mocker.replace("plone.supermodel.loadFile")
-        self.expect(
-            loadFile_mock(abs_file, reload=True, policy=u"dexterity")
-        ).result(model_dummy)
-
-        self.replay()
+        from plone.supermodel import loadFile
+        loadFile_mock = self.patch_global(loadFile, return_value=model_dummy)
 
         model = fti.lookupModel()
         self.assertIs(model_dummy, model)
+        loadFile_mock.assert_called_once_with(
+            abs_file, reload=True, policy=u"dexterity")
 
     def test_lookupModel_from_file_with_win32_absolute_path(self):
 
@@ -171,21 +162,17 @@ class TestFTI(MockTestCase):
 
         model_dummy = Model()
 
-        isabs_mock = self.mocker.replace("os.path.isabs")
-        self.expect(isabs_mock(fti.model_file)).result(True)
+        from os.path import isabs, isfile
+        self.patch_global(isabs, return_value=True)
+        self.patch_global(isfile, return_value=True)
 
-        isfile_mock = self.mocker.replace("os.path.isfile")
-        self.expect(isfile_mock(fti.model_file)).result(True)
-
-        loadFile_mock = self.mocker.replace("plone.supermodel.loadFile")
-        self.expect(
-            loadFile_mock(fti.model_file, reload=True, policy=u"dexterity")
-        ).result(model_dummy)
-
-        self.replay()
+        from plone.supermodel import loadFile
+        loadFile_mock = self.patch_global(loadFile, return_value=model_dummy)
 
         model = fti.lookupModel()
         self.assertIs(model_dummy, model)
+        loadFile_mock.assert_called_once_with(
+            fti.model_file, reload=True, policy=u"dexterity")
 
     def test_lookupModel_with_schema_only(self):
         fti = DexterityFTI(u"testtype")
@@ -206,16 +193,15 @@ class TestFTI(MockTestCase):
 
         model_dummy = Model()
 
-        loadString_mock = self.mocker.replace("plone.supermodel.loadString")
-        self.expect(
-            loadString_mock(fti.model_source, policy=u"dexterity")
-        ).result(model_dummy)
-
-        self.replay()
+        from plone.supermodel import loadString
+        loadString_mock = self.patch_global(
+            loadString, return_value=model_dummy)
 
         model = fti.lookupModel()
         self.assertIs(model_dummy, model)
         self.assertIs(ITestSchema, fti.lookupSchema())
+        loadString_mock.assert_called_once_with(
+            fti.model_source, policy=u'dexterity')
 
     def test_lookupModel_failure(self):
         fti = DexterityFTI(u"testtype")
@@ -231,22 +217,17 @@ class TestFTI(MockTestCase):
         fti.title = u"Old title"
         fti.global_allow = False
 
-        notify_mock = self.mocker.replace('zope.event.notify')
-        self.expect(
-            notify_mock(
-                mocker.MATCH(
-                    lambda x: IObjectModifiedEvent.providedBy(x)
-                    and len(x.descriptions) == 1
-                    and x.descriptions[0].attribute == 'title'
-                    and x.descriptions[0].oldValue == "Old title"
-                )
-            )
-        )
-
-        self.replay()
+        from zope.event import notify
+        notify_mock = self.patch_global(notify)
 
         fti._updateProperty('title', "New title")  # fires event caught above
         fti._updateProperty('allow_discussion', False)  # does not fire
+
+        event = notify_mock.call_args[0][0]
+        self.assertTrue(IObjectModifiedEvent.providedBy(event))
+        self.assertEqual(len(event.descriptions), 1)
+        self.assertEqual(event.descriptions[0].attribute, 'title')
+        self.assertEqual(event.descriptions[0].oldValue, 'Old title')
 
     def test_fires_modified_event_on_change_props_per_changed_property(self):
         fti = DexterityFTI(u"testtype")
@@ -254,35 +235,16 @@ class TestFTI(MockTestCase):
         fti.allow_discussion = False
         fti.global_allow = True
 
-        notify_mock = self.mocker.replace('zope.event.notify')
-        self.expect(
-            notify_mock(
-                mocker.MATCH(
-                    lambda x: IObjectModifiedEvent.providedBy(x)
-                    and len(x.descriptions) == 1
-                    and x.descriptions[0].attribute == 'title'
-                    and x.descriptions[0].oldValue == "Old title"
-                )
-            )
-        )
-
-        self.expect(
-            notify_mock(
-                mocker.MATCH(
-                    lambda x: IObjectModifiedEvent.providedBy(x)
-                    and len(x.descriptions) == 1
-                    and x.descriptions[0].attribute == 'global_allow'
-                    and x.descriptions[0].oldValue is True
-                )
-            )
-        )
-        self.replay()
+        from zope.event import notify
+        notify_mock = self.patch_global(notify)
 
         fti.manage_changeProperties(
             title="New title",
             allow_discussion=False,
             global_allow=False
         )
+
+        self.assertEqual(len(notify_mock.call_args_list), 2)
 
     def test_checks_permission_in_is_construction_allowed_true(self):
         fti = DexterityFTI(u"testtype")
@@ -299,21 +261,15 @@ class TestFTI(MockTestCase):
             name=u"demo.Permission"
         )
 
-        security_manager_mock = self.mocker.mock()
-        self.expect(
-            security_manager_mock.checkPermission(
-                "Some add permission",
-                container_dummy)
-        ).result(True)
-
-        getSecurityManager_mock = self.mocker.replace(
-            'AccessControl.getSecurityManager'
-        )
-        self.expect(getSecurityManager_mock()).result(security_manager_mock)
-
-        self.replay()
+        security_manager_mock = Mock()
+        security_manager_mock.checkPermission = Mock(return_value=True)
+        from AccessControl import getSecurityManager
+        self.patch_global(
+            getSecurityManager, return_value=security_manager_mock)
 
         self.assertEqual(True, fti.isConstructionAllowed(container_dummy))
+        security_manager_mock.checkPermission.assert_called_once_with(
+            'Some add permission', container_dummy)
 
     def test_checks_permission_in_is_construction_allowed_false(self):
         fti = DexterityFTI(u"testtype")
@@ -330,22 +286,15 @@ class TestFTI(MockTestCase):
             name=u"demo.Permission"
         )
 
-        security_manager_mock = self.mocker.mock()
-        self.expect(
-            security_manager_mock.checkPermission(
-                "Some add permission",
-                container_dummy
-            )
-        ).result(False)
-
-        getSecurityManager_mock = self.mocker.replace(
-            'AccessControl.getSecurityManager'
-        )
-        self.expect(getSecurityManager_mock()).result(security_manager_mock)
-
-        self.replay()
+        security_manager_mock = Mock()
+        security_manager_mock.checkPermission = Mock(return_value=False)
+        from AccessControl import getSecurityManager
+        self.patch_global(
+            getSecurityManager, return_value=security_manager_mock)
 
         self.assertEqual(False, fti.isConstructionAllowed(container_dummy))
+        security_manager_mock.checkPermission.assert_called_once_with(
+            'Some add permission', container_dummy)
 
     def test_no_permission_utility_means_no_construction(self):
         fti = DexterityFTI(u"testtype")
@@ -481,40 +430,22 @@ class TestFTIEvents(MockTestCase):
         dummy_site = self.create_dummy()
         self.mock_utility(dummy_site, ISiteRoot)
 
-        site_manager_mock = self.mocker.proxy(
-            PersistentComponents(bases=(getGlobalSiteManager(),))
-        )
-        getSiteManager_mock = self.mocker.replace(
-            'zope.component.hooks.getSiteManager'
-        )
-        self.expect(
-            getSiteManager_mock(dummy_site)
-        ).result(site_manager_mock)
-
-        # We expect that no components are registered , so look for all
-        # registrations
-        self.expect(
-            site_manager_mock.registerUtility(
-                fti,
-                IDexterityFTI,
-                portal_type,
-                info='plone.dexterity.dynamic')
-        ).passthrough()
-        self.expect(
-            site_manager_mock.registerUtility(
-                mocker.MATCH(
-                    lambda x: isinstance(x, DexterityFactory)
-                    and x.portal_type == portal_type
-                ),
-                IFactory,
-                portal_type,
-                info='plone.dexterity.dynamic'
-            )
-        ).passthrough()
-
-        self.replay()
+        site_manager_mock = Mock(
+            wraps=PersistentComponents(bases=(getGlobalSiteManager(),)))
+        from zope.component.hooks import getSiteManager
+        self.patch_global(getSiteManager, return_value=site_manager_mock)
 
         ftiAdded(fti, ObjectAddedEvent(fti, container_dummy, fti.getId()))
+
+        args1, kwargs1 = site_manager_mock.registerUtility.call_args_list[0]
+        self.assertEqual(args1, (fti, IDexterityFTI, portal_type))
+        self.assertEqual(kwargs1, {'info': 'plone.dexterity.dynamic'})
+
+        args2, kwargs2 = site_manager_mock.registerUtility.call_args_list[1]
+        self.assertIsInstance(args2[0], DexterityFactory)
+        self.assertEqual(args2[0].portal_type, portal_type)
+        self.assertEqual(args2[1:], (IFactory, portal_type))
+        self.assertEqual(kwargs2, {'info': 'plone.dexterity.dynamic'})
 
         site_dummy = self.create_dummy(
             getSiteManager=lambda: site_manager_mock
@@ -537,13 +468,10 @@ class TestFTIEvents(MockTestCase):
         dummy_site = self.create_dummy()
         self.mock_utility(dummy_site, ISiteRoot)
 
-        site_manager_mock = self.mocker.proxy(
-            PersistentComponents(bases=(getGlobalSiteManager(),))
-        )
-        getSiteManager_mock = self.mocker.replace(
-            'zope.component.hooks.getSiteManager'
-        )
-        self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock)
+        site_manager_mock = Mock(
+            wraps=PersistentComponents(bases=(getGlobalSiteManager(),)))
+        from zope.component.hooks import getSiteManager
+        self.patch_global(getSiteManager, return_value=site_manager_mock)
 
         # Register FTI utility and factory utility
 
@@ -557,26 +485,9 @@ class TestFTIEvents(MockTestCase):
         # We expect that all components are registered, so do not expect any
         # registrations
 
-        self.expect(
-            site_manager_mock.registerUtility(
-                fti,
-                IDexterityFTI,
-                portal_type
-            )
-        ).passthrough().count(0)
-        self.expect(
-            site_manager_mock.registerUtility(
-                mocker.MATCH(
-                    lambda x: isinstance(x, DexterityFactory)
-                    and x.portal_type == portal_type
-                ),
-                IFactory, portal_type
-            )
-        ).passthrough().count(0)
-
-        self.replay()
-
         ftiAdded(fti, ObjectAddedEvent(fti, container_dummy, fti.getId()))
+
+        self.assertFalse(site_manager_mock.registerUtility.called)
 
     def test_components_unregistered_on_delete(self):
         portal_type = u"testtype"
@@ -587,33 +498,10 @@ class TestFTIEvents(MockTestCase):
         dummy_site = self.create_dummy()
         self.mock_utility(dummy_site, ISiteRoot)
 
-        site_manager_mock = self.mocker.proxy(
-            PersistentComponents(bases=(getGlobalSiteManager(),))
-        )
-        getSiteManager_mock = self.mocker.replace(
-            'zope.component.hooks.getSiteManager'
-        )
-        self.expect(
-            getSiteManager_mock(dummy_site)
-        ).result(site_manager_mock).count(1, None)
-
-        # We expect to always be able to unregister without error, even if the
-        # components do not exists (as here)
-
-        self.expect(
-            site_manager_mock.unregisterUtility(
-                provided=IDexterityFTI,
-                name=portal_type
-            )
-        ).passthrough()
-        self.expect(
-            site_manager_mock.unregisterUtility(
-                provided=IFactory,
-                name=portal_type
-            )
-        ).passthrough()
-
-        self.replay()
+        site_manager_mock = Mock(
+            wraps=PersistentComponents(bases=(getGlobalSiteManager(),)))
+        from zope.component.hooks import getSiteManager
+        self.patch_global(getSiteManager, return_value=site_manager_mock)
 
         # First add the components
         ftiAdded(fti, ObjectAddedEvent(fti, container_dummy, fti.getId()))
@@ -639,25 +527,18 @@ class TestFTIEvents(MockTestCase):
         dummy_site = self.create_dummy()
         self.mock_utility(dummy_site, ISiteRoot)
 
-        site_manager_mock = self.mocker.proxy(
-            PersistentComponents(bases=(getGlobalSiteManager(),))
-        )
-        getSiteManager_mock = self.mocker.replace(
-            'zope.component.hooks.getSiteManager'
-        )
-        self.expect(getSiteManager_mock(dummy_site)).result(site_manager_mock)
+        site_manager_mock = Mock(
+            wraps=PersistentComponents(bases=(getGlobalSiteManager(),)))
+        from zope.component.hooks import getSiteManager
+        self.patch_global(getSiteManager, return_value=site_manager_mock)
 
         # We expect to always be able to unregister without error, even if the
-        # components do not exists (as here)
-
-        self.expect(site_manager_mock.unregisterUtility(
-            provided=IDexterityFTI,
-            name=portal_type)
-        ).passthrough()
-
-        self.replay()
+        # components do not exist (as here)
 
         ftiRemoved(fti, ObjectRemovedEvent(fti, container_dummy, fti.getId()))
+
+        site_manager_mock.unregisterUtility.assert_called_once_with(
+            provided=IDexterityFTI, name=portal_type)
 
     def test_global_components_not_unregistered_on_delete(self):
         portal_type = u"testtype"
@@ -668,15 +549,10 @@ class TestFTIEvents(MockTestCase):
         dummy_site = self.create_dummy()
         self.mock_utility(dummy_site, ISiteRoot)
 
-        site_manager_mock = self.mocker.proxy(
-            PersistentComponents(bases=(getGlobalSiteManager(),))
-        )
-        getSiteManager_mock = self.mocker.replace(
-            'zope.component.hooks.getSiteManager'
-        )
-        self.expect(
-            getSiteManager_mock(dummy_site)
-        ).result(site_manager_mock)
+        site_manager_mock = Mock(
+            wraps=PersistentComponents(bases=(getGlobalSiteManager(),)))
+        from zope.component.hooks import getSiteManager
+        self.patch_global(getSiteManager, return_value=site_manager_mock)
 
         # Register FTI utility and factory utility
 
@@ -690,15 +566,6 @@ class TestFTIEvents(MockTestCase):
         # We expect to always be able to unregister without error, even if the
         # component exists. The factory is only unregistered if it was
         # registered with info='plone.dexterity.dynamic'.
-
-        self.expect(
-            site_manager_mock.unregisterUtility(
-                provided=IDexterityFTI,
-                name=portal_type
-            )
-        ).passthrough()
-
-        self.replay()
 
         ftiRemoved(fti, ObjectRemovedEvent(fti, container_dummy, fti.getId()))
 
@@ -723,51 +590,15 @@ class TestFTIEvents(MockTestCase):
         dummy_site = self.create_dummy()
         self.mock_utility(dummy_site, ISiteRoot)
 
-        site_manager_mock = self.mocker.proxy(
-            PersistentComponents(bases=(getGlobalSiteManager(),))
-        )
-        getSiteManager_mock = self.mocker.replace(
-            'zope.component.hooks.getSiteManager'
-        )
-        self.expect(
-            getSiteManager_mock(dummy_site)
-        ).result(site_manager_mock).count(1, None)
-
-        # First look for unregistration of all local components
-        self.expect(
-            site_manager_mock.unregisterUtility(
-                provided=IDexterityFTI,
-                name=portal_type
-            )
-        ).passthrough()
-
-        # Then look for re-registration of global components
-        self.expect(
-            site_manager_mock.registerUtility(
-                fti,
-                IDexterityFTI,
-                portal_type,
-                info='plone.dexterity.dynamic'
-            )
-        ).passthrough()
-        self.expect(
-            site_manager_mock.registerUtility(
-                mocker.MATCH(
-                    lambda x: isinstance(x, DexterityFactory)
-                    and x.portal_type == portal_type
-                ),
-                IFactory,
-                portal_type,
-                info='plone.dexterity.dynamic'
-            )
-        ).passthrough()
+        site_manager_mock = Mock(
+            wraps=PersistentComponents(bases=(getGlobalSiteManager(),)))
+        from zope.component.hooks import getSiteManager
+        self.patch_global(getSiteManager, return_value=site_manager_mock)
 
         self.assertEqual(
             'string:${folder_url}/++add++testtype',
             fti.add_view_expr
         )
-
-        self.replay()
 
         ftiRenamed(
             fti,
@@ -779,6 +610,14 @@ class TestFTIEvents(MockTestCase):
                 u"newtype"
             )
         )
+
+        # First look for unregistration of all local components
+        site_manager_mock.unregisterUtility.assert_called_once_with(
+            provided=IDexterityFTI, name=portal_type
+        )
+
+        # Then look for re-registration of global components
+        self.assertEquals(site_manager_mock.registerUtility.call_count, 2)
 
         site_dummy = self.create_dummy(
             getSiteManager=lambda: site_manager_mock
@@ -794,14 +633,14 @@ class TestFTIEvents(MockTestCase):
 
     def test_dynamic_schema_refreshed_on_modify_model_file(self):
         portal_type = u"testtype"
-        fti = self.mocker.proxy(DexterityFTI(portal_type))
+        fti = DexterityFTI(portal_type)
 
         class INew(Interface):
             title = zope.schema.TextLine(title=u"title")
 
         model_dummy = Model({u"": INew})
 
-        self.expect(fti.lookupModel()).result(model_dummy)
+        fti.lookupModel = Mock(return_value=model_dummy)
         self.create_dummy()
 
         site_dummy = self.create_dummy(
@@ -811,8 +650,6 @@ class TestFTIEvents(MockTestCase):
 
         class IBlank(Interface):
             pass
-
-        self.replay()
 
         # Set source interface
         schemaName = utils.portalTypeToSchemaName(fti.getId())
@@ -832,14 +669,14 @@ class TestFTIEvents(MockTestCase):
 
     def test_dynamic_schema_refreshed_on_modify_model_source(self):
         portal_type = u"testtype"
-        fti = self.mocker.proxy(DexterityFTI(portal_type))
+        fti = DexterityFTI(portal_type)
 
         class INew(Interface):
             title = zope.schema.TextLine(title=u"title")
 
         model_dummy = Model({u"": INew})
 
-        self.expect(fti.lookupModel()).result(model_dummy)
+        fti.lookupModel = Mock(return_value=model_dummy)
         self.create_dummy()
 
         site_dummy = self.create_dummy(
@@ -849,8 +686,6 @@ class TestFTIEvents(MockTestCase):
 
         class IBlank(Interface):
             pass
-
-        self.replay()
 
         # Set source interface
         schemaName = utils.portalTypeToSchemaName(fti.getId())
@@ -870,7 +705,7 @@ class TestFTIEvents(MockTestCase):
 
     def test_dynamic_schema_refreshed_on_modify_schema_policy(self):
         portal_type = u"testtype"
-        fti = self.mocker.proxy(DexterityFTI(portal_type))
+        fti = DexterityFTI(portal_type)
 
         class INew(Interface):
             title = zope.schema.TextLine(title=u"title")
@@ -890,14 +725,10 @@ class TestFTIEvents(MockTestCase):
             name=u"test"
         )
 
-        self.expect(fti.schema_policy).passthrough().count(0, None)
-
         site_dummy = self.create_dummy(
             getPhysicalPath=lambda: ('', 'siteid')
         )
         self.mock_utility(site_dummy, ISiteRoot)
-
-        self.replay()
 
         # Set source interface
         schemaName = utils.portalTypeToSchemaName(fti.getId())
@@ -923,7 +754,7 @@ class TestFTIEvents(MockTestCase):
 
     def test_concrete_schema_not_refreshed_on_modify_schema(self):
         portal_type = u"testtype"
-        fti = self.mocker.proxy(DexterityFTI(portal_type))
+        fti = DexterityFTI(portal_type)
 
         class IBlank(Interface):
             pass
@@ -932,15 +763,12 @@ class TestFTIEvents(MockTestCase):
             title = zope.schema.TextLine(title=u"title")
 
         model_dummy = Model({u"": INew})
-        self.expect(fti.lookupModel()).result(model_dummy).count(0, None)
-        self.create_dummy()
+        fti.lookupModel = Mock(return_value=model_dummy)
 
         site_dummy = self.create_dummy(
             getPhysicalPath=lambda: ('', 'siteid')
         )
         self.mock_utility(site_dummy, ISiteRoot)
-
-        self.replay()
 
         # Set schema to something so that hasDynamicSchema is false
         fti.schema = IBlank.__identifier__
@@ -970,15 +798,10 @@ class TestFTIEvents(MockTestCase):
         dummy_site = self.create_dummy()
         self.mock_utility(dummy_site, ISiteRoot)
 
-        site_manager_mock = self.mocker.proxy(
-            PersistentComponents(bases=(getGlobalSiteManager(),))
-        )
-        getSiteManager_mock = self.mocker.replace(
-            'zope.component.hooks.getSiteManager'
-        )
-        self.expect(
-            getSiteManager_mock(dummy_site)
-        ).result(site_manager_mock).count(1, None)
+        site_manager_mock = Mock(
+            wraps=PersistentComponents(bases=(getGlobalSiteManager(),)))
+        from zope.component.hooks import getSiteManager
+        self.patch_global(getSiteManager, return_value=site_manager_mock)
 
         # Pretend like we have a utility registered
 
@@ -987,30 +810,8 @@ class TestFTIEvents(MockTestCase):
         reg1.name = 'old-factory'
         reg1.info = 'plone.dexterity.dynamic'
 
-        self.expect(site_manager_mock.registeredUtilities()).result([reg1])
+        site_manager_mock.registeredUtilities = Mock(return_value=[reg1])
 
-        # Expect this to get removed
-        self.expect(
-            site_manager_mock.unregisterUtility(
-                provided=IFactory,
-                name='old-factory'
-            )
-        )
-
-        # And a new one to be created with the new factory name
-        self.expect(
-            site_manager_mock.registerUtility(
-                mocker.MATCH(
-                    lambda x: isinstance(x, DexterityFactory)
-                    and x.portal_type == portal_type
-                ),
-                IFactory,
-                'new-factory',
-                info='plone.dexterity.dynamic'
-            )
-        ).passthrough()
-
-        self.replay()
         fti.factory = 'new-factory'
         ftiModified(
             fti,
@@ -1019,6 +820,13 @@ class TestFTIEvents(MockTestCase):
                 DexterityFTIModificationDescription('factory', 'old-factory')
             )
         )
+
+        # Expect this to get removed
+        site_manager_mock.unregisterUtility.assert_called_once_with(
+            provided=IFactory, name='old-factory')
+        # And a new one to be created with the new factory name
+        self.assertEqual(
+            site_manager_mock.registerUtility.call_args[0][2], 'new-factory')
 
     def test_new_factory_not_registered_after_name_changed_if_exists(self):
         portal_type = u"testtype"
@@ -1028,15 +836,10 @@ class TestFTIEvents(MockTestCase):
         dummy_site = self.create_dummy()
         self.mock_utility(dummy_site, ISiteRoot)
 
-        site_manager_mock = self.mocker.proxy(
-            PersistentComponents(bases=(getGlobalSiteManager(),))
-        )
-        getSiteManager_mock = self.mocker.replace(
-            'zope.component.hooks.getSiteManager'
-        )
-        self.expect(
-            getSiteManager_mock(dummy_site)
-        ).result(site_manager_mock).count(1, None)
+        site_manager_mock = Mock(
+            wraps=PersistentComponents(bases=(getGlobalSiteManager(),)))
+        from zope.component.hooks import getSiteManager
+        self.patch_global(getSiteManager, return_value=site_manager_mock)
 
         # Create a global default for the new name
         self.mock_utility(
@@ -1045,20 +848,6 @@ class TestFTIEvents(MockTestCase):
             name='new-factory'
         )
 
-        # Factory should not be registered again
-        self.expect(
-            site_manager_mock.registerUtility(
-                mocker.MATCH(
-                    lambda x: isinstance(x, DexterityFactory)
-                    and x.portal_type == portal_type
-                ),
-                IFactory,
-                'new-factory',
-                info='plone.dexterity.dynamic'
-            )
-        ).passthrough().count(0)
-
-        self.replay()
         fti.factory = 'new-factory'
         ftiModified(
             fti,
@@ -1067,6 +856,9 @@ class TestFTIEvents(MockTestCase):
                 DexterityFTIModificationDescription('factory', 'old-factory')
             )
         )
+
+        # Factory should not be registered again
+        self.assertFalse(site_manager_mock.registerUtility.called)
 
     def test_old_factory_not_unregistered_if_not_created_by_dexterity(self):
         portal_type = u"testtype"
@@ -1076,15 +868,10 @@ class TestFTIEvents(MockTestCase):
         dummy_site = self.create_dummy()
         self.mock_utility(dummy_site, ISiteRoot)
 
-        site_manager_mock = self.mocker.proxy(
-            PersistentComponents(bases=(getGlobalSiteManager(),))
-        )
-        getSiteManager_mock = self.mocker.replace(
-            'zope.component.hooks.getSiteManager'
-        )
-        self.expect(
-            getSiteManager_mock(dummy_site)
-        ).result(site_manager_mock).count(1, None)
+        site_manager_mock = Mock(
+            wraps=PersistentComponents(bases=(getGlobalSiteManager(),)))
+        from zope.component.hooks import getSiteManager
+        self.patch_global(getSiteManager, return_value=site_manager_mock)
 
         # Pretend like we have a utility registered
 
@@ -1093,30 +880,8 @@ class TestFTIEvents(MockTestCase):
         reg1.name = 'old-factory'
         reg1.info = None
 
-        self.expect(site_manager_mock.registeredUtilities()).result([reg1])
+        site_manager_mock.registeredUtilities = Mock(return_value=[reg1])
 
-        # This should not be removed, since we didn't create it
-        self.expect(
-            site_manager_mock.unregisterUtility(
-                provided=IFactory,
-                name='old-factory'
-            )
-        ).count(0)
-
-        # A new one may still be created, however
-        self.expect(
-            site_manager_mock.registerUtility(
-                mocker.MATCH(
-                    lambda x: isinstance(x, DexterityFactory)
-                    and x.portal_type == portal_type
-                ),
-                IFactory,
-                'new-factory',
-                info='plone.dexterity.dynamic'
-            )
-        ).passthrough()
-
-        self.replay()
         fti.factory = 'new-factory'
         ftiModified(
             fti,
@@ -1125,6 +890,12 @@ class TestFTIEvents(MockTestCase):
                 DexterityFTIModificationDescription('factory', 'old-factory')
             )
         )
+
+        # This should not be removed, since we didn't create it
+        self.assertFalse(site_manager_mock.unregisterUtility.called)
+        # A new one may still be created, however
+        self.assertEqual(
+            site_manager_mock.registerUtility.call_args[0][2], 'new-factory')
 
     def test_renamed_factory_not_unregistered_if_not_unique(self):
         portal_type = u"testtype"
@@ -1136,20 +907,13 @@ class TestFTIEvents(MockTestCase):
         dummy_site = self.create_dummy()
         self.mock_utility(dummy_site, ISiteRoot)
 
-        site_manager_mock = self.mocker.proxy(
-            PersistentComponents(bases=(getGlobalSiteManager(),))
-        )
-        getSiteManager_mock = self.mocker.replace(
-            'zope.component.hooks.getSiteManager'
-        )
-        self.expect(
-            getSiteManager_mock(dummy_site)
-        ).result(site_manager_mock).count(1, None)
+        site_manager_mock = Mock(
+            wraps=PersistentComponents(bases=(getGlobalSiteManager(),)))
+        from zope.component.hooks import getSiteManager
+        self.patch_global(getSiteManager, return_value=site_manager_mock)
 
         # Pretend two FTIs are registered, both using common-factory
-        self.expect(
-            site_manager_mock.registeredUtilities()
-        ).result([
+        site_manager_mock.registeredUtilities = Mock(return_value=[
             self.create_dummy(
                 provided=IFactory,
                 name='common-factory',
@@ -1169,28 +933,6 @@ class TestFTIEvents(MockTestCase):
             ),
         ])
 
-        # We shouldn't remove this since fti2 still uses it
-        self.expect(
-            site_manager_mock.unregisterUtility(
-                provided=IFactory,
-                name='common-factory'
-            )
-        ).count(0)
-
-        # And a new one to be created with the new factory name
-        self.expect(
-            site_manager_mock.registerUtility(
-                mocker.MATCH(
-                    lambda x: isinstance(x, DexterityFactory)
-                    and x.portal_type == portal_type
-                ),
-                IFactory,
-                'new-factory',
-                info='plone.dexterity.dynamic'
-            )
-        ).passthrough()
-
-        self.replay()
         fti.factory = 'new-factory'
         ftiModified(
             fti,
@@ -1203,6 +945,13 @@ class TestFTIEvents(MockTestCase):
             )
         )
 
+        # We shouldn't remove this since fti2 still uses it
+        self.assertFalse(site_manager_mock.unregisterUtility.called)
+
+        # A new one may still be created, however
+        self.assertEqual(
+            site_manager_mock.registerUtility.call_args[0][2], 'new-factory')
+
     def test_deleted_factory_not_unregistered_if_not_unique(self):
         portal_type = u"testtype"
         fti = DexterityFTI(portal_type, factory='common-factory')
@@ -1214,22 +963,15 @@ class TestFTIEvents(MockTestCase):
         dummy_site = self.create_dummy()
         self.mock_utility(dummy_site, ISiteRoot)
 
-        site_manager_mock = self.mocker.proxy(
-            PersistentComponents(bases=(getGlobalSiteManager(),))
-        )
-        getSiteManager_mock = self.mocker.replace(
-            'zope.component.hooks.getSiteManager'
-        )
-        self.expect(
-            getSiteManager_mock(dummy_site)
-        ).result(site_manager_mock).count(1, None)
+        site_manager_mock = Mock(
+            wraps=PersistentComponents(bases=(getGlobalSiteManager(),)))
+        from zope.component.hooks import getSiteManager
+        self.patch_global(getSiteManager, return_value=site_manager_mock)
 
         # Pretend two FTIs are registered, both using common-factory
         # NB: Assuming that "testtype" was already removed when this gets
         #     called
-        self.expect(
-            site_manager_mock.registeredUtilities()
-        ).result([
+        site_manager_mock.registeredUtilities = Mock(return_value=[
             self.create_dummy(
                 provided=IFactory,
                 name='common-factory',
@@ -1243,25 +985,10 @@ class TestFTIEvents(MockTestCase):
             ),
         ])
 
-        # We shouldn't remove this since fti2 still uses it
-        self.expect(
-            site_manager_mock.unregisterUtility(
-                provided=IFactory,
-                name='common-factory'
-            )
-        ).count(0)
-
-        # The type itself should be removed though
-        self.expect(
-            site_manager_mock.unregisterUtility(
-                provided=IDexterityFTI,
-                name=u"testtype"
-            )
-        ).count(1)
-
-        self.replay()
         ftiRemoved(fti, ObjectRemovedEvent(fti, container_dummy, fti.getId()))
 
-
-def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromName(__name__)
+        # We shouldn't remove this since fti2 still uses it
+        # The type itself should be removed though
+        site_manager_mock.unregisterUtility.assert_called_once_with(
+            provided=IDexterityFTI, name=u'testtype'
+        )
