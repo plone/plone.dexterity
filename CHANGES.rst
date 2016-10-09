@@ -11,7 +11,7 @@ Breaking changes:
 
 New features:
 
-- *add item here*
+- Removed test dependency on plone.mocktestcase [davisagli]
 
 Bug fixes:
 
