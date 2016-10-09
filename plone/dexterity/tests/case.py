@@ -76,7 +76,8 @@ class MockTestCase(unittest.TestCase):
                 'Keyword arguments are ignored if a mock instance is passed.')
         _global_replace(orig, mock)
         if self._replaced_globals is None:
-            self._replaced_globals = {mock: orig}
+            self._replaced_globals = {}
+        self._replaced_globals[mock] = orig
         return mock
 
 
