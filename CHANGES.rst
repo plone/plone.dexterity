@@ -5,17 +5,9 @@ Changelog
 2.4.5 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
 New features:
 
 - Removed test dependency on plone.mocktestcase [davisagli]
-
-Bug fixes:
-
-- *add item here*
 
 
 2.4.4 (2016-09-23)
