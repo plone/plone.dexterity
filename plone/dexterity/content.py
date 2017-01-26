@@ -416,10 +416,19 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
 
     @security.protected(permissions.View)
     def Description(self):
+        value = self.description or ''
+
+        # If description is containing linefeeds the HTML
+        # validation can break.
+        # See http://bo.geekworld.dk/diazo-bug-on-html5-validation-errors/
+        # Remember: \r\n - Windows, \r - OS X, \n - Linux/Unix
+        value = value.replace('\r\n', ' ').replace('\r', ' ').replace('\n', ' ')  # noqa
+
         # this is a CMF accessor, so should return utf8-encoded
-        if isinstance(self.description, unicode):
-            return self.description.encode('utf-8')
-        return self.description or ''
+        if isinstance(value, unicode):
+            value = value.encode('utf-8')
+
+        return value
 
     @security.protected(permissions.View)
     def Type(self):

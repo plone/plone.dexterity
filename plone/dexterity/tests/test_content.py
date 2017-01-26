@@ -905,6 +905,11 @@ class TestContent(MockTestCase):
         c = Container(description=None)
         self.assertEqual('', c.Description())
 
+    def test_Description_removes_newlines(self):
+        i = Item()
+        i.description = u'foo\r\nbar\nbaz\r'
+        self.assertEqual('foo bar baz ', i.Description())
+
     def test_Subject_converts_to_utf8(self):
         i = Item()
         i.subject = (u"é",)
