@@ -2,12 +2,14 @@ Changelog
 =========
 
 
-2.4.6 (unreleased)
+2.5.0 (unreleased)
 ------------------
 
 Breaking changes:
 
-- *add item here*
+- When calling the DC metadata accessor for ``Description``, remove newlines from the output.
+  This makes the removal of newlines from the description behavior setter in plone.app.dexterity obsolete.
+  [thet]
 
 New features:
 
