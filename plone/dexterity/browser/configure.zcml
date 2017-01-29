@@ -12,6 +12,11 @@
         permission="zope2.View"
         />
 
+    <adapter
+        factory=".view.DefaultViewDefaultValueAdapter"
+        name="default"
+        />
+
     <!-- Content core views -->
 
     <browser:page

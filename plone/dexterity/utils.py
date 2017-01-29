@@ -2,6 +2,7 @@
 from AccessControl import Unauthorized
 from Acquisition import aq_base
 from Acquisition import aq_inner
+from copy import deepcopy
 from DateTime import DateTime
 from plone.app.uuid.utils import uuidToObject
 from plone.autoform.interfaces import IFormFieldProvider
@@ -21,6 +22,7 @@ from zope.container.interfaces import INameChooser
 from zope.dottedname.resolve import resolve
 from zope.event import notify
 from zope.lifecycleevent import ObjectCreatedEvent
+from zope.schema.interfaces import IContextAwareDefaultFactory
 
 import datetime
 import logging
@@ -40,6 +42,7 @@ deprecation.deprecated(
     'splitSchemaName',
     'moved to plone.dexterity.schema')
 
+_marker = object()
 log = logging.getLogger(__name__)
 
 # Not thread safe, but downside of a write conflict is very small
@@ -237,3 +240,55 @@ def all_merged_tagged_values_dict(ifaces, key):
     for iface in ifaces:
         info.update(mergedTaggedValueDict(iface, key))
     return info
+
+
+def default_from_schema(context, schema, fieldname, default=_marker):
+    """helper to lookup default value of a field
+    """
+    if schema is None:
+        return default
+    field = schema.get(fieldname, None)
+    if field is None:
+        return default
+    if IContextAwareDefaultFactory.providedBy(
+        getattr(field, 'defaultFactory', None)
+    ):
+        bound = field.bind(context)
+        return deepcopy(bound.default)
+    else:
+        return deepcopy(field.default)
+
+
+def initialize_missing_attributes(context):
+    """helper to initialize missing attributes on content with default values
+    """
+    content = aq_base(context)
+    schemas = [SCHEMA_CACHE.get(context.portal_type)]
+
+    assignable = IBehaviorAssignable(context, None)
+    if assignable is not None:
+        for behavior_registration in assignable.enumerateBehaviors():
+            schemas.append(behavior_registration.interface)
+
+    for schema in filter(bool, schemas):
+        try:
+            behavior = schema(content)
+        except TypeError:
+            continue
+        if behavior is not content:
+            # we only care about direct content attributes
+            continue
+        for name in schema.names():
+            try:
+                # hasattr swallows exceptions
+                object.__getattribute__(behavior, name)
+            except AttributeError:
+                value = default_from_schema(context, schema, name, default=_marker)  # noqa
+                if value is _marker:
+                    value = None
+                try:
+                    setattr(behavior, name, value)
+                except AttributeError:
+                    pass  # read only attribute
+
+    return context
