@@ -532,12 +532,8 @@ class TestContent(MockTestCase):
         containerOptions = [o['label'] for o in Container.manage_options]
         tabs = [
             'Security',
-            'View',
             'Contents',
             'Properties',
-            'Undo',
-            'Ownership',
-            'Interfaces'
         ]
         for tab in tabs:
             self.assertTrue(tab in containerOptions, "Tab %s not found" % tab)
@@ -550,9 +546,6 @@ class TestContent(MockTestCase):
             'Security',
             'View',
             'Properties',
-            'Undo',
-            'Ownership',
-            'Interfaces',
         ]
         for tab in tabs:
             self.assertTrue(tab in containerOptions, "Tab %s not found" % tab)
