@@ -17,9 +17,7 @@ New features:
 
 Bug fixes:
 
-- When unregistering FTIs, ensure that the component registry does not have
-  an acquisition wrapper, to allow caching of the registry in zope.interface.
-  [MatthewWilkes]
+- *add item here*
 
 
 2.4.5 (2016-11-19)

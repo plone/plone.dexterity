@@ -428,8 +428,6 @@ def unregister(fti, old_name=None):
 
     notify(SchemaInvalidatedEvent(portal_type))
 
-    # remove acquisition wrapper
-    site_manager = aq_base(site_manager)
     site_manager.unregisterUtility(provided=IDexterityFTI, name=portal_type)
     unregister_factory(fti.factory, site_manager)
 
