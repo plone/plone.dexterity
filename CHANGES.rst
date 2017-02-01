@@ -17,7 +17,7 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Relax tests for ZMI tabs for compatibility with Zope 4. [davisagli]
 
 
 2.4.5 (2016-11-19)
