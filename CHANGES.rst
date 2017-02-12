@@ -11,10 +11,6 @@ Breaking changes:
   This makes the removal of newlines from the description behavior setter in plone.app.dexterity obsolete.
   [thet]
 
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Relax tests for ZMI tabs for compatibility with Zope 4. [davisagli]
