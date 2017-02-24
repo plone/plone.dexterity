@@ -14,7 +14,11 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Make sure that all fields are initialized to their default value
+  when items are added via the add form. This is important in the case
+  of fields with a defaultFactory that can change with time
+  (such as defaulting to the current date).
+  [davisagli]
 
 
 2.2.8 (2016-09-16)

@@ -17,6 +17,8 @@ from plone.dexterity.interfaces import IEditCancelledEvent
 from plone.dexterity.interfaces import IEditFinishedEvent
 from plone.mocktestcase import MockTestCase
 from z3c.form.action import Actions
+from z3c.form.datamanager import AttributeField
+from z3c.form.field import Fields
 from z3c.form.field import FieldWidgets
 from z3c.form.interfaces import IActions
 from z3c.form.interfaces import IWidgets
@@ -24,6 +26,7 @@ from zope.component import adapts, provideAdapter
 from zope.container.interfaces import INameChooser
 from zope.interface import implements, Interface, alsoProvides
 from zope.publisher.browser import TestRequest as TestRequestBase
+from zope import schema
 import mocker
 import unittest
 
@@ -98,16 +101,20 @@ class TestAddView(MockTestCase):
         form = DefaultAddForm(context, request)
         form.portal_type = u"testtype"
 
+        class ISchema(Interface):
+            foo = schema.TextLine()
+        form.fields = Fields(ISchema)
+
         # createObject and applyChanges
 
         obj_dummy = Item(id="dummy")
+        alsoProvides(obj_dummy, ISchema)
         data_dummy = {u"foo": u"bar"}
 
         createObject_mock = self.mocker.replace('zope.component.createObject')
         self.expect(createObject_mock(u"testfactory")).result(obj_dummy)
 
-        applyChanges_mock = self.mocker.replace('z3c.form.form.applyChanges')
-        self.expect(applyChanges_mock(form, obj_dummy, data_dummy))
+        provideAdapter(AttributeField)
 
         self.replay()
 

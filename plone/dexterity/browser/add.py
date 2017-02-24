@@ -11,6 +11,10 @@ from plone.dexterity.utils import addContentToContainer
 from plone.dexterity.utils import getAdditionalSchemata
 from plone.z3cform import layout
 from z3c.form import form, button
+from z3c.form.interfaces import IDataManager
+from z3c.form.interfaces import NOT_CHANGED
+from z3c.form.util import changedField
+from zope.component import getMultiAdapter
 from zope.component import getUtility, createObject
 from zope.event import notify
 from zope.publisher.browser import BrowserPage
@@ -63,9 +67,9 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         if IAcquirer.providedBy(content):
             content = content.__of__(container)
 
-        form.applyChanges(self, content, data)
+        _applyChanges(self, content, data, force=True)
         for group in self.groups:
-            form.applyChanges(group, content, data)
+            _applyChanges(group, content, data, force=True)
 
         return aq_base(content)
 
@@ -155,3 +159,26 @@ class DefaultAddView(layout.FormWrapper, BrowserPage):
         if self.form_instance is not None \
            and not getattr(self.form_instance, 'portal_type', None):
             self.form_instance.portal_type = ti.getId()
+
+
+def _applyChanges(form, content, data, force=False):
+    # This is copied from z3c.form, but modified to add
+    # an option to always set values even if already set.
+    changes = {}
+    for name, field in form.fields.items():
+        # If the field is not in the data, then go on to the next one
+        try:
+            newValue = data[name]
+        except KeyError:
+            continue
+        # If the value is NOT_CHANGED, ignore it, since the widget/converter
+        # sent a strong message not to do so.
+        if newValue is NOT_CHANGED:
+            continue
+        if force or changedField(field.field, newValue, context=content):
+            # Only update the data, if it is different
+            dm = getMultiAdapter((content, field.field), IDataManager)
+            dm.set(newValue)
+            # Record the change using information required later
+            changes.setdefault(dm.field.interface, []).append(name)
+    return changes
