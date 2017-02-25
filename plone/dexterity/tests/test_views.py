@@ -124,8 +124,6 @@ class TestAddView(MockTestCase):
 
         provideAdapter(AttributeField)
 
-        self.replay()
-
         self.assertEqual(obj_dummy, form.create(data_dummy))
         self.assertEqual("testtype", obj_dummy.portal_type)
 
