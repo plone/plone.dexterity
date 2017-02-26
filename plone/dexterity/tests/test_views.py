@@ -21,10 +21,13 @@ from plone.dexterity.interfaces import IEditFinishedEvent
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.z3cform.interfaces import IDeferSecurityCheck
 from z3c.form.action import Actions
+from z3c.form.datamanager import AttributeField
+from z3c.form.field import Fields
 from z3c.form.field import FieldWidgets
 from z3c.form.interfaces import IActions
 from z3c.form.interfaces import IWidgets
 from zope.component import adapter
+from zope.component import provideAdapter
 from zope.container.interfaces import INameChooser
 from zope.interface import Interface
 from zope.interface import alsoProvides
@@ -32,6 +35,7 @@ from zope.interface import implementer
 from zope.interface import provider
 from zope.publisher.browser import TestRequest as TestRequestBase
 from .case import MockTestCase
+from zope import schema
 
 
 class TestRequest(TestRequestBase):
@@ -105,16 +109,20 @@ class TestAddView(MockTestCase):
         form = DefaultAddForm(context, request)
         form.portal_type = u"testtype"
 
+        class ISchema(Interface):
+            foo = schema.TextLine()
+        form.fields = Fields(ISchema)
+
         # createObject and applyChanges
 
         obj_dummy = Item(id="dummy")
+        alsoProvides(obj_dummy, ISchema)
         data_dummy = {u"foo": u"bar"}
 
         from zope.component import createObject
         self.patch_global(createObject, return_value=obj_dummy)
 
-        from z3c.form.form import applyChanges
-        self.patch_global(applyChanges)
+        provideAdapter(AttributeField)
 
         self.assertEqual(obj_dummy, form.create(data_dummy))
         self.assertEqual("testtype", obj_dummy.portal_type)

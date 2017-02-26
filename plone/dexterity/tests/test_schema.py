@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from mock import Mock
-from pkg_resources import get_distribution
 from plone.dexterity import schema
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IContentType
@@ -14,11 +13,7 @@ from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 from .case import MockTestCase
 
-import unittest
 import zope.schema
-
-
-has_zope4 = get_distribution('Zope2').version.startswith('4')
 
 
 class TestSchemaModuleFactory(MockTestCase):
@@ -156,7 +151,6 @@ class TestSchemaModuleFactory(MockTestCase):
             schema.portalTypeToSchemaName('type one.two', '', 'prefix')
         )
 
-    @unittest.skipIf(has_zope4, 'Broken with zope4, see https://community.plone.org/t/problems-with-mocktestcase-in-plone-dexterity/1484')  # noqa
     def test_portalTypeToSchemaName_looks_up_portal_for_prefix(self):
         portal_mock = Mock()
         portal_mock.getPhysicalPath = Mock(return_value=['', 'foo', 'portalid'])
