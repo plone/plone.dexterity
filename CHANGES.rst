@@ -5,14 +5,6 @@ Changelog
 2.5.1 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Make sure that all fields are initialized to their default value
