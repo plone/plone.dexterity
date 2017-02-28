@@ -9,19 +9,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plone.dexterity 1.0b3\n"
 "Report-Msgid-Bugs-To: dexterity-development@googlegroups.com\n"
-"POT-Creation-Date: 2013-01-02 11:53+0100\n"
+"POT-Creation-Date: 2017-02-28 11:53+0100\n"
 "PO-Revision-Date: 2010-08-28 12:25+0200\n"
-"Last-Translator: Maurits van Rees <maurits@vanrees.org>\n"
+"Last-Translator: Jean-Paul Ladage <j.ladage@zestsoftware.nl>\n"
 "Language-Team: Plone Nederlands <plone-nl@lists.plone.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.6\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language-Code: nl\n"
+"Language-Name: Nederlands\n"
+"Preferred-Encodings: utf-8\n"
+"Domain: dexterity plone\n"
+"Language: nl_NL\n"
 
 #: plone/dexterity/browser/add.py:130
 msgid "Add ${name}"
-msgstr "Voeg ${name} toe"
+msgstr "${name} toevoegen"
 
 #: plone/dexterity/browser/add.py:107
 msgid "Add New Item operation cancelled"
@@ -29,11 +33,11 @@ msgstr "Aanmaken nieuw item is geannuleerd"
 
 #: plone/dexterity/browser/add.py:105 plone/dexterity/browser/edit.py:32
 msgid "Cancel"
-msgstr "Annuleer"
+msgstr "Annuleren"
 
 #: plone/dexterity/browser/edit.py:28
 msgid "Changes saved"
-msgstr "Wijzigingen zijn bewaard"
+msgstr "Wijzigingen zijn opgeslagen"
 
 #: plone/dexterity/browser/base.py:14
 msgid "Content"
@@ -41,7 +45,7 @@ msgstr "Inhoud"
 
 #: plone/dexterity/browser/edit.py:74
 msgid "Edit ${name}"
-msgstr "Wijzig ${name}"
+msgstr "${name} wijzigen"
 
 #: plone/dexterity/browser/edit.py:34
 msgid "Edit cancelled"
@@ -53,5 +57,5 @@ msgstr "Item aangemaakt"
 
 #: plone/dexterity/browser/add.py:93 plone/dexterity/browser/edit.py:21
 msgid "Save"
-msgstr "Bewaren"
+msgstr "Opslaan"
 
