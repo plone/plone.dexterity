@@ -259,6 +259,7 @@ class TestContent(MockTestCase):
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         fti_mock.behaviors = ['behavior1', 'behavior2']
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        alsoProvides(fti_mock, IDexterityFTI)
 
         # start clean
         SCHEMA_CACHE.clear()
