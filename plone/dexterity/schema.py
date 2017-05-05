@@ -49,10 +49,13 @@ def volatile(func):
     def decorator(self, portal_type):
         """lookup fti from portal_type and cache
         """
-        if IDexterityFTI.providedBy(portal_type):
-            fti = portal_type
+        if portal_type is not None:
+            if IDexterityFTI.providedBy(portal_type):
+                fti = portal_type
+            else:
+                fti = queryUtility(IDexterityFTI, name=portal_type)
         else:
-            fti = queryUtility(IDexterityFTI, name=portal_type)
+            fti = None
         if fti is not None and self.cache_enabled:
             key = '_v_schema_%s' % func.__name__
             cache = getattr(fti, key, _MARKER)
@@ -213,7 +216,8 @@ class SchemaCache(object):
 
     @synchronized(lock)
     def invalidate(self, fti):
-        if not IDexterityFTI.providedBy(fti):
+        if fti is not None and not IDexterityFTI.providedBy(fti):
+            # fti is a name, lookup
             fti = queryUtility(IDexterityFTI, name=fti)
         if fti is not None:
             invalidate_cache(fti)
@@ -224,6 +228,7 @@ class SchemaCache(object):
     def modified(self, fti):
         if fti:
             return fti._p_mtime
+
 
 SCHEMA_CACHE = SchemaCache()
 
@@ -347,8 +352,10 @@ class SchemaModuleFactory(object):
 
             if is_default_schema:
                 alsoProvides(schema, IContentType)
-
-        fti = queryUtility(IDexterityFTI, name=portal_type)
+        if portal_type is not None:
+            fti = queryUtility(IDexterityFTI, name=portal_type)
+        else:
+            fti = None
         if fti is None and name not in self._transient_SCHEMA_CACHE:
             self._transient_SCHEMA_CACHE[name] = schema
         elif fti is not None:

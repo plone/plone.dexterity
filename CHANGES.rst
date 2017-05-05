@@ -15,7 +15,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fix problem with new zope.interface not accepting None as value.
+  [jensens]
 
 
 2.5.1 (2017-02-27)
