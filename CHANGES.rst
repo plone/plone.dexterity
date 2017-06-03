@@ -5,14 +5,6 @@ Changelog
 2.5.2 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Fix problem with new zope.interface not accepting None as value.
