@@ -9,12 +9,13 @@ env:
   - PLONE_VERSION=5.1
 matrix:
   allow_failures:
-    - env: PLONE_VERSION=5.0
+    - env: PLONE_VERSION=5.1
   fast_finish: true
 install:
-  - sed -ie "s#test-5.0.x#test-$PLONE_VERSION#" buildout.cfg
+  - sed -ie "s#test-5.0#test-$PLONE_VERSION#" buildout.cfg
   - pip install setuptools==33.1.1
-  - python bootstrap.py --buildout-version=2.9.4
+  - pip install zc.buildout==2.8.0
+  - buildout bootstrap .
   - bin/buildout annotate
-  - bin/buildout -Nq install test
+  - bin/buildout -Nv install test
 script: bin/test
