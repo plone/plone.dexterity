@@ -71,6 +71,7 @@ setup(
     extras_require={
         'test': [
             'plone.testing',
+            'Products.CMFPlone',
             'mock',
         ]
     },
