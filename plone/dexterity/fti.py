@@ -236,8 +236,8 @@ class DexterityFTI(base.DynamicViewTypeInformation):
                 schema = utils.resolveDottedName(self.schema)
             except ImportError:
                 logging.warning(
-                    u"Schema %s set for type %s cannot be resolved" %
-                    (self.schema, self.getId())
+                    u"Dexterity type FTI %s: schema dotted name [%s] cannot be resolved." %
+                    (self.getId(), self.schema)
                 )
                 # fall through to return a fake class with no
                 # fields so that end user code doesn't break
