@@ -1,0 +1,20 @@
+language: python
+python: 2.7
+sudo: false
+cache:
+  directories:
+    - eggs
+env:
+  - PLONE_VERSION=5.0
+  - PLONE_VERSION=5.1
+matrix:
+  allow_failures:
+    - env: PLONE_VERSION=5.0
+  fast_finish: true
+install:
+  - sed -ie "s#test-5.0.x#test-$PLONE_VERSION#" buildout.cfg
+  - pip install setuptools==33.1.1
+  - python bootstrap.py --buildout-version=2.9.4
+  - bin/buildout annotate
+  - bin/buildout -Nq install test
+script: bin/test

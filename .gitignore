@@ -4,3 +4,9 @@ plone.dexterity.egg-info/
 *.project
 *.pydevproject
 .settings/
+.installed.cfg
+bin/
+lib/
+include/
+parts/
+develop-eggs/
