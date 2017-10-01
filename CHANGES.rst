@@ -15,7 +15,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Unskip tests with isolation problems for Zope 4, as they are already fixed.
+  [thet]
 
 
 2.5.2 (2017-06-03)
