@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+from mock import Mock
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
-from plone.mocktestcase import MockTestCase
 from zope.interface import Interface
+from .case import MockTestCase
 
 import unittest
 
@@ -18,12 +19,9 @@ class TestSchemaCache(MockTestCase):
         class ISchema(Interface):
             pass
 
-        # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema)
+        fti_mock = DexterityFTI(u"testtype")
+        fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
 
         schema1 = SCHEMA_CACHE.get(u"testtype")
         schema2 = SCHEMA_CACHE.get(u"testtype")
@@ -32,14 +30,13 @@ class TestSchemaCache(MockTestCase):
 
     def test_repeated_behavior_registration_lookup(self):
 
-        # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        fti = DexterityFTI(u"testtype")
+        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
         # Mock a test behavior
         class ITestBehavior(Interface):
             pass
-        self.expect(fti_mock.behaviors).result([ITestBehavior.__identifier__])
+        fti.behaviors = [ITestBehavior.__identifier__]
         from plone.behavior.registration import BehaviorRegistration
         registration = BehaviorRegistration(
             title=u"Test Behavior",
@@ -55,8 +52,6 @@ class TestSchemaCache(MockTestCase):
             ITestBehavior.__identifier__
         )
 
-        self.replay()
-
         r1 = SCHEMA_CACHE.behavior_registrations(u'testtype')
         r2 = SCHEMA_CACHE.behavior_registrations(u'testtype')
 
@@ -64,9 +59,8 @@ class TestSchemaCache(MockTestCase):
 
     def test_repeated_subtypes_lookup(self):
 
-        # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        fti = DexterityFTI(u"testtype")
+        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
         # Mock a test behavior
         class ITestSchema(Interface):
@@ -74,7 +68,7 @@ class TestSchemaCache(MockTestCase):
 
         class ITestMarker(Interface):
             pass
-        self.expect(fti_mock.behaviors).result([ITestSchema.__identifier__])
+        fti.behaviors = [ITestSchema.__identifier__]
         from plone.behavior.registration import BehaviorRegistration
         registration = BehaviorRegistration(
             title=u"Test Behavior",
@@ -90,8 +84,6 @@ class TestSchemaCache(MockTestCase):
             ITestSchema.__identifier__
         )
 
-        self.replay()
-
         s1 = SCHEMA_CACHE.subtypes(u"testtype")
         s2 = SCHEMA_CACHE.subtypes(u"testtype")
 
@@ -105,13 +97,9 @@ class TestSchemaCache(MockTestCase):
         class ISchema2(Interface):
             pass
 
-        # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema1)
-        self.expect(fti_mock.lookupSchema()).result(ISchema2).count(0, None)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
+        fti = DexterityFTI(u"testtype")
+        fti.lookupSchema = Mock(side_effect=[ISchema1, ISchema2])
+        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
         schema1 = SCHEMA_CACHE.get(u"testtype")
         schema2 = SCHEMA_CACHE.get(u"testtype")
@@ -126,13 +114,9 @@ class TestSchemaCache(MockTestCase):
         class ISchema2(Interface):
             pass
 
-        # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema1)
-        self.expect(fti_mock.lookupSchema()).result(ISchema2).count(0, None)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
+        fti = DexterityFTI(u"testtype")
+        fti.lookupSchema = Mock(side_effect=[ISchema1, ISchema2])
+        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
         schema1 = SCHEMA_CACHE.get(u"testtype")
         SCHEMA_CACHE.invalidate(u"testtype")
@@ -146,13 +130,9 @@ class TestSchemaCache(MockTestCase):
         class ISchema1(Interface):
             pass
 
-        # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(None)
-        self.expect(fti_mock.lookupSchema()).result(ISchema1).count(2)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
+        fti = DexterityFTI(u"testtype")
+        fti.lookupSchema = Mock(side_effect=[None, ISchema1, ISchema1])
+        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
         SCHEMA_CACHE.invalidate('testtype')
         schema1 = SCHEMA_CACHE.get(u"testtype")
@@ -171,14 +151,10 @@ class TestSchemaCache(MockTestCase):
         class ISchema1(Interface):
             pass
 
-        # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).throw(AttributeError)
-        self.expect(fti_mock.lookupSchema()).throw(ValueError)
-        self.expect(fti_mock.lookupSchema()).result(ISchema1)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
+        fti = DexterityFTI(u"testtype")
+        fti.lookupSchema = Mock(
+            side_effect=[AttributeError, ValueError, ISchema1])
+        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
         schema1 = SCHEMA_CACHE.get(u"testtype")
 
@@ -197,12 +173,9 @@ class TestSchemaCache(MockTestCase):
         class ISchema1(Interface):
             pass
 
-        # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema1)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
+        fti = DexterityFTI(u"testtype")
+        fti.lookupSchema = Mock(return_value=ISchema1)
+        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
         schema1 = SCHEMA_CACHE.get(u"othertype")
         schema2 = SCHEMA_CACHE.get(u"testtype")
@@ -215,16 +188,14 @@ class TestSchemaCache(MockTestCase):
 
         class ISchema1(Interface):
             pass
-        # FTI mock
-        fti_mock1 = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock1.lookupSchema()).result(ISchema1).count(2)
-        self.mock_utility(fti_mock1, IDexterityFTI, name=u"testtype1")
 
-        fti_mock2 = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock2.lookupSchema()).result(ISchema1).count(2)
-        self.mock_utility(fti_mock2, IDexterityFTI, name=u"testtype2")
+        fti1 = DexterityFTI(u"testtype")
+        fti1.lookupSchema = Mock(return_value=ISchema1)
+        self.mock_utility(fti1, IDexterityFTI, name=u"testtype1")
 
-        self.replay()
+        fti2 = DexterityFTI(u"testtype")
+        fti2.lookupSchema = Mock(return_value=ISchema1)
+        self.mock_utility(fti2, IDexterityFTI, name=u"testtype2")
 
         # reset schemacache counter
         SCHEMA_CACHE.invalidations = 0
@@ -245,7 +216,3 @@ class TestSchemaCache(MockTestCase):
         schema1 = SCHEMA_CACHE.get(u"testtype1")
         schema2 = SCHEMA_CACHE.get(u"testtype2")
         self.assertTrue(schema1 is schema2 is ISchema1)
-
-
-def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromName(__name__)

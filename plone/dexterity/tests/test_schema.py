@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from mock import Mock
 from plone.dexterity import schema
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IContentType
@@ -6,13 +7,12 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexteritySchema
 from plone.dexterity.schema import invalidate_cache
 from plone.dexterity.schema import SCHEMA_CACHE
-from plone.mocktestcase import MockTestCase
 from plone.supermodel.model import Model
 from Products.CMFCore.interfaces import ISiteRoot
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
+from .case import MockTestCase
 
-import unittest
 import zope.schema
 
 
@@ -40,12 +40,9 @@ class TestSchemaModuleFactory(MockTestCase):
         mock_model = Model({u"": IDummy})
 
         # Mock FTI
-        fti_mock = self.mocker.mock(DexterityFTI)
-        fti_mock.lookupModel()
-        self.mocker.result(mock_model)
+        fti_mock = Mock(spec=DexterityFTI)
+        fti_mock.lookupModel = Mock(return_value=mock_model)
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
-
-        self.mocker.replay()
 
         factory = schema.SchemaModuleFactory()
 
@@ -71,12 +68,9 @@ class TestSchemaModuleFactory(MockTestCase):
                             u"named": INamedDummy})
 
         # Mock FTI
-        fti_mock = self.mocker.mock(DexterityFTI)
-        fti_mock.lookupModel()
-        self.mocker.result(mock_model)
+        fti_mock = Mock(spec=DexterityFTI)
+        fti_mock.lookupModel = Mock(return_value=mock_model)
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
-
-        self.mocker.replay()
 
         factory = schema.SchemaModuleFactory()
 
@@ -128,12 +122,9 @@ class TestSchemaModuleFactory(MockTestCase):
             dummy = zope.schema.TextLine(title=u"Dummy")
         mock_model = Model({u"": IDummy})
 
-        fti_mock = self.mocker.mock(DexterityFTI)
-        fti_mock.lookupModel()
-        self.mocker.result(mock_model)
+        fti_mock = Mock(spec=DexterityFTI)
+        fti_mock.lookupModel = Mock(return_value=mock_model)
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
-
-        self.mocker.replay()
 
         klass = factory(schemaName, schema.generated)
 
@@ -161,13 +152,9 @@ class TestSchemaModuleFactory(MockTestCase):
         )
 
     def test_portalTypeToSchemaName_looks_up_portal_for_prefix(self):
-        portal_mock = self.mocker.mock()
-        self.expect(
-            portal_mock.getPhysicalPath()
-        ).result(('', 'foo', 'portalid'))
+        portal_mock = Mock()
+        portal_mock.getPhysicalPath = Mock(return_value=['', 'foo', 'portalid'])
         self.mock_utility(portal_mock, ISiteRoot)
-
-        self.replay()
 
         self.assertEqual(
             'foo_4_portalid_0_type',
@@ -213,7 +200,3 @@ class TestSchemaModuleFactory(MockTestCase):
         invalidate_cache(fti)
         self.assertNotIn('_v_schema_behavior_schema_interfaces',
                          fti.__dict__.keys())
-
-
-def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromName(__name__)

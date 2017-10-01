@@ -3,7 +3,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-version = '2.4.4.dev0'
+version = '2.5.3.dev0'
 
 short_description = """\
 Framework for content types as filesystem code and TTW (Zope/CMF/Plone)\
@@ -20,7 +20,6 @@ setup(
     # https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         "Framework :: Plone",
-        "Framework :: Plone :: 5.0",
         "Framework :: Plone :: 5.1",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
@@ -71,8 +70,8 @@ setup(
     ],
     extras_require={
         'test': [
-            'plone.mocktestcase>=1.0b3',
             'plone.testing',
+            'Products.CMFPlone',
             'mock',
         ]
     },

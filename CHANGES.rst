@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.4.4 (unreleased)
+2.5.3 (unreleased)
 ------------------
 
 Breaking changes:
@@ -17,6 +17,58 @@ Bug fixes:
 
 - Unskip tests with isolation problems for Zope 4, as they are already fixed.
   [thet]
+
+
+2.5.2 (2017-06-03)
+------------------
+
+Bug fixes:
+
+- Fix problem with new zope.interface not accepting None as value.
+  [jensens]
+
+
+2.5.1 (2017-02-27)
+------------------
+
+Bug fixes:
+
+- Make sure that all fields are initialized to their default value
+  when items are added via the add form. This is important in the case
+  of fields with a defaultFactory that can change with time
+  (such as defaulting to the current date).
+  [davisagli]
+
+
+2.5.0 (2017-02-12)
+------------------
+
+Breaking changes:
+
+- When calling the DC metadata accessor for ``Description``, remove newlines from the output.
+  This makes the removal of newlines from the description behavior setter in plone.app.dexterity obsolete.
+  [thet]
+
+Bug fixes:
+
+- Relax tests for ZMI tabs for compatibility with Zope 4. [davisagli]
+
+
+2.4.5 (2016-11-19)
+------------------
+
+New features:
+
+- Removed test dependency on plone.mocktestcase [davisagli]
+
+
+2.4.4 (2016-09-23)
+------------------
+
+Bug fixes:
+
+- Fix error when copying DX containers with AT children which caused the
+  children to not have the UID updated properly.  [jone]
 
 
 2.4.3 (2016-08-12)

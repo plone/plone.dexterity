@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
+from mock import Mock
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 from plone.dexterity.content import Item
 from plone.dexterity.content import Container
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
-from plone.mocktestcase import MockTestCase
 from zope.interface import Interface
 from zope.interface import provider
 from zope.security.interfaces import IPermission
 from zope.security.permission import Permission
+from .case import MockTestCase
 
-import unittest
 import zope.schema
 
 
@@ -67,7 +67,9 @@ class TestAttributeProtection(MockTestCase):
         )
 
         # Mock FTI
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        fti_mock = DexterityFTI(u"testtype")
+        fti_mock.behaviors = ()
+        fti_mock.lookupSchema = Mock(return_value=ITestSchema)
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
         # Mock permissions
@@ -89,83 +91,51 @@ class TestAttributeProtection(MockTestCase):
         item.foo = u"bar"
 
         # mock security manager
-        securityManager_mock = self.mocker.mock()
-        getSecurityManager_mock = self.mocker.replace(
-            'AccessControl.getSecurityManager'
-        )
-
-        # expectations
-        # run 1
-        # lookupSchema is always called twice: cache and __providedBy__
-        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
-        self.expect(fti_mock.behaviors).result(tuple())
-        self.expect(
-            securityManager_mock.checkPermission("View", item)
-        ).result(False)
-
-        # run 2
-        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
-        self.expect(fti_mock.behaviors).result(tuple())
-        self.expect(
-            securityManager_mock.checkPermission("View foo", item)
-        ).result(True)
-
-        # run 3
-        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
-        self.expect(fti_mock.behaviors).result(tuple())
-
-        # # run 4
-        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
-        self.expect(fti_mock.behaviors).result([ITestBehavior.__identifier__])
-        self.expect(
-            securityManager_mock.checkPermission("View", item)
-        ).result(True)
-
-        # # run 5
-        self.expect(fti_mock.lookupSchema()).result(None)
-        self.expect(fti_mock.behaviors).result([ITestBehavior.__identifier__])
-        self.expect(
-            securityManager_mock.checkPermission("View", item)
-        ).result(True)
-
-        # for all 5 runs
-        self.expect(
-            getSecurityManager_mock()
-        ).result(
-            securityManager_mock
-        ).count(4)
-
-        self.mocker.replay()
+        security_manager_mock = Mock()
+        from AccessControl import getSecurityManager
+        self.patch_global(
+            getSecurityManager, return_value=security_manager_mock)
 
         # run 1: schema and no behavior access to schema protected attribute
+        security_manager_mock.checkPermission = Mock(return_value=False)
         SCHEMA_CACHE.clear()
         self.assertFalse(
             item.__allow_access_to_unprotected_subobjects__('test', u"foo")
         )
+        security_manager_mock.checkPermission.assert_called_with('View', item)
 
-        # # run 2: schema and no behavior access to known non schema attribute
+        # run 2: schema and no behavior access to known non schema attribute
+        security_manager_mock.checkPermission = Mock(return_value=True)
         SCHEMA_CACHE.clear()
         self.assertTrue(
             item.__allow_access_to_unprotected_subobjects__('foo', u"bar")
         )
+        security_manager_mock.checkPermission.assert_called_with(
+            'View foo', item)
 
-        # # run 3: schema and no behavior, unknown attributes are allowed
+        # run 3: schema and no behavior, unknown attributes are allowed
         SCHEMA_CACHE.clear()
         self.assertTrue(
             item.__allow_access_to_unprotected_subobjects__('random', u"stuff")
         )
 
-        # # run 4: schema and behavior
+        # run 4: schema and behavior
+        security_manager_mock.checkPermission = Mock(return_value=True)
+        fti_mock.behaviors = [ITestBehavior.__identifier__]
         SCHEMA_CACHE.clear()
         self.assertTrue(
             item.__allow_access_to_unprotected_subobjects__('test2', u"foo2")
         )
+        security_manager_mock.checkPermission.assert_called_with('View', item)
 
         # run 5: no schema but behavior
+        security_manager_mock.checkPermission = Mock(return_value=True)
+        fti_mock.lookupSchema = Mock(return_value=None)
         SCHEMA_CACHE.clear()
         self.assertTrue(
             item.__allow_access_to_unprotected_subobjects__('test2', u"foo2")
         )
+        security_manager_mock.checkPermission.assert_called_with('View', item)
 
     def test_container(self):
 
@@ -214,7 +184,9 @@ class TestAttributeProtection(MockTestCase):
         )
 
         # Mock FTI
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        fti_mock = DexterityFTI(u"testtype")
+        fti_mock.lookupSchema = Mock(return_value=ITestSchema)
+        fti_mock.behaviors = ()
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
         # Mock permissions
@@ -236,55 +208,13 @@ class TestAttributeProtection(MockTestCase):
         container.foo = u"bar"
 
         # mock security manager
-        securityManager_mock = self.mocker.mock()
-        getSecurityManager_mock = self.mocker.replace(
-            'AccessControl.getSecurityManager'
-        )
-
-        # expectations
-        # run 1
-        # lookupSchema is always called twice: cache and __providedBy__
-        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
-        self.expect(fti_mock.behaviors).result(tuple())
-        self.expect(
-            securityManager_mock.checkPermission("View", container)
-        ).result(False)
-
-        # run 2
-        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
-        self.expect(fti_mock.behaviors).result(tuple())
-        self.expect(
-            securityManager_mock.checkPermission("View foo", container)
-        ).result(True)
-
-        # run 3
-        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
-        self.expect(fti_mock.behaviors).result(tuple())
-
-        # # run 4
-        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
-        self.expect(fti_mock.behaviors).result([ITestBehavior.__identifier__])
-        self.expect(
-            securityManager_mock.checkPermission("View", container)
-        ).result(True)
-
-        # # run 5
-        self.expect(fti_mock.lookupSchema()).result(None)
-        self.expect(fti_mock.behaviors).result([ITestBehavior.__identifier__])
-        self.expect(
-            securityManager_mock.checkPermission("View", container)
-        ).result(True)
-
-        # for all 5 runs
-        self.expect(
-            getSecurityManager_mock()
-        ).result(
-            securityManager_mock
-        ).count(4)
-
-        self.mocker.replay()
+        security_manager_mock = Mock()
+        from AccessControl import getSecurityManager
+        self.patch_global(
+            getSecurityManager, return_value=security_manager_mock)
 
         # run 1: schema and no behavior access to schema protected attribute
+        security_manager_mock.checkPermission = Mock(return_value=False)
         SCHEMA_CACHE.clear()
         self.assertFalse(
             container.__allow_access_to_unprotected_subobjects__(
@@ -292,8 +222,11 @@ class TestAttributeProtection(MockTestCase):
                 u"foo"
             )
         )
+        security_manager_mock.checkPermission.assert_called_with(
+            'View', container)
 
-        # # run 2: schema and no behavior access to known non schema attribute
+        # run 2: schema and no behavior access to known non schema attribute
+        security_manager_mock.checkPermission = Mock(return_value=True)
         SCHEMA_CACHE.clear()
         self.assertTrue(
             container.__allow_access_to_unprotected_subobjects__(
@@ -301,8 +234,10 @@ class TestAttributeProtection(MockTestCase):
                 u"bar"
             )
         )
+        security_manager_mock.checkPermission.assert_called_with(
+            'View foo', container)
 
-        # # run 3: schema and no behavior, unknown attributes are allowed
+        # run 3: schema and no behavior, unknown attributes are allowed
         SCHEMA_CACHE.clear()
         self.assertTrue(
             container.__allow_access_to_unprotected_subobjects__(
@@ -311,7 +246,9 @@ class TestAttributeProtection(MockTestCase):
             )
         )
 
-        # # run 4: schema and behavior
+        # run 4: schema and behavior
+        security_manager_mock.checkPermission = Mock(return_value=True)
+        fti_mock.behaviors = [ITestBehavior.__identifier__]
         SCHEMA_CACHE.clear()
         self.assertTrue(
             container.__allow_access_to_unprotected_subobjects__(
@@ -319,8 +256,12 @@ class TestAttributeProtection(MockTestCase):
                 u"foo2"
             )
         )
+        security_manager_mock.checkPermission.assert_called_with(
+            'View', container)
 
         # run 5: no schema but behavior
+        fti_mock.lookupSchema = Mock(return_value=None)
+        security_manager_mock.checkPermission = Mock(return_value=True)
         SCHEMA_CACHE.clear()
         self.assertTrue(
             container.__allow_access_to_unprotected_subobjects__(
@@ -328,6 +269,8 @@ class TestAttributeProtection(MockTestCase):
                 u"foo2"
             )
         )
+        security_manager_mock.checkPermission.assert_called_with(
+            'View', container)
 
     def test_no_tagged_value(self):
 
@@ -336,9 +279,9 @@ class TestAttributeProtection(MockTestCase):
             test = zope.schema.TextLine(title=u"Test")
 
         # Mock FTI
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
-        self.expect(fti_mock.behaviors).result(tuple())
+        fti_mock = DexterityFTI(u"testtype")
+        fti_mock.lookupSchema = Mock(return_value=ITestSchema)
+        fti_mock.behaviors = ()
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
         # Content item
@@ -346,8 +289,6 @@ class TestAttributeProtection(MockTestCase):
         item.portal_type = u"testtype"
         item.test = u"foo"
         item.foo = u"bar"
-
-        self.mocker.replay()
 
         SCHEMA_CACHE.clear()
 
@@ -372,9 +313,9 @@ class TestAttributeProtection(MockTestCase):
         ITestSchema.setTaggedValue(READ_PERMISSIONS_KEY, dict(foo='foo.View'))
 
         # Mock FTI
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ITestSchema)
-        self.expect(fti_mock.behaviors).result(tuple())
+        fti_mock = DexterityFTI(u"testtype")
+        fti_mock.lookupSchema = Mock(return_value=ITestSchema)
+        fti_mock.behaviors = ()
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
@@ -390,18 +331,11 @@ class TestAttributeProtection(MockTestCase):
         item.foo = u"bar"
 
         # Check permission
-        securityManager_mock = self.mocker.mock()
-        self.expect(
-            securityManager_mock.checkPermission("View foo", item)
-        ).result(True)
-        getSecurityManager_mock = self.mocker.replace(
-            'AccessControl.getSecurityManager'
-        )
-        self.expect(
-            getSecurityManager_mock()
-        ).result(securityManager_mock).count(1)
-
-        self.mocker.replay()
+        security_manager_mock = Mock()
+        security_manager_mock.checkPermission = Mock(return_value=True)
+        from AccessControl import getSecurityManager
+        self.patch_global(
+            getSecurityManager, return_value=security_manager_mock)
 
         SCHEMA_CACHE.clear()
 
@@ -420,9 +354,9 @@ class TestAttributeProtection(MockTestCase):
     def test_no_schema(self):
 
         # Mock FTI
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(None)
-        self.expect(fti_mock.behaviors).result(tuple())
+        fti_mock = DexterityFTI(u"testtype")
+        fti_mock.lookupSchema = Mock(return_value=None)
+        fti_mock.behaviors = ()
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
         # Content item
@@ -430,8 +364,6 @@ class TestAttributeProtection(MockTestCase):
         item.portal_type = u"testtype"
         item.test = u"foo"
         item.foo = u"bar"
-
-        self.mocker.replay()
 
         SCHEMA_CACHE.clear()
 
@@ -448,10 +380,9 @@ class TestAttributeProtection(MockTestCase):
     def test_schema_exception(self):
 
         # Mock FTI
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-
-        self.expect(fti_mock.lookupSchema()).throw(AttributeError)
-        self.expect(fti_mock.behaviors).result(tuple())
+        fti_mock = DexterityFTI(u"testtype")
+        fti_mock.lookupSchema = Mock(side_effect=AttributeError)
+        fti_mock.behaviors = ()
 
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
@@ -460,8 +391,6 @@ class TestAttributeProtection(MockTestCase):
         item.portal_type = u"testtype"
         item.test = u"foo"
         item.foo = u"bar"
-
-        self.mocker.replay()
 
         SCHEMA_CACHE.clear()
 
@@ -478,23 +407,15 @@ class TestAttributeProtection(MockTestCase):
     def test_empty_name(self):
 
         # Mock FTI
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).count(0)
-        self.expect(fti_mock.behaviors).count(0)
+        fti_mock = DexterityFTI(u"testtype")
         self.mock_utility(fti_mock, IDexterityFTI, u'testtype')
 
         # Content item
         item = Item('test')
         item.portal_type = u"testtype"
 
-        self.mocker.replay()
-
         SCHEMA_CACHE.clear()
 
         self.assertTrue(
             item.__allow_access_to_unprotected_subobjects__('', u"foo")
         )
-
-
-def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromName(__name__)

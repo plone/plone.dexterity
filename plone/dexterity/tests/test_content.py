@@ -2,6 +2,7 @@
 from DateTime import DateTime
 from Products.CMFPlone.interfaces import IConstrainTypes
 from datetime import date, datetime
+from mock import Mock
 from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.behavior.registration import BehaviorRegistration
@@ -14,15 +15,14 @@ from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
-from plone.mocktestcase import MockTestCase
 from pytz import timezone
 from zope.annotation.attribute import AttributeAnnotations
 from zope.component import getUtility
 from zope.component import provideAdapter
 from zope.interface import Interface
 from zope.interface import alsoProvides
+from .case import MockTestCase
 
-import unittest
 import zope.schema
 
 
@@ -59,12 +59,9 @@ class TestContent(MockTestCase):
             pass
 
         # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        fti_mock = Mock(wraps=DexterityFTI('testtype'))
+        fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.expect(fti_mock.lookupSchema()).result(ISchema)
-
-        self.replay()
 
         self.assertFalse(ISchema.implementedBy(Item))
 
@@ -73,8 +70,9 @@ class TestContent(MockTestCase):
 
         # If the _v_ attribute cache does not work, then we'd expect to have
         # to look up the schema more than once (since we invalidated)
-        # the cache. This is not the case, as evidenced by .count(1) above.
+        # the cache. This is not the case:
         self.assertTrue(ISchema.providedBy(item))
+        self.assertEqual(fti_mock.lookupSchema.call_count, 1)
 
         # We also need to ensure that the _v_ attribute doesn't hide any
         # interface set directly on the instance with alsoProvides() or
@@ -116,11 +114,9 @@ class TestContent(MockTestCase):
             pass
 
         # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
+        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
 
         self.assertFalse(ISchema.implementedBy(MyItem))
 
@@ -129,15 +125,15 @@ class TestContent(MockTestCase):
 
         # If the _v_ attribute cache does not work, then we'd expect to have
         # to look up the schema more than once (since we invalidated)
-        # the cache. This is not the case, as evidenced by .count(1) above.
+        # the cache. This is not the case:
         self.assertTrue(ISchema.providedBy(item))
+        self.assertEqual(fti_mock.lookupSchema.call_count, 1)
 
         # We also need to ensure that the _v_ attribute doesn't hide any
         # interface set directly on the instance with alsoProvides() or
         # directlyProvides(). This is done by clearing the cache when these
         # are invoked.
         alsoProvides(item, IMarker)
-
         self.assertTrue(IMarker.providedBy(item))
         self.assertTrue(ISchema.providedBy(item))
 
@@ -164,11 +160,9 @@ class TestContent(MockTestCase):
             pass
 
         # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
+        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
 
         self.assertFalse(ISchema.implementedBy(MyItem))
 
@@ -177,15 +171,15 @@ class TestContent(MockTestCase):
 
         # If the _v_ attribute cache does not work, then we'd expect to have
         # to look up the schema more than once (since we invalidated)
-        # the cache. This is not the case, as evidenced by .count(1) above.
+        # the cache. This is not the case:
         self.assertTrue(ISchema.providedBy(item))
+        self.assertEqual(fti_mock.lookupSchema.call_count, 1)
 
         # We also need to ensure that the _v_ attribute doesn't hide any
         # interface set directly on the instance with alsoProvides() or
         # directlyProvides(). This is done by clearing the cache when these
         # are invoked.
         alsoProvides(item, IMarker)
-
         self.assertTrue(IMarker.providedBy(item))
         self.assertTrue(ISchema.providedBy(item))
 
@@ -223,9 +217,8 @@ class TestContent(MockTestCase):
             bar = zope.schema.TextLine(title=u"bar")
 
         # Schema is not implemented by class or provided by instance
-        # XXX :no assert before replay
-        # self.assertFalse(ISchema.implementedBy(MyItem))
-        # self.assertFalse(ISchema.providedBy(item))
+        self.assertFalse(ISchema.implementedBy(MyItem))
+        self.assertFalse(ISchema.providedBy(item))
 
         # Behaviors - one with a subtype and one without
         self.mock_adapter(
@@ -262,14 +255,11 @@ class TestContent(MockTestCase):
         self.mock_utility(behavior2, IBehavior, name="behavior2")
 
         # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
+        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock.lookupSchema = Mock(return_value=ISchema)
+        fti_mock.behaviors = ['behavior1', 'behavior2']
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        # expectations
-        self.expect(fti_mock.lookupSchema()).result(ISchema)
-        self.expect(fti_mock.behaviors).result(['behavior1', 'behavior2'])
-
-        self.replay()
+        alsoProvides(fti_mock, IDexterityFTI)
 
         # start clean
         SCHEMA_CACHE.clear()
@@ -334,9 +324,8 @@ class TestContent(MockTestCase):
             bar = zope.schema.TextLine(title=u"bar")
 
         # Schema is not implemented by class or provided by instance
-        # XXX :no assert before replay
-        # self.assertFalse(ISchema.implementedBy(MyItem))
-        # self.assertFalse(ISchema.providedBy(item))
+        self.assertFalse(ISchema.implementedBy(MyItem))
+        self.assertFalse(ISchema.providedBy(item))
 
         # Behaviors - one with a marker and one without
         class IBehavior1(Interface):
@@ -388,25 +377,13 @@ class TestContent(MockTestCase):
         )
 
         # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-
-        # twice, since we invalidate
-        self.expect(fti_mock.lookupSchema()).result(ISchema).count(2)
-
-        # First time around, we have only these behaviors
-        self.expect(fti_mock.behaviors).result(
-            ['behavior1', 'behavior2']).count(1)
-
-        # Second time around, we add another one
-        self.expect(fti_mock.behaviors).result(
-            ['behavior1', 'behavior2', 'behavior3']).count(1)
-
+        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
 
         # start clean
         SCHEMA_CACHE.invalidate('testtype')
+        fti_mock.behaviors = ['behavior1', 'behavior2']
 
         # implementedBy does not look into the fti
         self.assertFalse(ISchema.implementedBy(MyItem))
@@ -423,6 +400,7 @@ class TestContent(MockTestCase):
         # If we now invalidate the schema cache, we should get the
         # SECOND set of behaviors (which includes behavior3)
         SCHEMA_CACHE.invalidate('testtype')
+        fti_mock.behaviors = ['behavior1', 'behavior2', 'behavior3']
 
         # Main schema as looked up in FTI is now provided by item ...
         self.assertTrue(ISchema.providedBy(item))
@@ -452,11 +430,9 @@ class TestContent(MockTestCase):
             bar = zope.schema.TextLine(title=u"bar")
 
         # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema)
+        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
 
         SCHEMA_CACHE.invalidate('testtype')
 
@@ -476,11 +452,9 @@ class TestContent(MockTestCase):
             bar = zope.schema.TextLine(title=u"bar")
 
         # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema)
+        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
 
         SCHEMA_CACHE.invalidate('testtype')
 
@@ -508,11 +482,9 @@ class TestContent(MockTestCase):
             bar = zope.schema.TextLine(title=u"bar")
 
         # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema)
+        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
 
         SCHEMA_CACHE.invalidate('testtype')
 
@@ -535,11 +507,9 @@ class TestContent(MockTestCase):
             bar = zope.schema.TextLine(title=u"bar")
 
         # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema)
+        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
 
         SCHEMA_CACHE.invalidate('testtype')
 
@@ -563,12 +533,8 @@ class TestContent(MockTestCase):
         containerOptions = [o['label'] for o in Container.manage_options]
         tabs = [
             'Security',
-            'View',
             'Contents',
             'Properties',
-            'Undo',
-            'Ownership',
-            'Interfaces'
         ]
         for tab in tabs:
             self.assertTrue(tab in containerOptions, "Tab %s not found" % tab)
@@ -581,9 +547,6 @@ class TestContent(MockTestCase):
             'Security',
             'View',
             'Properties',
-            'Undo',
-            'Ownership',
-            'Interfaces',
         ]
         for tab in tabs:
             self.assertTrue(tab in containerOptions, "Tab %s not found" % tab)
@@ -936,6 +899,11 @@ class TestContent(MockTestCase):
         c = Container(description=None)
         self.assertEqual('', c.Description())
 
+    def test_Description_removes_newlines(self):
+        i = Item()
+        i.description = u'foo\r\nbar\nbaz\r'
+        self.assertEqual('foo bar baz ', i.Description())
+
     def test_Subject_converts_to_utf8(self):
         i = Item()
         i.subject = (u"é",)
@@ -1000,11 +968,9 @@ class TestContent(MockTestCase):
             listfield = zope.schema.List(title=u"listfield", default=[1, 2])
 
         # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.lookupSchema()).result(ISchema).count(1)
+        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
 
         # Ensure that the field of foo is not the same field, also attached to
         # bar.
@@ -1047,11 +1013,8 @@ class TestContent(MockTestCase):
             DummyConstrainTypes, IConstrainTypes, (IDexterityContainer, ))
 
         # FTI mock
-        fti_mock = self.mocker.proxy(DexterityFTI(u"testtype"))
-        self.expect(fti_mock.getId()).result(u"testtype")
+        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
-
-        self.replay()
 
         folder = Container(id="testfolder")
 
@@ -1091,14 +1054,13 @@ class TestContent(MockTestCase):
         container.manage_permission('View', ('Anonymous',))
         container['test'] = content
         content = container['test']
-        fti = self.mocker.mock()
-        self.expect(fti.isConstructionAllowed(container)).result(False)
-        self.mock_utility(fti, ITypeInformation, name='document')
-        pt = self.mocker.mock()
-        self.expect(pt.getTypeInfo('document')).result(None)
-        self.expect(pt.getTypeInfo(container)).result(None)
-        self.mock_tool(pt, 'portal_types')
-        self.replay()
+        fti_mock = Mock()
+        fti_mock.isConstructionAllowed = Mock(return_value=False)
+        self.mock_utility(fti_mock, ITypeInformation, name='document')
+        mock_pt = Mock()
+        mock_pt.getTypeInfo = Mock(return_value=None)
+        self.mock_tool(mock_pt, 'portal_types')
+
         self.assertRaises(
             ValueError,
             container._verifyObjectPaste,
@@ -1120,16 +1082,11 @@ class TestContent(MockTestCase):
         container.manage_permission('View', ('Anonymous',))
         container['test'] = content
         content = container['test']
-        fti = self.mocker.mock()
-        self.expect(fti.isConstructionAllowed(container)).result(True)
-        self.mock_utility(fti, ITypeInformation, name='document')
-        pt = self.mocker.mock()
-        self.expect(pt.getTypeInfo('document')).result(None)
-        self.expect(pt.getTypeInfo(container)).result(None)
-        self.mock_tool(pt, 'portal_types')
-        self.replay()
+        mock_fti = Mock()
+        mock_fti.isConstructionAllowed = Mock(return_value=True)
+        self.mock_utility(mock_fti, ITypeInformation, name='document')
+        mock_pt = Mock()
+        mock_pt.getTypeInfo = Mock(return_value=None)
+        self.mock_tool(mock_pt, 'portal_types')
+
         container._verifyObjectPaste(content, True)
-
-
-def test_suite():
-    return unittest.defaultTestLoader.loadTestsFromName(__name__)
