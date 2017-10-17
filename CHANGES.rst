@@ -5,17 +5,9 @@ Changelog
 2.5.3 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
-- *add item here*
+- Give more context to the 'schema cannot be resolved' warning.  [gotcha]
 
 
 2.5.2 (2017-06-03)
