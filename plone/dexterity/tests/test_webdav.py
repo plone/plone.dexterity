@@ -455,7 +455,8 @@ class TestFolderDataResource(MockTestCase):
             'close',
             response.getHeader('Connection', literal=True)
         )
-        self.assertEqual('text/foo', response.getHeader('Content-Type'))
+        self.assertTrue(
+            response.getHeader('Content-Type').startswith('text/foo'))
         self.assertEqual('10', response.getHeader('Content-Length'))
 
     def test_OPTIONS(self):
