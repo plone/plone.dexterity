@@ -15,6 +15,7 @@ from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
+from Products.CMFCore.interfaces import ITypesTool
 from pytz import timezone
 from zope.annotation.attribute import AttributeAnnotations
 from zope.component import getUtility
@@ -1060,6 +1061,7 @@ class TestContent(MockTestCase):
         mock_pt = Mock()
         mock_pt.getTypeInfo = Mock(return_value=None)
         self.mock_tool(mock_pt, 'portal_types')
+        self.mock_utility(mock_pt, ITypesTool)
 
         self.assertRaises(
             ValueError,
@@ -1088,5 +1090,6 @@ class TestContent(MockTestCase):
         mock_pt = Mock()
         mock_pt.getTypeInfo = Mock(return_value=None)
         self.mock_tool(mock_pt, 'portal_types')
+        self.mock_utility(mock_pt, ITypesTool)
 
         container._verifyObjectPaste(content, True)
