@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
-from StringIO import StringIO
 from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.Iterators import IStreamIterator
 from email.Message import Message
 from mock import Mock
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehaviorAssignable
+from plone.dexterity._compat import StringIO
 from plone.dexterity.browser.traversal import DexterityPublishTraverse
 from plone.dexterity.content import Container
 from plone.dexterity.content import Item
