@@ -5,14 +5,6 @@ Changelog
 2.5.4 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Fix tests on Zope 4. [davisagli]
