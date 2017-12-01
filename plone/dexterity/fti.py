@@ -186,7 +186,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
         # Set the content_meta_type from the klass
 
-        klass = utils.resolveDottedName(self.klass)
+        klass = utils.resolveDottedName(self.klass) if self.klass else None
         if klass is not None:
             self.content_meta_type = getattr(klass, 'meta_type', None)
 
@@ -218,7 +218,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         if self.content_meta_type:
             return self.content_meta_type
         # BBB - this didn't use to be set
-        klass = utils.resolveDottedName(self.klass)
+        klass = utils.resolveDottedName(self.klass) if self.klass else None
         if klass is not None:
             self.content_meta_type = getattr(klass, 'meta_type', None)
         return self.content_meta_type
@@ -291,7 +291,9 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
             # Update meta_type from klass
             if id == 'klass':
-                klass = utils.resolveDottedName(new_value)
+                klass = None
+                if new_value:
+                    klass = utils.resolveDottedName(new_value)
                 if klass is not None:
                     self.content_meta_type = getattr(klass, 'meta_type', None)
 

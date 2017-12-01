@@ -15,7 +15,9 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fix ft._updateProperty so it doesn't break when receiving an empty value.
+  This happens when an DX FTI is part of a Generic Setup baseline import.
+  [jaroel]
 
 
 2.6.0 (2018-04-03)
