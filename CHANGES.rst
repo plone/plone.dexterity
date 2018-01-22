@@ -25,6 +25,9 @@ Bug fixes:
 
 - Fix tests on Zope 4. [davisagli]
 
+- Fix imports for Python 3
+  [pbauer]
+
 
 2.5.3 (2017-10-17)
 ------------------

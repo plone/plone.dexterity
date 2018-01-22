@@ -7,9 +7,9 @@ from Products.GenericSetup.interfaces import IContentFactoryName
 from Products.GenericSetup.interfaces import IFilesystemExporter
 from Products.GenericSetup.interfaces import IFilesystemImporter
 from Products.GenericSetup.utils import _getDottedName
-from StringIO import StringIO
 from csv import reader
 from csv import writer
+from plone.dexterity._compat import StringIO
 from zope.component import queryAdapter
 from zope.interface import implementer
 
