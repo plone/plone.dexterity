@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-from OFS.Folder import Folder
-from OFS.SimpleItem import SimpleItem
-from StringIO import StringIO
-from ZPublisher.HTTPResponse import HTTPResponse
-from ZPublisher.Iterators import IStreamIterator
+from .case import Dummy
+from .case import MockTestCase
 from email.Message import Message
 from mock import Mock
+from OFS.Folder import Folder
+from OFS.SimpleItem import SimpleItem
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.browser.traversal import DexterityPublishTraverse
@@ -21,6 +20,7 @@ from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.rfc822.interfaces import IPrimaryField
+from six import StringIO
 from webdav.NullResource import NullResource
 from zExceptions import Forbidden
 from zExceptions import MethodNotAllowed
@@ -31,14 +31,14 @@ from zope.filerepresentation.interfaces import IDirectoryFactory
 from zope.filerepresentation.interfaces import IFileFactory
 from zope.filerepresentation.interfaces import IRawReadFile
 from zope.filerepresentation.interfaces import IRawWriteFile
-from zope.interface import Interface
 from zope.interface import alsoProvides
 from zope.interface import implementer
+from zope.interface import Interface
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.publisher.browser import TestRequest
 from zope.size.interfaces import ISized
-from .case import Dummy
-from .case import MockTestCase
+from ZPublisher.HTTPResponse import HTTPResponse
+from ZPublisher.Iterators import IStreamIterator
 
 import re
 
@@ -1121,7 +1121,7 @@ Portal-Type: testtype
         # next
 
         self.assertEqual(body, readfile.read())
-        self.assertEqual(69L, readfile.size())
+        self.assertEqual(69, readfile.size())
         self.assertEqual('utf-8', readfile.encoding)
         self.assertEqual(None, readfile.name)
         self.assertEqual('text/plain', readfile.mimeType)

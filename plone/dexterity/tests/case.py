@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from mock import Mock
 import gc
+import six
 import unittest
 import zope.component
 import zope.component.testing
@@ -94,6 +95,6 @@ def _global_replace(remove, install):
     """Replace object 'remove' with object 'install' on all dictionaries."""
     for referrer in gc.get_referrers(remove):
         if (type(referrer) is dict):
-            for key, value in list(referrer.iteritems()):
+            for key, value in list(six.iteritems(referrer)):
                 if value is remove:
                     referrer[key] = install

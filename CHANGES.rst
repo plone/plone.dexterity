@@ -15,7 +15,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Prepare for Python 2 / 3 compatibility
+  [pbauer]
 
 
 2.5.4 (2017-11-24)

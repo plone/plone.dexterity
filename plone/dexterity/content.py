@@ -47,6 +47,9 @@ from zope.interface.declarations import implementedBy
 from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
 
+import six
+
+
 _marker = object()
 _zone = DateTime().timezone()
 FLOOR_DATE = DateTime(1970, 0)  # always effective
@@ -360,10 +363,10 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     # that can't be encoded to ASCII will throw a UnicodeEncodeError
 
     def _get__name__(self):
-        return unicode(self.id)
+        return six.text_type(self.id)
 
     def _set__name__(self, value):
-        if isinstance(value, unicode):
+        if isinstance(value, six.text_type):
             value = str(value)  # may throw, but that's OK - id must be ASCII
         self.id = value
 
@@ -410,7 +413,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     @security.protected(permissions.View)
     def Title(self):
         # this is a CMF accessor, so should return utf8-encoded
-        if isinstance(self.title, unicode):
+        if isinstance(self.title, six.text_type):
             return self.title.encode('utf-8')
         return self.title or ''
 
@@ -425,7 +428,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         value = value.replace('\r\n', ' ').replace('\r', ' ').replace('\n', ' ')  # noqa
 
         # this is a CMF accessor, so should return utf8-encoded
-        if isinstance(value, unicode):
+        if isinstance(value, six.text_type):
             value = value.encode('utf-8')
 
         return value
@@ -599,21 +602,21 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     @security.protected(permissions.ModifyPortalContent)
     def setCreators(self, creators):
         # Set Dublin Core Creator elements - resource authors.
-        if isinstance(creators, basestring):
+        if isinstance(creators, six.string_types):
             creators = [creators]
         self.creators = tuple(safe_unicode(c.strip()) for c in creators)
 
     @security.protected(permissions.ModifyPortalContent)
     def setSubject(self, subject):
         # Set Dublin Core Subject element - resource keywords.
-        if isinstance(subject, basestring):
+        if isinstance(subject, six.string_types):
             subject = [subject]
         self.subject = tuple(safe_unicode(s.strip()) for s in subject)
 
     @security.protected(permissions.ModifyPortalContent)
     def setContributors(self, contributors):
         # Set Dublin Core Contributor elements - resource collaborators.
-        if isinstance(contributors, basestring):
+        if isinstance(contributors, six.string_types):
             contributors = contributors.split(';')
         self.contributors = tuple(
             safe_unicode(c.strip()) for c in contributors)
@@ -718,7 +721,7 @@ class Container(
         """
         if ids is None:
             ids = []
-        if isinstance(ids, basestring):
+        if isinstance(ids, six.string_types):
             ids = [ids]
         for id in ids:
             item = self._getOb(id)
@@ -756,9 +759,7 @@ class Container(
             if fti is not None and not fti.isConstructionAllowed(self):
                 raise Unauthorized('Cannot create %s' % fti.getId())
 
-            allowed_ids = [
-                fti.getId() for fti in constrains.allowedContentTypes()
-            ]
+            allowed_ids = [i.getId() for i in constrains.allowedContentTypes()]
             if type_name not in allowed_ids:
                 raise ValueError(
                     'Subobject type disallowed by IConstrainTypes adapter: %s'

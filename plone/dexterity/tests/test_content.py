@@ -24,6 +24,7 @@ from zope.interface import Interface
 from zope.interface import alsoProvides
 from .case import MockTestCase
 
+import six
 import zope.schema
 
 
@@ -588,7 +589,7 @@ class TestContent(MockTestCase):
         self.assertEqual("o", i.id)
         self.assertEqual("o", i.getId())
 
-        self.assertTrue(isinstance(i.__name__, unicode))
+        self.assertTrue(isinstance(i.__name__, six.text_type))
         self.assertTrue(isinstance(i.id, str))
         self.assertTrue(isinstance(i.getId(), str))
 

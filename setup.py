@@ -52,6 +52,7 @@ setup(
         'Products.CMFDynamicViewFTI',
         'Products.statusmessages',
         'setuptools',
+        'six',
         'ZODB3',
         'zope.annotation',
         'zope.browser',

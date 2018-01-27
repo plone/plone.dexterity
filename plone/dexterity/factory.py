@@ -39,7 +39,7 @@ class DexterityFactory(Persistent, Factory):
 
         try:
             obj = klass(*args, **kw)
-        except TypeError, e:
+        except TypeError as e:
             raise ValueError(
                 "Error whilst constructing content for %s using class %s: %s"
                 % (self.portal_type, fti.klass, str(e))
