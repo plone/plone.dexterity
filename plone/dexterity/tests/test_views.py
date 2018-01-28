@@ -37,6 +37,8 @@ from zope.publisher.browser import TestRequest as TestRequestBase
 from .case import MockTestCase
 from zope import schema
 
+import six
+
 
 class TestRequest(TestRequestBase):
     """Zope 3's TestRequest doesn't support item assignment, but Zope 2's
@@ -251,7 +253,7 @@ class TestAddView(MockTestCase):
         addform.portal_type = u"testtype"
 
         label = addform.label
-        self.assertEqual(u"Add ${name}", unicode(label))
+        self.assertEqual(u"Add ${name}", six.text_type(label))
         self.assertEqual(u"Test title", label.mapping['name'])
 
     def test_schema_lookup_add(self):
@@ -484,7 +486,7 @@ class TestEditView(MockTestCase):
         editview.portal_type = u"testtype"
 
         label = editview.label
-        self.assertEqual(u"Edit ${name}", unicode(label))
+        self.assertEqual(u"Edit ${name}", six.text_type(label))
         self.assertEqual(u"Test title", label.mapping['name'])
 
     def test_schema_lookup_edit(self):

@@ -24,6 +24,8 @@ from zope.lifecycleevent import ObjectCreatedEvent
 
 import datetime
 import logging
+import six
+
 
 deprecation.deprecated(
     'SchemaNameEncoder',
@@ -198,7 +200,7 @@ def createContentInContainer(container, portal_type, checkConstraints=True,
 
 
 def safe_utf8(st):
-    if isinstance(st, unicode):
+    if isinstance(st, six.text_type):
         st = st.encode('utf8')
     return st
 
