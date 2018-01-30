@@ -23,13 +23,13 @@ from zope.interface.interface import InterfaceClass
 
 import functools
 import logging
-import new
+import types
 
 log = logging.getLogger(__name__)
 
 # Dynamic modules
 generated = dynamic.create('plone.dexterity.schema.generated')
-transient = new.module("transient")
+transient = types.ModuleType('transient')
 
 _MARKER = dict()
 
