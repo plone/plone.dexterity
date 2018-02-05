@@ -2,6 +2,22 @@ Changelog
 =========
 
 
+2.5.6 (unreleased)
+------------------
+
+Breaking changes:
+
+- *add item here*
+
+New features:
+
+- *add item here*
+
+Bug fixes:
+
+- *add item here*
+
+
 2.5.5 (2018-02-05)
 ------------------
 
