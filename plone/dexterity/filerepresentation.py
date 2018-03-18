@@ -4,6 +4,7 @@ from Acquisition import Implicit
 from email.generator import Generator
 from email.message import Message
 from email.parser import FeedParser
+from plone.dexterity import bbb
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.interfaces import IDexterityContainer
 from plone.dexterity.interfaces import IDexterityContent
@@ -13,7 +14,6 @@ from plone.rfc822 import constructMessageFromSchemata
 from plone.rfc822 import initializeObjectFromSchemata
 from plone.rfc822.interfaces import IPrimaryField
 from Products.CMFCore.utils import getToolByName
-from webdav.Resource import Resource
 from zExceptions import MethodNotAllowed
 from zExceptions import Unauthorized
 from zope.component import adapter
@@ -34,6 +34,11 @@ import tempfile
 from AccessControl.class_init import InitializeClass
 from AccessControl import ClassSecurityInfo
 from Products.CMFCore import permissions
+
+if bbb.HAS_ZSERVER:
+    from webdav.Resource import Resource
+else:
+    Resource = bbb.Resource
 
 
 class DAVResourceMixin(object):
