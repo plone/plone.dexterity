@@ -4,8 +4,6 @@
     xmlns:five="http://namespaces.zope.org/five"
     i18n_domain="plone">
 
-    <i18n:registerTranslations directory="locales"/>
-
     <include package="Products.CMFCore" />
 
     <include package="plone.behavior" />
