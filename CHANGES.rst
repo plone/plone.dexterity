@@ -11,7 +11,8 @@ Breaking changes:
 
 New features:
 
-- *add item here*
+- Move translations to plone.app.locales
+  [erral]
 
 Bug fixes:
 
