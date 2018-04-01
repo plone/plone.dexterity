@@ -211,7 +211,7 @@ def safe_utf8(st):
 
 
 def safe_unicode(st):
-    if isinstance(st, str):
+    if isinstance(st, six.binary_type):
         st = st.decode('utf8')
     return st
 
