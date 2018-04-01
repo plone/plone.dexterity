@@ -22,9 +22,11 @@ from zope.interface import implementer
 from zope.lifecycleevent import modified
 from zope.security.interfaces import IPermission
 from zope.site.hooks import getSiteManager
+
 import logging
 import os.path
 import plone.dexterity.schema
+import six
 
 
 @implementer(IDexterityFTIModificationDescription)
@@ -192,25 +194,28 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
     def Title(self):
         if self.title and self.i18n_domain:
-            try:
-                return Message(self.title.decode('utf8'), self.i18n_domain)
-            except UnicodeDecodeError:
-                return Message(self.title.decode('latin-1'), self.i18n_domain)
+            if six.PY2:
+                try:
+                    return Message(self.title.decode('utf8'), self.i18n_domain)
+                except UnicodeDecodeError:
+                    return Message(
+                        self.title.decode('latin-1'), self.i18n_domain)
+            else:
+                return Message(self.title, self.i18n_domain)
         else:
             return self.title or self.getId()
 
     def Description(self):
         if self.description and self.i18n_domain:
-            try:
-                return Message(
-                    self.description.decode('utf8'),
-                    self.i18n_domain
-                )
-            except UnicodeDecodeError:
-                return Message(
-                    self.description.decode('latin-1'),
-                    self.i18n_domain
-                )
+            if six.PY2:
+                try:
+                    return Message(
+                        self.description.decode('utf8'), self.i18n_domain)
+                except UnicodeDecodeError:
+                    return Message(
+                        self.description.decode('latin-1'), self.i18n_domain)
+            else:
+                return Message(self.description, self.i18n_domain)
         else:
             return self.description
 

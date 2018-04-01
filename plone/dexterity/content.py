@@ -445,7 +445,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         # List Dublin Core Creator elements - resource authors.
         if self.creators is None:
             return ()
-        return tuple(safe_utf8(c) for c in self.creators)
+        if six.PY2:
+            return tuple(safe_utf8(c) for c in self.creators)
+        return self.creators
 
     @security.protected(permissions.View)
     def Creator(self):
@@ -458,7 +460,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         # Dublin Core Subject element - resource keywords.
         if self.subject is None:
             return ()
-        return tuple(safe_utf8(s) for s in self.subject)
+        if six.PY2:
+            return tuple(safe_utf8(s) for s in self.subject)
+        return tuple(self.subject)
 
     @security.protected(permissions.View)
     def Publisher(self):
@@ -468,7 +472,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     @security.protected(permissions.View)
     def listContributors(self):
         # Dublin Core Contributor elements - resource collaborators.
-        return tuple(safe_utf8(c) for c in self.contributors)
+        if six.PY2:
+            return tuple(safe_utf8(c) for c in self.contributors)
+        return tuple(self.contributors)
 
     @security.protected(permissions.View)
     def Contributors(self):
@@ -539,7 +545,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     @security.protected(permissions.View)
     def Rights(self):
         # Dublin Core Rights element - resource copyright.
-        return safe_utf8(self.rights)
+        if six.PY2:
+            return safe_utf8(self.rights)
+        return self.rights
 
     # ICatalogableDublinCore
 
