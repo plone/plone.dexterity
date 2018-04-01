@@ -2,6 +2,7 @@
 from AccessControl import Unauthorized
 from Acquisition import aq_base
 from Acquisition import aq_inner
+from copy import copy
 from DateTime import DateTime
 from plone.app.uuid.utils import uuidToObject
 from plone.autoform.interfaces import IFormFieldProvider
@@ -128,7 +129,8 @@ def createContent(portal_type, **kw):
     # existing type, but wants a unique portal_type!
     content.portal_type = fti.getId()
     schemas = iterSchemataForType(portal_type)
-    fields = dict(kw)  # create a copy
+    fields = kw
+    fields_copy = copy(kw)
 
     for schema in schemas:
         # schema.names() doesn't return attributes from superclasses in derived
@@ -136,7 +138,7 @@ def createContent(portal_type, **kw):
         # keywords arguments and set it, if the behavior has the questioned
         # attribute.
         behavior = schema(content)
-        for name, value in fields.items():
+        for name, value in fields_copy.items():
             try:
                 # hasattr swallows exceptions.
                 getattr(behavior, name)
@@ -144,7 +146,10 @@ def createContent(portal_type, **kw):
                 # fieldname not available
                 continue
             setattr(behavior, name, value)
-            del fields[name]
+            try:
+                del fields[name]
+            except KeyError:
+                pass
 
     for (key, value) in fields.items():
         setattr(content, key, value)
