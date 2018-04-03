@@ -2,6 +2,22 @@ Changelog
 =========
 
 
+2.6.1 (unreleased)
+------------------
+
+Breaking changes:
+
+- *add item here*
+
+New features:
+
+- *add item here*
+
+Bug fixes:
+
+- *add item here*
+
+
 2.6.0 (2018-04-03)
 ------------------
 
