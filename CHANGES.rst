@@ -5,10 +5,6 @@ Changelog
 2.6.0 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
 New features:
 
 - Move translations to plone.app.locales
