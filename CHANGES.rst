@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.5.6 (unreleased)
+2.6.0 (unreleased)
 ------------------
 
 Breaking changes:
