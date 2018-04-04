@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.4.6 (unreleased)
+2.4.6 (2018-04-04)
 ------------------
 
 New features:
