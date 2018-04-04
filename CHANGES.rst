@@ -5,18 +5,10 @@ Changelog
 2.4.6 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
 New features:
 
 - Move translations to plone.app.locales
   [erral]
-
-Bug fixes:
-
-- *add item here*
 
 
 2.4.5 (2016-11-19)
