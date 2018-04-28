@@ -11,11 +11,13 @@ Breaking changes:
 
 New features:
 
-- *add item here*
+- ZServer is now optional
+  [pbauer]
 
 Bug fixes:
 
-- *add item here*
+- Other Python 3 compatibility fixes
+  [ale-rt, pbauer]
 
 
 2.6.0 (2018-04-03)
