@@ -132,7 +132,7 @@ class SchemaCache(object):
             return tuple()
         registrations = []
         for behavior_name in fti.behaviors:
-            if not isinstance(behavior_name, six.strin_types):
+            if not isinstance(behavior_name, six.string_types):
                 behavior_name = behavior_name.decode()
             registration = queryUtility(IBehavior, name=behavior_name)
             if registration is None:
