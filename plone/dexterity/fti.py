@@ -44,6 +44,10 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
     meta_type = "Dexterity FTI"
 
+    behaviors_type = 'ulines'
+    if six.PY2:
+        behaviors_type = 'lines'
+
     _properties = base.DynamicViewTypeInformation._properties + (
         {
             'id': 'add_permission',
@@ -64,7 +68,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         },
         {
             'id': 'behaviors',
-            'type': 'lines',
+            'type': behaviors_type,
             'mode': 'w',
             'label': 'Behaviors',
             'description': 'Names of enabled behaviors type'
