@@ -413,7 +413,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     @security.protected(permissions.View)
     def Title(self):
         # this is a CMF accessor, so should return utf8-encoded
-        if isinstance(self.title, six.text_type):
+        if six.PY2 and isinstance(self.title, six.text_type):
             return self.title.encode('utf-8')
         return self.title or ''
 
@@ -428,7 +428,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         value = value.replace('\r\n', ' ').replace('\r', ' ').replace('\n', ' ')  # noqa
 
         # this is a CMF accessor, so should return utf8-encoded
-        if isinstance(value, six.text_type):
+        if six.PY2 and isinstance(value, six.text_type):
             value = value.encode('utf-8')
 
         return value
