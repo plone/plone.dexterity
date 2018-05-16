@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from .case import Dummy
 from .case import MockTestCase
-from email.Message import Message
+from email.message import Message
 from mock import Mock
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
