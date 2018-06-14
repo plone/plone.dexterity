@@ -363,11 +363,13 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     # that can't be encoded to ASCII will throw a UnicodeEncodeError
 
     def _get__name__(self):
-        return six.text_type(self.id)
+        if six.PY2:
+            return safe_unicode(self.id)
+        return self.id
 
     def _set__name__(self, value):
-        if isinstance(value, six.text_type):
-            value = str(value)  # may throw, but that's OK - id must be ASCII
+        if six.PY2 and isinstance(value, six.text_type):
+            value = value.encode('utf8')  # may throw, but id must be ASCII
         self.id = value
 
     __name__ = property(_get__name__, _set__name__)

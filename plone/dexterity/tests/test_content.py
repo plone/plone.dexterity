@@ -575,13 +575,16 @@ class TestContent(MockTestCase):
     def test_name_unicode_id_str(self):
 
         i = Item()
-
-        try:
-            i.__name__ = '\xc3\xb8'.decode('utf-8')
-        except UnicodeEncodeError:
-            pass
+        if six.PY2:
+            try:
+                i.__name__ = b'\xc3\xb8'.decode('utf-8')
+            except UnicodeEncodeError:
+                pass
+            else:
+                self.fail()
         else:
-            self.fail()
+            i.__name__ = b'\xc3\xb8'.decode('utf-8')
+
 
         i.__name__ = u"o"
 
