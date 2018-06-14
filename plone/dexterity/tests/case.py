@@ -1,10 +1,18 @@
 # -*- coding: utf-8 -*-
 from mock import Mock
 import gc
+import pkg_resources
 import six
 import unittest
 import zope.component
 import zope.component.testing
+
+
+HAS_ZSERVER = True
+try:
+    dist = pkg_resources.get_distribution('ZServer')
+except pkg_resources.DistributionNotFound:
+    HAS_ZSERVER = False
 
 
 class MockTestCase(unittest.TestCase):
