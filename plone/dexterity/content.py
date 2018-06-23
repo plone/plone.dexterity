@@ -48,6 +48,7 @@ from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
 
 import six
+import warnings
 
 
 _marker = object()
@@ -704,6 +705,10 @@ class Container(
         DexterityContent.__init__(self, id, **kwargs)
 
     def __getattr__(self, name):
+        if name in self:
+            msg = "Trying to access item '{}' in {} by attribute".format(name, self)
+            warnings.warn(msg)
+
         try:
             return DexterityContent.__getattr__(self, name)
         except AttributeError:
@@ -711,6 +716,36 @@ class Container(
 
         # Be specific about the implementation we use
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
+
+    def __setattr__(self, name, value):
+        try:
+            has_item_by_name = name in self
+        except:
+            has_item_by_name = False
+        if has_item_by_name:
+            msg = (
+                "An item with the same name already exists. Use item access, for example: obj['{}'] = value. "
+                "We are setting the item instead of the attribute!"
+            ).format(name)
+            warnings.warn(msg)
+            # We remove the old one and then add the new one so the old one is
+            # unindexed and the new is indexed.
+            del self[name]
+            self[name] = value
+        else:
+            super(Container, self).__setattr__(name, value)
+
+    def _delObject(self, name, *args, **kwargs):
+        super(Container, self)._delObject(name, *args, **kwargs)
+
+        # This will trigger when an item was deleted from this container and
+        # attribute by the same name exists. ie obj['my_id'] and obj.my_id.
+        if getattr(aq_base(self), name, _marker) is not _marker:
+            msg = (
+                "Item '{}' contained in {} was shadowed by an attribute."
+                "You might want to delete the attribute as well."
+            ).format(name, self)
+            warnings.warn(msg)
 
     @security.protected(permissions.DeleteObjects)
     def manage_delObjects(self, ids=None, REQUEST=None):
