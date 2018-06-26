@@ -17,7 +17,7 @@ New features:
 Bug fixes:
 
 - Other Python 3 compatibility fixes
-  [ale-rt, pbauer]
+  [ale-rt, pbauer, jensens]
 
 
 2.6.0 (2018-04-03)
