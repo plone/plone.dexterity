@@ -992,16 +992,24 @@ class TestContent(MockTestCase):
         # OFS does not check the delete permission for each object being
         # deleted. We want to.
         item = Item(id='test')
-        container = Container(id='container')
+        container = Container(id='testcontainer')
         container['test'] = item
+        # self.layer['portal']['testcontainer'] = container
         from zExceptions import Unauthorized
         self.assertRaises(Unauthorized, container.manage_delObjects, ['test'])
 
         # Now permit it and try again.
         from Products.CMFCore.permissions import DeleteObjects
+        # in order to use manage_permissions the permission has to be defined
+        # somewhere in the mro
+        # since webdav is no longer part here, where it was defined in ZServer.
+        # lets add it explicit here.
+        perms_before = item.__class__.__ac_permissions__
+        item.__class__.__ac_permissions__ = ((DeleteObjects, ()),)
         item.manage_permission(DeleteObjects, ('Anonymous',))
         container.manage_delObjects(['test'])
         self.assertFalse('test' in container)
+        item.__class__.__ac_permissions__ = perms_before
 
     def test_iconstraintypes_adapter(self):
 
