@@ -4,6 +4,7 @@ from plone.dexterity.utils import iterSchemata
 from plone.rfc822.interfaces import IPrimaryField
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from zope.component import adapter
+from zope.component.interfaces import ComponentLookupError
 from zope.interface import implementer
 from zope.schema import getFieldsInOrder
 
@@ -22,7 +23,7 @@ class PrimaryFieldInfo(object):
                     primary = (name, field)
                     break
         if not primary:
-            raise TypeError('Could not adapt', context, IPrimaryFieldInfo)
+            raise ComponentLookupError(context, IPrimaryFieldInfo)
         self.fieldname, self.field = primary
 
     @property
