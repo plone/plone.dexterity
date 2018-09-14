@@ -369,7 +369,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
 
     def _set__name__(self, value):
         if six.PY2 and isinstance(value, six.text_type):
-            value = value.encode('utf8')  # may throw, but id must be ASCII
+            value = str(value)  # may throw, but id must be ASCII in py2
         self.id = value
 
     __name__ = property(_get__name__, _set__name__)
