@@ -353,7 +353,7 @@ class TestFTI(MockTestCase):
         fti = DexterityFTI(u'testtype', title=b't\xc3\xa9st')
 
         # with no i18n domain, we get the UTF8-encoded title
-        self.assertEqual(b't\xc3\xa9st'.decode(), fti.Title())
+        self.assertEqual(b't\xc3\xa9st'.decode('utf8'), fti.Title())
 
         # with an i18n domain, we get a Message
         fti.i18n_domain = 'test'
@@ -365,7 +365,7 @@ class TestFTI(MockTestCase):
         fti = DexterityFTI(u'testtype', description=b't\xc3\xa9st')
 
         # with no i18n domain, we get the UTF8-encoded title
-        self.assertEqual(b't\xc3\xa9st'.decode(), fti.Description())
+        self.assertEqual(b't\xc3\xa9st'.decode('utf8'), fti.Description())
 
         # with an i18n domain, we get a Message
         fti.i18n_domain = 'test'

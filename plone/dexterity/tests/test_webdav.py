@@ -539,40 +539,40 @@ if HAS_ZSERVER:
             self.assertEqual(207, response.getStatus())
 
             body = """\
-    <?xml version="1.0" encoding="utf-8"?>
-    <d:multistatus xmlns:d="DAV:">
-    <d:response>
-    <d:href>/site/container</d:href>
-    <d:propstat xmlns:n="http://www.zope.org/propsets/default">
-      <d:prop>
-      <n:title>Container</n:title>
-      </d:prop>
-      <d:status>HTTP/1.1 200 OK</d:status>
-    </d:propstat>
-    <d:propstat xmlns:n="DAV:">
-      <d:prop>
-      <n:creationdate>1970-01-01T12:00:00Z</n:creationdate>
-      <n:displayname>Container</n:displayname>
-      <n:resourcetype></n:resourcetype>
-      <n:getcontenttype>text/foo</n:getcontenttype>
-      <n:getcontentlength>10</n:getcontentlength>
-      <n:source></n:source>
-      <n:supportedlock>
-      <n:lockentry>
-      <d:lockscope><d:exclusive/></d:lockscope>
-      <d:locktype><d:write/></d:locktype>
-      </n:lockentry>
-      </n:supportedlock>
-      <n:lockdiscovery>
+<?xml version="1.0" encoding="utf-8"?>
+<d:multistatus xmlns:d="DAV:">
+<d:response>
+<d:href>/site/container</d:href>
+<d:propstat xmlns:n="http://www.zope.org/propsets/default">
+  <d:prop>
+  <n:title>Container</n:title>
+  </d:prop>
+  <d:status>HTTP/1.1 200 OK</d:status>
+</d:propstat>
+<d:propstat xmlns:n="DAV:">
+  <d:prop>
+  <n:creationdate>1970-01-01T12:00:00Z</n:creationdate>
+  <n:displayname>Container</n:displayname>
+  <n:resourcetype></n:resourcetype>
+  <n:getcontenttype>text/foo</n:getcontenttype>
+  <n:getcontentlength>10</n:getcontentlength>
+  <n:source></n:source>
+  <n:supportedlock>
+  <n:lockentry>
+  <d:lockscope><d:exclusive/></d:lockscope>
+  <d:locktype><d:write/></d:locktype>
+  </n:lockentry>
+  </n:supportedlock>
+  <n:lockdiscovery>
 
-    </n:lockdiscovery>
-      <n:getlastmodified>...</n:getlastmodified>
-      </d:prop>
-      <d:status>HTTP/1.1 200 OK</d:status>
-    </d:propstat>
-    </d:response>
-    </d:multistatus>
-    """
+</n:lockdiscovery>
+  <n:getlastmodified>...</n:getlastmodified>
+  </d:prop>
+  <d:status>HTTP/1.1 200 OK</d:status>
+</d:propstat>
+</d:response>
+</d:multistatus>
+"""
 
             result = response.getBody()
             result = re.sub(
@@ -597,16 +597,16 @@ if HAS_ZSERVER:
             r = FolderDataResource('fdata', container).__of__(container)
 
             requestBody = """\
-    <?xml version="1.0" encoding="utf-8" ?>
-    <D:propertyupdate xmlns:D="DAV:"
-                      xmlns:n="http://www.zope.org/propsets/default">
-        <D:set>
-            <D:prop>
-                <n:title>New title</n:title>
-              </D:prop>
-         </D:set>
-    </D:propertyupdate>
-    """
+<?xml version="1.0" encoding="utf-8" ?>
+<D:propertyupdate xmlns:D="DAV:"
+                  xmlns:n="http://www.zope.org/propsets/default">
+    <D:set>
+        <D:prop>
+            <n:title>New title</n:title>
+          </D:prop>
+     </D:set>
+</D:propertyupdate>
+"""
 
             request = DAVTestRequest(
                 environ={
@@ -629,22 +629,22 @@ if HAS_ZSERVER:
             self.assertEqual(207, response.getStatus())
 
             body = """\
-    <?xml version="1.0" encoding="utf-8"?>
-    <d:multistatus xmlns:d="DAV:">
-    <d:response>
-    <d:href>http%3A//example.org/site/container</d:href>
-    <d:propstat xmlns:n="http://www.zope.org/propsets/default">
-      <d:prop>
-      <n:title/>
-      </d:prop>
-      <d:status>HTTP/1.1 200 OK</d:status>
-    </d:propstat>
-    <d:responsedescription>
-    The operation succeded.
-    </d:responsedescription>
-    </d:response>
-    </d:multistatus>
-    """
+<?xml version="1.0" encoding="utf-8"?>
+<d:multistatus xmlns:d="DAV:">
+<d:response>
+<d:href>http%3A//example.org/site/container</d:href>
+<d:propstat xmlns:n="http://www.zope.org/propsets/default">
+  <d:prop>
+  <n:title/>
+  </d:prop>
+  <d:status>HTTP/1.1 200 OK</d:status>
+</d:propstat>
+<d:responsedescription>
+The operation succeded.
+</d:responsedescription>
+</d:response>
+</d:multistatus>
+"""
 
             result = response.getBody()
             self.assertEqual(body.strip(), result.strip())
@@ -1114,12 +1114,12 @@ if HAS_ZSERVER:
             self.patch_global(constructMessageFromSchemata, return_value=message)
 
             body = """\
-    title: Test title
-    foo: 10
-    bar: xyz
-    Portal-Type: testtype
+title: Test title
+foo: 10
+bar: xyz
+Portal-Type: testtype
 
-    <p>body</p>"""
+<p>body</p>"""
 
             # iter
             # next
@@ -1179,12 +1179,12 @@ if HAS_ZSERVER:
             writefile = DefaultWriteFile(item)
 
             body = """\
-    title: Test title
-    foo: 10
-    bar: xyz
-    Portal-Type: testtype
+title: Test title
+foo: 10
+bar: xyz
+Portal-Type: testtype
 
-    <p>body</p>"""
+<p>body</p>"""
 
             from plone.rfc822 import initializeObjectFromSchemata
             self.patch_global(initializeObjectFromSchemata)

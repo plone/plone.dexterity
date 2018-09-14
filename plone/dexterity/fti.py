@@ -207,6 +207,10 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             else:
                 return Message(self.title, self.i18n_domain)
         else:
+            if six.PY2:
+                if self.title:
+                    return self.title.decode('utf8')
+                return self.getId()
             return self.title or self.getId()
 
     def Description(self):
@@ -221,6 +225,8 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             else:
                 return Message(self.description, self.i18n_domain)
         else:
+            if six.PY2:
+                return self.description.decode('utf8')
             return self.description
 
     def Metatype(self):
