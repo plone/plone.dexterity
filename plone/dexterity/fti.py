@@ -225,7 +225,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
             else:
                 return Message(self.description, self.i18n_domain)
         else:
-            if six.PY2:
+            if six.PY2 and self.description:
                 return self.description.decode('utf8')
             return self.description
 
