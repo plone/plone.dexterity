@@ -1,24 +1,14 @@
 # -*- coding: utf-8 -*-
-from AccessControl import ClassSecurityInfo
 from AccessControl import Permissions as acpermissions
+from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
-from Acquisition import Explicit
 from Acquisition import aq_base
 from Acquisition import aq_parent
+from Acquisition import Explicit
+from copy import deepcopy
 from DateTime import DateTime
 from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
-from Products.CMFCore import permissions
-from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
-from Products.CMFCore.PortalContent import PortalContent
-from Products.CMFCore.PortalFolder import PortalFolderBase
-from Products.CMFCore.interfaces import ICatalogableDublinCore
-from Products.CMFCore.interfaces import IDublinCore
-from Products.CMFCore.interfaces import IMutableDublinCore
-from Products.CMFCore.interfaces import ITypeInformation
-from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
-from Products.CMFPlone.interfaces import IConstrainTypes
-from copy import deepcopy
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.filerepresentation import DAVCollectionMixin
@@ -35,15 +25,25 @@ from plone.dexterity.utils import safe_utf8
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
 from plone.uuid.interfaces import IAttributeUUID
 from plone.uuid.interfaces import IUUID
+from Products.CMFCore import permissions
+from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
+from Products.CMFCore.interfaces import ICatalogableDublinCore
+from Products.CMFCore.interfaces import IDublinCore
+from Products.CMFCore.interfaces import IMutableDublinCore
+from Products.CMFCore.interfaces import ITypeInformation
+from Products.CMFCore.PortalContent import PortalContent
+from Products.CMFCore.PortalFolder import PortalFolderBase
+from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
+from Products.CMFPlone.interfaces import IConstrainTypes
 from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
 from zope.component import queryUtility
 from zope.container.contained import Contained
 from zope.interface import implementer
-from zope.interface.declarations import Implements
-from zope.interface.declarations import ObjectSpecificationDescriptor
 from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import implementedBy
+from zope.interface.declarations import Implements
+from zope.interface.declarations import ObjectSpecificationDescriptor
 from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
 
@@ -538,6 +538,11 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     def Identifier(self):
         # Dublin Core Identifier element - resource ID.
         return self.absolute_url()
+
+    @security.protected(permissions.View)
+    def Format(self):
+        # Dublin Core Format element
+        return self.format or super(DexterityContent, self).Format()
 
     @security.protected(permissions.View)
     def Language(self):

@@ -16,6 +16,8 @@ New features:
 
 Bug fixes:
 
+- Provide the dublin core ``Format`` method in the ``DexterityContent`` class
+  [ale-rt]
 - Other Python 3 compatibility fixes
   [ale-rt, pbauer, jensens]
 
