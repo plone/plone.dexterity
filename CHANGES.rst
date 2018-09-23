@@ -5,10 +5,6 @@ Changelog
 2.6.1 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
 New features:
 
 - ZServer is now optional
