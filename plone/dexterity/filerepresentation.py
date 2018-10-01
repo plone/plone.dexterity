@@ -17,6 +17,7 @@ from Products.CMFCore.utils import getToolByName
 from zExceptions import MethodNotAllowed
 from zExceptions import Unauthorized
 from zope.component import adapter
+from zope.component import getAdapter
 from zope.component import createObject
 from zope.event import notify
 from zope.filerepresentation.interfaces import IDirectoryFactory
@@ -63,9 +64,25 @@ class DAVResourceMixin(object):
         if sized is None:
             return 0
         unit, size = sized.sizeForSorting()
-        if unit == 'bytes':
+        if unit in ('byte', 'bytes'):
             return size
         return 0
+
+    @security.protected(permissions.View)
+    def getSize(self):
+        # Get the size of the content item in bytes.
+        # Unlike get_size, this method returns the size
+        # by looking at the actual values. The getObjSize catalog
+        # indexer uses get_size(), which looks up an ISized adapter,
+        # and the default adapter uses getSize().
+        size = 0
+        for schema in iterSchemata(self):
+            adapter = schema(self)
+            for name, field in getFieldsInOrder(schema):
+                value = getattr(adapter, name, None)
+                if hasattr(value, 'getSize'):
+                    size += value.getSize()
+        return size
 
     @security.protected(permissions.View)
     def content_type(self):
