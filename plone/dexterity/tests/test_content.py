@@ -3,6 +3,7 @@ from DateTime import DateTime
 from Products.CMFPlone.interfaces import IConstrainTypes
 from datetime import date, datetime
 from mock import Mock
+from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.behavior.registration import BehaviorRegistration
@@ -1105,3 +1106,42 @@ class TestContent(MockTestCase):
         self.mock_utility(mock_pt, ITypesTool)
 
         container._verifyObjectPaste(content, True)
+
+    def test_getSize(self):
+        class SizedValue(str):
+            def getSize(self):
+                return len(self)
+
+        class ITest(Interface):
+            field1 = zope.schema.TextLine()
+
+        class ITestBehavior(Interface):
+            field2 = zope.schema.TextLine()
+        alsoProvides(ITestBehavior, IFormFieldProvider)
+
+        self.mock_adapter(
+            DexterityBehaviorAssignable,
+            IBehaviorAssignable,
+            (IDexterityContent,)
+        )
+
+        fti_mock = DexterityFTI(u'testtype')
+        fti_mock.lookupSchema = Mock(return_value=ITest)
+        fti_mock.behaviors = ['test_behavior']
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+
+        behavior_reg = BehaviorRegistration(
+            u"Test Behavior",
+            "",
+            ITestBehavior,
+            ITestBehavior,
+            None
+        )
+        self.mock_utility(behavior_reg, IBehavior, name="test_behavior")
+
+        item = Item('item')
+        item.portal_type = 'testtype'
+        item.field1 = SizedValue('1')
+        item.field2 = SizedValue('22')
+
+        self.assertEqual(3, item.getSize())

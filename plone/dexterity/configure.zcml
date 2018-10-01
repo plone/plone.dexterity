@@ -12,6 +12,7 @@
     <include package="plone.rfc822" />
     <include package="plone.uuid" />
     <include package="plone.z3cform" />
+    <include package="zope.size" />
 
     <include package=".browser" />
     <include package=".fti" />

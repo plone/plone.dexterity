@@ -11,7 +11,9 @@ Breaking changes:
 
 New features:
 
-- *add item here*
+- Implement getSize method to sum the size of all
+  field values that have a getSize method.
+  [davisagli]
 
 Bug fixes:
 
