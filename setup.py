@@ -17,7 +17,7 @@ setup(
     description=short_description,
     long_description=long_description,
     # Get more strings from
-    # https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    # https://pypi.org/classifiers/
     classifiers=[
         "Framework :: Plone",
         "Framework :: Plone :: 5.1",
@@ -32,7 +32,7 @@ setup(
     keywords='plone dexterity contenttypes',
     author='Martin Aspeli',
     author_email='optilude@gmail.com',
-    url='https://pypi.python.org/pypi/plone.dexterity',
+    url='https://pypi.org/project/plone.dexterity',
     license='GPL version 2',
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages=['plone'],
