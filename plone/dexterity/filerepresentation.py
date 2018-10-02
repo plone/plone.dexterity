@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
 from Acquisition import aq_base
 from Acquisition import Implicit
-from email.generator import Generator
 from email.message import Message
 from email.parser import FeedParser
 from plone.dexterity import bbb
@@ -13,11 +14,11 @@ from plone.memoize.instance import memoize
 from plone.rfc822 import constructMessageFromSchemata
 from plone.rfc822 import initializeObjectFromSchemata
 from plone.rfc822.interfaces import IPrimaryField
+from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 from zExceptions import MethodNotAllowed
 from zExceptions import Unauthorized
 from zope.component import adapter
-from zope.component import getAdapter
 from zope.component import createObject
 from zope.event import notify
 from zope.filerepresentation.interfaces import IDirectoryFactory
@@ -26,15 +27,14 @@ from zope.filerepresentation.interfaces import IRawReadFile
 from zope.filerepresentation.interfaces import IRawWriteFile
 from zope.interface import implementer
 from zope.interface.interfaces import IInterface
-from zope.lifecycleevent import modified, ObjectCreatedEvent
+from zope.lifecycleevent import modified
+from zope.lifecycleevent import ObjectCreatedEvent
 from zope.schema import getFieldsInOrder
 from zope.size.interfaces import ISized
 from ZPublisher.Iterators import IStreamIterator
-import tempfile
 
-from AccessControl.class_init import InitializeClass
-from AccessControl import ClassSecurityInfo
-from Products.CMFCore import permissions
+import six
+import tempfile
 
 if bbb.HAS_ZSERVER:
     from webdav.Resource import Resource
@@ -687,9 +687,14 @@ class DefaultReadFile(ReadFileBase):
         # this approach allows us to hand off the stream iterator to the
         # publisher, which will serve it efficiently even after the
         # transaction is closed
-        out = tempfile.TemporaryFile(mode='w+b')
-        generator = Generator(out, mangle_from_=False)
-        generator.flatten(self._getMessage())
+        message = self._getMessage()
+        if six.PY2:
+            # message.as_string will return str in both Python 2 and 3
+            mode = 'w+b'
+        else:
+            mode = 'w+'
+        out = tempfile.TemporaryFile(mode=mode)
+        out.write(message.as_string())
         self._size = out.tell()
         out.seek(0)
         return out

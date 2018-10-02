@@ -17,7 +17,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Other Python 3 compatibility fixes
+  [ale-rt]
 
 
 2.6.1 (2018-09-23)
