@@ -8,3 +8,6 @@ recursive-include plone *
 global-include *.mo
 global-exclude *.pyc
 
+include pyproject.toml
+recursive-exclude news *
+exclude news
