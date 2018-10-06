@@ -690,10 +690,10 @@ class DefaultReadFile(ReadFileBase):
         message = self._getMessage()
         if six.PY2:
             # message.as_string will return str in both Python 2 and 3
-            mode = 'w+b'
+            kw = {'mode': 'w+b'}
         else:
-            mode = 'w+'
-        out = tempfile.TemporaryFile(mode=mode)
+            kw = {'mode': 'w+', 'encoding': 'utf-8'}
+        out = tempfile.TemporaryFile(**kw)
         out.write(message.as_string())
         self._size = out.tell()
         out.seek(0)
