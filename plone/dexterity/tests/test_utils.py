@@ -52,6 +52,10 @@ class TestUtils(MockTestCase):
         from plone.dexterity.content import Container
         container = Container()
         container._ordering = u'unordered'
+        # Allow anyone to access the contents information on the container.
+        # This allows to check for existing content with the same id.
+        container.manage_permission(
+            'Access contents information', ['Anonymous'], acquire=1)
 
         from zope.component import provideAdapter, provideUtility
         from zope.container.interfaces import INameChooser
