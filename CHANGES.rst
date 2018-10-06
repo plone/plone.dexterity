@@ -2,23 +2,12 @@ Changelog
 =========
 
 
-2.6.2 (unreleased)
-------------------
+.. You should *NOT* be adding new change log entries to this file.
+   You should create a file in the news directory instead.
+   For helpful instructions, please see:
+   https://github.com/plone/plone.releaser/blob/master/ADD-A-NEWS-ITEM.rst
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- Implement getSize method to sum the size of all
-  field values that have a getSize method.
-  [davisagli]
-
-Bug fixes:
-
-- Other Python 3 compatibility fixes
-  [ale-rt]
+.. towncrier release notes start
 
 
 2.6.1 (2018-09-23)
