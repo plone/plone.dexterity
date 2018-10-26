@@ -7,6 +7,7 @@ from Acquisition import aq_base
 from Acquisition import aq_parent
 from DateTime import DateTime
 from OFS.PropertyManager import PropertyManager
+from OFS.SimpleItem import PathReprProvider
 from OFS.SimpleItem import SimpleItem
 from Products.CMFCore import permissions
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
@@ -678,6 +679,7 @@ class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
 
 @implementer(IDexterityContainer)
 class Container(
+        PathReprProvider,
         PasteBehaviourMixin, DAVCollectionMixin, BrowserDefaultMixin,
         CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
     """Base class for folderish items
