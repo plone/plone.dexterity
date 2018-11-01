@@ -3,6 +3,7 @@ from DateTime import DateTime
 from Products.CMFPlone.interfaces import IConstrainTypes
 from datetime import date, datetime
 from mock import Mock
+from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.behavior.registration import BehaviorRegistration
@@ -575,13 +576,16 @@ class TestContent(MockTestCase):
     def test_name_unicode_id_str(self):
 
         i = Item()
-
-        try:
-            i.__name__ = '\xc3\xb8'.decode('utf-8')
-        except UnicodeEncodeError:
-            pass
+        if six.PY2:
+            try:
+                i.__name__ = b'\xc3\xb8'.decode('utf-8')
+            except UnicodeEncodeError:
+                pass
+            else:
+                self.fail()
         else:
-            self.fail()
+            i.__name__ = b'\xc3\xb8'.decode('utf-8')
+
 
         i.__name__ = u"o"
 
@@ -989,16 +993,24 @@ class TestContent(MockTestCase):
         # OFS does not check the delete permission for each object being
         # deleted. We want to.
         item = Item(id='test')
-        container = Container(id='container')
+        container = Container(id='testcontainer')
         container['test'] = item
+        # self.layer['portal']['testcontainer'] = container
         from zExceptions import Unauthorized
         self.assertRaises(Unauthorized, container.manage_delObjects, ['test'])
 
         # Now permit it and try again.
         from Products.CMFCore.permissions import DeleteObjects
+        # in order to use manage_permissions the permission has to be defined
+        # somewhere in the mro
+        # since webdav is no longer part here, where it was defined in ZServer.
+        # lets add it explicit here.
+        perms_before = item.__class__.__ac_permissions__
+        item.__class__.__ac_permissions__ = ((DeleteObjects, ()),)
         item.manage_permission(DeleteObjects, ('Anonymous',))
         container.manage_delObjects(['test'])
         self.assertFalse('test' in container)
+        item.__class__.__ac_permissions__ = perms_before
 
     def test_iconstraintypes_adapter(self):
 
@@ -1094,3 +1106,42 @@ class TestContent(MockTestCase):
         self.mock_utility(mock_pt, ITypesTool)
 
         container._verifyObjectPaste(content, True)
+
+    def test_getSize(self):
+        class SizedValue(str):
+            def getSize(self):
+                return len(self)
+
+        class ITest(Interface):
+            field1 = zope.schema.TextLine()
+
+        class ITestBehavior(Interface):
+            field2 = zope.schema.TextLine()
+        alsoProvides(ITestBehavior, IFormFieldProvider)
+
+        self.mock_adapter(
+            DexterityBehaviorAssignable,
+            IBehaviorAssignable,
+            (IDexterityContent,)
+        )
+
+        fti_mock = DexterityFTI(u'testtype')
+        fti_mock.lookupSchema = Mock(return_value=ITest)
+        fti_mock.behaviors = ['test_behavior']
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+
+        behavior_reg = BehaviorRegistration(
+            u"Test Behavior",
+            "",
+            ITestBehavior,
+            ITestBehavior,
+            None
+        )
+        self.mock_utility(behavior_reg, IBehavior, name="test_behavior")
+
+        item = Item('item')
+        item.portal_type = 'testtype'
+        item.field1 = SizedValue('1')
+        item.field2 = SizedValue('22')
+
+        self.assertEqual(3, item.getSize())

@@ -15,16 +15,18 @@ from plone.supermodel.utils import syncSchema
 from zope.component import getAllUtilitiesRegisteredFor
 from zope.component import getUtility
 from zope.component import queryUtility
+from zope.component.hooks import getSiteManager
 from zope.component.interfaces import IFactory
 from zope.event import notify
 from zope.i18nmessageid import Message
 from zope.interface import implementer
 from zope.lifecycleevent import modified
 from zope.security.interfaces import IPermission
-from zope.site.hooks import getSiteManager
+
 import logging
 import os.path
 import plone.dexterity.schema
+import six
 
 
 @implementer(IDexterityFTIModificationDescription)
@@ -41,6 +43,10 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     """
 
     meta_type = "Dexterity FTI"
+
+    behaviors_type = 'ulines'
+    if six.PY2:
+        behaviors_type = 'lines'
 
     _properties = base.DynamicViewTypeInformation._properties + (
         {
@@ -62,7 +68,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         },
         {
             'id': 'behaviors',
-            'type': 'lines',
+            'type': behaviors_type,
             'mode': 'w',
             'label': 'Behaviors',
             'description': 'Names of enabled behaviors type'
@@ -192,26 +198,35 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
     def Title(self):
         if self.title and self.i18n_domain:
-            try:
-                return Message(self.title.decode('utf8'), self.i18n_domain)
-            except UnicodeDecodeError:
-                return Message(self.title.decode('latin-1'), self.i18n_domain)
+            if six.PY2:
+                try:
+                    return Message(self.title.decode('utf8'), self.i18n_domain)
+                except UnicodeDecodeError:
+                    return Message(
+                        self.title.decode('latin-1'), self.i18n_domain)
+            else:
+                return Message(self.title, self.i18n_domain)
         else:
+            if six.PY2:
+                if self.title:
+                    return self.title.decode('utf8')
+                return self.getId()
             return self.title or self.getId()
 
     def Description(self):
         if self.description and self.i18n_domain:
-            try:
-                return Message(
-                    self.description.decode('utf8'),
-                    self.i18n_domain
-                )
-            except UnicodeDecodeError:
-                return Message(
-                    self.description.decode('latin-1'),
-                    self.i18n_domain
-                )
+            if six.PY2:
+                try:
+                    return Message(
+                        self.description.decode('utf8'), self.i18n_domain)
+                except UnicodeDecodeError:
+                    return Message(
+                        self.description.decode('latin-1'), self.i18n_domain)
+            else:
+                return Message(self.description, self.i18n_domain)
         else:
+            if six.PY2 and self.description:
+                return self.description.decode('utf8')
             return self.description
 
     def Metatype(self):

@@ -128,4 +128,12 @@
 
     <!-- PrimaryFieldInfo -->
     <adapter factory=".primary.PrimaryFieldInfo"/>
+
+    <!-- ISized -->
+    <adapter
+        for="*"
+        factory="zope.size.DefaultSized"
+        provides="zope.size.interfaces.ISized"
+        />
+
 </configure>

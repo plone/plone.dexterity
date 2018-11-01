@@ -350,10 +350,10 @@ class TestFTI(MockTestCase):
         self.assertEqual(TestClass2.meta_type, fti.Metatype())
 
     def test_title_i18n(self):
-        fti = DexterityFTI(u'testtype', title='t\xc3\xa9st')
+        fti = DexterityFTI(u'testtype', title=b't\xc3\xa9st')
 
         # with no i18n domain, we get the UTF8-encoded title
-        self.assertEqual('t\xc3\xa9st', fti.Title())
+        self.assertEqual(b't\xc3\xa9st'.decode('utf8'), fti.Title())
 
         # with an i18n domain, we get a Message
         fti.i18n_domain = 'test'
@@ -362,10 +362,10 @@ class TestFTI(MockTestCase):
         self.assertEqual('test', msgid.domain)
 
     def test_description_i18n(self):
-        fti = DexterityFTI(u'testtype', description='t\xc3\xa9st')
+        fti = DexterityFTI(u'testtype', description=b't\xc3\xa9st')
 
         # with no i18n domain, we get the UTF8-encoded title
-        self.assertEqual('t\xc3\xa9st', fti.Description())
+        self.assertEqual(b't\xc3\xa9st'.decode('utf8'), fti.Description())
 
         # with an i18n domain, we get a Message
         fti.i18n_domain = 'test'

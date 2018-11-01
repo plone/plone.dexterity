@@ -3,7 +3,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-version = '2.6.1.dev0'
+version = '2.7.1.dev0'
 
 short_description = """\
 Framework for content types as filesystem code and TTW (Zope/CMF/Plone)\
@@ -17,7 +17,7 @@ setup(
     description=short_description,
     long_description=long_description,
     # Get more strings from
-    # https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    # https://pypi.org/classifiers/
     classifiers=[
         "Framework :: Plone",
         "Framework :: Plone :: 5.1",
@@ -25,14 +25,16 @@ setup(
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords='plone dexterity contenttypes',
     author='Martin Aspeli',
     author_email='optilude@gmail.com',
-    url='https://pypi.python.org/pypi/plone.dexterity',
+    url='https://pypi.org/project/plone.dexterity',
     license='GPL version 2',
-    packages=find_packages(exclude=['ez_setup']),
+    packages=find_packages(),
     namespace_packages=['plone'],
     include_package_data=True,
     zip_safe=False,

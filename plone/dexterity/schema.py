@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from Products.CMFCore.interfaces import ISiteRoot
 from plone.alterego import dynamic
 from plone.alterego.interfaces import IDynamicObjectFactory
 from plone.behavior.interfaces import IBehavior
@@ -11,6 +10,7 @@ from plone.dexterity.interfaces import ISchemaInvalidatedEvent
 from plone.supermodel.parser import ISchemaPolicy
 from plone.supermodel.utils import syncSchema
 from plone.synchronize import synchronized
+from Products.CMFCore.interfaces import ISiteRoot
 from threading import RLock
 from zope.component import adapter
 from zope.component import getAllUtilitiesRegisteredFor
@@ -23,7 +23,9 @@ from zope.interface.interface import InterfaceClass
 
 import functools
 import logging
+import six
 import types
+
 
 log = logging.getLogger(__name__)
 

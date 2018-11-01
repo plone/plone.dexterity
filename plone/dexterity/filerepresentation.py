@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
 from Acquisition import aq_base
 from Acquisition import Implicit
-from email.generator import Generator
 from email.message import Message
 from email.parser import FeedParser
+from plone.dexterity import bbb
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.interfaces import IDexterityContainer
 from plone.dexterity.interfaces import IDexterityContent
@@ -12,8 +14,8 @@ from plone.memoize.instance import memoize
 from plone.rfc822 import constructMessageFromSchemata
 from plone.rfc822 import initializeObjectFromSchemata
 from plone.rfc822.interfaces import IPrimaryField
+from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
-from webdav.Resource import Resource
 from zExceptions import MethodNotAllowed
 from zExceptions import Unauthorized
 from zope.component import adapter
@@ -25,15 +27,19 @@ from zope.filerepresentation.interfaces import IRawReadFile
 from zope.filerepresentation.interfaces import IRawWriteFile
 from zope.interface import implementer
 from zope.interface.interfaces import IInterface
-from zope.lifecycleevent import modified, ObjectCreatedEvent
+from zope.lifecycleevent import modified
+from zope.lifecycleevent import ObjectCreatedEvent
 from zope.schema import getFieldsInOrder
 from zope.size.interfaces import ISized
 from ZPublisher.Iterators import IStreamIterator
+
+import six
 import tempfile
 
-from AccessControl.class_init import InitializeClass
-from AccessControl import ClassSecurityInfo
-from Products.CMFCore import permissions
+if bbb.HAS_ZSERVER:
+    from webdav.Resource import Resource
+else:
+    Resource = bbb.Resource
 
 
 class DAVResourceMixin(object):
@@ -58,9 +64,25 @@ class DAVResourceMixin(object):
         if sized is None:
             return 0
         unit, size = sized.sizeForSorting()
-        if unit == 'bytes':
+        if unit in ('byte', 'bytes'):
             return size
         return 0
+
+    @security.protected(permissions.View)
+    def getSize(self):
+        # Get the size of the content item in bytes.
+        # Unlike get_size, this method returns the size
+        # by looking at the actual values. The getObjSize catalog
+        # indexer uses get_size(), which looks up an ISized adapter,
+        # and the default adapter uses getSize().
+        size = 0
+        for schema in iterSchemata(self):
+            adapter = schema(self)
+            for name, field in getFieldsInOrder(schema):
+                value = getattr(adapter, name, None)
+                if hasattr(value, 'getSize'):
+                    size += value.getSize()
+        return size
 
     @security.protected(permissions.View)
     def content_type(self):
@@ -665,9 +687,14 @@ class DefaultReadFile(ReadFileBase):
         # this approach allows us to hand off the stream iterator to the
         # publisher, which will serve it efficiently even after the
         # transaction is closed
-        out = tempfile.TemporaryFile(mode='w+b')
-        generator = Generator(out, mangle_from_=False)
-        generator.flatten(self._getMessage())
+        message = self._getMessage()
+        if six.PY2:
+            # message.as_string will return str in both Python 2 and 3
+            kw = {'mode': 'w+b'}
+        else:
+            kw = {'mode': 'w+', 'encoding': 'utf-8'}
+        out = tempfile.TemporaryFile(**kw)
+        out.write(message.as_string())
         self._size = out.tell()
         out.seek(0)
         return out

@@ -7,6 +7,7 @@ from Acquisition import aq_base
 from Acquisition import aq_parent
 from DateTime import DateTime
 from OFS.PropertyManager import PropertyManager
+from OFS.SimpleItem import PathReprProvider
 from OFS.SimpleItem import SimpleItem
 from Products.CMFCore import permissions
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
@@ -364,11 +365,13 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     # that can't be encoded to ASCII will throw a UnicodeEncodeError
 
     def _get__name__(self):
-        return six.text_type(self.id)
+        if six.PY2:
+            return safe_unicode(self.id)
+        return self.id
 
     def _set__name__(self, value):
-        if isinstance(value, six.text_type):
-            value = str(value)  # may throw, but that's OK - id must be ASCII
+        if six.PY2 and isinstance(value, six.text_type):
+            value = str(value)  # may throw, but id must be ASCII in py2
         self.id = value
 
     __name__ = property(_get__name__, _set__name__)
@@ -414,7 +417,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     @security.protected(permissions.View)
     def Title(self):
         # this is a CMF accessor, so should return utf8-encoded
-        if isinstance(self.title, six.text_type):
+        if six.PY2 and isinstance(self.title, six.text_type):
             return self.title.encode('utf-8')
         return self.title or ''
 
@@ -429,7 +432,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         value = value.replace('\r\n', ' ').replace('\r', ' ').replace('\n', ' ')  # noqa
 
         # this is a CMF accessor, so should return utf8-encoded
-        if isinstance(value, six.text_type):
+        if six.PY2 and isinstance(value, six.text_type):
             value = value.encode('utf-8')
 
         return value
@@ -446,7 +449,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         # List Dublin Core Creator elements - resource authors.
         if self.creators is None:
             return ()
-        return tuple(safe_utf8(c) for c in self.creators)
+        if six.PY2:
+            return tuple(safe_utf8(c) for c in self.creators)
+        return self.creators
 
     @security.protected(permissions.View)
     def Creator(self):
@@ -459,7 +464,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         # Dublin Core Subject element - resource keywords.
         if self.subject is None:
             return ()
-        return tuple(safe_utf8(s) for s in self.subject)
+        if six.PY2:
+            return tuple(safe_utf8(s) for s in self.subject)
+        return tuple(self.subject)
 
     @security.protected(permissions.View)
     def Publisher(self):
@@ -469,7 +476,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     @security.protected(permissions.View)
     def listContributors(self):
         # Dublin Core Contributor elements - resource collaborators.
-        return tuple(safe_utf8(c) for c in self.contributors)
+        if six.PY2:
+            return tuple(safe_utf8(c) for c in self.contributors)
+        return tuple(self.contributors)
 
     @security.protected(permissions.View)
     def Contributors(self):
@@ -540,7 +549,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     @security.protected(permissions.View)
     def Rights(self):
         # Dublin Core Rights element - resource copyright.
-        return safe_utf8(self.rights)
+        if six.PY2:
+            return safe_utf8(self.rights)
+        return self.rights
 
     # ICatalogableDublinCore
 
@@ -669,6 +680,7 @@ class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
 
 @implementer(IDexterityContainer)
 class Container(
+        PathReprProvider,
         PasteBehaviourMixin, DAVCollectionMixin, BrowserDefaultMixin,
         CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
     """Base class for folderish items
