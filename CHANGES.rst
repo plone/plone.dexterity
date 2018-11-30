@@ -9,6 +9,21 @@ Changelog
 
 .. towncrier release notes start
 
+2.6.2 (2018-11-29)
+------------------
+
+New features:
+
+
+- Implement getSize method to sum the size of all field values that have a
+  getSize method. [davisagli] (#89)
+
+
+Bug fixes:
+
+
+- Other Python 3 compatibility fixes [ale-rt] (#90)
+
 
 2.6.1 (2018-09-23)
 ------------------
