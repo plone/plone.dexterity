@@ -7,9 +7,9 @@ from plone.app.uuid.utils import uuidToObject
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.schema import portalTypeToSchemaName  # noqa bbb
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.dexterity.schema import SchemaNameEncoder  # noqa bbb
-from plone.dexterity.schema import portalTypeToSchemaName  # noqa bbb
 from plone.dexterity.schema import schemaNameToPortalType  # noqa bbb
 from plone.dexterity.schema import splitSchemaName  # noqa bbb
 from plone.supermodel.utils import mergedTaggedValueDict

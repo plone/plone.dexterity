@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup
 from setuptools import find_packages
+from setuptools import setup
 
 
 version = '2.7.1.dev0'

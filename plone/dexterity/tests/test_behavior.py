@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+from .case import MockTestCase
 from plone.behavior.interfaces import IBehavior
 from plone.dexterity.behavior import DexterityBehaviorAssignable
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from zope.interface import Interface
-from .case import MockTestCase
 
 
 class IOne(Interface):

@@ -9,6 +9,12 @@ from zope.lifecycleevent.interfaces import IModificationDescription
 import zope.schema
 
 
+try:
+    from zope.app.content import IContentType
+except ImportError:
+    class IContentType(Interface):
+        pass
+
 # id for pseudo-resource used to expose data for folderish items over WebDAV
 DAV_FOLDER_DATA_ID = '_data'
 

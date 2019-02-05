@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from .case import MockTestCase
 from mock import Mock
 from plone.dexterity import schema
 from plone.dexterity.fti import DexterityFTI
@@ -11,7 +12,6 @@ from plone.supermodel.model import Model
 from Products.CMFCore.interfaces import ISiteRoot
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
-from .case import MockTestCase
 
 import zope.schema
 

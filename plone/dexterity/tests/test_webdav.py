@@ -2,6 +2,7 @@
 from .case import HAS_ZSERVER
 from .case import MockTestCase
 
+
 if HAS_ZSERVER:
 
     from .case import Dummy

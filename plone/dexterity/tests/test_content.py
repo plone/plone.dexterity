@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from .case import MockTestCase
+from datetime import date
+from datetime import datetime
 from DateTime import DateTime
-from Products.CMFPlone.interfaces import IConstrainTypes
-from datetime import date, datetime
 from mock import Mock
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehavior
@@ -17,13 +18,13 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
 from Products.CMFCore.interfaces import ITypesTool
+from Products.CMFPlone.interfaces import IConstrainTypes
 from pytz import timezone
 from zope.annotation.attribute import AttributeAnnotations
 from zope.component import getUtility
 from zope.component import provideAdapter
-from zope.interface import Interface
 from zope.interface import alsoProvides
-from .case import MockTestCase
+from zope.interface import Interface
 
 import six
 import zope.schema

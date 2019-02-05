@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from Products.CMFCore.utils import getToolByName
-from Products.statusmessages.interfaces import IStatusMessage
 from plone.dexterity.browser.base import DexterityExtensibleForm
 from plone.dexterity.events import EditBegunEvent
 from plone.dexterity.events import EditCancelledEvent
@@ -10,6 +8,8 @@ from plone.dexterity.interfaces import IDexterityEditForm
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 from plone.z3cform import layout
+from Products.CMFCore.utils import getToolByName
+from Products.statusmessages.interfaces import IStatusMessage
 from z3c.form import button
 from z3c.form import form
 from zope.component import getUtility

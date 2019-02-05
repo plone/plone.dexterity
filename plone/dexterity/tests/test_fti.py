@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from .case import MockTestCase
 from mock import Mock
-from Products.CMFCore.interfaces import ISiteRoot
 from plone.dexterity import utils
 from plone.dexterity.factory import DexterityFactory
 from plone.dexterity.fti import DexterityFTI
@@ -13,9 +13,11 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.dexterity.tests.schemata import ITestSchema
 from plone.supermodel.model import Model
+from Products.CMFCore.interfaces import ISiteRoot
 from zope.component import getGlobalSiteManager
 from zope.component import queryUtility
-from zope.component.hooks import setSite, setHooks
+from zope.component.hooks import setHooks
+from zope.component.hooks import setSite
 from zope.component.interfaces import IFactory
 from zope.component.persistentregistry import PersistentComponents
 from zope.container.contained import ObjectAddedEvent
@@ -25,7 +27,6 @@ from zope.interface import Interface
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.security.interfaces import IPermission
-from .case import MockTestCase
 
 import os.path
 import plone.dexterity.schema.generated

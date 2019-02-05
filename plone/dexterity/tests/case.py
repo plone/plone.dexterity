@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from mock import Mock
+
 import gc
 import pkg_resources
 import six
