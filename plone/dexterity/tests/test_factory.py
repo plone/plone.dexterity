@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+from .case import MockTestCase
 from mock import Mock
 from plone.dexterity.factory import DexterityFactory
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from zope.interface import Interface
-from .case import MockTestCase
+
 import unittest
 
 

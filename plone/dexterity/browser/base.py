@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from plone.autoform.form import AutoExtensibleForm
+from plone.dexterity.i18n import MessageFactory as _
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import getAdditionalSchemata
 from zope.component import getUtility
-from plone.dexterity.i18n import MessageFactory as _
 
 
 class DexterityExtensibleForm(AutoExtensibleForm):

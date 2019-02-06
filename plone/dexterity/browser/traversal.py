@@ -9,6 +9,7 @@ from plone.dexterity.interfaces import IDexterityContent
 from zope.component import adapter
 from zope.publisher.interfaces.browser import IBrowserRequest
 
+
 try:
     from repoze.zope2.publishtraverse import DefaultPublishTraverse
 except ImportError:

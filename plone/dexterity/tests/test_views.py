@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+from .case import MockTestCase
 from AccessControl import Unauthorized
 from mock import Mock
-from Products.statusmessages.interfaces import IStatusMessage
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.browser.add import DefaultAddForm
@@ -20,22 +20,22 @@ from plone.dexterity.interfaces import IEditCancelledEvent
 from plone.dexterity.interfaces import IEditFinishedEvent
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.z3cform.interfaces import IDeferSecurityCheck
+from Products.statusmessages.interfaces import IStatusMessage
 from z3c.form.action import Actions
 from z3c.form.datamanager import AttributeField
 from z3c.form.field import Fields
 from z3c.form.field import FieldWidgets
 from z3c.form.interfaces import IActions
 from z3c.form.interfaces import IWidgets
+from zope import schema
 from zope.component import adapter
 from zope.component import provideAdapter
 from zope.container.interfaces import INameChooser
-from zope.interface import Interface
 from zope.interface import alsoProvides
 from zope.interface import implementer
+from zope.interface import Interface
 from zope.interface import provider
 from zope.publisher.browser import TestRequest as TestRequestBase
-from .case import MockTestCase
-from zope import schema
 
 import six
 

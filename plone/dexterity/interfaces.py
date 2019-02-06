@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 from Products.CMFCore.interfaces import ITypeInformation
 from zope.component.interfaces import IFactory
-from zope.component.interfaces import IObjectEvent
-from zope.interface import Interface, Attribute
+from zope.interface import Attribute
+from zope.interface import Interface
+from zope.interface.interfaces import IObjectEvent
 from zope.lifecycleevent.interfaces import IModificationDescription
+
 import zope.schema
+
 
 try:
     from zope.app.content import IContentType

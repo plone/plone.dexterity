@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from Products.CMFCore.browser.typeinfo import FactoryTypeInformationAddView
 from plone.dexterity.fti import DexterityFTI
+from Products.CMFCore.browser.typeinfo import FactoryTypeInformationAddView
 
 
 class FTIAddView(FactoryTypeInformationAddView):

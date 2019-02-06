@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from persistent import Persistent
-from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityFactory
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import resolveDottedName
 from zope.component import getUtility
 from zope.component.factory import Factory

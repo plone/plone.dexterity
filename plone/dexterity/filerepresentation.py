@@ -36,6 +36,7 @@ from ZPublisher.Iterators import IStreamIterator
 import six
 import tempfile
 
+
 if bbb.HAS_ZSERVER:
     from webdav.Resource import Resource
 else:
