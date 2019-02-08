@@ -9,6 +9,29 @@ Changelog
 
 .. towncrier release notes start
 
+2.8.0 (2019-02-08)
+------------------
+
+New features:
+
+
+- Implement getSize method to sum the size of all field values that have a
+  getSize method. [davisagli] (#89)
+
+
+Bug fixes:
+
+
+- Other Python 3 compatibility fixes [ale-rt] (#90)
+- Add PathReprProvider as a baseclass of Container to restore the original
+  __repr__ behavior instead of the new __repr__ from persistent.Persistent.
+  PathReprProvider needs to be before CMFOrderedBTreeFolderBase (which inherits
+  OrderedBTreeFolderBase > BTreeFolder2Base > Persistent). [pbauer] (#93)
+- Fixed test for minor check_id change. We need the 'Access contents
+  information' permission. (#2582)
+- Remove deprecation warning, see
+  https://github.com/plone/Products.CMFPlone/issues/2667 (#2667)
+
 
 2.6.1 (2018-09-23)
 ------------------
