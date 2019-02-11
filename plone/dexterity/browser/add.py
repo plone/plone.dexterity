@@ -2,7 +2,6 @@
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from Acquisition.interfaces import IAcquirer
-from Products.statusmessages.interfaces import IStatusMessage
 from plone.dexterity.browser.base import DexterityExtensibleForm
 from plone.dexterity.events import AddBegunEvent
 from plone.dexterity.events import AddCancelledEvent
@@ -12,14 +11,15 @@ from plone.dexterity.utils import addContentToContainer
 from plone.dexterity.utils import getAdditionalSchemata
 from plone.z3cform import layout
 from plone.z3cform.interfaces import IDeferSecurityCheck
+from Products.statusmessages.interfaces import IStatusMessage
 from z3c.form import button
 from z3c.form import form
 from z3c.form.interfaces import IDataManager
 from z3c.form.interfaces import NOT_CHANGED
 from z3c.form.util import changedField
 from zope.component import createObject
-from zope.component import getUtility
 from zope.component import getMultiAdapter
+from zope.component import getUtility
 from zope.event import notify
 from zope.publisher.browser import BrowserPage
 

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from .case import MockTestCase
 from mock import Mock
 from plone.dexterity import utils
 from plone.dexterity.fti import DexterityFTI
-from .case import MockTestCase
 
 
 class TestUtils(MockTestCase):

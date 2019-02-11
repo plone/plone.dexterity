@@ -1,3 +1,0 @@
-Add PathReprProvider as a baseclass of Container to restore the original __repr__ behavior instead of the new __repr__ from persistent.Persistent.
-PathReprProvider needs to be before CMFOrderedBTreeFolderBase (which inherits OrderedBTreeFolderBase > BTreeFolder2Base > Persistent).
-[pbauer]

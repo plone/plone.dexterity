@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from .case import MockTestCase
 from mock import Mock
 from plone.dexterity.content import Item
 from plone.dexterity.fti import DexterityFTI
@@ -6,9 +7,8 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.primary import PrimaryFieldInfo
 from plone.rfc822.interfaces import IPrimaryField
 from zope import schema
-from zope.interface import Interface
 from zope.interface import alsoProvides
-from .case import MockTestCase
+from zope.interface import Interface
 
 
 class PrimaryFieldInfoTestCase(MockTestCase):

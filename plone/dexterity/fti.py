@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
 from Acquisition import aq_base
-from Products.CMFCore.interfaces import ISiteRoot
-from Products.CMFDynamicViewFTI import fti as base
 from plone.dexterity import utils
 from plone.dexterity.factory import DexterityFactory
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityFTIModificationDescription
-from plone.dexterity.schema import SchemaInvalidatedEvent
 from plone.dexterity.schema import portalTypeToSchemaName
-from plone.supermodel import loadString, loadFile
+from plone.dexterity.schema import SchemaInvalidatedEvent
+from plone.supermodel import loadFile
+from plone.supermodel import loadString
 from plone.supermodel.model import Model
 from plone.supermodel.utils import syncSchema
+from Products.CMFCore.interfaces import ISiteRoot
+from Products.CMFDynamicViewFTI import fti as base
 from zope.component import getAllUtilitiesRegisteredFor
 from zope.component import getUtility
 from zope.component import queryUtility

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
+from csv import reader
+from csv import writer
+from Products.GenericSetup.content import _globtest
 from Products.GenericSetup.content import FauxDAVRequest
 from Products.GenericSetup.content import FauxDAVResponse
 from Products.GenericSetup.content import FolderishExporterImporter
-from Products.GenericSetup.content import _globtest
 from Products.GenericSetup.interfaces import IContentFactoryName
 from Products.GenericSetup.interfaces import IFilesystemExporter
 from Products.GenericSetup.interfaces import IFilesystemImporter
 from Products.GenericSetup.utils import _getDottedName
-from csv import reader
-from csv import writer
 from six import StringIO
 from zope.component import queryAdapter
 from zope.interface import implementer

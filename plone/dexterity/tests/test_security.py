@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+from .case import MockTestCase
 from mock import Mock
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
-from plone.dexterity.content import Item
 from plone.dexterity.content import Container
+from plone.dexterity.content import Item
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
@@ -10,7 +11,6 @@ from zope.interface import Interface
 from zope.interface import provider
 from zope.security.interfaces import IPermission
 from zope.security.permission import Permission
-from .case import MockTestCase
 
 import zope.schema
 
