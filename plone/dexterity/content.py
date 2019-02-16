@@ -752,7 +752,7 @@ class Container(
 
         # This will trigger when an item was deleted from this container and
         # attribute by the same name exists. ie obj['my_id'] and obj.my_id.
-        if getattr(aq_base(self), name, _marker) is not _marker:
+        if name in aq_base(self).__dict__:
             msg = (
                 "Item '{}' contained in {} was shadowed by an attribute."
                 "You might want to delete the attribute as well."
