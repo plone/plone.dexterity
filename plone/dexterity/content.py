@@ -739,6 +739,7 @@ class Container(
 
         # if we have a n item, set that
         elif '_tree' in self.__dict__ and name in self:
+            del self[name]
             self[name] = value
 
         # else we'll set an attribute.
