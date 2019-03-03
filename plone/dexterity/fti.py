@@ -264,8 +264,11 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         # Otherwise, look up a dynamic schema. This will query the model for
         # an unnamed schema if it is the first time it is looked up.
         # See schema.py
-
-        schemaName = portalTypeToSchemaName(self.getId())
+        try:
+            prefix = self.__parent__.__name__
+        except AttributeError:
+            prefix = None
+        schemaName = portalTypeToSchemaName(self.getId(), prefix=prefix)
         return getattr(plone.dexterity.schema.generated, schemaName)
 
     def lookupModel(self):
