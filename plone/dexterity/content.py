@@ -725,21 +725,23 @@ class Container(
         # Be specific about the implementation we use
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
 
-    def __setattr__(self, name, value):
+    def __delattr__(self, name):
         try:
-            has_item_by_name = name in self
-        except:
-            has_item_by_name = False
-        if has_item_by_name:
-            msg = (
-                "An item with the same name already exists. Use item access, for example: obj['{}'] = value. "
-                "We are setting the item instead of the attribute!"
-            ).format(name)
-            warnings.warn(msg)
-            # We remove the old one and then add the new one so the old one is
-            # unindexed and the new is indexed.
+            super(Container, self).__delattr__(name)
+        except AttributeError:  # delete the item instead
             del self[name]
+
+    def __setattr__(self, name, value):
+        # If we have an existing attribute, just set it.
+        # We'll check this first, so we don't check the tree unneeded.
+        if name in self.__dict__:
+            super(Container, self).__setattr__(name, value)
+
+        # if we have a n item, set that
+        elif '_tree' in self.__dict__ and name in self:
             self[name] = value
+
+        # else we'll set an attribute.
         else:
             super(Container, self).__setattr__(name, value)
 
