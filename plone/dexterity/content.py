@@ -717,10 +717,6 @@ class Container(
         DexterityContent.__init__(self, id, **kwargs)
 
     def __getattr__(self, name):
-        if name in self:
-            msg = "Trying to access item '{}' in {} by attribute".format(name, self)
-            warnings.warn(msg)
-
         try:
             return DexterityContent.__getattr__(self, name)
         except AttributeError:
