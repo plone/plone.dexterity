@@ -23,8 +23,8 @@ from zope.interface.interface import InterfaceClass
 
 import functools
 import logging
-import six
 import types
+import warnings
 
 
 log = logging.getLogger(__name__)
@@ -135,11 +135,13 @@ class SchemaCache(object):
             registration = queryUtility(IBehavior, name=behavior_name)
             if registration is None:
                 # BBB - this case should be deprecated in v 3.0
-                log.warning(
+                warnings.warn(
                     'No behavior registration found for behavior named: "{0}"'
-                    ' - trying fallback lookup..."'.format(
+                    ' - trying deprecated fallback lookup (will be removed '
+                    'in 3.0)..."'.format(
                         behavior_name
-                    )
+                    ),
+                    DeprecationWarning,
                 )
                 try:
                     schema_interface = resolve(behavior_name)
