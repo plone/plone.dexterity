@@ -1,0 +1,3 @@
+Turn a warning meant as deprecation warning into a a real DeprecationWarning,
+follows Deprecation Guide best practice.
+[jensens]
