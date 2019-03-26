@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from plone.dexterity import interfaces
-from zope.component.interfaces import ObjectEvent
+from zope.interface.interfaces import ObjectEvent
 from zope.interface import implementer
 
 
