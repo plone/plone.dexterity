@@ -6,6 +6,8 @@ from zope.component import adapter
 from zope.interface import implementer
 
 
+
+
 @implementer(IBehaviorAssignable)
 @adapter(IDexterityContent)
 class DexterityBehaviorAssignable(object):
