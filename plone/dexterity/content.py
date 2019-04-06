@@ -57,6 +57,14 @@ _zone = DateTime().timezone()
 FLOOR_DATE = DateTime(1970, 0)  # always effective
 CEILING_DATE = DateTime(2500, 0)  # never expires
 
+# see comment in DexterityContent.__getattr__ method
+ATTRIBUTE_NAMES_TO_IGNORE = (
+    '_v__providedBy__',
+    'im_self',  # python 2 only, on python 3 it was renamed to __self__
+    'aq_inner',
+    '_Access_contents_information_Permission'
+)
+
 
 def _default_from_schema(context, schema, fieldname):
     """helper to lookup default value of a field
@@ -332,7 +340,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         # wouldn't be in here if the class had such an attribute
         # defined).
         # also handle special dynamic providedBy cache here.
-        if name.startswith('__') or name == '_v__providedBy__':
+        # Ignore also some other well known names like
+        # Acquisition and AccessControl related ones.
+        if name.startswith('__') or name in ATTRIBUTE_NAMES_TO_IGNORE:
             raise AttributeError(name)
 
         # attribute was not found; try to look it up in the schema and return
