@@ -50,12 +50,20 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     def additionalSchemata(self):
         return getAdditionalSchemata(portal_type=self.portal_type)
 
-    # API
+    @property
+    def container(self):
+        """find container
 
+        return container object.
+
+        In subclasses this could be used to point to a different container.
+        """
+        return aq_inner(self.context)
+
+    # API
     def create(self, data):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
 
-        container = aq_inner(self.context)
         content = createObject(fti.factory)
 
         # Note: The factory may have done this already, but we want to be sure
@@ -69,7 +77,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         # Acquisition wrap temporarily to satisfy things like vocabularies
         # depending on tools
         if IAcquirer.providedBy(content):
-            content = content.__of__(container)
+            content = content.__of__(self.container)
 
         _applyChanges(self, content, data, force=True)
         for group in self.groups:
@@ -80,16 +88,15 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     def add(self, object):
 
         fti = getUtility(IDexterityFTI, name=self.portal_type)
-        container = aq_inner(self.context)
-        new_object = addContentToContainer(container, object)
+        new_object = addContentToContainer(self.container, object)
 
         if fti.immediate_view:
             self.immediate_view = "/".join(
-                [container.absolute_url(), new_object.id, fti.immediate_view]
+                [self.container.absolute_url(), new_object.id, fti.immediate_view]
             )
         else:
             self.immediate_view = "/".join(
-                [container.absolute_url(), new_object.id]
+                [self.container.absolute_url(), new_object.id]
             )
 
     def nextURL(self):
