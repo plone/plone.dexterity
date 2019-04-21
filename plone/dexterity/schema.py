@@ -281,11 +281,13 @@ class SchemaNameEncoder(object):
         return [self.decode(a) for a in s.split('_0_')]
 
 
-def portalTypeToSchemaName(portal_type, schema=u"", prefix=None):
+def portalTypeToSchemaName(portal_type, schema=u"", prefix=None, siteroot=None):
     """Return a canonical interface name for a generated schema interface.
     """
     if prefix is None:
-        prefix = '/'.join(getUtility(ISiteRoot).getPhysicalPath())[1:]
+        if siteroot is None:
+            siteroot = getUtility(ISiteRoot)
+        prefix = '/'.join(siteroot.getPhysicalPath())[1:]
 
     encoder = SchemaNameEncoder()
     return encoder.join(prefix, portal_type, schema)
