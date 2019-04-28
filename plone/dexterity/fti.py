@@ -264,12 +264,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         # Otherwise, look up a dynamic schema. This will query the model for
         # an unnamed schema if it is the first time it is looked up.
         # See schema.py
-        siteroot = self
-        while True:
-            if siteroot is None or ISiteRoot.providedBy(siteroot):
-                break
-            siteroot = getattr(siteroot, '__parent__', None)
-        schemaName = portalTypeToSchemaName(self.getId(), siteroot=siteroot)
+        schemaName = portalTypeToSchemaName(self.getId())
         return getattr(plone.dexterity.schema.generated, schemaName)
 
     def lookupModel(self):
@@ -559,12 +554,7 @@ def ftiModified(object, event):
         if (fti.model_source or fti.model_file) \
            and ('model_source' in mod or 'model_file' in mod or 'schema_policy' in mod):
 
-            siteroot = fti
-            while True:
-                if siteroot is None or ISiteRoot.providedBy(siteroot):
-                    break
-                siteroot = getattr(siteroot, '__parent__', None)
-            schemaName = portalTypeToSchemaName(portal_type, siteroot=siteroot)
+            schemaName = portalTypeToSchemaName(portal_type)
             schema = getattr(plone.dexterity.schema.generated, schemaName)
 
             model = fti.lookupModel()

@@ -16,6 +16,7 @@ from zope.component import adapter
 from zope.component import getAllUtilitiesRegisteredFor
 from zope.component import getUtility
 from zope.component import queryUtility
+from zope.component.hooks import getSite
 from zope.dottedname.resolve import resolve
 from zope.interface import alsoProvides
 from zope.interface import implementer
@@ -281,12 +282,11 @@ class SchemaNameEncoder(object):
         return [self.decode(a) for a in s.split('_0_')]
 
 
-def portalTypeToSchemaName(portal_type, schema=u"", prefix=None, siteroot=None):
+def portalTypeToSchemaName(portal_type, schema=u"", prefix=None):
     """Return a canonical interface name for a generated schema interface.
     """
     if prefix is None:
-        if siteroot is None:
-            siteroot = getUtility(ISiteRoot)
+        siteroot = getSite()
         prefix = '/'.join(siteroot.getPhysicalPath())[1:]
 
     encoder = SchemaNameEncoder()
