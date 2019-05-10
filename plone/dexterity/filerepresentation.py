@@ -689,13 +689,11 @@ class DefaultReadFile(ReadFileBase):
         # publisher, which will serve it efficiently even after the
         # transaction is closed
         message = self._getMessage()
+        out = tempfile.TemporaryFile(mode='w+b')
         if six.PY2:
-            # message.as_string will return str in both Python 2 and 3
-            kw = {'mode': 'w+b'}
+            out.write(message.as_string())
         else:
-            kw = {'mode': 'w+', 'encoding': 'utf-8'}
-        out = tempfile.TemporaryFile(**kw)
-        out.write(message.as_string())
+            out.write(message.as_string().encode('utf-8'))
         self._size = out.tell()
         out.seek(0)
         return out
@@ -838,7 +836,10 @@ class DefaultWriteFile(object):
         if self._closed:
             raise ValueError("File is closed")
         self._written += len(data)
-        self._parser.feed(data)
+        if isinstance(data, bytes):
+            self._parser.feed(data.decode('utf-8'))
+        else:
+            self._parser.feed(data)
 
     def writelines(self, sequence):
         for item in sequence:
