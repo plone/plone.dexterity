@@ -836,10 +836,7 @@ class DefaultWriteFile(object):
         if self._closed:
             raise ValueError("File is closed")
         self._written += len(data)
-        if isinstance(data, bytes):
-            self._parser.feed(data.decode('utf-8'))
-        else:
-            self._parser.feed(data)
+        self._parser.feed(data)
 
     def writelines(self, sequence):
         for item in sequence:
