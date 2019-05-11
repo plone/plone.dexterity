@@ -1,0 +1,2 @@
+- Avoid passing in unicode data into the WebDAV message parser.
+  [Rotonen]
