@@ -9,6 +9,17 @@ Changelog
 
 .. towncrier release notes start
 
+2.9.1 (2019-05-21)
+------------------
+
+Bug fixes:
+
+
+- Fix WebDAV compatibility issues with ZServer on Python 3 [datakurre] (#102)
+- Avoid passing in unicode data into the WebDAV message parser.
+  [Rotonen] (#103)
+
+
 2.9.0 (2019-05-01)
 ------------------
 
