@@ -21,6 +21,7 @@ from zope.component import getUtility
 from zope.container.interfaces import INameChooser
 from zope.dottedname.resolve import resolve
 from zope.event import notify
+from zope.interface.interface import Method
 from zope.lifecycleevent import ObjectCreatedEvent
 from zope.schema.interfaces import IContextAwareDefaultFactory
 
@@ -248,7 +249,7 @@ def default_from_schema(context, schema, fieldname, default=_marker):
     if schema is None:
         return default
     field = schema.get(fieldname, None)
-    if field is None:
+    if field is None or isinstance(field, Method):
         return default
     if IContextAwareDefaultFactory.providedBy(
         getattr(field, 'defaultFactory', None)
