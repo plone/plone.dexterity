@@ -279,7 +279,7 @@ def initialize_missing_attributes(context):
         if behavior is not content:
             # we only care about direct content attributes
             continue
-        for name in schema.names():
+        for name in schema.names(all=True):
             try:
                 # hasattr swallows exceptions
                 object.__getattribute__(behavior, name)
