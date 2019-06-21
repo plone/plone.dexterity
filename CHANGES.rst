@@ -9,6 +9,37 @@ Changelog
 
 .. towncrier release notes start
 
+2.9.1 (2019-05-21)
+------------------
+
+Bug fixes:
+
+
+- Fix WebDAV compatibility issues with ZServer on Python 3 [datakurre] (#102)
+- Avoid passing in unicode data into the WebDAV message parser.
+  [Rotonen] (#103)
+
+
+2.9.0 (2019-05-01)
+------------------
+
+New features:
+
+
+- Avoid expensive lookups for other common attributes.
+  [gforcada] (#98)
+- Add container property to ``AddForm`` to simplify target container selection in subclasses. [jensens] (#101)
+
+
+Bug fixes:
+
+
+- Turn a warning meant as deprecation warning into a a real DeprecationWarning,
+  follows Deprecation Guide best practice.
+  [jensens] (#95)
+- Fixed DeprecationWarning for ObjectEvent.  [maurits] (#96)
+
+
 2.8.0 (2019-02-08)
 ------------------
 
