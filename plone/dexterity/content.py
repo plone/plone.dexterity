@@ -16,6 +16,7 @@ from plone.dexterity.filerepresentation import DAVCollectionMixin
 from plone.dexterity.filerepresentation import DAVResourceMixin
 from plone.dexterity.interfaces import IDexterityContainer
 from plone.dexterity.interfaces import IDexterityContent
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.dexterity.utils import all_merged_tagged_values_dict
@@ -59,6 +60,7 @@ CEILING_DATE = DateTime(2500, 0)  # never expires
 # see comment in DexterityContent.__getattr__ method
 ATTRIBUTE_NAMES_TO_IGNORE = (
     '_v__providedBy__',
+    '_v_cached_fti',
     'im_self',  # python 2 only, on python 3 it was renamed to __self__
     'aq_inner',
     '_Access_contents_information_Permission'
@@ -116,7 +118,10 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         # Find the cached value. This calculation is expensive and called
         # hundreds of times during each request, so we require a fast cache
         cache = getattr(inst, '_v__providedBy__', None)
-
+        fti = getattr(inst, '_v_cached_fti', None)
+        if fti is None:
+            fti = queryUtility(IDexterityFTI, name=portal_type)
+            inst._v_cached_fti = fti
         # See if we have a current cache. Reasons to do this include:
         #
         #  - The FTI was modified.
@@ -124,9 +129,9 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         #  - The instance has a different direct specification.
         updated = (
             inst._p_mtime,
-            SCHEMA_CACHE.modified(portal_type),
+            SCHEMA_CACHE.modified(fti),
             SCHEMA_CACHE.invalidations,
-            hash(direct_spec)
+            hash(direct_spec),
         )
         if cache is not None and cache[:-1] == updated:
             if cache[-1] is not None:
