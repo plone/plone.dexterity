@@ -35,11 +35,13 @@ from Products.CMFCore.interfaces import IMutableDublinCore
 from Products.CMFCore.interfaces import ITypeInformation
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.PortalFolder import PortalFolderBase
+from Products.CMFCore.utils import getToolByName
 from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 from Products.CMFPlone.interfaces import IConstrainTypes
 from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
 from zope.component import queryUtility
+from zope.component.hooks import getSite
 from zope.container.contained import Contained
 from zope.interface import implementer
 from zope.interface.declarations import getObjectSpecification
