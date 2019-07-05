@@ -35,13 +35,11 @@ from Products.CMFCore.interfaces import IMutableDublinCore
 from Products.CMFCore.interfaces import ITypeInformation
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.PortalFolder import PortalFolderBase
-from Products.CMFCore.utils import getToolByName
 from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
 from Products.CMFPlone.interfaces import IConstrainTypes
 from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
 from zope.component import queryUtility
-from zope.component.hooks import getSite
 from zope.container.contained import Contained
 from zope.interface import implementer
 from zope.interface.declarations import getObjectSpecification
@@ -126,12 +124,16 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         #  - The FTI was modified.
         #  - The instance was modified and persisted since the cache was built.
         #  - The instance has a different direct specification.
-        fti = getToolByName(getSite(), "portal_types").get(portal_type)
+        if not cache:
+            fti = queryUtility(IDexterityFTI, name=portal_type)
+        else:
+            fti = cache[-2]
         updated = (
             inst._p_mtime,
-            fti and fti._p_mtime,
+            SCHEMA_CACHE.modified(fti),
             SCHEMA_CACHE.invalidations,
-            hash(direct_spec)
+            fti,
+            hash(direct_spec),
         )
         if cache is not None and cache[:-1] == updated:
             if cache[-1] is not None:
