@@ -16,6 +16,7 @@ from plone.dexterity.filerepresentation import DAVCollectionMixin
 from plone.dexterity.filerepresentation import DAVResourceMixin
 from plone.dexterity.interfaces import IDexterityContainer
 from plone.dexterity.interfaces import IDexterityContent
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.dexterity.utils import all_merged_tagged_values_dict
@@ -62,6 +63,7 @@ ATTRIBUTE_NAMES_TO_IGNORE = (
     'im_self',  # python 2 only, on python 3 it was renamed to __self__
     'aq_inner',
     '_Access_contents_information_Permission'
+    'portal_factory',
 )
 
 
@@ -122,9 +124,10 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         #  - The FTI was modified.
         #  - The instance was modified and persisted since the cache was built.
         #  - The instance has a different direct specification.
+        fti = queryUtility(IDexterityFTI, name=portal_type, default=None)
         updated = (
             inst._p_mtime,
-            SCHEMA_CACHE.modified(portal_type),
+            SCHEMA_CACHE.modified(fti or portal_type),
             SCHEMA_CACHE.invalidations,
             hash(direct_spec)
         )
