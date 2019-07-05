@@ -227,8 +227,6 @@ class SchemaCache(object):
             invalidate_cache(fti)
             self.invalidations += 1
 
-    @synchronized(lock)
-    @volatile
     def modified(self, fti):
         if fti:
             return fti._p_mtime

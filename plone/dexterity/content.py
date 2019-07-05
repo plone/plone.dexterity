@@ -124,10 +124,10 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         #  - The FTI was modified.
         #  - The instance was modified and persisted since the cache was built.
         #  - The instance has a different direct specification.
-        fti = queryUtility(IDexterityFTI, name=portal_type, default=None)
+        fti = getToolByName(getSite(), "portal_types").get(portal_type)
         updated = (
             inst._p_mtime,
-            SCHEMA_CACHE.modified(fti or portal_type),
+            fti and fti._p_mtime,
             SCHEMA_CACHE.invalidations,
             hash(direct_spec)
         )
