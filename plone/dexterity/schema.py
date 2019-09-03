@@ -131,7 +131,7 @@ class SchemaCache(object):
         if fti is None:
             return tuple()
         registrations = []
-        for behavior_name in fti.behaviors:
+        for behavior_name in filter(None, fti.behaviors):
             registration = queryUtility(IBehavior, name=behavior_name)
             if registration is None:
                 # BBB - this case should be deprecated in v 3.0
