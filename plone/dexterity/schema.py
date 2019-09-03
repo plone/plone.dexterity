@@ -136,10 +136,11 @@ class SchemaCache(object):
             if registration is None:
                 # BBB - this case should be deprecated in v 3.0
                 warnings.warn(
-                    'No behavior registration found for behavior named: "{0}"'
+                    'No behavior registration found for behavior named "{0}"'
+                    ' for factory "{1}"'
                     ' - trying deprecated fallback lookup (will be removed '
                     'in 3.0)..."'.format(
-                        behavior_name
+                        behavior_name, fti.getId()
                     ),
                     DeprecationWarning,
                 )
@@ -147,8 +148,8 @@ class SchemaCache(object):
                     schema_interface = resolve(behavior_name)
                 except (ValueError, ImportError):
                     log.error(
-                        "Error resolving behavior {0}".format(
-                            behavior_name
+                        "Error resolving behavior {0} for factory {1}".format(
+                            behavior_name, fti.getId()
                         )
                     )
                     continue

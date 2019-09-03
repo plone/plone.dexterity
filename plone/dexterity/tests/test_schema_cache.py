@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from .case import MockTestCase
 from mock import Mock
+from mock import patch
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from zope.interface import Interface
 
 import unittest
+import warnings
 
 
 class TestSchemaCache(MockTestCase):
@@ -56,6 +58,25 @@ class TestSchemaCache(MockTestCase):
         r2 = SCHEMA_CACHE.behavior_registrations(u'testtype')
 
         self.assertTrue(r1[0] is r2[0] is registration)
+
+    def test_unexistent_behaviors_lookup(self):
+        fti = DexterityFTI(u"testtype")
+        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
+        # Set an unregistered behavior
+        fti.behaviors = ["foo.bar"]
+
+        with patch("warnings.warn") as mock_warnings:
+            warning_list = [call[1][0] for call in mock_warnings.mock_calls]
+            SCHEMA_CACHE.behavior_registrations(u'testtype')
+            # Verify the warning has been issued
+            self.assertEqual(
+                mock_warnings.mock_calls[-1].args[0],
+                (
+                    'No behavior registration found for behavior named '
+                    '"foo.bar" for factory "testtype" - trying deprecated '
+                    'fallback lookup (will be removed in 3.0)..."'
+                )
+            )
 
     def test_repeated_subtypes_lookup(self):
 
