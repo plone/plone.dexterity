@@ -23,6 +23,7 @@ from zope.interface.interface import InterfaceClass
 
 import functools
 import logging
+import six
 import types
 import warnings
 
@@ -50,15 +51,30 @@ def volatile(func):
     @functools.wraps(func)
     def decorator(self, portal_type):
         """lookup fti from portal_type and cache
+
+        input can be either a portal_type as string or as the utility instance.
+        return value is always a FTI-ultiliy or None
         """
-        if portal_type is not None:
-            if IDexterityFTI.providedBy(portal_type):
-                fti = portal_type
-            else:
-                fti = queryUtility(IDexterityFTI, name=portal_type)
+        # this function is called very often
+
+        # shortcut None input
+        if portal_type is None:
+            return func(self, None)
+        # if its a string lookup fti
+        if isinstance(portal_type, six.string_types):
+            # looking up a utility is expensive
+            fti = queryUtility(IDexterityFTI, name=portal_type)
+            if fti is None:
+                return func(self, None)
+        elif IDexterityFTI.providedBy(portal_type):
+            # its already an IDexterityFTI instance
+            fti = portal_type
         else:
-            fti = None
-        if fti is not None and self.cache_enabled:
+            raise ValueError(
+                'portal_type has to either string or IDexterityFTI instance but is '
+                '{0!r}'.format(portal_type)
+            )
+        if self.cache_enabled:
             key = '_v_schema_%s' % func.__name__
             cache = getattr(fti, key, _MARKER)
             if cache is not _MARKER:
@@ -68,7 +84,7 @@ def volatile(func):
 
         value = func(self, fti)
 
-        if fti is not None and self.cache_enabled:
+        if self.cache_enabled:
             setattr(fti, key, (fti._p_mtime, value))
 
         return value
