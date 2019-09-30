@@ -40,6 +40,7 @@ from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
 from zope.component import queryUtility
 from zope.container.contained import Contained
+from zope.globalrequest import getRequest
 from zope.interface import implementer
 from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import implementedBy
@@ -70,6 +71,8 @@ ATTRIBUTE_NAMES_TO_IGNORE = (
     'translation_service',
 )
 
+ASSIGNABLE_CACHE_KEY = '__plone_dexterity_assignable_cache__'
+
 
 def _default_from_schema(context, schema, fieldname):
     """helper to lookup default value of a field
@@ -87,6 +90,32 @@ def _default_from_schema(context, schema, fieldname):
     ):
         return deepcopy(field.bind(context).default)
     return deepcopy(field.default)
+
+
+def get_assignable(context):
+    """get the BehaviorAssignable for the context.
+
+    Read from cache on request if needed (twice as fast as lookup)
+
+    returns IBehaviorAssignable providing instance or None
+    """
+    request = getRequest()
+    if not request:
+        return IBehaviorAssignable(context, None)
+    cache_key = getattr(context, '_p_oid', None)
+    if not cache_key:
+        return IBehaviorAssignable(context, None)
+    assignable_cache = getattr(request, ASSIGNABLE_CACHE_KEY, _marker)
+    if assignable_cache is _marker:
+        assignable_cache = dict()
+        setattr(request, ASSIGNABLE_CACHE_KEY, assignable_cache)
+    assignable = assignable_cache.get(cache_key, _marker)
+    if assignable is _marker:
+        assignable_cache[cache_key] = assignable = IBehaviorAssignable(
+            context,
+            None,
+        )
+    return assignable
 
 
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
@@ -148,7 +177,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         # block recursion
         self.__recursion__ = True
         try:
-            assignable = IBehaviorAssignable(inst, None)
+            assignable = get_assignable(inst)
             if assignable is not None:
                 for behavior_registration in assignable.enumerateBehaviors():
                     if behavior_registration.marker:
@@ -365,8 +394,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         if value is not _marker:
             return value
 
-        # do the same for each subtype
-        assignable = IBehaviorAssignable(self, None)
+        # do the same for each behavior
+        assignable = get_assignable(self)
         if assignable is not None:
             for behavior_registration in assignable.enumerateBehaviors():
                 if behavior_registration.interface:
