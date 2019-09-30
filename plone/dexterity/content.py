@@ -40,6 +40,7 @@ from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
 from zope.component import queryUtility
 from zope.container.contained import Contained
+from zope.globalrequest import getRequest
 from zope.interface import implementer
 from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import implementedBy
@@ -63,6 +64,8 @@ ATTRIBUTE_NAMES_TO_IGNORE = (
     'aq_inner',
     '_Access_contents_information_Permission'
 )
+
+ASSIGNABLE_CACHE_KEY = '__plone_dexterity_assignable_cache__'
 
 
 def _default_from_schema(context, schema, fieldname):
@@ -355,7 +358,22 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
             return value
 
         # do the same for each subtype
-        assignable = IBehaviorAssignable(self, None)
+
+        # cache the assignable, the lookup is too expensive
+        # and this is called very often
+        request = getRequest()
+        if request:
+            assignable_cache = getattr(request, ASSIGNABLE_CACHE_KEY, _marker)
+            if assignable_cache is _marker:
+                setattr(request, ASSIGNABLE_CACHE_KEY, dict())
+            cache_key = tuple(self.getPhysicalPath())
+            assignable = assignable_cache.get(cache_key, _marker)
+            if assignable is _marker:
+                assignable_cache[cache_key] = assignable = IBehaviorAssignable(
+                    self, None
+                )
+        else:
+            assignable = IBehaviorAssignable(self, None)
         if assignable is not None:
             for behavior_registration in assignable.enumerateBehaviors():
                 if behavior_registration.interface:
