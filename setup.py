@@ -62,6 +62,7 @@ setup(
         'zope.component',
         'zope.container',
         'zope.dottedname',
+        'zope.globalrequest',
         'zope.filerepresentation>=3.6.0',
         'zope.interface',
         'zope.lifecycleevent',
