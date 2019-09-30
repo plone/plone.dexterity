@@ -17,6 +17,7 @@ from zope.component import getAllUtilitiesRegisteredFor
 from zope.component import getUtility
 from zope.component import queryUtility
 from zope.dottedname.resolve import resolve
+from zope.globalrequest import getRequest
 from zope.interface import alsoProvides
 from zope.interface import implementer
 from zope.interface.interface import InterfaceClass
@@ -35,6 +36,8 @@ generated = dynamic.create('plone.dexterity.schema.generated')
 transient = types.ModuleType('transient')
 
 _MARKER = dict()
+
+FTI_CACHE_KEY = '__plone_dexterity_fti_cache__'
 
 
 def invalidate_cache(fti):
@@ -62,8 +65,23 @@ def volatile(func):
             return func(self, None)
         # if its a string lookup fti
         if isinstance(portal_type, six.string_types):
-            # looking up a utility is expensive
-            fti = queryUtility(IDexterityFTI, name=portal_type)
+            # looking up a utility is expensive, using the global request as
+            # cache is twice as fast
+            request = getRequest()
+            if request:
+                fti_cache = getattr(request, FTI_CACHE_KEY, None)
+                if fti_cache is None:
+                    fti_cache = dict()
+                    setattr(request, FTI_CACHE_KEY, dict())
+                if portal_type in fti_cache:
+                    fti = fti_cache[portal_type]
+                else:
+                    fti_cache[portal_type] = fti = queryUtility(
+                        IDexterityFTI,
+                        name=portal_type
+                    )
+            else:
+                fti = queryUtility(IDexterityFTI, name=portal_type)
             if fti is None:
                 return func(self, None)
         elif IDexterityFTI.providedBy(portal_type):
