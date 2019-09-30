@@ -454,7 +454,7 @@ class TestFTIEvents(MockTestCase):
         setSite(site_dummy)
         setHooks()
 
-        self.assertNotEquals(
+        self.assertNotEqual(
             None,
             queryUtility(IDexterityFTI, name=portal_type)
         )
@@ -618,7 +618,7 @@ class TestFTIEvents(MockTestCase):
         )
 
         # Then look for re-registration of global components
-        self.assertEquals(site_manager_mock.registerUtility.call_count, 2)
+        self.assertEqual(site_manager_mock.registerUtility.call_count, 2)
 
         site_dummy = self.create_dummy(
             getSiteManager=lambda: site_manager_mock
