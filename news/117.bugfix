@@ -1,0 +1,2 @@
+Performance enhancement: avoid a providedBy in ``_default_from_schema``.
+[jensens]
