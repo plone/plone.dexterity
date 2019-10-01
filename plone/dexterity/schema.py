@@ -252,6 +252,10 @@ class SchemaCache(object):
     def clear(self):
         for fti in getAllUtilitiesRegisteredFor(IDexterityFTI):
             self.invalidate(fti)
+        request = getRequest()
+        fti_cache = getattr(request, FTI_CACHE_KEY, None)
+        if fti_cache is not None:
+            delattr(request, FTI_CACHE_KEY)
 
     @synchronized(lock)
     def invalidate(self, fti):
