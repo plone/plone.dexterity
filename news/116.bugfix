@@ -1,0 +1,5 @@
+Performance enhancement:
+Refine pre-filtering of attributes on content ``__getattr__``.
+Filter out all permissions (ending with ``_Permission``) and some portal-tools.
+Also often called aquired functions are skipped.
+[jensens]
