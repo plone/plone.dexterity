@@ -58,10 +58,16 @@ CEILING_DATE = DateTime(2500, 0)  # never expires
 
 # see comment in DexterityContent.__getattr__ method
 ATTRIBUTE_NAMES_TO_IGNORE = (
-    '_v__providedBy__',
-    'im_self',  # python 2 only, on python 3 it was renamed to __self__
+    '_dav_writelocks',
     'aq_inner',
-    '_Access_contents_information_Permission'
+    'getCurrentSkinName',
+    'getURL',
+    'im_self',  # python 2 only, on python 3 it was renamed to __self__
+    'plone_utils',
+    'portal_membership',
+    'portal_placeful_workflow',
+    'portal_properties',
+    'translation_service',
 )
 
 
@@ -340,8 +346,13 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         # defined).
         # also handle special dynamic providedBy cache here.
         # Ignore also some other well known names like
-        # Acquisition and AccessControl related ones.
-        if name.startswith('__') or name in ATTRIBUTE_NAMES_TO_IGNORE:
+        # Permission, Acquisition and AccessControl related ones.
+        if (
+            name.startswith('__')
+            or name.startswith('_v')
+            or name.endswith('_Permission')
+            or name in ATTRIBUTE_NAMES_TO_IGNORE
+        ):
             raise AttributeError(name)
 
         # attribute was not found; try to look it up in the schema and return
