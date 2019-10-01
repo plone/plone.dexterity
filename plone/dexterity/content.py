@@ -79,14 +79,14 @@ def _default_from_schema(context, schema, fieldname):
     field = schema.get(fieldname, None)
     if field is None:
         return _marker
-    if IContextAwareDefaultFactory.providedBy(
-            getattr(field, 'defaultFactory', None)
+    default_factory = getattr(field, 'defaultFactory', None)
+    if (
+        # check for None to avoid one expensive providedBy (called often)
+        default_factory is not None and
+        IContextAwareDefaultFactory.providedBy(default_factory)
     ):
-        bound = field.bind(context)
-        return deepcopy(bound.default)
-    else:
-        return deepcopy(field.default)
-    return _marker
+        return deepcopy(field.bind(context).default)
+    return deepcopy(field.default)
 
 
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
