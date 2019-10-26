@@ -40,6 +40,7 @@ from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
 from zope.component import queryUtility
 from zope.container.contained import Contained
+from zope.globalrequest import getRequest
 from zope.interface import implementer
 from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import implementedBy
@@ -59,11 +60,19 @@ CEILING_DATE = DateTime(2500, 0)  # never expires
 
 # see comment in DexterityContent.__getattr__ method
 ATTRIBUTE_NAMES_TO_IGNORE = (
-    '_v__providedBy__',
-    'im_self',  # python 2 only, on python 3 it was renamed to __self__
+    '_dav_writelocks',
     'aq_inner',
-    '_Access_contents_information_Permission'
+    'getCurrentSkinName',
+    'getURL',
+    'im_self',  # python 2 only, on python 3 it was renamed to __self__
+    'plone_utils',
+    'portal_membership',
+    'portal_placeful_workflow',
+    'portal_properties',
+    'translation_service',
 )
+
+ASSIGNABLE_CACHE_KEY = '__plone_dexterity_assignable_cache__'
 
 
 def _default_from_schema(context, schema, fieldname):
@@ -74,14 +83,40 @@ def _default_from_schema(context, schema, fieldname):
     field = schema.get(fieldname, None)
     if field is None:
         return _marker
-    if IContextAwareDefaultFactory.providedBy(
-            getattr(field, 'defaultFactory', None)
+    default_factory = getattr(field, 'defaultFactory', None)
+    if (
+        # check for None to avoid one expensive providedBy (called often)
+        default_factory is not None and
+        IContextAwareDefaultFactory.providedBy(default_factory)
     ):
-        bound = field.bind(context)
-        return deepcopy(bound.default)
-    else:
-        return deepcopy(field.default)
-    return _marker
+        return deepcopy(field.bind(context).default)
+    return deepcopy(field.default)
+
+
+def get_assignable(context):
+    """get the BehaviorAssignable for the context.
+
+    Read from cache on request if needed (twice as fast as lookup)
+
+    returns IBehaviorAssignable providing instance or None
+    """
+    request = getRequest()
+    if not request:
+        return IBehaviorAssignable(context, None)
+    cache_key = getattr(context, '_p_oid', None)
+    if not cache_key:
+        return IBehaviorAssignable(context, None)
+    assignable_cache = getattr(request, ASSIGNABLE_CACHE_KEY, _marker)
+    if assignable_cache is _marker:
+        assignable_cache = dict()
+        setattr(request, ASSIGNABLE_CACHE_KEY, assignable_cache)
+    assignable = assignable_cache.get(cache_key, _marker)
+    if assignable is _marker:
+        assignable_cache[cache_key] = assignable = IBehaviorAssignable(
+            context,
+            None,
+        )
+    return assignable
 
 
 class FTIAwareSpecification(ObjectSpecificationDescriptor):
@@ -143,7 +178,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         # block recursion
         self.__recursion__ = True
         try:
-            assignable = IBehaviorAssignable(inst, None)
+            assignable = get_assignable(inst)
             if assignable is not None:
                 for behavior_registration in assignable.enumerateBehaviors():
                     if behavior_registration.marker:
@@ -341,8 +376,13 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         # defined).
         # also handle special dynamic providedBy cache here.
         # Ignore also some other well known names like
-        # Acquisition and AccessControl related ones.
-        if name.startswith('__') or name in ATTRIBUTE_NAMES_TO_IGNORE:
+        # Permission, Acquisition and AccessControl related ones.
+        if (
+            name.startswith('__')
+            or name.startswith('_v')
+            or name.endswith('_Permission')
+            or name in ATTRIBUTE_NAMES_TO_IGNORE
+        ):
             raise AttributeError(name)
 
         # attribute was not found; try to look it up in the schema and return
@@ -355,8 +395,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         if value is not _marker:
             return value
 
-        # do the same for each subtype
-        assignable = IBehaviorAssignable(self, None)
+        # do the same for each behavior
+        assignable = get_assignable(self)
         if assignable is not None:
             for behavior_registration in assignable.enumerateBehaviors():
                 if behavior_registration.interface:

@@ -18,12 +18,14 @@ from zope.component import getUtility
 from zope.component import queryUtility
 from zope.component.hooks import getSite
 from zope.dottedname.resolve import resolve
+from zope.globalrequest import getRequest
 from zope.interface import alsoProvides
 from zope.interface import implementer
 from zope.interface.interface import InterfaceClass
 
 import functools
 import logging
+import six
 import types
 import warnings
 
@@ -35,6 +37,8 @@ generated = dynamic.create('plone.dexterity.schema.generated')
 transient = types.ModuleType('transient')
 
 _MARKER = dict()
+
+FTI_CACHE_KEY = '__plone_dexterity_fti_cache__'
 
 
 def invalidate_cache(fti):
@@ -51,15 +55,45 @@ def volatile(func):
     @functools.wraps(func)
     def decorator(self, portal_type):
         """lookup fti from portal_type and cache
+
+        input can be either a portal_type as string or as the utility instance.
+        return value is always a FTI-ultiliy or None
         """
-        if portal_type is not None:
-            if IDexterityFTI.providedBy(portal_type):
-                fti = portal_type
+        # this function is called very often
+
+        # shortcut None input
+        if portal_type is None:
+            return func(self, None)
+        # if its a string lookup fti
+        if isinstance(portal_type, six.string_types):
+            # looking up a utility is expensive, using the global request as
+            # cache is twice as fast
+            request = getRequest()
+            if request:
+                fti_cache = getattr(request, FTI_CACHE_KEY, None)
+                if fti_cache is None:
+                    fti_cache = dict()
+                    setattr(request, FTI_CACHE_KEY, dict())
+                if portal_type in fti_cache:
+                    fti = fti_cache[portal_type]
+                else:
+                    fti_cache[portal_type] = fti = queryUtility(
+                        IDexterityFTI,
+                        name=portal_type
+                    )
             else:
                 fti = queryUtility(IDexterityFTI, name=portal_type)
+            if fti is None:
+                return func(self, None)
+        elif IDexterityFTI.providedBy(portal_type):
+            # its already an IDexterityFTI instance
+            fti = portal_type
         else:
-            fti = None
-        if fti is not None and self.cache_enabled:
+            raise ValueError(
+                'portal_type has to either string or IDexterityFTI instance but is '
+                '{0!r}'.format(portal_type)
+            )
+        if self.cache_enabled:
             key = '_v_schema_%s' % func.__name__
             cache = getattr(fti, key, _MARKER)
             if cache is not _MARKER:
@@ -69,7 +103,7 @@ def volatile(func):
 
         value = func(self, fti)
 
-        if fti is not None and self.cache_enabled:
+        if self.cache_enabled:
             setattr(fti, key, (fti._p_mtime, value))
 
         return value
@@ -132,15 +166,16 @@ class SchemaCache(object):
         if fti is None:
             return tuple()
         registrations = []
-        for behavior_name in fti.behaviors:
+        for behavior_name in filter(None, fti.behaviors):
             registration = queryUtility(IBehavior, name=behavior_name)
             if registration is None:
                 # BBB - this case should be deprecated in v 3.0
                 warnings.warn(
-                    'No behavior registration found for behavior named: "{0}"'
+                    'No behavior registration found for behavior named "{0}"'
+                    ' for factory "{1}"'
                     ' - trying deprecated fallback lookup (will be removed '
                     'in 3.0)..."'.format(
-                        behavior_name
+                        behavior_name, fti.getId()
                     ),
                     DeprecationWarning,
                 )
@@ -148,8 +183,8 @@ class SchemaCache(object):
                     schema_interface = resolve(behavior_name)
                 except (ValueError, ImportError):
                     log.error(
-                        "Error resolving behavior {0}".format(
-                            behavior_name
+                        "Error resolving behavior {0} for factory {1}".format(
+                            behavior_name, fti.getId()
                         )
                     )
                     continue
@@ -218,6 +253,10 @@ class SchemaCache(object):
     def clear(self):
         for fti in getAllUtilitiesRegisteredFor(IDexterityFTI):
             self.invalidate(fti)
+        request = getRequest()
+        fti_cache = getattr(request, FTI_CACHE_KEY, None)
+        if fti_cache is not None:
+            delattr(request, FTI_CACHE_KEY)
 
     @synchronized(lock)
     def invalidate(self, fti):
