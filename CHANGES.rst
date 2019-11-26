@@ -9,6 +9,27 @@ Changelog
 
 .. towncrier release notes start
 
+2.9.2 (2019-10-12)
+------------------
+
+Bug fixes:
+
+
+- The debug messages issued when a non existent behavior is recorded in an FTI have been improved [ale-rt] (#109)
+- Avoid looking up behaviors with an empty name [ale-rt] (#110)
+- Performance enhancement in schema cache by factor ~1.5.
+  [jensens] (#113)
+- Performance enhancement in schema cache and assignable.
+  [jensens] (#115)
+- Performance enhancement:
+  Refine pre-filtering of attributes on content ``__getattr__``.
+  Filter out all permissions (ending with ``_Permission``) and some portal-tools.
+  Also often called aquired functions are skipped.
+  [jensens] (#116)
+- Performance enhancement: avoid a providedBy in ``_default_from_schema``.
+  [jensens] (#117)
+
+
 2.9.1 (2019-05-21)
 ------------------
 

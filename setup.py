@@ -3,7 +3,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-version = '2.9.2.dev0'
+version = '2.9.3.dev0'
 
 short_description = """\
 Framework for content types as filesystem code and TTW (Zope/CMF/Plone)\
@@ -19,6 +19,7 @@ setup(
     # Get more strings from
     # https://pypi.org/classifiers/
     classifiers=[
+        "Development Status :: 5 - Production/Stable",
         "Framework :: Plone",
         "Framework :: Plone :: 5.2",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
@@ -62,6 +63,7 @@ setup(
         'zope.component',
         'zope.container',
         'zope.dottedname',
+        'zope.globalrequest',
         'zope.filerepresentation>=3.6.0',
         'zope.interface',
         'zope.lifecycleevent',
