@@ -1,0 +1,1 @@
+- Fix thread safe recursion detection. This fixes an issue in plone.restapi: https://github.com/plone/plone.dexterity/issues/120. [jensens]
