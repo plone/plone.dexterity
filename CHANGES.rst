@@ -15,6 +15,15 @@ Changelog
 - Nothing changed yet.
 
 
+2.9.4 (2019-12-26)
+------------------
+
+Bug fixes:
+
+
+- Invalidate cached FTIs on request to allow complex/long running auto-installations. [jensens]
+
+
 2.9.3 (2019-12-23)
 ------------------
 
