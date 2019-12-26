@@ -1,0 +1,1 @@
+Invalidate cached FTIs on request to allow complex/long running auto-installations. [jensens]
