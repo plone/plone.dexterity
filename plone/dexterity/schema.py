@@ -145,7 +145,6 @@ class SchemaCache(object):
         self.cache_enabled = cache_enabled
         self.invalidations = 0
 
-    @synchronized(lock)
     @volatile
     def get(self, fti):
         """main schema
@@ -159,7 +158,6 @@ class SchemaCache(object):
             except (AttributeError, ValueError):
                 pass
 
-    @synchronized(lock)
     @volatile
     def behavior_registrations(self, fti):
         """all behavior behavior registrations of a given fti passed in as
@@ -204,7 +202,6 @@ class SchemaCache(object):
             registrations.append(registration)
         return tuple(registrations)
 
-    @synchronized(lock)
     @volatile
     def subtypes(self, fti):
         """all registered marker interfaces of ftis behaviors
@@ -220,7 +217,6 @@ class SchemaCache(object):
                 subtypes.append(behavior_registration.marker)
         return tuple(subtypes)
 
-    @synchronized(lock)
     @volatile
     def behavior_schema_interfaces(self, fti):
         """behavior schema interfaces registered for the fti
@@ -236,7 +232,6 @@ class SchemaCache(object):
                 schemas.append(behavior_registration.interface)
         return tuple(schemas)
 
-    @synchronized(lock)
     @volatile
     def schema_interfaces(self, fti):
         """all schema interfaces registered for the fti
@@ -273,7 +268,6 @@ class SchemaCache(object):
             invalidate_cache(fti)
             self.invalidations += 1
 
-    @synchronized(lock)
     @volatile
     def modified(self, fti):
         if fti:
