@@ -18,12 +18,6 @@ Bug fixes:
 - Speedup (~1.6x) parallel thread execution by removing superfluos synchronization [jensens] (#123)
 
 
-2.9.5 (unreleased)
-------------------
-
-- Nothing changed yet.
-
-
 2.9.4 (2019-12-26)
 ------------------
 
