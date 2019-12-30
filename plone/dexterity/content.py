@@ -776,48 +776,6 @@ class Container(
         # Be specific about the implementation we use
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
 
-    def __delattr__(self, name):
-        try:
-            super(Container, self).__delattr__(name)
-        except AttributeError:  # delete the item instead
-            del self[name]
-
-    # def __setattr__(self, name, value):
-    #     # If we have an existing attribute, just set it.
-    #     # We'll check this first, so we don't check the tree unneeded.
-    #     if name in self.__dict__:
-    #         super(Container, self).__setattr__(name, value)
-
-    #     # if we have a n item, set that
-    #     elif '_tree' in self.__dict__ and name in self:
-    #         del self[name]
-    #         self[name] = value
-
-    #     # else we'll set an attribute.
-    #     else:
-    #         super(Container, self).__setattr__(name, value)
-
-    # def __setattr__(self, name, value):
-    #     # if we have an item, set that
-    #     if '_tree' in self.__dict__ and name in self:
-    #                 # If an object by the given id already exists, remove it.
-    #         self._delObject(name)
-    #         self._setObject(name, value)
-    #     # else we'll set an attribute.
-    #     else:
-    #         super(Container, self).__setattr__(name, value)
-
-    def _delObject(self, name, *args, **kwargs):
-        super(Container, self)._delObject(name, *args, **kwargs)
-
-        # This will trigger when an item was deleted from this container and
-        # attribute by the same name exists. ie obj['my_id'] and obj.my_id.
-        if name in aq_base(self).__dict__:
-            msg = (
-                "Item '{}' contained in {} was shadowed by an attribute."
-                "You might want to delete the attribute as well."
-            ).format(name, self)
-            warnings.warn(msg)
 
     @security.protected(permissions.DeleteObjects)
     def manage_delObjects(self, ids=None, REQUEST=None):
