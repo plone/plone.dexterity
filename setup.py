@@ -3,7 +3,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-version = '2.9.5.dev0'
+version = '2.9.5'
 
 short_description = """\
 Framework for content types as filesystem code and TTW (Zope/CMF/Plone)\

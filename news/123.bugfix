@@ -1,1 +1,0 @@
-Speedup (~1.6x) parallel thread execution by removing superfluos synchronization [jensens]
