@@ -49,6 +49,40 @@ def invalidate_cache(fti):
     fti.__dict__.pop('_v_schema_schema_interfaces', None)
     fti.__dict__.pop('_v_schema_modified', None)
     fti.__dict__.pop('_v_schema_behavior_schema_interfaces', None)
+    request = getRequest()
+    if request:
+        setattr(request, FTI_CACHE_KEY, None)
+
+
+def lookup_fti(portal_type, cache=True):
+    # if its a string lookup fti
+    if isinstance(portal_type, six.string_types):
+        # looking up a utility is expensive, using the global request as
+        # cache is twice as fast
+        if cache:
+            request = getRequest()
+            if request:
+                fti_cache = getattr(request, FTI_CACHE_KEY, None)
+                if fti_cache is None:
+                    fti_cache = dict()
+                    setattr(request, FTI_CACHE_KEY, fti_cache)
+                if portal_type in fti_cache:
+                    fti = fti_cache[portal_type]
+                else:
+                    fti_cache[portal_type] = fti = queryUtility(
+                        IDexterityFTI,
+                        name=portal_type
+                    )
+                return fti
+        return queryUtility(IDexterityFTI, name=portal_type)
+    if IDexterityFTI.providedBy(portal_type):
+        # its already an IDexterityFTI instance
+        return portal_type
+    raise ValueError(
+        'portal_type has to either string or IDexterityFTI instance but is '
+        '{0!r}'.format(portal_type)
+    )
+
 
 
 def volatile(func):
@@ -59,40 +93,13 @@ def volatile(func):
         input can be either a portal_type as string or as the utility instance.
         return value is always a FTI-ultiliy or None
         """
-        # this function is called very often
-
+        # this function is called very often!
         # shortcut None input
         if portal_type is None:
             return func(self, None)
-        # if its a string lookup fti
-        if isinstance(portal_type, six.string_types):
-            # looking up a utility is expensive, using the global request as
-            # cache is twice as fast
-            request = getRequest()
-            if request:
-                fti_cache = getattr(request, FTI_CACHE_KEY, None)
-                if fti_cache is None:
-                    fti_cache = dict()
-                    setattr(request, FTI_CACHE_KEY, dict())
-                if portal_type in fti_cache:
-                    fti = fti_cache[portal_type]
-                else:
-                    fti_cache[portal_type] = fti = queryUtility(
-                        IDexterityFTI,
-                        name=portal_type
-                    )
-            else:
-                fti = queryUtility(IDexterityFTI, name=portal_type)
-            if fti is None:
-                return func(self, None)
-        elif IDexterityFTI.providedBy(portal_type):
-            # its already an IDexterityFTI instance
-            fti = portal_type
-        else:
-            raise ValueError(
-                'portal_type has to either string or IDexterityFTI instance but is '
-                '{0!r}'.format(portal_type)
-            )
+        fti = lookup_fti(portal_type, cache=self.cache_enabled)
+        if fti is None:
+            return func(self, None)
         if self.cache_enabled:
             key = '_v_schema_%s' % func.__name__
             cache = getattr(fti, key, _MARKER)
@@ -139,7 +146,6 @@ class SchemaCache(object):
         self.cache_enabled = cache_enabled
         self.invalidations = 0
 
-    @synchronized(lock)
     @volatile
     def get(self, fti):
         """main schema
@@ -153,7 +159,6 @@ class SchemaCache(object):
             except (AttributeError, ValueError):
                 pass
 
-    @synchronized(lock)
     @volatile
     def behavior_registrations(self, fti):
         """all behavior behavior registrations of a given fti passed in as
@@ -198,7 +203,6 @@ class SchemaCache(object):
             registrations.append(registration)
         return tuple(registrations)
 
-    @synchronized(lock)
     @volatile
     def subtypes(self, fti):
         """all registered marker interfaces of ftis behaviors
@@ -214,7 +218,6 @@ class SchemaCache(object):
                 subtypes.append(behavior_registration.marker)
         return tuple(subtypes)
 
-    @synchronized(lock)
     @volatile
     def behavior_schema_interfaces(self, fti):
         """behavior schema interfaces registered for the fti
@@ -230,7 +233,6 @@ class SchemaCache(object):
                 schemas.append(behavior_registration.interface)
         return tuple(schemas)
 
-    @synchronized(lock)
     @volatile
     def schema_interfaces(self, fti):
         """all schema interfaces registered for the fti
@@ -267,7 +269,6 @@ class SchemaCache(object):
             invalidate_cache(fti)
             self.invalidations += 1
 
-    @synchronized(lock)
     @volatile
     def modified(self, fti):
         if fti:

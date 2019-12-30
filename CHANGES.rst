@@ -9,6 +9,33 @@ Changelog
 
 .. towncrier release notes start
 
+2.9.5 (2019-12-30)
+------------------
+
+Bug fixes:
+
+
+- Speedup (~1.6x) parallel thread execution by removing superfluos synchronization [jensens] (#123)
+
+
+2.9.4 (2019-12-26)
+------------------
+
+Bug fixes:
+
+
+- Invalidate cached FTIs on request to allow complex/long running auto-installations. [jensens]
+
+
+2.9.3 (2019-12-23)
+------------------
+
+Bug fixes:
+
+
+- Fix thread safe recursion detection. This fixes an issue in plone.restapi: https://github.com/plone/plone.dexterity/issues/120. [jensens] (#120)
+
+
 2.9.2 (2019-10-12)
 ------------------
 
