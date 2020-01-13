@@ -92,11 +92,14 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
 
         data = import_context.readDataFile('.data', subdir)
         if data is not None:
+            data = data.decode('utf-8')
             request = FauxDAVRequest(BODY=data, BODYFILE=StringIO(data))
             response = FauxDAVResponse()
             context.PUT(request, response)
 
         preserve = import_context.readDataFile('.preserve', subdir)
+        if preserve:
+            preserve = preserve.decode('utf-8')
         must_preserve = self._mustPreserve()
 
         prior = context.objectIds()
@@ -115,6 +118,8 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         objects = import_context.readDataFile('.objects', subdir)
         if objects is None:
             return
+        else:
+            objects = objects.decode('utf-8')
 
         dialect = 'excel'
         stream = StringIO(objects)
