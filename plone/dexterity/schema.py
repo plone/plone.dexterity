@@ -27,7 +27,13 @@ import logging
 import six
 import types
 import warnings
+import zope.deprecation
 
+
+zope.deprecation.deprecated(
+    "Import from plone.dexterity.events instead",
+    SchemaInvalidatedEvent='plone.dexterity.events:SchemaInvalidatedEvent',
+)
 
 log = logging.getLogger(__name__)
 
@@ -81,7 +87,6 @@ def lookup_fti(portal_type, cache=True):
         'portal_type has to either string or IDexterityFTI instance but is '
         '{0!r}'.format(portal_type)
     )
-
 
 
 def volatile(func):
@@ -275,13 +280,6 @@ class SchemaCache(object):
 
 
 SCHEMA_CACHE = SchemaCache()
-
-
-@implementer(ISchemaInvalidatedEvent)
-class SchemaInvalidatedEvent(object):
-
-    def __init__(self, portal_type):
-        self.portal_type = portal_type
 
 
 @adapter(ISchemaInvalidatedEvent)

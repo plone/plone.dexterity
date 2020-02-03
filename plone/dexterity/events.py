@@ -35,3 +35,14 @@ class EditFinishedEvent(ObjectEvent):
     """Edit was finished and contents are saved. This event is fired
     even when no changes happen (and no modified event is fired.)
     """
+
+@implementer(interfaces.ISchemaInvalidatedEvent)
+class SchemaInvalidatedEvent(object):
+    """Event fired when the schema cache should be invalidated.
+
+    If the portal_type is not given, all schemata will be cleared from the
+    cache.
+    """
+
+    def __init__(self, portal_type=None):
+        self.portal_type = portal_type
