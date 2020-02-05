@@ -39,8 +39,6 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        # 'Acquisition',
-        # 'AccessControl',
         'DateTime>=4.0.1',
         'plone.alterego',
         'plone.autoform>=1.0b2',
@@ -57,7 +55,6 @@ setup(
         'Products.statusmessages',
         'setuptools',
         'six',
-        'ZODB3',
         'zope.annotation',
         'zope.browser',
         'zope.component',
@@ -72,7 +69,7 @@ setup(
         'zope.schema',
         'zope.security',
         'zope.size',
-        'Zope2',
+        'Zope',
     ],
     extras_require={
         'test': [
