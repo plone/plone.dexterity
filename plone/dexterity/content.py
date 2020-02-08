@@ -51,10 +51,12 @@ from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
 
 import six
+import threading
 
 
 _marker = object()
 _zone = DateTime().timezone()
+_recursion_detection = threading.local()
 FLOOR_DATE = DateTime(1970, 0)  # always effective
 CEILING_DATE = DateTime(2500, 0)  # never expires
 
@@ -130,13 +132,12 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         if inst is None:
             return getObjectSpecification(cls)
 
-        direct_spec = getattr(inst, '__provides__', None)
+        # get direct specification
+        spec = getattr(inst, '__provides__', None)
 
         # avoid recursion - fall back on default
-        if getattr(self, '__recursion__', False):
-            return direct_spec
-
-        spec = direct_spec
+        if getattr(_recursion_detection, 'blocked', False):
+            return spec
 
         # If the instance doesn't have a __provides__ attribute, get the
         # interfaces implied by the class as a starting point.
@@ -180,7 +181,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
             dynamically_provided = []
 
         # block recursion
-        self.__recursion__ = True
+        setattr(_recursion_detection, 'blocked', True)
         try:
             assignable = get_assignable(inst)
             if assignable is not None:
@@ -190,7 +191,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
                             behavior_registration.marker
                         )
         finally:
-            del self.__recursion__
+            setattr(_recursion_detection, 'blocked', False)
 
         if not dynamically_provided:
             # rare case if no schema nor behaviors with markers are set

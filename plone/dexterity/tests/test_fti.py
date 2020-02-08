@@ -2,6 +2,7 @@
 from .case import MockTestCase
 from mock import Mock
 from plone.dexterity import utils
+from plone.dexterity.schema import portalTypeToSchemaName
 from plone.dexterity.factory import DexterityFactory
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.fti import DexterityFTIModificationDescription
@@ -73,7 +74,7 @@ class TestFTI(MockTestCase):
         portal = self.create_dummy(getPhysicalPath=lambda: ('', 'site'))
         self.mock_utility(portal, ISiteRoot)
 
-        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        schemaName = portalTypeToSchemaName(fti.getId())
         setattr(plone.dexterity.schema.generated, schemaName, ITestSchema)
 
         self.assertEqual(ITestSchema, fti.lookupSchema())
@@ -89,7 +90,7 @@ class TestFTI(MockTestCase):
         fti.schema = 'model.wont.be.imported'
         portal = self.create_dummy(getPhysicalPath=lambda: ('', 'site'))
         self.mock_utility(portal, ISiteRoot)
-        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        schemaName = portalTypeToSchemaName(fti.getId())
         setattr(plone.dexterity.schema.generated, schemaName, ITestSchema)
         self.assertEqual(ITestSchema, fti.lookupSchema())
         delattr(plone.dexterity.schema.generated, schemaName)
@@ -458,7 +459,7 @@ class TestFTIEvents(MockTestCase):
             None,
             queryUtility(IDexterityFTI, name=portal_type)
         )
-        self.assertNotEquals(None, queryUtility(IFactory, name=portal_type))
+        self.assertNotEqual(None, queryUtility(IFactory, name=portal_type))
 
     def test_components_not_registered_on_add_if_exist(self):
         portal_type = u"testtype"
@@ -653,7 +654,7 @@ class TestFTIEvents(MockTestCase):
             pass
 
         # Set source interface
-        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        schemaName = portalTypeToSchemaName(fti.getId())
         setattr(plone.dexterity.schema.generated, schemaName, IBlank)
 
         # Sync this with schema
@@ -689,7 +690,7 @@ class TestFTIEvents(MockTestCase):
             pass
 
         # Set source interface
-        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        schemaName = portalTypeToSchemaName(fti.getId())
         setattr(plone.dexterity.schema.generated, schemaName, IBlank)
 
         # Sync this with schema
@@ -732,7 +733,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(site_dummy, ISiteRoot)
 
         # Set source interface
-        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        schemaName = portalTypeToSchemaName(fti.getId())
         setattr(plone.dexterity.schema.generated, schemaName, IBlank)
         original = getattr(plone.dexterity.schema.generated, schemaName)
         self.assertNotIn(INew, original.__bases__)
@@ -776,7 +777,7 @@ class TestFTIEvents(MockTestCase):
         assert not fti.hasDynamicSchema
 
         # Set source for dynamic FTI - should not be used
-        schemaName = utils.portalTypeToSchemaName(fti.getId())
+        schemaName = portalTypeToSchemaName(fti.getId())
         setattr(plone.dexterity.schema.generated, schemaName, IBlank)
 
         # Sync should not happen now
