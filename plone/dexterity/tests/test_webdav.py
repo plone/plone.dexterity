@@ -522,7 +522,7 @@ if HAS_ZSERVER:
             response = request.response
 
             self.assertEqual(response, r.PROPFIND(request, response))
-self.assertEqual(
+            self.assertEqual(
                 'text/xml; charset="utf-8"', response.getHeader('Content-Type')
             )
             self.assertEqual(207, response.getStatus())
