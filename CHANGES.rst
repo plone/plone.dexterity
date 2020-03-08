@@ -9,6 +9,15 @@ Changelog
 
 .. towncrier release notes start
 
+2.6.3 (2020-03-08)
+------------------
+
+Bug fixes:
+
+
+- - Fix thread safe recursion detection. This fixes an issue in plone.restapi: https://github.com/plone/plone.dexterity/issues/120. (Backport of https://github.com/plone/plone.dexterity/pull/119) [jensens] (#120)
+
+
 2.6.2 (2018-11-29)
 ------------------
 
