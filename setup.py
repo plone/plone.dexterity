@@ -5,11 +5,26 @@ from setuptools import setup
 
 version = '2.9.6.dev0'
 
+
+def read(filename):
+    with open(filename) as myfile:
+        try:
+            return myfile.read()
+        except UnicodeDecodeError:
+            # Happens on one Jenkins node on Python 3.6,
+            # so maybe it happens for users too.
+            pass
+    # Opening and reading as text failed, so retry opening as bytes.
+    with open(filename, "rb") as myfile:
+        contents = myfile.read()
+        return contents.decode("utf-8")
+
 short_description = """\
 Framework for content types as filesystem code and TTW (Zope/CMF/Plone)\
 """
-long_description = open("README.rst").read() + "\n"
-long_description += open("CHANGES.rst").read()
+long_description = read("README.rst")
+long_description += "\n"
+long_description += read("CHANGES.rst")
 
 setup(
     name='plone.dexterity',
