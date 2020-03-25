@@ -36,6 +36,7 @@ if HAS_ZSERVER:
     from zope.filerepresentation.interfaces import IFileFactory
     from zope.filerepresentation.interfaces import IRawReadFile
     from zope.filerepresentation.interfaces import IRawWriteFile
+    from zope.interface import provider
     from zope.interface import alsoProvides
     from zope.interface import implementer
     from zope.interface import Interface
@@ -48,10 +49,10 @@ if HAS_ZSERVER:
     import re
 
 
+    @provider(IFormFieldProvider)
     class ITestBehavior(Interface):
         foo = schema.Int()
         bar = schema.Bytes()
-    alsoProvides(ITestBehavior, IFormFieldProvider)
 
 
     class DAVTestRequest(TestRequest):
@@ -456,10 +457,6 @@ if HAS_ZSERVER:
 
             self.assertEqual(response, r.HEAD(request, request.response))
             self.assertEqual(200, response.getStatus())
-            self.assertEqual(
-                'close',
-                response.getHeader('Connection', literal=True)
-            )
             self.assertTrue(
                 response.getHeader('Content-Type').startswith('text/foo'))
             self.assertEqual('10', response.getHeader('Content-Length'))
@@ -482,10 +479,6 @@ if HAS_ZSERVER:
             response = request.response
 
             self.assertEqual(response, r.OPTIONS(request, request.response))
-            self.assertEqual(
-                'close',
-                response.getHeader('Connection', literal=True)
-            )
             self.assertEqual(
                 'GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE, PROPFIND, '
                 'PROPPATCH, MKCOL, COPY, MOVE, LOCK, UNLOCK',
@@ -529,11 +522,6 @@ if HAS_ZSERVER:
             response = request.response
 
             self.assertEqual(response, r.PROPFIND(request, response))
-
-            self.assertEqual(
-                'close',
-                response.getHeader('connection', literal=True)
-            )
             self.assertEqual(
                 'text/xml; charset="utf-8"', response.getHeader('Content-Type')
             )
@@ -621,9 +609,6 @@ if HAS_ZSERVER:
 
             self.assertEqual('New title', container.getProperty('title'))
 
-            self.assertEqual(
-                'close', response.getHeader('connection', literal=True)
-            )
             self.assertEqual(
                 'text/xml; charset="utf-8"', response.getHeader('Content-Type')
             )
@@ -763,7 +748,6 @@ The operation succeded.
 
         def test_manage_FTPget(self):
             class TestContainer(Container):
-
                 def manage_FTPget(self):
                     return 'data'
 
