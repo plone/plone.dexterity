@@ -3,13 +3,28 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-version = '2.9.6.dev0'
+version = '2.9.7.dev0'
+
+
+def read(filename):
+    with open(filename) as myfile:
+        try:
+            return myfile.read()
+        except UnicodeDecodeError:
+            # Happens on one Jenkins node on Python 3.6,
+            # so maybe it happens for users too.
+            pass
+    # Opening and reading as text failed, so retry opening as bytes.
+    with open(filename, "rb") as myfile:
+        contents = myfile.read()
+        return contents.decode("utf-8")
 
 short_description = """\
 Framework for content types as filesystem code and TTW (Zope/CMF/Plone)\
 """
-long_description = open("README.rst").read() + "\n"
-long_description += open("CHANGES.rst").read()
+long_description = read("README.rst")
+long_description += "\n"
+long_description += read("CHANGES.rst")
 
 setup(
     name='plone.dexterity',
@@ -22,11 +37,13 @@ setup(
         "Development Status :: 5 - Production/Stable",
         "Framework :: Plone",
         "Framework :: Plone :: 5.2",
+        "Framework :: Plone :: Core",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords='plone dexterity contenttypes',
