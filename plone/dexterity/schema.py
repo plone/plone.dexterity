@@ -65,20 +65,11 @@ def lookup_fti(portal_type, cache=True):
                 fti_cache = getattr(request, FTI_CACHE_KEY, None)
                 if fti_cache is None:
                     fti_cache = dict()
+                    fti_cache['Plone Site'] = None
                     setattr(request, FTI_CACHE_KEY, fti_cache)
-                fti = fti_cache.get(portal_type)
-                if fti is not None:
-                    # The first time we get the Plone Site FTI it doesn't know
-                    # everything by the looks of it. Maybe because of behavior registration
-                    # or something like that. *hrugs*
-                    if portal_type == 'Plone Site':
-                        if not getattr(request, '_dx_FTI_CACHE_seen_plonesite_fti', False):
-                            del fti_cache[portal_type]
-                            fti = None
-                        else:
-                            request._dx_FTI_CACHE_seen_plonesite_fti = True
-
-                if fti is None:
+                if portal_type in fti_cache:
+                    fti = fti_cache[portal_type]
+                else:
                     fti_cache[portal_type] = fti = queryUtility(
                         IDexterityFTI,
                         name=portal_type
