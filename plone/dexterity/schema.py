@@ -65,11 +65,12 @@ def lookup_fti(portal_type, cache=True):
                 fti_cache = getattr(request, FTI_CACHE_KEY, None)
                 if fti_cache is None:
                     fti_cache = dict()
-                    fti_cache['Plone Site'] = None
                     setattr(request, FTI_CACHE_KEY, fti_cache)
+                fti = None
                 if portal_type in fti_cache:
                     fti = fti_cache[portal_type]
-                else:
+                
+                if fti is None:
                     fti_cache[portal_type] = fti = queryUtility(
                         IDexterityFTI,
                         name=portal_type
