@@ -72,7 +72,6 @@ ATTRIBUTE_NAMES_TO_IGNORE = (
     'portal_placeful_workflow',
     'portal_properties',
     'translation_service',
-    'utilities',
 )
 
 ASSIGNABLE_CACHE_KEY = '__plone_dexterity_assignable_cache__'
