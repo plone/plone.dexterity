@@ -776,6 +776,10 @@ class Container(
         # Be specific about the implementation we use
         return CMFOrderedBTreeFolderBase.__getattr__(self, name)
 
+    def __setattr__(self, name, obj):
+        if self._tree is not None and name in self:
+            raise ValueError("Trying to set an item via attribute.")
+        super().__setattr__(name, obj)
 
     @security.protected(permissions.DeleteObjects)
     def manage_delObjects(self, ids=None, REQUEST=None):
