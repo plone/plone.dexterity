@@ -13,7 +13,10 @@
         />
 
     <!-- Content core views -->
-
+    <!-- Note: the templaces are the same since the changes for
+         https://github.com/plone/Products.CMFPlone/issues/3177
+         That may be okay: makes it easier to customize
+         only the template for items or for containers. -->
     <browser:page
         for="..interfaces.IDexterityItem"
         name="content-core"
