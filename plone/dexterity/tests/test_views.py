@@ -20,6 +20,7 @@ from plone.dexterity.interfaces import IEditCancelledEvent
 from plone.dexterity.interfaces import IEditFinishedEvent
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.z3cform.interfaces import IDeferSecurityCheck
+from Products.CMFCore.interfaces import ISiteRoot
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.form.action import Actions
 from z3c.form.datamanager import AttributeField
@@ -125,6 +126,9 @@ class TestAddView(MockTestCase):
         self.patch_global(createObject, return_value=obj_dummy)
 
         provideAdapter(AttributeField)
+
+        portal = self.create_dummy(getPhysicalPath=lambda: ('', 'site'))
+        self.mock_utility(portal, ISiteRoot)
 
         self.assertEqual(obj_dummy, form.create(data_dummy))
         self.assertEqual("testtype", obj_dummy.portal_type)

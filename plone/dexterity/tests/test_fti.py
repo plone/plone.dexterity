@@ -577,11 +577,11 @@ class TestFTIEvents(MockTestCase):
         setSite(site_dummy)
         setHooks()
 
-        self.assertNotEquals(
+        self.assertNotEqual(
             None,
             queryUtility(IDexterityFTI, name=portal_type)
         )
-        self.assertNotEquals(None, queryUtility(IFactory, name=portal_type))
+        self.assertNotEqual(None, queryUtility(IFactory, name=portal_type))
 
     def test_components_reregistered_on_rename(self):
         portal_type = u"testtype"
@@ -627,11 +627,11 @@ class TestFTIEvents(MockTestCase):
         setSite(site_dummy)
         setHooks()
 
-        self.assertNotEquals(
+        self.assertNotEqual(
             None,
             queryUtility(IDexterityFTI, name=portal_type)
         )
-        self.assertNotEquals(None, queryUtility(IFactory, name=portal_type))
+        self.assertNotEqual(None, queryUtility(IFactory, name=portal_type))
 
     def test_dynamic_schema_refreshed_on_modify_model_file(self):
         portal_type = u"testtype"
