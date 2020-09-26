@@ -781,9 +781,10 @@ class Container(
 
     def __setattr__(self, name, obj):
         if self._tree is not None and name in self:
+            # We're trying to set an item via dotted name...
             del self[name]
             self[name] = obj
-        super().__setattr__(name, obj)
+        super(Container, self).__setattr__(name, obj)
 
     @security.protected(permissions.DeleteObjects)
     def manage_delObjects(self, ids=None, REQUEST=None):
