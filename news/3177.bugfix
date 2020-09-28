@@ -1,4 +1,0 @@
-Removed call of listing macro in ``content-core`` view for containers.
-It was broken.  We now show the same as for items: only the fields.
-Fixes `issue 3177 <https://github.com/plone/Products.CMFPlone/issues/3177>`_.
-[maurits]
