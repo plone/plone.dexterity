@@ -118,8 +118,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         objects = import_context.readDataFile('.objects', subdir)
         if objects is None:
             return
-        else:
-            objects = objects.decode('utf-8')
+        objects = objects.decode('utf-8')
 
         dialect = 'excel'
         stream = StringIO(objects)
