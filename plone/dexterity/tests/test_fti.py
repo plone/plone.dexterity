@@ -650,12 +650,12 @@ class TestFTIEvents(MockTestCase):
         )
         self.mock_utility(site_dummy, ISiteRoot)
 
-        class IBlank(Interface):
+        class IBlank1(Interface):
             pass
 
         # Set source interface
         schemaName = portalTypeToSchemaName(fti.getId())
-        setattr(plone.dexterity.schema.generated, schemaName, IBlank)
+        setattr(plone.dexterity.schema.generated, schemaName, IBlank1)
 
         # Sync this with schema
         ftiModified(
@@ -666,8 +666,8 @@ class TestFTIEvents(MockTestCase):
             )
         )
 
-        self.assertTrue('title' in IBlank)
-        self.assertTrue(IBlank['title'].title == u"title")
+        self.assertTrue('title' in IBlank1)
+        self.assertTrue(IBlank1['title'].title == u"title")
 
     def test_dynamic_schema_refreshed_on_modify_model_source(self):
         portal_type = u"testtype"
@@ -686,12 +686,15 @@ class TestFTIEvents(MockTestCase):
         )
         self.mock_utility(site_dummy, ISiteRoot)
 
-        class IBlank(Interface):
+        # b/c of zope.interface does not support hashing of the same class multiple times
+        # we need to postfix with a unique number
+        # see https://github.com/zopefoundation/zope.interface/issues/216#issuecomment-701332380
+        class IBlank2(Interface):
             pass
 
         # Set source interface
         schemaName = portalTypeToSchemaName(fti.getId())
-        setattr(plone.dexterity.schema.generated, schemaName, IBlank)
+        setattr(plone.dexterity.schema.generated, schemaName, IBlank2)
 
         # Sync this with schema
         ftiModified(
@@ -702,8 +705,8 @@ class TestFTIEvents(MockTestCase):
             )
         )
 
-        self.assertTrue('title' in IBlank)
-        self.assertTrue(IBlank['title'].title == u"title")
+        self.assertTrue('title' in IBlank2)
+        self.assertTrue(IBlank2['title'].title == u"title")
 
     def test_dynamic_schema_refreshed_on_modify_schema_policy(self):
         portal_type = u"testtype"
@@ -712,7 +715,7 @@ class TestFTIEvents(MockTestCase):
         class INew(Interface):
             title = zope.schema.TextLine(title=u"title")
 
-        class IBlank(Interface):
+        class IBlank3(Interface):
             pass
 
         class TestSchemaPolicy(DexteritySchemaPolicy):
@@ -734,7 +737,7 @@ class TestFTIEvents(MockTestCase):
 
         # Set source interface
         schemaName = portalTypeToSchemaName(fti.getId())
-        setattr(plone.dexterity.schema.generated, schemaName, IBlank)
+        setattr(plone.dexterity.schema.generated, schemaName, IBlank3)
         original = getattr(plone.dexterity.schema.generated, schemaName)
         self.assertNotIn(INew, original.__bases__)
         self.assertNotIn('title', original)
@@ -758,7 +761,7 @@ class TestFTIEvents(MockTestCase):
         portal_type = u"testtype"
         fti = DexterityFTI(portal_type)
 
-        class IBlank(Interface):
+        class IBlank4(Interface):
             pass
 
         class INew(Interface):
@@ -773,12 +776,12 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(site_dummy, ISiteRoot)
 
         # Set schema to something so that hasDynamicSchema is false
-        fti.schema = IBlank.__identifier__
+        fti.schema = IBlank4.__identifier__
         assert not fti.hasDynamicSchema
 
         # Set source for dynamic FTI - should not be used
         schemaName = portalTypeToSchemaName(fti.getId())
-        setattr(plone.dexterity.schema.generated, schemaName, IBlank)
+        setattr(plone.dexterity.schema.generated, schemaName, IBlank4)
 
         # Sync should not happen now
 
@@ -790,7 +793,7 @@ class TestFTIEvents(MockTestCase):
             )
         )
 
-        self.assertFalse('title' in IBlank)
+        self.assertFalse('title' in IBlank4)
 
     def test_old_factory_unregistered_after_name_changed_if_dynamic(self):
         portal_type = u"testtype"
