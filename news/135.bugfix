@@ -1,0 +1,5 @@
+Fixes test to work clean with zope.interface.
+Interfaces are hashed based on just their name and module. 
+So every one of these local `IBlank` interfaces will hash the same way, and be treated the same for purposes of zope.interface's `_dependents`.
+Thus in tests mock interfaces must not be used under the same name in the same module.
+[jensens]
