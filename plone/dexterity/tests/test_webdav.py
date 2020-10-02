@@ -5,7 +5,7 @@ from .case import MockTestCase
 
 if HAS_ZSERVER:
 
-    from .case import Dummy
+    from .case import ItemDummy
     from email.message import Message
     from mock import Mock
     from OFS.Folder import Folder
@@ -61,21 +61,6 @@ if HAS_ZSERVER:
 
         def _createResponse(self):
             return HTTPResponse()
-
-
-    class ItemDummy(Dummy):
-        """ Dummy objects with title getter and setter """
-
-        title = ''
-
-        def Title(self):
-            return self.title
-
-        def setTitle(self, title):
-            self.title = title
-
-        def getId(self):
-            return self.__dict__.get('id', '')
 
 
     class TestWebZope2DAVAPI(MockTestCase):
