@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from mock import Mock
-
 import gc
 import pkg_resources
 import six
@@ -14,6 +12,11 @@ try:
     dist = pkg_resources.get_distribution('ZServer')
 except pkg_resources.DistributionNotFound:
     HAS_ZSERVER = False
+
+try:
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
 
 
 class MockTestCase(unittest.TestCase):

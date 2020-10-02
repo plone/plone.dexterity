@@ -92,7 +92,7 @@ setup(
         'test': [
             'plone.testing',
             'Products.CMFPlone',
-            'mock',
+            "mock;python_version<'3'"
         ]
     },
     entry_points="""

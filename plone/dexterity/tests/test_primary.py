@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from .case import MockTestCase
-from mock import Mock
 from plone.dexterity.content import Item
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
@@ -10,6 +9,11 @@ from zope import schema
 from zope.interface import alsoProvides
 from zope.interface import Interface
 
+
+try:
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
 
 class PrimaryFieldInfoTestCase(MockTestCase):
     def test_primary_field_info(self):
