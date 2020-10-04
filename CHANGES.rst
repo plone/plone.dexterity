@@ -9,6 +9,20 @@ Changelog
 
 .. towncrier release notes start
 
+2.9.8 (2020-09-28)
+------------------
+
+Bug fixes:
+
+
+- Fixed missing ISiteRoot utility when running tests with Zope 5.
+  [maurits] (#680)
+- Removed call of listing macro in ``content-core`` view for containers.
+  It was broken.  We now show the same as for items: only the fields.
+  Fixes `issue 3177 <https://github.com/plone/Products.CMFPlone/issues/3177>`_.
+  [maurits] (#3177)
+
+
 2.9.7 (2020-04-20)
 ------------------
 
