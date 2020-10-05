@@ -102,6 +102,22 @@ class Dummy(object):
         self.__dict__.update(kw)
 
 
+class ItemDummy(Dummy):
+    """ Dummy objects with title getter and setter """
+
+    title = ''
+    portal_type = 'foo'
+
+    def Title(self):
+        return self.title
+
+    def setTitle(self, title):
+        self.title = title
+
+    def getId(self):
+        return self.__dict__.get('id', '')
+
+
 # from mocker
 def _global_replace(remove, install):
     """Replace object 'remove' with object 'install' on all dictionaries."""

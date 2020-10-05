@@ -666,6 +666,8 @@ class DefaultReadFile(ReadFileBase):
         self._getStream()
         return self._size
 
+    __len__ = size
+
     # internal helper methods
 
     @memoize
@@ -697,6 +699,11 @@ class DefaultReadFile(ReadFileBase):
         self._size = out.tell()
         out.seek(0)
         return out
+
+    def __next__(self):
+        """ Iterate over the stream
+        """
+        return self._getStream().__next__()
 
 
 @implementer(IRawWriteFile)
