@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from .case import MockTestCase
-from mock import Mock
 from plone.dexterity import schema
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IContentType
@@ -15,6 +14,11 @@ from zope.interface.interface import InterfaceClass
 
 import zope.schema
 
+
+try:
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
 
 class TestSchemaModuleFactory(MockTestCase):
 

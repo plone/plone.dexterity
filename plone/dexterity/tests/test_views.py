@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from .case import MockTestCase
 from AccessControl import Unauthorized
-from mock import Mock
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.browser.add import DefaultAddForm
@@ -39,6 +38,12 @@ from zope.interface import provider
 from zope.publisher.browser import TestRequest as TestRequestBase
 
 import six
+
+
+try:
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
 
 
 class TestRequest(TestRequestBase):
