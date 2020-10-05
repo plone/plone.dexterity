@@ -1,12 +1,21 @@
 # -*- coding: utf-8 -*-
-import pkg_resources
+import zope.deferredimport
 
 
-HAS_ZSERVER = True
+zope.deferredimport.initialize()
+
+
+HAS_WEBDAV = True
 try:
-    dist = pkg_resources.get_distribution('ZServer')
-except pkg_resources.DistributionNotFound:
-    HAS_ZSERVER = False
+    import webdav as _  # noqa: F401
+except ImportError:
+    HAS_WEBDAV = False
+
+
+zope.deferredimport.deprecated(
+    "Import HAS_WEBDAV instead.", HAS_ZSERVER="plone.dexterity:bbb.HAS_WEBDAV"
+)
+
 
 NullResource = None
 
