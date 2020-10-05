@@ -414,7 +414,7 @@ class SchemaModuleFactory(object):
             if name in self._transient_SCHEMA_CACHE:
                 del self._transient_SCHEMA_CACHE[name]
 
-            log.info("Dynamic schema generated: %s", name)
+            log.debug("Dynamic schema generated: %s", name)
             setattr(module, name, schema)
 
         return schema
