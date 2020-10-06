@@ -4,7 +4,6 @@ from AccessControl.class_init import InitializeClass
 from Acquisition import aq_base
 from Acquisition import Implicit
 from email.message import Message
-from email.parser import FeedParser
 from plone.dexterity import bbb
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.interfaces import IDexterityContainer
@@ -37,10 +36,17 @@ import six
 import tempfile
 
 
-if bbb.HAS_ZSERVER:
+if bbb.HAS_WEBDAV:
     from webdav.Resource import Resource
 else:
     Resource = bbb.Resource
+
+
+try:
+    from email.parser import BytesFeedParser
+except:
+    # Python 2.7 compatibility
+    from email.parser import FeedParser as BytesFeedParser
 
 
 class DAVResourceMixin(object):
@@ -783,7 +789,7 @@ class DefaultWriteFile(object):
         self._closed = False
         self._name = None
         self._written = 0
-        self._parser = FeedParser()
+        self._parser = BytesFeedParser()
         self._message = None
 
     @property
@@ -842,6 +848,8 @@ class DefaultWriteFile(object):
     def write(self, data):
         if self._closed:
             raise ValueError("File is closed")
+        if isinstance(data, six.text_type):
+            data = data.encode()
         self._written += len(data)
         self._parser.feed(data)
 
@@ -857,7 +865,7 @@ class DefaultWriteFile(object):
             )
         if self._closed:
             raise ValueError("File is closed")
-        self._parser = FeedParser()
+        self._parser = BytesFeedParser()
         self._written = 0
 
     def flush(self):

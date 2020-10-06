@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
+from plone.dexterity.bbb import HAS_WEBDAV
+
 import gc
-import pkg_resources
 import six
 import unittest
 import zope.component
 import zope.component.testing
 
-
-HAS_ZSERVER = True
-try:
-    dist = pkg_resources.get_distribution('ZServer')
-except pkg_resources.DistributionNotFound:
-    HAS_ZSERVER = False
 
 try:
     from unittest.mock import Mock

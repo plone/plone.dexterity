@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-from .case import HAS_ZSERVER
+from .case import HAS_WEBDAV
 from .case import MockTestCase
 
 
-if HAS_ZSERVER:
+if HAS_WEBDAV:
 
     from .case import ItemDummy
     from email.message import Message
-    from mock import Mock
     from OFS.Folder import Folder
     from OFS.SimpleItem import SimpleItem
     from plone.autoform.interfaces import IFormFieldProvider
@@ -47,6 +46,19 @@ if HAS_ZSERVER:
     from ZPublisher.Iterators import IStreamIterator
 
     import re
+    import six
+
+    try:
+        from unittest.mock import Mock
+    except ImportError:
+        from mock import Mock
+
+
+    if six.PY2:
+        # cope with upstream library changes in rendering the XML prolog
+        XML_PROLOG = b'<?xml version="1.0" encoding="utf-8"?>'
+    else:
+        XML_PROLOG = b'<?xml version="1.0" encoding="utf-8" ?>'
 
 
     @provider(IFormFieldProvider)
@@ -512,8 +524,7 @@ if HAS_ZSERVER:
             )
             self.assertEqual(207, response.getStatus())
 
-            body = """\
-<?xml version="1.0" encoding="utf-8"?>
+            body = XML_PROLOG + b"""
 <d:multistatus xmlns:d="DAV:">
 <d:response>
 <d:href>/site/container</d:href>
@@ -550,11 +561,10 @@ if HAS_ZSERVER:
 
             result = response.getBody()
             result = re.sub(
-                r'<n:getlastmodified>.+</n:getlastmodified>',
-                '<n:getlastmodified>...</n:getlastmodified>',
+                br'<n:getlastmodified>.+</n:getlastmodified>',
+                br'<n:getlastmodified>...</n:getlastmodified>',
                 result
             )
-
             self.assertEqual(result.strip(), body.strip())
 
         def test_PROPPATCH(self):
@@ -599,8 +609,7 @@ if HAS_ZSERVER:
             )
             self.assertEqual(207, response.getStatus())
 
-            body = """\
-<?xml version="1.0" encoding="utf-8"?>
+            body = XML_PROLOG + b"""
 <d:multistatus xmlns:d="DAV:">
 <d:response>
 <d:href>http%3A//example.org/site/container</d:href>
@@ -618,6 +627,7 @@ The operation succeded.
 """
 
             result = response.getBody()
+
             self.assertEqual(body.strip(), result.strip())
 
         def test_LOCK(self):
@@ -1083,7 +1093,7 @@ The operation succeded.
             from plone.rfc822 import constructMessageFromSchemata
             self.patch_global(constructMessageFromSchemata, return_value=message)
 
-            body = """\
+            body = b"""\
 title: Test title
 foo: 10
 bar: xyz
@@ -1102,26 +1112,26 @@ Portal-Type: testtype
 
             readfile.seek(2)
             self.assertEqual(2, readfile.tell())
-            self.assertEqual('tl', readfile.read(2))
+            self.assertEqual(b'tl', readfile.read(2))
             self.assertEqual(4, readfile.tell())
 
             readfile.seek(0, 2)
             self.assertEqual(69, readfile.tell())
 
             readfile.seek(0)
-            self.assertEqual('foo: 10\n', readfile.readlines()[1])
+            self.assertEqual(b'foo: 10\n', readfile.readlines()[1])
 
             readfile.seek(0)
-            self.assertEqual('foo: 10\n', readfile.readlines(100)[1])
+            self.assertEqual(b'foo: 10\n', readfile.readlines(100)[1])
 
             readfile.seek(0)
-            self.assertEqual('title: Test title\n', readfile.readline())
+            self.assertEqual(b'title: Test title\n', readfile.readline())
 
             readfile.seek(0)
-            self.assertEqual('title: Test title\n', readfile.readline(100))
+            self.assertEqual(b'title: Test title\n', readfile.readline(100))
 
             readfile.seek(0)
-            self.assertEqual('foo: 10\n', list(iter(readfile))[1])
+            self.assertEqual(b'foo: 10\n', list(iter(readfile))[1])
 
             self.assertEqual(False, readfile.closed)
             readfile.close()
@@ -1148,7 +1158,7 @@ Portal-Type: testtype
 
             writefile = DefaultWriteFile(item)
 
-            body = """\
+            body = b"""\
 title: Test title
 foo: 10
 bar: xyz

@@ -15,7 +15,7 @@ try:
 except ImportError:
     from ZPublisher.BaseRequest import DefaultPublishTraverse
 
-if bbb.HAS_ZSERVER:
+if bbb.HAS_WEBDAV:
     from webdav.NullResource import NullResource
 else:
     NullResource = bbb.NullResource
