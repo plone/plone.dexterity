@@ -36,12 +36,15 @@ def resolveDottedName(dottedName):
 
 # Schema name encoding
 class SchemaNameEncoder(object):
+    """Schema name encoding
+    """
 
     key = (
         (' ', '_1_'),
         ('.', '_2_'),
         ('-', '_3_'),
         ('/', '_4_'),
+        ('|', '_5_'),
     )
 
     def encode(self, s):
@@ -61,11 +64,13 @@ class SchemaNameEncoder(object):
         return [self.decode(a) for a in s.split('_0_')]
 
 
-def portalTypeToSchemaName(portal_type, schema=u"", prefix=None):
+def portalTypeToSchemaName(portal_type, schema=u"", prefix=None, suffix=None):
     """Return a canonical interface name for a generated schema interface.
     """
     if prefix is None:
         prefix = '/'.join(getUtility(ISiteRoot).getPhysicalPath())[1:]
+    if suffix:
+        prefix = '|'.join([prefix, suffix])
 
     encoder = SchemaNameEncoder()
     return encoder.join(prefix, portal_type, schema)
