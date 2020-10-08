@@ -302,6 +302,7 @@ class SchemaNameEncoder(object):
         ('.', '_2_'),
         ('-', '_3_'),
         ('/', '_4_'),
+        ('|', '_5_'),
     )
 
     def encode(self, s):
@@ -321,11 +322,13 @@ class SchemaNameEncoder(object):
         return [self.decode(a) for a in s.split('_0_')]
 
 
-def portalTypeToSchemaName(portal_type, schema=u"", prefix=None):
+def portalTypeToSchemaName(portal_type, schema=u"", prefix=None, suffix=None):
     """Return a canonical interface name for a generated schema interface.
     """
     if prefix is None:
         prefix = '/'.join(getUtility(ISiteRoot).getPhysicalPath())[1:]
+    if suffix:
+        prefix = '|'.join([prefix, suffix])
 
     encoder = SchemaNameEncoder()
     return encoder.join(prefix, portal_type, schema)
@@ -377,7 +380,6 @@ class SchemaModuleFactory(object):
         module using setattr(). This means that the factory will not be
         invoked again.
         """
-
         try:
             prefix, portal_type, schemaName = splitSchemaName(name)
         except ValueError:
@@ -412,6 +414,7 @@ class SchemaModuleFactory(object):
             if name in self._transient_SCHEMA_CACHE:
                 del self._transient_SCHEMA_CACHE[name]
 
+            log.debug("Dynamic schema generated: %s", name)
             setattr(module, name, schema)
 
         return schema
