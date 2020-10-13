@@ -8,6 +8,15 @@ Changelog
 
 .. towncrier release notes start
 
+2.2.9 (2020-10-13)
+------------------
+
+Bug fixes:
+
+
+- Make sure that Dynamic schema is updated on all ZEO clients on change
+  [@avoinea] (#136)
+
 
 2.2.8 (2016-09-16)
 ------------------
