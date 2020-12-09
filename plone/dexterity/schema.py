@@ -328,12 +328,13 @@ class SchemaNameEncoder(object):
 def portalTypeToSchemaName(portal_type, schema=u"", prefix=None, suffix=None):
     """Return a canonical interface name for a generated schema interface.
     """
-    if portal_type == 'Plone Site':
-        fti = getUtility(IDexterityFTI, name=portal_type)
-        siteroot = fti.__parent__
-    else:
-        siteroot = getUtility(ISiteRoot)
-    prefix = '/'.join(siteroot.getPhysicalPath())[1:]
+    if prefix is None:
+        if portal_type == 'Plone Site':
+            fti = getUtility(IDexterityFTI, name=portal_type)
+            siteroot = fti.__parent__
+        else:
+            siteroot = getUtility(ISiteRoot)
+        prefix = '/'.join(siteroot.getPhysicalPath())[1:]
     if suffix:
         prefix = '|'.join([prefix, suffix])
 
