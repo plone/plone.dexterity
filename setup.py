@@ -3,7 +3,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-version = '2.9.9.dev0'
+version = '2.10.1.dev0'
 
 
 def read(filename):
@@ -92,7 +92,7 @@ setup(
         'test': [
             'plone.testing',
             'Products.CMFPlone',
-            'mock',
+            "mock;python_version<'3'"
         ]
     },
     entry_points="""

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from .case import MockTestCase
-from mock import Mock
 from plone.dexterity import utils
 from plone.dexterity.schema import portalTypeToSchemaName
 from plone.dexterity.factory import DexterityFactory
@@ -32,6 +31,12 @@ from zope.security.interfaces import IPermission
 import os.path
 import plone.dexterity.schema.generated
 import zope.schema
+
+
+try:
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
 
 
 class TestClass(object):

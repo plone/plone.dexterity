@@ -9,6 +9,29 @@ Changelog
 
 .. towncrier release notes start
 
+2.10.0 (2020-10-12)
+-------------------
+
+New features:
+
+
+- Make sure that Dynamic schema is updated on all ZEO clients on change
+  [@avoinea] (#136)
+
+
+Bug fixes:
+
+
+- Fixes test to work clean with zope.interface.
+  Interfaces are hashed based on just their name and module. 
+  So every one of these local `IBlank` interfaces will hash the same way, and be treated the same for purposes of zope.interface's `_dependents`.
+  Thus in tests mock interfaces must not be used under the same name in the same module.
+  [jensens] (#135)
+- Use mock from unittest on Python 3 [ale-rt]
+  DefaultReadFile properly implements the IStreamIterator interface [ale-rt] (#138)
+- Restore webdav support when the webdav library is importable [ale-rt] (#141)
+
+
 2.9.8 (2020-09-28)
 ------------------
 

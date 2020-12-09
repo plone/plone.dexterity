@@ -3,7 +3,6 @@ from .case import MockTestCase
 from datetime import date
 from datetime import datetime
 from DateTime import DateTime
-from mock import Mock
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
@@ -28,6 +27,17 @@ from zope.interface import Interface
 
 import six
 import zope.schema
+
+
+try:
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
+
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 
 class TestContent(MockTestCase):
@@ -600,12 +610,10 @@ class TestContent(MockTestCase):
 
     def test_item_dublincore(self):
         from DateTime import DateTime
-        # Mock Zope DateTime
-        import mock
+
         import plone.dexterity
-        datetime_patcher = mock.patch.object(
-            plone.dexterity.content, 'DateTime'
-        )
+
+        datetime_patcher = patch.object(plone.dexterity.content, 'DateTime')
         mocked_datetime = datetime_patcher.start()
         mocked_datetime.return_value = DateTime(2014, 6, 1)
         self.addCleanup(datetime_patcher.stop)
@@ -661,12 +669,9 @@ class TestContent(MockTestCase):
 
     def test_item_dublincore_date(self):
         from DateTime import DateTime
-        # Mock Zope DateTime
-        import mock
+
         import plone.dexterity
-        datetime_patcher = mock.patch.object(
-            plone.dexterity.content, 'DateTime'
-        )
+        datetime_patcher = patch.object(plone.dexterity.content, 'DateTime')
         mocked_datetime = datetime_patcher.start()
         mocked_datetime.return_value = DateTime(2014, 6, 1)
         self.addCleanup(datetime_patcher.stop)
@@ -707,12 +712,9 @@ class TestContent(MockTestCase):
 
     def test_item_dublincore_datetime(self):
         from DateTime import DateTime
-        # Mock Zope DateTime
-        import mock
+
         import plone.dexterity
-        datetime_patcher = mock.patch.object(
-            plone.dexterity.content, 'DateTime'
-        )
+        datetime_patcher = patch.object(plone.dexterity.content, 'DateTime')
         mocked_datetime = datetime_patcher.start()
         mocked_datetime.return_value = DateTime(2014, 6, 1)
         self.addCleanup(datetime_patcher.stop)

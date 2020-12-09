@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
-from mock import Mock
+from plone.dexterity.bbb import HAS_WEBDAV
 
 import gc
-import pkg_resources
 import six
 import unittest
 import zope.component
 import zope.component.testing
 
 
-HAS_ZSERVER = True
 try:
-    dist = pkg_resources.get_distribution('ZServer')
-except pkg_resources.DistributionNotFound:
-    HAS_ZSERVER = False
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
 
 
 class MockTestCase(unittest.TestCase):
@@ -97,6 +95,22 @@ class Dummy(object):
 
     def __init__(self, **kw):
         self.__dict__.update(kw)
+
+
+class ItemDummy(Dummy):
+    """ Dummy objects with title getter and setter """
+
+    title = ''
+    portal_type = 'foo'
+
+    def Title(self):
+        return self.title
+
+    def setTitle(self, title):
+        self.title = title
+
+    def getId(self):
+        return self.__dict__.get('id', '')
 
 
 # from mocker
