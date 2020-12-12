@@ -779,12 +779,14 @@ class Container(
 
         raise AttributeError(name)
 
-    def __setattr__(self, name, obj):
-        if self._tree is not None and name in self:
-            # We're trying to set an item via dotted name...
-            del self[name]
-            self[name] = obj
-        super(Container, self).__setattr__(name, obj)
+    # XXX do we really want to handle this kind of cases, or is this a ID-10-T
+    # thingy?
+    # def __setattr__(self, name, obj):
+    #     if self._tree is not None and name in self:
+    #         # We're trying to set an item via dotted name...
+    #         del self[name]
+    #         self[name] = obj
+    #     super(Container, self).__setattr__(name, obj)
 
     @security.protected(permissions.DeleteObjects)
     def manage_delObjects(self, ids=None, REQUEST=None):
