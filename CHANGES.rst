@@ -23,7 +23,7 @@ Bug fixes:
 
 
 - Fixes test to work clean with zope.interface.
-  Interfaces are hashed based on just their name and module. 
+  Interfaces are hashed based on just their name and module.
   So every one of these local `IBlank` interfaces will hash the same way, and be treated the same for purposes of zope.interface's `_dependents`.
   Thus in tests mock interfaces must not be used under the same name in the same module.
   [jensens] (#135)
@@ -179,9 +179,6 @@ New features:
 
 Bug fixes:
 
-- Fix ft._updateProperty so it doesn't break when receiving an empty value.
-  This happens when an DX FTI is part of a Generic Setup baseline import.
-  [jaroel]
 - Other Python 3 compatibility fixes
   [ale-rt, pbauer, jensens]
 
