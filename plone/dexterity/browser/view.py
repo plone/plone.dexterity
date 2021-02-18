@@ -9,6 +9,7 @@ class DefaultView(WidgetsView):
     """The default view for Dexterity content. This uses a WidgetsView and
     renders all widgets in display mode.
     """
+    ignorePrefix = True
 
     @property
     def schema(self):

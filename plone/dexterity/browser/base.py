@@ -11,6 +11,7 @@ class DexterityExtensibleForm(AutoExtensibleForm):
     """
 
     default_fieldset_label = _('label_schema_default', default=u'Default')
+    ignorePrefix = True
 
     @property
     def description(self):
