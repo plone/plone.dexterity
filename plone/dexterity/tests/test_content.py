@@ -18,6 +18,7 @@ from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
 from Products.CMFCore.interfaces import ITypesTool
 from Products.CMFPlone.interfaces import IConstrainTypes
+from Products.CMFPlone.interfaces import ISelectableConstrainTypes
 from pytz import timezone
 from zope.annotation.attribute import AttributeAnnotations
 from zope.component import getUtility
@@ -1084,6 +1085,64 @@ class TestContent(MockTestCase):
             container._verifyObjectPaste,
             content,
             True
+        )
+
+    def test_verifyObjectPaste_locally_disallowed_contents(self):
+        from Products.CMFCore.interfaces import ITypeInformation
+        
+        class DummyConstrainTypes(object):
+
+            def __init__(self, context):
+                self.context = context
+
+            def allowedContentTypes(self):
+
+                fti = getUtility(IDexterityFTI, name=u"news")
+                return [fti]
+
+        self.mock_adapter(
+            DummyConstrainTypes, IConstrainTypes, (IDexterityContainer, ))
+
+        # FTI mock
+        fti_mock = Mock(wraps=DexterityFTI(u"news"))
+        self.mock_utility(fti_mock, IDexterityFTI, name=u"news")
+
+        fti_mock2 = Mock()
+        fti_mock2.isConstructionAllowed = Mock(return_value=True)
+        self.mock_utility(fti_mock2, ITypeInformation, name='document')
+
+        mock_pt = Mock()
+        mock_pt.getTypeInfo = Mock(return_value=None)
+        self.mock_tool(mock_pt, 'portal_types')
+        self.mock_utility(mock_pt, ITypesTool)
+
+        document = Item(id='test document')
+        document.__factory_meta_type__ = 'document'
+        document.portal_type = 'document'
+        news = Item(id='test news')
+        news.__factory_meta_type__ = 'news'
+        news.portal_type = 'news'
+
+        container = Container(id="testfolder")
+        container.all_meta_types = [{'name': 'document',
+                                     'action': None,
+                                     'permission': 'View'},{'name': 'news',
+                                     'action': None,
+                                     'permission': 'View'}]
+        container.manage_permission('View', ('Anonymous',))
+        container['test-document'] = document
+        container['test-news'] = news
+        document_content = container['test-document']
+        news_content = container['test-news']
+
+        # can paste news
+        container._verifyObjectPaste(news_content, False)
+        # cannot paste documents
+        self.assertRaises(
+            ValueError,
+            container._verifyObjectPaste,
+            document_content,
+            False
         )
 
     def test_verifyObjectPaste_fti_does_allow_content(self):

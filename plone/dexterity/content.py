@@ -273,6 +273,12 @@ class PasteBehaviourMixin(object):
         # allowed content types) to also ask the FTI if construction is
         # allowed.
         super(PasteBehaviourMixin, self)._verifyObjectPaste(obj, validate_src)
+        portal_type = getattr(aq_base(obj), "portal_type", None)
+        constrains = IConstrainTypes(self, None)
+        if constrains:
+            allowed_ids = [i.getId() for i in constrains.allowedContentTypes()]
+            if portal_type not in allowed_ids:
+                raise ValueError("Disallowed subobject type: %s" % portal_type)
         if validate_src:
             portal_type = getattr(aq_base(obj), 'portal_type', None)
             if portal_type:
