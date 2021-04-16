@@ -29,6 +29,7 @@ lib64
 .mr.developer.cfg
 parts/
 pyvenv.cfg
+.python-version
 var/
 
 # mxdev

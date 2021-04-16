@@ -18,6 +18,8 @@ from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
 from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFCore.interfaces import ITypesTool
+from Products.CMFPlone.interfaces import IConstrainTypes
+from Products.CMFPlone.interfaces import ISelectableConstrainTypes
 from pytz import timezone
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -1000,6 +1002,7 @@ class TestContent(MockTestCase):
         self.mock_utility(portal, ISiteRoot)
 
         class DummyConstrainTypes:
+
             def __init__(self, context):
                 self.context = context
 
