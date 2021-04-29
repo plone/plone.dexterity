@@ -57,7 +57,7 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         # example, because the acquired object would shadow the NullResource
 
         if getattr(request, 'maybe_webdav_client', False) \
-           and request.get('REQUEST_METHOD', 'GET') not in ('GET', 'POST',) \
+           and request.get('REQUEST_METHOD', 'GET') not in ('GET', 'POST', 'PUT') \
            and IAcquirer.providedBy(defaultTraversal):
             parent = aq_parent(aq_inner(defaultTraversal))
             if parent is not None and parent is not context:
@@ -75,7 +75,7 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         # deal well with default views.
 
         if getattr(request, 'maybe_webdav_client', False) and \
-           request.get('REQUEST_METHOD', 'GET') not in ('GET', 'POST',):
+           request.get('REQUEST_METHOD', 'GET') not in ('GET', 'POST',): # Maybe PUT too?
             return self.context, ()
 
         return super(DexterityPublishTraverse, self).browserDefault(request)
