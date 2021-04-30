@@ -3,7 +3,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-version = '2.10.1.dev0'
+version = "2.10.1.dev0"
 
 
 def read(filename):
@@ -19,6 +19,7 @@ def read(filename):
         contents = myfile.read()
         return contents.decode("utf-8")
 
+
 short_description = """\
 Framework for content types as filesystem code and TTW (Zope/CMF/Plone)\
 """
@@ -27,7 +28,7 @@ long_description += "\n"
 long_description += read("CHANGES.rst")
 
 setup(
-    name='plone.dexterity',
+    name="plone.dexterity",
     version=version,
     description=short_description,
     long_description=long_description,
@@ -46,54 +47,50 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    keywords='plone dexterity contenttypes',
-    author='Martin Aspeli',
-    author_email='optilude@gmail.com',
-    url='https://pypi.org/project/plone.dexterity',
-    license='GPL version 2',
+    keywords="plone dexterity contenttypes",
+    author="Martin Aspeli",
+    author_email="optilude@gmail.com",
+    url="https://pypi.org/project/plone.dexterity",
+    license="GPL version 2",
     packages=find_packages(),
-    namespace_packages=['plone'],
+    namespace_packages=["plone"],
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'DateTime>=4.0.1',
-        'plone.alterego',
-        'plone.autoform>=1.0b2',
-        'plone.behavior>=1.0b5',
-        'plone.folder',
-        'plone.memoize',
-        'plone.rfc822',
-        'plone.supermodel>=1.0b2',
-        'plone.synchronize',
-        'plone.uuid',
-        'plone.z3cform>=0.6.0',
-        'Products.CMFCore',
-        'Products.CMFDynamicViewFTI',
-        'Products.statusmessages',
-        'setuptools',
-        'six',
-        'zope.annotation',
-        'zope.browser',
-        'zope.component',
-        'zope.container',
-        'zope.dottedname',
-        'zope.globalrequest',
-        'zope.filerepresentation>=3.6.0',
-        'zope.interface',
-        'zope.lifecycleevent',
-        'zope.location',
-        'zope.publisher',
-        'zope.schema',
-        'zope.security',
-        'zope.size',
-        'Zope',
+        "DateTime>=4.0.1",
+        "plone.alterego",
+        "plone.autoform>=1.0b2",
+        "plone.behavior>=1.0b5",
+        "plone.folder",
+        "plone.memoize",
+        "plone.rfc822",
+        "plone.supermodel>=1.0b2",
+        "plone.synchronize",
+        "plone.uuid",
+        "plone.z3cform>=0.6.0",
+        "Products.CMFCore",
+        "Products.CMFDynamicViewFTI",
+        "Products.statusmessages",
+        "setuptools",
+        "six",
+        "zope.annotation",
+        "zope.browser",
+        "zope.component",
+        "zope.container",
+        "zope.dottedname",
+        "zope.globalrequest",
+        "zope.filerepresentation>=3.6.0",
+        "zope.interface",
+        "zope.lifecycleevent",
+        "zope.location",
+        "zope.publisher",
+        "zope.schema",
+        "zope.security",
+        "zope.size",
+        "Zope",
     ],
     extras_require={
-        'test': [
-            'plone.testing',
-            'Products.CMFPlone',
-            "mock;python_version<'3'"
-        ]
+        "test": ["plone.testing", "Products.CMFPlone", "mock;python_version<'3'"]
     },
     entry_points="""
     # -*- Entry points: -*-
