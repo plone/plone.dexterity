@@ -8,6 +8,15 @@ Changelog
 
 .. towncrier release notes start
 
+2.2.10 (2021-06-02)
+-------------------
+
+Bug fixes:
+
+
+- addCreator should not add if a creator is already set for content. This prevents every editor on content from adding to the list of creators for an object. [avoinea, vangheem] (#150)
+
+
 2.2.9 (2020-10-13)
 ------------------
 
