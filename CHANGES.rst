@@ -9,6 +9,17 @@ Changelog
 
 .. towncrier release notes start
 
+2.10.1 (2021-06-30)
+-------------------
+
+Bug fixes:
+
+
+- Officially support Plone 6.0 and Python 3.9.
+  No code changes.
+  [maurits] (#1)
+
+
 2.10.0 (2020-10-12)
 -------------------
 
