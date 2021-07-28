@@ -38,7 +38,7 @@ class ExportImportTests(unittest.TestCase):
         item = DummyItem('test')
 
         import_context = DummyImportContext(None)
-        import_context._files['.data'] = 'title: Foo'
+        import_context._files['.data'] = b'title: Foo'
         importer = DexterityContentExporterImporter(item)
         importer.import_(import_context, None, root=True)
 

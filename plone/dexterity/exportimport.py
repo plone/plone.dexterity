@@ -9,9 +9,12 @@ from Products.GenericSetup.interfaces import IContentFactoryName
 from Products.GenericSetup.interfaces import IFilesystemExporter
 from Products.GenericSetup.interfaces import IFilesystemImporter
 from Products.GenericSetup.utils import _getDottedName
+from six import BytesIO
 from six import StringIO
 from zope.component import queryAdapter
 from zope.interface import implementer
+
+import six
 
 
 @implementer(IFilesystemExporter, IFilesystemImporter)
@@ -92,7 +95,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
 
         data = import_context.readDataFile('.data', subdir)
         if data is not None:
-            request = FauxDAVRequest(BODY=data, BODYFILE=StringIO(data))
+            request = FauxDAVRequest(BODY=data, BODYFILE=BytesIO(data))
             response = FauxDAVResponse()
             context.PUT(request, response)
 
@@ -104,6 +107,9 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         if not preserve:
             preserve = []
         else:
+            # Make sure ``preserve`` is a native string
+            if six.PY3 and not isinstance(preserve, str):
+                preserve = preserve.decode('utf-8')
             preserve = _globtest(preserve, prior)
 
         preserve.extend([x[0] for x in must_preserve])
@@ -117,6 +123,8 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
             return
 
         dialect = 'excel'
+        if six.PY3 and not isinstance(objects, str):
+            objects = objects.decode('utf-8')
         stream = StringIO(objects)
 
         rowiter = reader(stream, dialect)
