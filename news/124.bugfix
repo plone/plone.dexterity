@@ -1,4 +1,0 @@
-Fix export/import of content in Python 3.
-Fixes `issue 124 <https://github.com/plone/plone.dexterity/issues/124>`_.
-Also fixes the tests in combination with newest ``Products.GenericSetup`` 2.1.2.
-[maurits]
