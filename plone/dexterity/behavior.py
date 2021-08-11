@@ -9,8 +9,7 @@ from zope.interface import implementer
 @implementer(IBehaviorAssignable)
 @adapter(IDexterityContent)
 class DexterityBehaviorAssignable(object):
-    """Support plone.behavior behaviors stored in the FTI
-    """
+    """Support plone.behavior behaviors stored in the FTI"""
 
     def __init__(self, context):
         self.context = context
@@ -22,7 +21,5 @@ class DexterityBehaviorAssignable(object):
         return False
 
     def enumerateBehaviors(self):
-        for behavior in SCHEMA_CACHE.behavior_registrations(
-            self.context.portal_type
-        ):
+        for behavior in SCHEMA_CACHE.behavior_registrations(self.context.portal_type):
             yield behavior

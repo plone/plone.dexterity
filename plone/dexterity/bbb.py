@@ -27,6 +27,7 @@ class Resource(object):
     def dav__validate(self, object, methodname, REQUEST):
         pass
 
-    def dav__simpleifhandler(self, request, response, method='PUT',
-                             col=0, url=None, refresh=0):
+    def dav__simpleifhandler(
+        self, request, response, method="PUT", col=0, url=None, refresh=0
+    ):
         pass

@@ -11,7 +11,6 @@ from zope.schema import getFieldsInOrder
 @implementer(IPrimaryFieldInfo)
 @adapter(IDexterityContent)
 class PrimaryFieldInfo(object):
-
     def __init__(self, context):
         self.context = context
         primary = None
@@ -22,7 +21,7 @@ class PrimaryFieldInfo(object):
                     primary = (name, field)
                     break
         if not primary:
-            raise TypeError('Could not adapt', context, IPrimaryFieldInfo)
+            raise TypeError("Could not adapt", context, IPrimaryFieldInfo)
         self.fieldname, self.field = primary
 
     @property

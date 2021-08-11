@@ -12,16 +12,17 @@ import zope.schema
 try:
     from zope.app.content import IContentType
 except ImportError:
+
     class IContentType(Interface):
         pass
 
+
 # id for pseudo-resource used to expose data for folderish items over WebDAV
-DAV_FOLDER_DATA_ID = '_data'
+DAV_FOLDER_DATA_ID = "_data"
 
 
 class IDexterityFTI(ITypeInformation):
-    """The Factory Type Information for Dexterity content objects
-    """
+    """The Factory Type Information for Dexterity content objects"""
 
     def lookupSchema():
         """Return an InterfaceClass that represents the schema of this type.
@@ -48,49 +49,45 @@ class IDexterityFTI(ITypeInformation):
     add_permission = zope.schema.DottedName(
         title=u"Add permission",
         description=u"Zope 3 permission name for the permission required to "
-                    u"construct this content",
+        u"construct this content",
     )
 
     behaviors = zope.schema.List(
         title=u"Behaviors",
         description=u"A list of behaviors that are enabled for this type. "
-                    u"See plone.behavior for more details.",
-        value_type=zope.schema.DottedName(title=u"Behavior name")
+        u"See plone.behavior for more details.",
+        value_type=zope.schema.DottedName(title=u"Behavior name"),
     )
 
     schema = zope.schema.DottedName(
         title=u"Schema interface",
         description=u"Dotted name to an interface describing the type. "
-                    u"This is not required if there is a model file or a "
-                    u"model source string containing an unnamed schema."
+        u"This is not required if there is a model file or a "
+        u"model source string containing an unnamed schema.",
     )
 
     model_source = zope.schema.Text(
         title=u"Model text",
-        description=u"XML representation of the model for this type. " +
-                    u"If this is given, it will override any model_file."
+        description=u"XML representation of the model for this type. "
+        + u"If this is given, it will override any model_file.",
     )
 
     model_file = zope.schema.Text(
         title=u"Model file",
         description=u"A file that contains an XML model. "
-                    u"This may be an absolute path, or one relative to a "
-                    u"package, e.g. my.package:model.xml"
+        u"This may be an absolute path, or one relative to a "
+        u"package, e.g. my.package:model.xml",
     )
 
     hasDynamicSchema = zope.schema.Bool(
-        title=u"Whether or not the FTI uses a dynamic schema.",
-        readonly=True
+        title=u"Whether or not the FTI uses a dynamic schema.", readonly=True
     )
 
 
 class IDexterityFTIModificationDescription(IModificationDescription):
-    """Descriptor passed with an IObjectModifiedEvent for a Dexterity FTI.
-    """
+    """Descriptor passed with an IObjectModifiedEvent for a Dexterity FTI."""
 
-    attribute = zope.schema.ASCII(
-        title=u"Name of the attribute that was modified"
-    )
+    attribute = zope.schema.ASCII(title=u"Name of the attribute that was modified")
     oldValue = Attribute("Old value")
 
 
@@ -104,15 +101,13 @@ class IDexterityFactory(IFactory):
     """
 
     portal_type = zope.schema.TextLine(
-        title=u"Portal type name",
-        description=u"The portal type this is an FTI for"
+        title=u"Portal type name", description=u"The portal type this is an FTI for"
     )
 
 
 # Schema
 class IDexteritySchema(Interface):
-    """Base class for Dexterity schemata
-    """
+    """Base class for Dexterity schemata"""
 
 
 # Schema cache
@@ -128,29 +123,24 @@ class ISchemaInvalidatedEvent(Interface):
 
 # Content
 class IDexterityContent(Interface):
-    """Marker interface for dexterity-managed content objects
-    """
+    """Marker interface for dexterity-managed content objects"""
 
 
 class IDexterityItem(IDexterityContent):
-    """Marker interface applied to dexterity-managed non-folderish objects
-    """
+    """Marker interface applied to dexterity-managed non-folderish objects"""
 
 
 class IDexterityContainer(IDexterityContent):
-    """Marker interface applied to dexterity-managed folderish objects
-    """
+    """Marker interface applied to dexterity-managed folderish objects"""
 
 
 # Events
 class IBegunEvent(IObjectEvent):
-    """Base begun event
-    """
+    """Base begun event"""
 
 
 class IEditBegunEvent(IBegunEvent):
-    """An edit operation was begun
-    """
+    """An edit operation was begun"""
 
 
 class IAddBegunEvent(IBegunEvent):
@@ -160,13 +150,11 @@ class IAddBegunEvent(IBegunEvent):
 
 
 class ICancelledEvent(IObjectEvent):
-    """Base cancel event
-    """
+    """Base cancel event"""
 
 
 class IEditCancelledEvent(ICancelledEvent):
-    """An edit operation was cancelled
-    """
+    """An edit operation was cancelled"""
 
 
 class IAddCancelledEvent(ICancelledEvent):
