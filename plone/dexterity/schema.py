@@ -32,22 +32,22 @@ import warnings
 log = logging.getLogger(__name__)
 
 # Dynamic modules
-generated = dynamic.create('plone.dexterity.schema.generated')
-transient = types.ModuleType('transient')
+generated = dynamic.create("plone.dexterity.schema.generated")
+transient = types.ModuleType("transient")
 
 _MARKER = dict()
 
-FTI_CACHE_KEY = '__plone_dexterity_fti_cache__'
+FTI_CACHE_KEY = "__plone_dexterity_fti_cache__"
 
 
 def invalidate_cache(fti):
     fti._p_activate()
-    fti.__dict__.pop('_v_schema_get', None)
-    fti.__dict__.pop('_v_schema_behavior_registrations', None)
-    fti.__dict__.pop('_v_schema_subtypes', None)
-    fti.__dict__.pop('_v_schema_schema_interfaces', None)
-    fti.__dict__.pop('_v_schema_modified', None)
-    fti.__dict__.pop('_v_schema_behavior_schema_interfaces', None)
+    fti.__dict__.pop("_v_schema_get", None)
+    fti.__dict__.pop("_v_schema_behavior_registrations", None)
+    fti.__dict__.pop("_v_schema_subtypes", None)
+    fti.__dict__.pop("_v_schema_schema_interfaces", None)
+    fti.__dict__.pop("_v_schema_modified", None)
+    fti.__dict__.pop("_v_schema_behavior_schema_interfaces", None)
     request = getRequest()
     if request:
         setattr(request, FTI_CACHE_KEY, None)
@@ -69,8 +69,7 @@ def lookup_fti(portal_type, cache=True):
                     fti = fti_cache[portal_type]
                 else:
                     fti_cache[portal_type] = fti = queryUtility(
-                        IDexterityFTI,
-                        name=portal_type
+                        IDexterityFTI, name=portal_type
                     )
                 return fti
         return queryUtility(IDexterityFTI, name=portal_type)
@@ -78,10 +77,9 @@ def lookup_fti(portal_type, cache=True):
         # its already an IDexterityFTI instance
         return portal_type
     raise ValueError(
-        'portal_type has to either string or IDexterityFTI instance but is '
-        '{0!r}'.format(portal_type)
+        "portal_type has to either string or IDexterityFTI instance but is "
+        "{0!r}".format(portal_type)
     )
-
 
 
 def volatile(func):
@@ -100,7 +98,7 @@ def volatile(func):
         if fti is None:
             return func(self, None)
         if self.cache_enabled:
-            key = '_v_schema_%s' % func.__name__
+            key = "_v_schema_%s" % func.__name__
             cache = getattr(fti, key, _MARKER)
             if cache is not _MARKER:
                 mtime, value = cache
@@ -113,6 +111,7 @@ def volatile(func):
             setattr(fti, key, (fti._p_mtime, value))
 
         return value
+
     return decorator
 
 
@@ -177,10 +176,8 @@ class SchemaCache(object):
                 warnings.warn(
                     'No behavior registration found for behavior named "{0}"'
                     ' for factory "{1}"'
-                    ' - trying deprecated fallback lookup (will be removed '
-                    'in 3.0)..."'.format(
-                        behavior_name, fti.getId()
-                    ),
+                    " - trying deprecated fallback lookup (will be removed "
+                    'in 3.0)..."'.format(behavior_name, fti.getId()),
                     DeprecationWarning,
                 )
                 try:
@@ -197,7 +194,7 @@ class SchemaCache(object):
                     description="bbb fallback lookup",
                     interface=schema_interface,
                     marker=None,
-                    factory=None
+                    factory=None,
                 )
             registrations.append(registration)
         return tuple(registrations)
@@ -212,8 +209,10 @@ class SchemaCache(object):
             return ()
         subtypes = []
         for behavior_registration in self.behavior_registrations(fti):
-            if behavior_registration is not None \
-               and behavior_registration.marker is not None:
+            if (
+                behavior_registration is not None
+                and behavior_registration.marker is not None
+            ):
                 subtypes.append(behavior_registration.marker)
         return tuple(subtypes)
 
@@ -227,8 +226,7 @@ class SchemaCache(object):
             return ()
         schemas = []
         for behavior_registration in self.behavior_registrations(fti):
-            if behavior_registration is not None \
-               and behavior_registration.interface:
+            if behavior_registration is not None and behavior_registration.interface:
                 schemas.append(behavior_registration.interface)
         return tuple(schemas)
 
@@ -279,7 +277,6 @@ SCHEMA_CACHE = SchemaCache()
 
 @implementer(ISchemaInvalidatedEvent)
 class SchemaInvalidatedEvent(object):
-
     def __init__(self, portal_type):
         self.portal_type = portal_type
 
@@ -294,15 +291,14 @@ def invalidate_schema(event):
 
 # here starts the code dealing wih dynamic schemas.
 class SchemaNameEncoder(object):
-    """Schema name encoding
-    """
+    """Schema name encoding"""
 
     key = (
-        (' ', '_1_'),
-        ('.', '_2_'),
-        ('-', '_3_'),
-        ('/', '_4_'),
-        ('|', '_5_'),
+        (" ", "_1_"),
+        (".", "_2_"),
+        ("-", "_3_"),
+        ("/", "_4_"),
+        ("|", "_5_"),
     )
 
     def encode(self, s):
@@ -316,34 +312,31 @@ class SchemaNameEncoder(object):
         return s
 
     def join(self, *args):
-        return '_0_'.join([self.encode(a) for a in args if a])
+        return "_0_".join([self.encode(a) for a in args if a])
 
     def split(self, s):
-        return [self.decode(a) for a in s.split('_0_')]
+        return [self.decode(a) for a in s.split("_0_")]
 
 
 def portalTypeToSchemaName(portal_type, schema=u"", prefix=None, suffix=None):
-    """Return a canonical interface name for a generated schema interface.
-    """
+    """Return a canonical interface name for a generated schema interface."""
     if prefix is None:
-        prefix = '/'.join(getUtility(ISiteRoot).getPhysicalPath())[1:]
+        prefix = "/".join(getUtility(ISiteRoot).getPhysicalPath())[1:]
     if suffix:
-        prefix = '|'.join([prefix, suffix])
+        prefix = "|".join([prefix, suffix])
 
     encoder = SchemaNameEncoder()
     return encoder.join(prefix, portal_type, schema)
 
 
 def schemaNameToPortalType(schemaName):
-    """Return a the portal_type part of a schema name
-    """
+    """Return a the portal_type part of a schema name"""
     encoder = SchemaNameEncoder()
     return encoder.split(schemaName)[1]
 
 
 def splitSchemaName(schemaName):
-    """Return a tuple prefix, portal_type, schemaName
-    """
+    """Return a tuple prefix, portal_type, schemaName"""
     encoder = SchemaNameEncoder()
     items = encoder.split(schemaName)
     if len(items) == 2:
@@ -357,8 +350,7 @@ def splitSchemaName(schemaName):
 # Dynamic module factory
 @implementer(IDynamicObjectFactory)
 class SchemaModuleFactory(object):
-    """Create dynamic schema interfaces on the fly
-    """
+    """Create dynamic schema interfaces on the fly"""
 
     lock = RLock()
     _transient_SCHEMA_CACHE = {}
@@ -429,7 +421,7 @@ class DexteritySchemaPolicy(object):
     """
 
     def module(self, schemaName, tree):
-        return 'plone.dexterity.schema.transient'
+        return "plone.dexterity.schema.transient"
 
     def bases(self, schemaName, tree):
         return ()
@@ -438,4 +430,4 @@ class DexteritySchemaPolicy(object):
         # We use a temporary name whilst the interface is being generated;
         # when it's first used, we know the portal_type and site, and can
         # thus update it
-        return '__tmp__' + schemaName
+        return "__tmp__" + schemaName

@@ -15,24 +15,25 @@ try:
 except ImportError:
     from mock import Mock
 
+
 class PrimaryFieldInfoTestCase(MockTestCase):
     def test_primary_field_info(self):
-
         class ITest(Interface):
             title = schema.TextLine()
             body = schema.Text()
-        alsoProvides(ITest['body'], IPrimaryField)
+
+        alsoProvides(ITest["body"], IPrimaryField)
 
         fti = DexterityFTI(u"testtype")
         fti.lookupSchema = Mock(return_value=ITest)
         fti.behaviors = []
         self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
-        item = Item('item')
-        item.portal_type = 'testtype'
-        item.body = u'body text'
+        item = Item("item")
+        item.portal_type = "testtype"
+        item.body = u"body text"
 
         info = PrimaryFieldInfo(item)
-        assert info.fieldname == 'body'
-        assert info.field == ITest['body']
-        assert info.value == 'body text'
+        assert info.fieldname == "body"
+        assert info.field == ITest["body"]
+        assert info.value == "body text"

@@ -14,13 +14,13 @@ class TestUUIDIntegration(unittest.TestCase):
     layer = UNIT_TESTING
 
     def setUp(self):
-        import zope.component.testing
-        import plone.uuid
-
         from zope.configuration import xmlconfig
 
+        import plone.uuid
+        import zope.component.testing
+
         zope.component.testing.setUp()
-        xmlconfig.file('configure.zcml', plone.uuid)
+        xmlconfig.file("configure.zcml", plone.uuid)
 
     def test_uuid_assigned_on_creation(self):
         from plone.dexterity.content import Item

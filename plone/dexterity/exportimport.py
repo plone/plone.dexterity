@@ -19,7 +19,7 @@ import six
 
 @implementer(IFilesystemExporter, IFilesystemImporter)
 class DexterityContentExporterImporter(FolderishExporterImporter):
-    """ Tree-walking exporter / importer for Dexterity types.
+    """Tree-walking exporter / importer for Dexterity types.
 
     This is based on the generic one in GenericSetup,
     but it uses Dexterity's rfc822 serialization support
@@ -43,12 +43,11 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         self.context = context
 
     def export(self, export_context, subdir, root=False):
-        """ See IFilesystemExporter.
-        """
+        """See IFilesystemExporter."""
         context = self.context
 
         if not root:
-            subdir = '%s/%s' % (subdir, context.getId())
+            subdir = "%s/%s" % (subdir, context.getId())
 
         exportable = self.listExportableItems()
 
@@ -66,19 +65,19 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
             csv_writer.writerow((object_id, factory_name))
 
         export_context.writeDataFile(
-            '.objects',
+            ".objects",
             text=stream.getvalue(),
-            content_type='text/comma-separated-values',
+            content_type="text/comma-separated-values",
             subdir=subdir,
         )
 
         props = context.manage_FTPget()
-        if hasattr(props, 'read'):
+        if hasattr(props, "read"):
             props = props.read()
         export_context.writeDataFile(
-            '.data',
+            ".data",
             text=props,
-            content_type='text/plain',
+            content_type="text/plain",
             subdir=subdir,
         )
 
@@ -87,19 +86,18 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
                 adapter.export(export_context, subdir)
 
     def import_(self, import_context, subdir, root=False):
-        """ See IFilesystemImporter.
-        """
+        """See IFilesystemImporter."""
         context = self.context
         if not root:
-            subdir = '%s/%s' % (subdir, context.getId())
+            subdir = "%s/%s" % (subdir, context.getId())
 
-        data = import_context.readDataFile('.data', subdir)
+        data = import_context.readDataFile(".data", subdir)
         if data is not None:
             request = FauxDAVRequest(BODY=data, BODYFILE=BytesIO(data))
             response = FauxDAVResponse()
             context.PUT(request, response)
 
-        preserve = import_context.readDataFile('.preserve', subdir)
+        preserve = import_context.readDataFile(".preserve", subdir)
         must_preserve = self._mustPreserve()
 
         prior = context.objectIds()
@@ -109,7 +107,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         else:
             # Make sure ``preserve`` is a native string
             if six.PY3 and not isinstance(preserve, str):
-                preserve = preserve.decode('utf-8')
+                preserve = preserve.decode("utf-8")
             preserve = _globtest(preserve, prior)
 
         preserve.extend([x[0] for x in must_preserve])
@@ -118,13 +116,13 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
             if id not in preserve:
                 context._delObject(id)
 
-        objects = import_context.readDataFile('.objects', subdir)
+        objects = import_context.readDataFile(".objects", subdir)
         if objects is None:
             return
 
-        dialect = 'excel'
+        dialect = "excel"
         if six.PY3 and not isinstance(objects, str):
-            objects = objects.decode('utf-8')
+            objects = objects.decode("utf-8")
         stream = StringIO(objects)
 
         rowiter = reader(stream, dialect)
@@ -135,12 +133,14 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         for object_id, type_name in rows:
 
             if object_id not in existing:
-                object = self._makeInstance(object_id, type_name,
-                                            subdir, import_context)
+                object = self._makeInstance(
+                    object_id, type_name, subdir, import_context
+                )
                 if object is None:
-                    logger = import_context.getLogger('SFWA')
-                    logger.warning("Couldn't make instance: %s/%s" %
-                                   (subdir, object_id))
+                    logger = import_context.getLogger("SFWA")
+                    logger.warning(
+                        "Couldn't make instance: %s/%s" % (subdir, object_id)
+                    )
                     continue
 
             wrapped = context._getOb(object_id)

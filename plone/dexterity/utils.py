@@ -27,18 +27,10 @@ import logging
 import six
 
 
-deprecation.deprecated(
-    'SchemaNameEncoder',
-    'moved to plone.dexterity.schema')
-deprecation.deprecated(
-    'portalTypeToSchemaName',
-    'moved to plone.dexterity.schema')
-deprecation.deprecated(
-    'schemaNameToPortalType',
-    'moved to plone.dexterity.schema')
-deprecation.deprecated(
-    'splitSchemaName',
-    'moved to plone.dexterity.schema')
+deprecation.deprecated("SchemaNameEncoder", "moved to plone.dexterity.schema")
+deprecation.deprecated("portalTypeToSchemaName", "moved to plone.dexterity.schema")
+deprecation.deprecated("schemaNameToPortalType", "moved to plone.dexterity.schema")
+deprecation.deprecated("splitSchemaName", "moved to plone.dexterity.schema")
 
 log = logging.getLogger(__name__)
 
@@ -47,8 +39,7 @@ _dottedCache = {}
 
 
 def resolveDottedName(dottedName):
-    """Resolve a dotted name to a real object
-    """
+    """Resolve a dotted name to a real object"""
     global _dottedCache
     if dottedName not in _dottedCache:
         _dottedCache[dottedName] = resolve(dottedName)
@@ -91,8 +82,9 @@ def getAdditionalSchemata(context=None, portal_type=None):
     are set, the portal_type might get ignored, depending on which
     code path is taken.
     """
-    log.debug("getAdditionalSchemata with context %r and portal_type %s",
-              context, portal_type)
+    log.debug(
+        "getAdditionalSchemata with context %r and portal_type %s", context, portal_type
+    )
     if context is None and portal_type is None:
         return
     if context:
@@ -104,9 +96,7 @@ def getAdditionalSchemata(context=None, portal_type=None):
         # Usually an add-form.
         if portal_type is None:
             portal_type = context.portal_type
-        for schema_interface in SCHEMA_CACHE.behavior_schema_interfaces(
-            portal_type
-        ):
+        for schema_interface in SCHEMA_CACHE.behavior_schema_interfaces(portal_type):
             form_schema = IFormFieldProvider(schema_interface, None)
             if form_schema is not None:
                 yield form_schema
@@ -176,13 +166,12 @@ def addContentToContainer(container, object, checkConstraints=True):
         if not fti.isConstructionAllowed(container):
             raise Unauthorized("Cannot create %s" % object.portal_type)
 
-        if container_fti is not None \
-           and not container_fti.allowType(object.portal_type):
-            raise ValueError(
-                "Disallowed subobject type: %s" % object.portal_type
-            )
+        if container_fti is not None and not container_fti.allowType(
+            object.portal_type
+        ):
+            raise ValueError("Disallowed subobject type: %s" % object.portal_type)
 
-    name = getattr(aq_base(object), 'id', None)
+    name = getattr(aq_base(object), "id", None)
     name = INameChooser(container).chooseName(name, object)
     object.id = name
 
@@ -194,35 +183,30 @@ def addContentToContainer(container, object, checkConstraints=True):
         return uuidToObject(uuid)
 
 
-def createContentInContainer(container, portal_type, checkConstraints=True,
-                             **kw):
+def createContentInContainer(container, portal_type, checkConstraints=True, **kw):
     content = createContent(portal_type, **kw)
-    return addContentToContainer(
-        container,
-        content,
-        checkConstraints=checkConstraints
-    )
+    return addContentToContainer(container, content, checkConstraints=checkConstraints)
 
 
 def safe_utf8(st):
     if isinstance(st, six.text_type):
-        st = st.encode('utf8')
+        st = st.encode("utf8")
     return st
 
 
 def safe_unicode(st):
     if isinstance(st, six.binary_type):
-        st = st.decode('utf8')
+        st = st.decode("utf8")
     return st
 
 
 def datify(in_date):
     """Get a DateTime object from a string (or anything parsable by DateTime,
-       a datetime.date, a datetime.datetime
+    a datetime.date, a datetime.datetime
     """
     if isinstance(in_date, DateTime):
         return in_date
-    if in_date == 'None':
+    if in_date == "None":
         in_date = None
     elif isinstance(in_date, datetime.datetime):
         in_date = DateTime(in_date)

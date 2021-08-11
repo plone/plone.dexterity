@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from plone.dexterity import interfaces
-from zope.interface.interfaces import ObjectEvent
 from zope.interface import implementer
+from zope.interface.interfaces import ObjectEvent
 
 
 @implementer(interfaces.IEditBegunEvent)
 class EditBegunEvent(ObjectEvent):
-    """An edit operation was begun
-    """
+    """An edit operation was begun"""
 
 
 @implementer(interfaces.IAddBegunEvent)
@@ -19,8 +18,7 @@ class AddBegunEvent(ObjectEvent):
 
 @implementer(interfaces.IEditCancelledEvent)
 class EditCancelledEvent(ObjectEvent):
-    """An edit operation was cancelled
-    """
+    """An edit operation was cancelled"""
 
 
 @implementer(interfaces.IAddCancelledEvent)
