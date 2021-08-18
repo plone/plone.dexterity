@@ -50,6 +50,7 @@ class TestRequest(TestRequestBase):
     """Zope 3's TestRequest doesn't support item assignment, but Zope 2's
     request does.
     """
+
     def __setitem__(self, key, value):
         pass
 
@@ -90,7 +91,6 @@ class NoBehaviorAssignable(object):
 
 
 class TestAddView(MockTestCase):
-
     def test_addview_sets_form_portal_type(self):
 
         context = Container(u"container")
@@ -110,7 +110,7 @@ class TestAddView(MockTestCase):
         # FTI - returns dummy factory name
 
         fti_mock = DexterityFTI(u"testtype")
-        fti_mock.factory = u'testfactory'
+        fti_mock.factory = u"testfactory"
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         # The form we're testing
@@ -119,6 +119,7 @@ class TestAddView(MockTestCase):
 
         class ISchema(Interface):
             foo = schema.TextLine()
+
         form.fields = Fields(ISchema)
 
         # createObject and applyChanges
@@ -128,11 +129,12 @@ class TestAddView(MockTestCase):
         data_dummy = {u"foo": u"bar"}
 
         from zope.component import createObject
+
         self.patch_global(createObject, return_value=obj_dummy)
 
         provideAdapter(AttributeField)
 
-        portal = self.create_dummy(getPhysicalPath=lambda: ('', 'site'))
+        portal = self.create_dummy(getPhysicalPath=lambda: ("", "site"))
         self.mock_utility(portal, ISiteRoot)
 
         self.assertEqual(obj_dummy, form.create(data_dummy))
@@ -145,13 +147,12 @@ class TestAddView(MockTestCase):
         obj = Mock()
         request = TestRequest()
 
-        container._setObject = Mock(return_value=u'newid')
+        container._setObject = Mock(return_value=u"newid")
         container._getOb = Mock(return_value=obj)
-        container.absolute_url = Mock(
-            return_value="http://nohost/plone/container")
+        container.absolute_url = Mock(return_value="http://nohost/plone/container")
 
         obj.id = u"newid"
-        obj.portal_type = 'testtype'
+        obj.portal_type = "testtype"
 
         # New object's FTI
         fti_mock = DexterityFTI(u"testtype")
@@ -161,18 +162,13 @@ class TestAddView(MockTestCase):
         # Container FTI
         container_fti_mock = DexterityFTI(u"containertype")
         container_fti_mock.allowType = Mock(return_value=True)
-        self.mock_utility(
-            container_fti_mock,
-            IDexterityFTI,
-            name=u"containertype"
-        )
+        self.mock_utility(container_fti_mock, IDexterityFTI, name=u"containertype")
 
         container.getTypeInfo = Mock(return_value=container_fti_mock)
 
         # Name chooser
         @implementer(INameChooser)
         class NameChooser(object):
-
             def __init__(self, context):
                 pass
 
@@ -198,12 +194,10 @@ class TestAddView(MockTestCase):
 
         # Container FTI
         container_fti_mock = DexterityFTI(u"containertype")
-        self.mock_utility(
-            container_fti_mock, IDexterityFTI, name=u"containertype"
-        )
+        self.mock_utility(container_fti_mock, IDexterityFTI, name=u"containertype")
 
         container.getTypeInfo = Mock(return_value=container_fti_mock)
-        obj.portal_type = 'testtype'
+        obj.portal_type = "testtype"
 
         form = DefaultAddForm(container, request)
         form.portal_type = u"testtype"
@@ -216,7 +210,7 @@ class TestAddView(MockTestCase):
         obj = Mock()
         request = TestRequest()
 
-        obj.portal_type = 'testtype'
+        obj.portal_type = "testtype"
 
         # New object's FTI
         fti_mock = DexterityFTI(u"testtype")
@@ -226,11 +220,7 @@ class TestAddView(MockTestCase):
         # Container FTI
         container_fti_mock = DexterityFTI(u"containertype")
         container_fti_mock.allowType = Mock(return_value=False)
-        self.mock_utility(
-            container_fti_mock,
-            IDexterityFTI,
-            name=u"containertype"
-        )
+        self.mock_utility(container_fti_mock, IDexterityFTI, name=u"containertype")
 
         container.getTypeInfo = Mock(return_value=container_fti_mock)
 
@@ -248,12 +238,12 @@ class TestAddView(MockTestCase):
         context_mock = Mock()
         request_mock = TestRequest()
 
-        request_mock.form['disable_border'] = True
+        request_mock.form["disable_border"] = True
 
         # FTI
 
         fti_mock = DexterityFTI(u"testtype")
-        fti_mock.Title = Mock(return_value=u'Test title')
+        fti_mock.Title = Mock(return_value=u"Test title")
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         # Form
@@ -263,12 +253,12 @@ class TestAddView(MockTestCase):
 
         label = addform.label
         self.assertEqual(u"Add ${name}", six.text_type(label))
-        self.assertEqual(u"Test title", label.mapping['name'])
+        self.assertEqual(u"Test title", label.mapping["name"])
 
     def test_schema_lookup_add(self):
 
         # Context and request
-        context_mock = self.create_dummy(portal_type=u'testtype')
+        context_mock = self.create_dummy(portal_type=u"testtype")
         request_mock = TestRequest()
 
         # FTI
@@ -277,48 +267,37 @@ class TestAddView(MockTestCase):
         fti_mock.behaviors = (
             IBehaviorOne.__identifier__,
             IBehaviorTwo.__identifier__,
-            IBehaviorThree.__identifier__
+            IBehaviorThree.__identifier__,
         )
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         from plone.behavior.interfaces import IBehavior
         from plone.behavior.registration import BehaviorRegistration
+
         registration = BehaviorRegistration(
             title=u"Test Behavior 1",
             description=u"Provides test behavior",
             interface=IBehaviorOne,
             marker=None,
-            factory=None
+            factory=None,
         )
-        self.mock_utility(
-            registration,
-            IBehavior,
-            IBehaviorOne.__identifier__
-        )
+        self.mock_utility(registration, IBehavior, IBehaviorOne.__identifier__)
         registration = BehaviorRegistration(
             title=u"Test Behavior 2",
             description=u"Provides test behavior",
             interface=IBehaviorTwo,
             marker=None,
-            factory=None
+            factory=None,
         )
-        self.mock_utility(
-            registration,
-            IBehavior,
-            IBehaviorTwo.__identifier__
-        )
+        self.mock_utility(registration, IBehavior, IBehaviorTwo.__identifier__)
         registration = BehaviorRegistration(
             title=u"Test Behavior 3",
             description=u"Provides test behavior",
             interface=IBehaviorThree,
             marker=None,
-            factory=None
+            factory=None,
         )
-        self.mock_utility(
-            registration,
-            IBehavior,
-            IBehaviorThree.__identifier__
-        )
+        self.mock_utility(registration, IBehavior, IBehaviorThree.__identifier__)
 
         # Form
         view = DefaultAddForm(context_mock, request_mock)
@@ -327,31 +306,22 @@ class TestAddView(MockTestCase):
         self.assertEqual(ISchema, view.schema)
 
         # we expect here only formfieldprovider!
-        self.assertEqual(
-            (IBehaviorOne, IBehaviorTwo),
-            tuple(view.additionalSchemata)
-        )
+        self.assertEqual((IBehaviorOne, IBehaviorTwo), tuple(view.additionalSchemata))
 
         # When we register our own IBehaviorAssignable we can
         # influence what goes into the additionalSchemata. But in an Addform
         # this never grips, since its an adapter on context, and contextless
         # there is always the FTI the only valid source
-        self.mock_adapter(
-            NoBehaviorAssignable,
-            IBehaviorAssignable,
-            [Interface]
-        )
-        self.assertEqual(
-            (IBehaviorOne, IBehaviorTwo),
-            tuple(view.additionalSchemata)
-        )
+        self.mock_adapter(NoBehaviorAssignable, IBehaviorAssignable, [Interface])
+        self.assertEqual((IBehaviorOne, IBehaviorTwo), tuple(view.additionalSchemata))
 
     def test_fires_add_begun_event(self):
 
         # Context and request
         context_mock = self.create_dummy(
-            portal_type=u'testtype',
-            allowedContentTypes=lambda: [self.create_dummy(getId=lambda: 'testtype')])
+            portal_type=u"testtype",
+            allowedContentTypes=lambda: [self.create_dummy(getId=lambda: "testtype")],
+        )
         request_mock = TestRequest()
 
         # FTI
@@ -359,16 +329,13 @@ class TestAddView(MockTestCase):
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
-        self.mock_adapter(
-            FieldWidgets,
-            IWidgets,
-            (Interface, Interface, Interface)
-        )
+        self.mock_adapter(FieldWidgets, IWidgets, (Interface, Interface, Interface))
 
         self.mock_adapter(Actions, IActions, (Interface, Interface, Interface))
 
         # mock notify
         from zope.event import notify
+
         notify_mock = self.patch_global(notify)
 
         # Form
@@ -383,8 +350,8 @@ class TestAddView(MockTestCase):
 
         # Context and request
         context_mock = self.create_dummy(
-            portal_type=u'testtype',
-            allowedContentTypes=lambda: [])
+            portal_type=u"testtype", allowedContentTypes=lambda: []
+        )
         request_mock = TestRequest()
 
         # FTI
@@ -392,11 +359,7 @@ class TestAddView(MockTestCase):
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
-        self.mock_adapter(
-            FieldWidgets,
-            IWidgets,
-            (Interface, Interface, Interface)
-        )
+        self.mock_adapter(FieldWidgets, IWidgets, (Interface, Interface, Interface))
 
         self.mock_adapter(Actions, IActions, (Interface, Interface, Interface))
 
@@ -409,8 +372,8 @@ class TestAddView(MockTestCase):
 
         # Context and request
         context_mock = self.create_dummy(
-            portal_type=u'testtype',
-            allowedContentTypes=lambda: [])
+            portal_type=u"testtype", allowedContentTypes=lambda: []
+        )
         request_mock = TestRequest()
         alsoProvides(request_mock, IDeferSecurityCheck)
 
@@ -419,11 +382,7 @@ class TestAddView(MockTestCase):
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
-        self.mock_adapter(
-            FieldWidgets,
-            IWidgets,
-            (Interface, Interface, Interface)
-        )
+        self.mock_adapter(FieldWidgets, IWidgets, (Interface, Interface, Interface))
 
         self.mock_adapter(Actions, IActions, (Interface, Interface, Interface))
 
@@ -433,30 +392,29 @@ class TestAddView(MockTestCase):
         try:
             view.update()
         except ValueError:
-            self.fail("Update raised Unauthorized with security checks "
-                      "deferred")
+            self.fail("Update raised Unauthorized with security checks " "deferred")
 
     def test_fires_add_cancelled_event(self):
 
         # Context and request
-        context_mock = self.create_dummy(portal_type=u'testtype')
-        context_mock.absolute_url = \
-            lambda *a, **kw: 'http://127.0.0.1/plone/item'
+        context_mock = self.create_dummy(portal_type=u"testtype")
+        context_mock.absolute_url = lambda *a, **kw: "http://127.0.0.1/plone/item"
         request_mock = TestRequest()
 
         # mock status message
         @implementer(IStatusMessage)
         class StatusMessage(object):
-
             def __init__(self, request):
                 pass
 
-            def addStatusMessage(self, msg, type=''):
+            def addStatusMessage(self, msg, type=""):
                 pass
+
         self.mock_adapter(StatusMessage, IStatusMessage, (Interface,))
 
         # mock notify
         from zope.event import notify
+
         notify_mock = self.patch_global(notify)
 
         # Form
@@ -464,12 +422,10 @@ class TestAddView(MockTestCase):
         view.handleCancel(view, {})
 
         self.assertTrue(notify_mock.called)
-        self.assertTrue(
-            IAddCancelledEvent.providedBy(notify_mock.call_args[0][0]))
+        self.assertTrue(IAddCancelledEvent.providedBy(notify_mock.call_args[0][0]))
 
 
 class TestEditView(MockTestCase):
-
     def setUp(self):
         SCHEMA_CACHE.clear()
 
@@ -479,13 +435,13 @@ class TestEditView(MockTestCase):
 
         # Context and request
 
-        context_mock = self.create_dummy(portal_type=u'testtype')
+        context_mock = self.create_dummy(portal_type=u"testtype")
         request_mock = TestRequest()
 
         # FTI
 
         fti_mock = DexterityFTI(u"testtype")
-        fti_mock.Title = Mock(return_value=u'Test title')
+        fti_mock.Title = Mock(return_value=u"Test title")
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         # Form
@@ -496,7 +452,7 @@ class TestEditView(MockTestCase):
 
         label = editview.label
         self.assertEqual(u"Edit ${name}", six.text_type(label))
-        self.assertEqual(u"Test title", label.mapping['name'])
+        self.assertEqual(u"Test title", label.mapping["name"])
 
     def test_schema_lookup_edit(self):
 
@@ -504,7 +460,7 @@ class TestEditView(MockTestCase):
         class IMarker(IDexterityContent):
             pass
 
-        context_mock = self.create_dummy(portal_type=u'testtype')
+        context_mock = self.create_dummy(portal_type=u"testtype")
         alsoProvides(context_mock, IMarker)
         request_mock = TestRequest()
 
@@ -514,48 +470,37 @@ class TestEditView(MockTestCase):
         fti_mock.behaviors = (
             IBehaviorOne.__identifier__,
             IBehaviorTwo.__identifier__,
-            IBehaviorThree.__identifier__
+            IBehaviorThree.__identifier__,
         )
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         from plone.behavior.interfaces import IBehavior
         from plone.behavior.registration import BehaviorRegistration
+
         registration = BehaviorRegistration(
             title=u"Test Behavior 1",
             description=u"Provides test behavior",
             interface=IBehaviorOne,
             marker=None,
-            factory=None
+            factory=None,
         )
-        self.mock_utility(
-            registration,
-            IBehavior,
-            IBehaviorOne.__identifier__
-        )
+        self.mock_utility(registration, IBehavior, IBehaviorOne.__identifier__)
         registration = BehaviorRegistration(
             title=u"Test Behavior 2",
             description=u"Provides test behavior",
             interface=IBehaviorTwo,
             marker=None,
-            factory=None
+            factory=None,
         )
-        self.mock_utility(
-            registration,
-            IBehavior,
-            IBehaviorTwo.__identifier__
-        )
+        self.mock_utility(registration, IBehavior, IBehaviorTwo.__identifier__)
         registration = BehaviorRegistration(
             title=u"Test Behavior 3",
             description=u"Provides test behavior",
             interface=IBehaviorThree,
             marker=None,
-            factory=None
+            factory=None,
         )
-        self.mock_utility(
-            registration,
-            IBehavior,
-            IBehaviorThree.__identifier__
-        )
+        self.mock_utility(registration, IBehavior, IBehaviorThree.__identifier__)
 
         # Form
         view = DefaultEditForm(context_mock, request_mock)
@@ -564,25 +509,18 @@ class TestEditView(MockTestCase):
         self.assertEqual(ISchema, view.schema)
 
         # we expect here only formfieldprovider!
-        self.assertEqual(
-            (IBehaviorOne, IBehaviorTwo),
-            tuple(view.additionalSchemata)
-        )
+        self.assertEqual((IBehaviorOne, IBehaviorTwo), tuple(view.additionalSchemata))
 
         # When we register our own IBehaviorAssignable we can
         # influence what goes into the additionalSchemata.
-        self.mock_adapter(
-            NoBehaviorAssignable,
-            IBehaviorAssignable,
-            [IMarker]
-        )
+        self.mock_adapter(NoBehaviorAssignable, IBehaviorAssignable, [IMarker])
         additionalSchemata = tuple(view.additionalSchemata)
         self.assertEqual(tuple(), tuple(additionalSchemata))
 
     def test_fires_edit_begun_event(self):
 
         # Context and request
-        context_mock = self.create_dummy(portal_type=u'testtype')
+        context_mock = self.create_dummy(portal_type=u"testtype")
         request_mock = TestRequest()
 
         # FTI
@@ -590,15 +528,12 @@ class TestEditView(MockTestCase):
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
-        self.mock_adapter(
-            FieldWidgets,
-            IWidgets,
-            (Interface, Interface, Interface)
-        )
+        self.mock_adapter(FieldWidgets, IWidgets, (Interface, Interface, Interface))
         self.mock_adapter(Actions, IActions, (Interface, Interface, Interface))
 
         # mock notify
         from zope.event import notify
+
         notify_mock = self.patch_global(notify)
 
         # Form
@@ -606,30 +541,29 @@ class TestEditView(MockTestCase):
         view.update()
 
         self.assertTrue(notify_mock.called)
-        self.assertTrue(
-            IEditBegunEvent.providedBy(notify_mock.call_args[0][0]))
+        self.assertTrue(IEditBegunEvent.providedBy(notify_mock.call_args[0][0]))
 
     def test_fires_edit_cancelled_event(self):
 
         # Context and request
-        context_mock = self.create_dummy(portal_type=u'testtype', title=u'foo')
-        context_mock.absolute_url = \
-            lambda *a, **kw: 'http://127.0.0.1/plone/item'
+        context_mock = self.create_dummy(portal_type=u"testtype", title=u"foo")
+        context_mock.absolute_url = lambda *a, **kw: "http://127.0.0.1/plone/item"
         request_mock = TestRequest()
 
         # mock status message
         @implementer(IStatusMessage)
         class StatusMessage(object):
-
             def __init__(self, request):
                 pass
 
-            def addStatusMessage(self, msg, type=''):
+            def addStatusMessage(self, msg, type=""):
                 pass
+
         self.mock_adapter(StatusMessage, IStatusMessage, (Interface,))
 
         # mock notify
         from zope.event import notify
+
         notify_mock = self.patch_global(notify)
 
         # Form
@@ -637,53 +571,50 @@ class TestEditView(MockTestCase):
         view.handleCancel(view, {})
 
         self.assertTrue(notify_mock.called)
-        self.assertTrue(
-            IEditCancelledEvent.providedBy(notify_mock.call_args[0][0]))
+        self.assertTrue(IEditCancelledEvent.providedBy(notify_mock.call_args[0][0]))
 
     def test_fires_edit_finished_event(self):
 
         # Context and request
-        context_mock = self.create_dummy(portal_type=u'testtype', title=u'foo')
-        context_mock.absolute_url = \
-            lambda *a, **kw: 'http://127.0.0.1/plone/item'
+        context_mock = self.create_dummy(portal_type=u"testtype", title=u"foo")
+        context_mock.absolute_url = lambda *a, **kw: "http://127.0.0.1/plone/item"
         request_mock = TestRequest()
 
         # mock status message
         @implementer(IStatusMessage)
         class StatusMessage(object):
-
             def __init__(self, request):
                 pass
 
-            def addStatusMessage(self, msg, type=''):
+            def addStatusMessage(self, msg, type=""):
                 pass
+
         self.mock_adapter(StatusMessage, IStatusMessage, (Interface,))
 
         # mock notify
         from zope.event import notify
+
         notify_mock = self.patch_global(notify)
 
         # Form
         view = DefaultEditForm(context_mock, request_mock)
         view.widgets = Mock()
-        view.widgets.extract = Mock(return_value=({'title': u'foo'}, []))
+        view.widgets.extract = Mock(return_value=({"title": u"foo"}, []))
         view.applyChanges = Mock()
         view.handleApply(view, {})
 
         self.assertTrue(notify_mock.called)
-        self.assertTrue(
-            IEditFinishedEvent.providedBy(notify_mock.call_args[0][0]))
+        self.assertTrue(IEditFinishedEvent.providedBy(notify_mock.call_args[0][0]))
 
 
 class TestDefaultView(MockTestCase):
-
     def test_schema_lookup_default_view(self):
 
         # Context and request
         class IMarker(IDexterityContent):
             pass
 
-        context_mock = self.create_dummy(portal_type=u'testtype')
+        context_mock = self.create_dummy(portal_type=u"testtype")
         alsoProvides(context_mock, IMarker)
         request_mock = TestRequest()
 
@@ -693,48 +624,37 @@ class TestDefaultView(MockTestCase):
         fti_mock.behaviors = (
             IBehaviorOne.__identifier__,
             IBehaviorTwo.__identifier__,
-            IBehaviorThree.__identifier__
+            IBehaviorThree.__identifier__,
         )
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
 
         from plone.behavior.interfaces import IBehavior
         from plone.behavior.registration import BehaviorRegistration
+
         registration = BehaviorRegistration(
             title=u"Test Behavior 1",
             description=u"Provides test behavior",
             interface=IBehaviorOne,
             marker=None,
-            factory=None
+            factory=None,
         )
-        self.mock_utility(
-            registration,
-            IBehavior,
-            IBehaviorOne.__identifier__
-        )
+        self.mock_utility(registration, IBehavior, IBehaviorOne.__identifier__)
         registration = BehaviorRegistration(
             title=u"Test Behavior 2",
             description=u"Provides test behavior",
             interface=IBehaviorTwo,
             marker=None,
-            factory=None
+            factory=None,
         )
-        self.mock_utility(
-            registration,
-            IBehavior,
-            IBehaviorTwo.__identifier__
-        )
+        self.mock_utility(registration, IBehavior, IBehaviorTwo.__identifier__)
         registration = BehaviorRegistration(
             title=u"Test Behavior 3",
             description=u"Provides test behavior",
             interface=IBehaviorThree,
             marker=None,
-            factory=None
+            factory=None,
         )
-        self.mock_utility(
-            registration,
-            IBehavior,
-            IBehaviorThree.__identifier__
-        )
+        self.mock_utility(registration, IBehavior, IBehaviorThree.__identifier__)
 
         # Form
         view = DefaultView(context_mock, request_mock)
@@ -743,17 +663,10 @@ class TestDefaultView(MockTestCase):
         self.assertEqual(ISchema, view.schema)
 
         # we expect here only formfieldprovider!
-        self.assertEqual(
-            (IBehaviorOne, IBehaviorTwo),
-            tuple(view.additionalSchemata)
-        )
+        self.assertEqual((IBehaviorOne, IBehaviorTwo), tuple(view.additionalSchemata))
 
         # When we register our own IBehaviorAssignable we can
         # influence what goes into the additionalSchemata.
-        self.mock_adapter(
-            NoBehaviorAssignable,
-            IBehaviorAssignable,
-            [IMarker]
-        )
+        self.mock_adapter(NoBehaviorAssignable, IBehaviorAssignable, [IMarker])
         additionalSchemata = tuple(view.additionalSchemata)
         self.assertEqual(tuple(), tuple(additionalSchemata))

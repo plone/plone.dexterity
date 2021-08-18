@@ -9,6 +9,29 @@ Changelog
 
 .. towncrier release notes start
 
+2.10.2 (2021-07-29)
+-------------------
+
+Bug fixes:
+
+
+- Fix export/import of content in Python 3.
+  Fixes `issue 124 <https://github.com/plone/plone.dexterity/issues/124>`_.
+  Also fixes the tests in combination with newest ``Products.GenericSetup`` 2.1.2.
+  [maurits] (#124)
+
+
+2.10.1 (2021-06-30)
+-------------------
+
+Bug fixes:
+
+
+- Officially support Plone 6.0 and Python 3.9.
+  No code changes.
+  [maurits] (#1)
+
+
 2.10.0 (2020-10-12)
 -------------------
 

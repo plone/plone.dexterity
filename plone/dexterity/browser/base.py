@@ -7,10 +7,9 @@ from zope.component import getUtility
 
 
 class DexterityExtensibleForm(AutoExtensibleForm):
-    """Mixin class for Dexterity forms that support updatable fields
-    """
+    """Mixin class for Dexterity forms that support updatable fields"""
 
-    default_fieldset_label = _('label_schema_default', default=u'Default')
+    default_fieldset_label = _("label_schema_default", default=u"Default")
 
     @property
     def description(self):
@@ -26,5 +25,4 @@ class DexterityExtensibleForm(AutoExtensibleForm):
 
     @property
     def additionalSchemata(self):
-        return getAdditionalSchemata(context=self.context,
-                                     portal_type=self.portal_type)
+        return getAdditionalSchemata(context=self.context, portal_type=self.portal_type)
