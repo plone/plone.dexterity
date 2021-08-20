@@ -29,7 +29,7 @@ class DexterityFactory(Persistent, Factory):
     def __call__(self, *args, **kw):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
 
-        klass = resolveDottedName(fti.klass)
+        klass = resolveDottedName(fti.klass) if fti.klass else None
         if klass is None or not callable(klass):
             raise ValueError(
                 "Content class %s set for type %s is not valid"

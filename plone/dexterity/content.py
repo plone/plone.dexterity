@@ -50,6 +50,7 @@ from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
 
 import six
+import warnings
 import threading
 
 
@@ -766,7 +767,10 @@ class Container(
             pass
 
         # Be specific about the implementation we use
-        return CMFOrderedBTreeFolderBase.__getattr__(self, name)
+        if self._tree is not None:
+            return CMFOrderedBTreeFolderBase.__getattr__(self, name)
+
+        raise AttributeError(name)
 
     @security.protected(permissions.DeleteObjects)
     def manage_delObjects(self, ids=None, REQUEST=None):

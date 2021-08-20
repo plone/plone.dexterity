@@ -16,6 +16,7 @@ from zope.component import adapter
 from zope.component import getAllUtilitiesRegisteredFor
 from zope.component import getUtility
 from zope.component import queryUtility
+from zope.component.hooks import getSite
 from zope.dottedname.resolve import resolve
 from zope.globalrequest import getRequest
 from zope.interface import alsoProvides
@@ -65,9 +66,11 @@ def lookup_fti(portal_type, cache=True):
                 if fti_cache is None:
                     fti_cache = dict()
                     setattr(request, FTI_CACHE_KEY, fti_cache)
+                fti = None
                 if portal_type in fti_cache:
                     fti = fti_cache[portal_type]
-                else:
+
+                if fti is None:
                     fti_cache[portal_type] = fti = queryUtility(
                         IDexterityFTI, name=portal_type
                     )
@@ -321,7 +324,14 @@ class SchemaNameEncoder(object):
 def portalTypeToSchemaName(portal_type, schema=u"", prefix=None, suffix=None):
     """Return a canonical interface name for a generated schema interface."""
     if prefix is None:
-        prefix = "/".join(getUtility(ISiteRoot).getPhysicalPath())[1:]
+        siteroot = None
+        if portal_type == "Plone Site":
+            fti = queryUtility(IDexterityFTI, name=portal_type)
+            if fti is not None:
+                siteroot = fti.__parent__
+        if siteroot is None:
+            siteroot = getUtility(ISiteRoot)
+        prefix = "/".join(siteroot.getPhysicalPath())[1:]
     if suffix:
         prefix = "|".join([prefix, suffix])
 
