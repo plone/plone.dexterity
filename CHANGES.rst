@@ -9,6 +9,19 @@ Changelog
 
 .. towncrier release notes start
 
+2.10.3 (2021-09-01)
+-------------------
+
+Bug fixes:
+
+
+- Fix ft._updateProperty so it doesn't break when receiving an empty value.
+  This happens when an DX FTI is part of a Generic Setup baseline import.
+  Update more code to work when the Plone Site is a dexterity item.
+  [jaroel] (#85)
+- Codestyle black and isort [jensens] (#154)
+
+
 2.10.2 (2021-07-29)
 -------------------
 

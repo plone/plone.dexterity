@@ -1,4 +1,0 @@
-Fix ft._updateProperty so it doesn't break when receiving an empty value.
-This happens when an DX FTI is part of a Generic Setup baseline import.
-Update more code to work when the Plone Site is a dexterity item.
-[jaroel]
