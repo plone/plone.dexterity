@@ -16,6 +16,7 @@ from plone.dexterity.filerepresentation import DAVCollectionMixin
 from plone.dexterity.filerepresentation import DAVResourceMixin
 from plone.dexterity.interfaces import IDexterityContainer
 from plone.dexterity.interfaces import IDexterityContent
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.dexterity.utils import all_merged_tagged_values_dict
@@ -50,7 +51,6 @@ from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
 
 import six
-import warnings
 import threading
 
 
@@ -62,6 +62,7 @@ CEILING_DATE = DateTime(2500, 0)  # never expires
 
 # see comment in DexterityContent.__getattr__ method
 ATTRIBUTE_NAMES_TO_IGNORE = (
+    "_v__cached_fti",
     "_dav_writelocks",
     "aq_inner",
     "getCurrentSkinName",
@@ -149,6 +150,14 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         if portal_type is None:
             return spec
 
+        fti = getattr(inst, "_v__cached_fti", None)
+        if fti is None:
+            fti = queryUtility(IDexterityFTI, name=portal_type)
+            if fti is None:
+                print(f"No FTI found for {portal_type}")
+                return spec
+            setattr(inst, "_v__cached_fti", fti)
+
         # Find the cached value. This calculation is expensive and called
         # hundreds of times during each request, so we require a fast cache
         cache = getattr(inst, "_v__providedBy__", None)
@@ -160,7 +169,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         #  - The instance has a different direct specification.
         updated = (
             inst._p_mtime,
-            SCHEMA_CACHE.modified(portal_type),
+            SCHEMA_CACHE.modified(fti),
             SCHEMA_CACHE.invalidations,
             hash(spec),
         )
@@ -169,7 +178,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
                 return cache[-1]
             return spec
 
-        main_schema = SCHEMA_CACHE.get(portal_type)
+        main_schema = SCHEMA_CACHE.get(fti)
         if main_schema:
             dynamically_provided = [main_schema]
         else:
