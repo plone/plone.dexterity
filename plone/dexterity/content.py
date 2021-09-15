@@ -154,7 +154,6 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         if fti is None:
             fti = queryUtility(IDexterityFTI, name=portal_type)
             if fti is None:
-                print(f"No FTI found for {portal_type}")
                 return spec
             setattr(inst, "_v__cached_fti", fti)
 

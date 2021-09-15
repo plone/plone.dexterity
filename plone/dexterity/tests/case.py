@@ -6,7 +6,7 @@ import six
 import unittest
 import zope.component
 import zope.component.testing
-
+import zope.globalrequest
 
 try:
     from unittest.mock import Mock
@@ -24,6 +24,8 @@ class MockTestCase(unittest.TestCase):
 
     def tearDown(self):
         zope.component.testing.tearDown(self)
+        zope.globalrequest.setRequest(None)
+
         if self._replaced_globals is not None:
             for mock, orig in self._replaced_globals.items():
                 _global_replace(mock, orig)
