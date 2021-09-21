@@ -16,7 +16,6 @@ from plone.dexterity.filerepresentation import DAVCollectionMixin
 from plone.dexterity.filerepresentation import DAVResourceMixin
 from plone.dexterity.interfaces import IDexterityContainer
 from plone.dexterity.interfaces import IDexterityContent
-from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexterityItem
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.dexterity.utils import all_merged_tagged_values_dict
@@ -62,7 +61,6 @@ CEILING_DATE = DateTime(2500, 0)  # never expires
 
 # see comment in DexterityContent.__getattr__ method
 ATTRIBUTE_NAMES_TO_IGNORE = (
-    "_v__cached_fti",
     "_dav_writelocks",
     "aq_inner",
     "getCurrentSkinName",
@@ -150,42 +148,38 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         if portal_type is None:
             return spec
 
-        fti = getattr(inst, "_v__cached_fti", None)
-        if fti is None:
-            fti = queryUtility(IDexterityFTI, name=portal_type)
-            if fti is None:
-                return spec
-            setattr(inst, "_v__cached_fti", fti)
-
         # Find the cached value. This calculation is expensive and called
         # hundreds of times during each request, so we require a fast cache
         cache = getattr(inst, "_v__providedBy__", None)
-
-        # See if we have a current cache. Reasons to do this include:
-        #
-        #  - The FTI was modified.
-        #  - The instance was modified and persisted since the cache was built.
-        #  - The instance has a different direct specification.
-        updated = (
-            inst._p_mtime,
-            SCHEMA_CACHE.modified(fti),
-            SCHEMA_CACHE.invalidations,
-            hash(spec),
-        )
-        if cache is not None and cache[:-1] == updated:
-            if cache[-1] is not None:
-                return cache[-1]
-            return spec
-
-        main_schema = SCHEMA_CACHE.get(fti)
-        if main_schema:
-            dynamically_provided = [main_schema]
-        else:
-            dynamically_provided = []
+        updated = ()
+        dynamically_provided = []
 
         # block recursion
         setattr(_recursion_detection, "blocked", True)
         try:
+            # See if we have a current cache. Reasons to do this include:
+            #
+            #  - The FTI was modified.
+            #  - The instance was modified and persisted since the cache was built.
+            #  - The instance has a different direct specification.
+            updated = (
+                inst._p_mtime,
+                SCHEMA_CACHE.modified(portal_type),
+                SCHEMA_CACHE.invalidations,
+                hash(spec),
+            )
+            if cache is not None and cache[:-1] == updated:
+                setattr(_recursion_detection, "blocked", False)
+                if cache[-1] is not None:
+                    return cache[-1]
+                return spec
+
+            main_schema = SCHEMA_CACHE.get(portal_type)
+            if main_schema:
+                dynamically_provided = [main_schema]
+            else:
+                dynamically_provided = []
+
             assignable = get_assignable(inst)
             if assignable is not None:
                 for behavior_registration in assignable.enumerateBehaviors():

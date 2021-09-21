@@ -1,2 +1,2 @@
-Fix recursion error when lookup IDexterityFTI for `Plone Site`
+Catch maximum recursion error when lookup FTI
 [petschki]
