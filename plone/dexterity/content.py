@@ -50,7 +50,6 @@ from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
 
 import six
-import warnings
 import threading
 
 
@@ -152,32 +151,35 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
         # Find the cached value. This calculation is expensive and called
         # hundreds of times during each request, so we require a fast cache
         cache = getattr(inst, "_v__providedBy__", None)
-
-        # See if we have a current cache. Reasons to do this include:
-        #
-        #  - The FTI was modified.
-        #  - The instance was modified and persisted since the cache was built.
-        #  - The instance has a different direct specification.
-        updated = (
-            inst._p_mtime,
-            SCHEMA_CACHE.modified(portal_type),
-            SCHEMA_CACHE.invalidations,
-            hash(spec),
-        )
-        if cache is not None and cache[:-1] == updated:
-            if cache[-1] is not None:
-                return cache[-1]
-            return spec
-
-        main_schema = SCHEMA_CACHE.get(portal_type)
-        if main_schema:
-            dynamically_provided = [main_schema]
-        else:
-            dynamically_provided = []
+        updated = ()
+        dynamically_provided = []
 
         # block recursion
         setattr(_recursion_detection, "blocked", True)
         try:
+            # See if we have a current cache. Reasons to do this include:
+            #
+            #  - The FTI was modified.
+            #  - The instance was modified and persisted since the cache was built.
+            #  - The instance has a different direct specification.
+            updated = (
+                inst._p_mtime,
+                SCHEMA_CACHE.modified(portal_type),
+                SCHEMA_CACHE.invalidations,
+                hash(spec),
+            )
+            if cache is not None and cache[:-1] == updated:
+                setattr(_recursion_detection, "blocked", False)
+                if cache[-1] is not None:
+                    return cache[-1]
+                return spec
+
+            main_schema = SCHEMA_CACHE.get(portal_type)
+            if main_schema:
+                dynamically_provided = [main_schema]
+            else:
+                dynamically_provided = []
+
             assignable = get_assignable(inst)
             if assignable is not None:
                 for behavior_registration in assignable.enumerateBehaviors():

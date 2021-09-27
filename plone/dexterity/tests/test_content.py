@@ -24,6 +24,8 @@ from zope.component import getUtility
 from zope.component import provideAdapter
 from zope.interface import alsoProvides
 from zope.interface import Interface
+from zope.globalrequest import setRequest
+from zope.publisher.browser import TestRequest
 
 import six
 import zope.schema
@@ -42,6 +44,7 @@ except ImportError:
 
 class TestContent(MockTestCase):
     def setUp(self):
+        setRequest(TestRequest())
         SCHEMA_CACHE.clear()
         provideAdapter(DefaultOrdering)
         provideAdapter(AttributeAnnotations)
@@ -74,6 +77,7 @@ class TestContent(MockTestCase):
         fti_mock = Mock(wraps=DexterityFTI("testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        alsoProvides(fti_mock, IDexterityFTI)
 
         self.assertFalse(ISchema.implementedBy(Item))
 
@@ -129,6 +133,7 @@ class TestContent(MockTestCase):
         fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        alsoProvides(fti_mock, IDexterityFTI)
 
         self.assertFalse(ISchema.implementedBy(MyItem))
 
@@ -175,6 +180,7 @@ class TestContent(MockTestCase):
         fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        alsoProvides(fti_mock, IDexterityFTI)
 
         self.assertFalse(ISchema.implementedBy(MyItem))
 
@@ -358,6 +364,7 @@ class TestContent(MockTestCase):
         fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        alsoProvides(fti_mock, IDexterityFTI)
 
         # start clean
         SCHEMA_CACHE.invalidate("testtype")
@@ -411,6 +418,7 @@ class TestContent(MockTestCase):
         fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        alsoProvides(fti_mock, IDexterityFTI)
 
         SCHEMA_CACHE.invalidate("testtype")
 
@@ -433,6 +441,7 @@ class TestContent(MockTestCase):
         fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        alsoProvides(fti_mock, IDexterityFTI)
 
         SCHEMA_CACHE.invalidate("testtype")
 
@@ -462,6 +471,7 @@ class TestContent(MockTestCase):
         fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        alsoProvides(fti_mock, IDexterityFTI)
 
         SCHEMA_CACHE.invalidate("testtype")
 
@@ -487,6 +497,7 @@ class TestContent(MockTestCase):
         fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        alsoProvides(fti_mock, IDexterityFTI)
 
         SCHEMA_CACHE.invalidate("testtype")
 

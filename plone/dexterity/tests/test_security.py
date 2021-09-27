@@ -10,6 +10,8 @@ from zope.interface import Interface
 from zope.interface import provider
 from zope.security.interfaces import IPermission
 from zope.security.permission import Permission
+from zope.globalrequest import setRequest
+from zope.publisher.browser import TestRequest
 
 import zope.schema
 
@@ -22,6 +24,7 @@ except ImportError:
 
 class TestAttributeProtection(MockTestCase):
     def setUp(self):
+        setRequest(TestRequest())
         SCHEMA_CACHE.clear()
 
     def test_item(self):

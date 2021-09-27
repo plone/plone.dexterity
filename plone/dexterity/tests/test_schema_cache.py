@@ -4,7 +4,8 @@ from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from zope.interface import Interface
-
+from zope.globalrequest import setRequest
+from zope.publisher.browser import TestRequest
 
 try:
     from unittest.mock import Mock
@@ -19,6 +20,7 @@ except ImportError:
 
 class TestSchemaCache(MockTestCase):
     def setUp(self):
+        setRequest(TestRequest())
         SCHEMA_CACHE.clear()
 
     def test_repeated_get_lookup(self):
