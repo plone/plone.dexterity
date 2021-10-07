@@ -9,6 +9,17 @@ Changelog
 
 .. towncrier release notes start
 
+2.10.4 (2021-10-07)
+-------------------
+
+Bug fixes:
+
+
+- Catch maximum recursion error when lookup FTI
+  [petschki] (#155)
+- Optimize local components access by shortcutting `utilities` attribute access. [jensens] (#156)
+
+
 2.10.3 (2021-09-01)
 -------------------
 

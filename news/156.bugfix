@@ -1,1 +1,0 @@
-Optimize local components access by shortcutting `utilities` attribute access. [jensens]
