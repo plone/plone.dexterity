@@ -71,7 +71,7 @@ class DAVResourceMixin(object):
         if sized is None:
             return 0
         unit, size = sized.sizeForSorting()
-        if unit in ('byte', 'bytes'):
+        if unit in ("byte", "bytes"):
             return size
         return 0
 
@@ -87,7 +87,7 @@ class DAVResourceMixin(object):
             adapter = schema(self)
             for name, field in getFieldsInOrder(schema):
                 value = getattr(adapter, name, None)
-                if hasattr(value, 'getSize'):
+                if hasattr(value, "getSize"):
                     size += value.getSize()
         return size
 
@@ -106,8 +106,7 @@ class DAVResourceMixin(object):
 
     @security.protected(permissions.View)
     def manage_DAVget(self):
-        """Get the body of the content item in a WebDAV response.
-        """
+        """Get the body of the content item in a WebDAV response."""
         return self.manage_FTPget()
 
     @security.protected(permissions.View)
@@ -119,7 +118,7 @@ class DAVResourceMixin(object):
         """
         reader = IRawReadFile(self, None)
         if reader is None:
-            return ''
+            return ""
 
         request = REQUEST is not None and REQUEST or self.REQUEST
         response = RESPONSE is not None and RESPONSE or request.response
@@ -130,14 +129,19 @@ class DAVResourceMixin(object):
         if mimeType is not None:
             if encoding is not None:
                 response.setHeader(
-                    'Content-Type', '%s; charset="%s"' % (mimeType, encoding,)
+                    "Content-Type",
+                    '%s; charset="%s"'
+                    % (
+                        mimeType,
+                        encoding,
+                    ),
                 )
             else:
-                response.setHeader('Content-Type', mimeType)
+                response.setHeader("Content-Type", mimeType)
 
         size = reader.size()
         if size is not None:
-            response.setHeader('Content-Length', str(size))
+            response.setHeader("Content-Length", str(size))
 
         # if the reader is an iterator that the publisher can handle, return
         # it as-is. Otherwise, read the full contents
@@ -163,7 +167,7 @@ class DAVResourceMixin(object):
         self.dav__init(request, response)
         self.dav__simpleifhandler(request, response, refresh=1)
 
-        infile = request.get('BODYFILE', None)
+        infile = request.get("BODYFILE", None)
         if infile is None:
             raise MethodNotAllowed(
                 "Cannot complete PUT request: No BODYFILE in request"
@@ -175,17 +179,17 @@ class DAVResourceMixin(object):
                 "Cannot complete PUT request: No IRawWriteFile adapter found"
             )
 
-        contentTypeHeader = request.get_header('content-type', None)
+        contentTypeHeader = request.get_header("content-type", None)
 
         if contentTypeHeader is not None:
             msg = Message()
-            msg['Content-Type'] = contentTypeHeader
+            msg["Content-Type"] = contentTypeHeader
 
             mimeType = msg.get_content_type()
             if mimeType is not None:
                 writer.mimeType = mimeType
 
-            charset = msg.get_param('charset')
+            charset = msg.get_param("charset")
             if charset is not None:
                 writer.encoding = charset
 
@@ -266,7 +270,7 @@ class FolderDataResource(Implicit, Resource):
     security = ClassSecurityInfo()
 
     def __init__(self, name, parent):
-        self.__dict__.update({'__parent__': parent, '__name__': name})
+        self.__dict__.update({"__parent__": parent, "__name__": name})
 
     # We need to proxy certain things to the parent for getting and setting
     # of property sheet values to work.
@@ -316,14 +320,12 @@ class FolderDataResource(Implicit, Resource):
 
     @security.protected(permissions.ListFolderContents)
     def OPTIONS(self, REQUEST, RESPONSE):
-        """OPTIONS request: delegate to parent
-        """
+        """OPTIONS request: delegate to parent"""
         return self.__parent__.OPTIONS(REQUEST, RESPONSE)
 
     @security.protected(permissions.View)
     def TRACE(self, REQUEST, RESPONSE):
-        """TRACE request: delegate to parent
-        """
+        """TRACE request: delegate to parent"""
         return self.__parent__.TRACE(REQUEST, RESPONSE)
 
     @security.protected(permissions.View)
@@ -346,78 +348,61 @@ class FolderDataResource(Implicit, Resource):
 
     @security.protected(permissions.ModifyPortalContent)
     def LOCK(self, REQUEST, RESPONSE):
-        """LOCK request: delegate to parent
-        """
+        """LOCK request: delegate to parent"""
         return self.__parent__.LOCK(REQUEST, RESPONSE)
 
     @security.protected(permissions.ModifyPortalContent)
     def UNLOCK(self, REQUEST, RESPONSE):
-        """UNLOCK request: delegate to parent
-        """
+        """UNLOCK request: delegate to parent"""
         return self.__parent__.UNLOCK(REQUEST, RESPONSE)
 
     @security.protected(permissions.ModifyPortalContent)
     def PUT(self, REQUEST, RESPONSE):
-        """PUT request: delegate to parent
-        """
+        """PUT request: delegate to parent"""
         return self.__parent__.PUT(REQUEST, RESPONSE)
 
     @security.protected(permissions.AddPortalContent)
     def MKCOL(self, REQUEST, RESPONSE):
-        """MKCOL request: not allowed
-        """
+        """MKCOL request: not allowed"""
         raise MethodNotAllowed(
-            'Cannot create a collection inside a folder data: try at the '
-            'folder level instead'
+            "Cannot create a collection inside a folder data: try at the "
+            "folder level instead"
         )
 
     @security.protected(permissions.DeleteObjects)
     def DELETE(self, REQUEST, RESPONSE):
-        """DELETE request: not allowed
-        """
-        raise MethodNotAllowed(
-            'Cannot delete folder data: delete folder instead'
-        )
+        """DELETE request: not allowed"""
+        raise MethodNotAllowed("Cannot delete folder data: delete folder instead")
 
     @security.protected(permissions.AddPortalContent)
     def COPY(self, REQUEST, RESPONSE):
-        """COPY request: not allowed
-        """
-        raise MethodNotAllowed(
-            'Cannot copy folder data: copy the folder instead'
-        )
+        """COPY request: not allowed"""
+        raise MethodNotAllowed("Cannot copy folder data: copy the folder instead")
 
     @security.protected(permissions.AddPortalContent)
     def MOVE(self, REQUEST, RESPONSE):
-        """MOVE request: not allowed
-        """
-        raise MethodNotAllowed(
-            'Cannot move folder data: move the folder instead'
-        )
+        """MOVE request: not allowed"""
+        raise MethodNotAllowed("Cannot move folder data: move the folder instead")
 
     @security.protected(permissions.View)
     def manage_DAVget(self):
-        """DAV content access: delete to manage_FTPget()
-        """
+        """DAV content access: delete to manage_FTPget()"""
         return self.__parent__.manage_DAVget()
 
     @security.protected(permissions.View)
     def manage_FTPget(self):
-        """FTP access: delegate to parent
-        """
+        """FTP access: delegate to parent"""
         return self.__parent__.manage_FTPget()
 
     @security.protected(permissions.ListFolderContents)
     def listDAVObjects(self):
-        """DAV object listing: return nothing
-        """
+        """DAV object listing: return nothing"""
         return []
 
 
 @implementer(IStreamIterator)
 class StringStreamIterator(object):
-    """Simple stream iterator to allow efficient data streaming.
-    """
+    """Simple stream iterator to allow efficient data streaming."""
 
     def __init__(self, data, size=None, chunk=1 << 16):
         """Consume data (a str) into a temporary file and prepare streaming.
@@ -427,11 +412,11 @@ class StringStreamIterator(object):
 
         chunk is the chunk size for the iterator
         """
-        f = tempfile.TemporaryFile(mode='w+b')
+        f = tempfile.TemporaryFile(mode="w+b")
         f.write(data)
 
         if size is not None:
-            assert size == f.tell(), 'Size argument does not match data length'
+            assert size == f.tell(), "Size argument does not match data length"
         else:
             size = f.tell()
 
@@ -488,12 +473,12 @@ class DefaultFileFactory(object):
     def __call__(self, name, contentType, data):
 
         # Deal with Finder cruft
-        if name == '.DS_Store':
+        if name == ".DS_Store":
             raise Unauthorized("Refusing to store Mac OS X resource forks")
-        elif name.startswith('._'):
+        elif name.startswith("._"):
             raise Unauthorized("Refusing to store Mac OS X resource forks")
 
-        registry = getToolByName(self.context, 'content_type_registry', None)
+        registry = getToolByName(self.context, "content_type_registry", None)
         if registry is None:
             return None  # fall back on default
 
@@ -501,7 +486,7 @@ class DefaultFileFactory(object):
         if typeObjectName is None:
             return  # fall back on default
 
-        typesTool = getToolByName(self.context, 'portal_types')
+        typesTool = getToolByName(self.context, "portal_types")
 
         targetType = typesTool.getTypeInfo(typeObjectName)
         if targetType is None:
@@ -529,19 +514,17 @@ class DefaultFileFactory(object):
             if contextType is not None:
                 if not contextType.allowType(typeObjectName):
                     raise Unauthorized(
-                        "Creating a %s object here is not allowed" %
-                        typeObjectName
+                        "Creating a %s object here is not allowed" % typeObjectName
                     )
 
             if not targetType.isConstructionAllowed(self.context):
                 raise Unauthorized(
-                    "Creating a %s object here is not allowed" %
-                    typeObjectName
+                    "Creating a %s object here is not allowed" % typeObjectName
                 )
 
             obj = createObject(targetType.factory, name)
 
-            if hasattr(obj, '_setPortalTypeName'):
+            if hasattr(obj, "_setPortalTypeName"):
                 obj._setPortalTypeName(targetType.getId())
 
             # we fire this event here, because NullResource.PUT will now go
@@ -569,7 +552,7 @@ class ReadFileBase(object):
         self._size = 0
 
     mimeType = None
-    encoding = 'utf-8'
+    encoding = "utf-8"
     name = None
 
     @property
@@ -649,19 +632,19 @@ class DefaultReadFile(ReadFileBase):
                     if IPrimaryField.providedBy(field):
                         if foundOne:
                             # more than one primary field
-                            return 'message/rfc822'
+                            return "message/rfc822"
                         else:
                             foundOne = True
             # zero or one primary fields
-            return 'text/plain'
+            return "text/plain"
         if not self._getMessage().is_multipart():
-            return 'text/plain'
+            return "text/plain"
         else:
-            return 'message/rfc822'
+            return "message/rfc822"
 
     @property
     def encoding(self):
-        return self._getMessage().get_charset() or 'utf-8'
+        return self._getMessage().get_charset() or "utf-8"
 
     @property
     def name(self):
@@ -679,13 +662,10 @@ class DefaultReadFile(ReadFileBase):
     @memoize
     def _getMessage(self):
         # Construct message on demand.
-        message = constructMessageFromSchemata(
-            self.context,
-            iterSchemata(self.context)
-        )
+        message = constructMessageFromSchemata(self.context, iterSchemata(self.context))
 
         # Store the portal type in a header, to allow it to be identifed later
-        message['Portal-Type'] = self.context.portal_type
+        message["Portal-Type"] = self.context.portal_type
 
         return message
 
@@ -697,18 +677,17 @@ class DefaultReadFile(ReadFileBase):
         # publisher, which will serve it efficiently even after the
         # transaction is closed
         message = self._getMessage()
-        out = tempfile.TemporaryFile(mode='w+b')
+        out = tempfile.TemporaryFile(mode="w+b")
         if six.PY2:
             out.write(message.as_string())
         else:
-            out.write(message.as_string().encode('utf-8'))
+            out.write(message.as_string().encode("utf-8"))
         self._size = out.tell()
         out.seek(0)
         return out
 
     def __next__(self):
-        """ Iterate over the stream
-        """
+        """Iterate over the stream"""
         return self._getStream().__next__()
 
 
@@ -727,7 +706,7 @@ class WriteFileBase(object):
         self._written = 0
 
     mimeType = None
-    encoding = 'utf-8'
+    encoding = "utf-8"
     name = None
 
     @property
@@ -785,7 +764,7 @@ class DefaultWriteFile(object):
         self.context = context
 
         self._mimeType = None
-        self._encoding = 'utf-8'
+        self._encoding = "utf-8"
         self._closed = False
         self._name = None
         self._written = 0
@@ -797,9 +776,9 @@ class DefaultWriteFile(object):
         if self._message is None:
             return self._mimeType
         elif not self._message.is_multipart():
-            return 'text/plain'
+            return "text/plain"
         else:
-            return 'message/rfc822'
+            return "message/rfc822"
 
     @mimeType.setter
     def mimeType(self, value):
@@ -839,10 +818,7 @@ class DefaultWriteFile(object):
         self._message = self._parser.close()
         self._closed = True
         initializeObjectFromSchemata(
-            self.context,
-            iterSchemata(self.context),
-            self._message,
-            self._encoding
+            self.context, iterSchemata(self.context), self._message, self._encoding
         )
 
     def write(self, data):

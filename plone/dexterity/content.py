@@ -61,34 +61,34 @@ CEILING_DATE = DateTime(2500, 0)  # never expires
 
 # see comment in DexterityContent.__getattr__ method
 ATTRIBUTE_NAMES_TO_IGNORE = (
-    '_dav_writelocks',
-    'aq_inner',
-    'getCurrentSkinName',
-    'getURL',
-    'im_self',  # python 2 only, on python 3 it was renamed to __self__
-    'plone_utils',
-    'portal_membership',
-    'portal_placeful_workflow',
-    'portal_properties',
-    'translation_service',
+    "_dav_writelocks",
+    "aq_inner",
+    "getCurrentSkinName",
+    "getURL",
+    "im_self",  # python 2 only, on python 3 it was renamed to __self__
+    "plone_utils",
+    "portal_membership",
+    "portal_placeful_workflow",
+    "portal_properties",
+    "translation_service",
+    "utilities",
 )
 
-ASSIGNABLE_CACHE_KEY = '__plone_dexterity_assignable_cache__'
+ASSIGNABLE_CACHE_KEY = "__plone_dexterity_assignable_cache__"
 
 
 def _default_from_schema(context, schema, fieldname):
-    """helper to lookup default value of a field
-    """
+    """helper to lookup default value of a field"""
     if schema is None:
         return _marker
     field = schema.get(fieldname, None)
     if field is None:
         return _marker
-    default_factory = getattr(field, 'defaultFactory', None)
+    default_factory = getattr(field, "defaultFactory", None)
     if (
         # check for None to avoid one expensive providedBy (called often)
-        default_factory is not None and
-        IContextAwareDefaultFactory.providedBy(default_factory)
+        default_factory is not None
+        and IContextAwareDefaultFactory.providedBy(default_factory)
     ):
         return deepcopy(field.bind(context).default)
     return deepcopy(field.default)
@@ -104,7 +104,7 @@ def get_assignable(context):
     request = getRequest()
     if not request:
         return IBehaviorAssignable(context, None)
-    cache_key = getattr(context, '_p_oid', None)
+    cache_key = getattr(context, "_p_oid", None)
     if not cache_key:
         return IBehaviorAssignable(context, None)
     assignable_cache = getattr(request, ASSIGNABLE_CACHE_KEY, _marker)
@@ -131,10 +131,10 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
             return getObjectSpecification(cls)
 
         # get direct specification
-        spec = getattr(inst, '__provides__', None)
+        spec = getattr(inst, "__provides__", None)
 
         # avoid recursion - fall back on default
-        if getattr(_recursion_detection, 'blocked', False):
+        if getattr(_recursion_detection, "blocked", False):
             return spec
 
         # If the instance doesn't have a __provides__ attribute, get the
@@ -143,7 +143,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
             spec = implementedBy(cls)
 
         # Find the data we need to know if our cache needs to be invalidated
-        portal_type = getattr(inst, 'portal_type', None)
+        portal_type = getattr(inst, "portal_type", None)
 
         # If the instance has no portal type, then we're done.
         if portal_type is None:
@@ -151,51 +151,52 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
 
         # Find the cached value. This calculation is expensive and called
         # hundreds of times during each request, so we require a fast cache
-        cache = getattr(inst, '_v__providedBy__', None)
-
-        # See if we have a current cache. Reasons to do this include:
-        #
-        #  - The FTI was modified.
-        #  - The instance was modified and persisted since the cache was built.
-        #  - The instance has a different direct specification.
-        updated = (
-            inst._p_mtime,
-            SCHEMA_CACHE.modified(portal_type),
-            SCHEMA_CACHE.invalidations,
-            hash(spec)
-        )
-        if cache is not None and cache[:-1] == updated:
-            if cache[-1] is not None:
-                return cache[-1]
-            return spec
-
-        main_schema = SCHEMA_CACHE.get(portal_type)
-        if main_schema:
-            dynamically_provided = [main_schema]
-        else:
-            dynamically_provided = []
+        cache = getattr(inst, "_v__providedBy__", None)
+        updated = ()
+        dynamically_provided = []
 
         # block recursion
-        setattr(_recursion_detection, 'blocked', True)
+        setattr(_recursion_detection, "blocked", True)
         try:
+            # See if we have a current cache. Reasons to do this include:
+            #
+            #  - The FTI was modified.
+            #  - The instance was modified and persisted since the cache was built.
+            #  - The instance has a different direct specification.
+            updated = (
+                inst._p_mtime,
+                SCHEMA_CACHE.modified(portal_type),
+                SCHEMA_CACHE.invalidations,
+                hash(spec),
+            )
+            if cache is not None and cache[:-1] == updated:
+                setattr(_recursion_detection, "blocked", False)
+                if cache[-1] is not None:
+                    return cache[-1]
+                return spec
+
+            main_schema = SCHEMA_CACHE.get(portal_type)
+            if main_schema:
+                dynamically_provided = [main_schema]
+            else:
+                dynamically_provided = []
+
             assignable = get_assignable(inst)
             if assignable is not None:
                 for behavior_registration in assignable.enumerateBehaviors():
                     if behavior_registration.marker:
-                        dynamically_provided.append(
-                            behavior_registration.marker
-                        )
+                        dynamically_provided.append(behavior_registration.marker)
         finally:
-            setattr(_recursion_detection, 'blocked', False)
+            setattr(_recursion_detection, "blocked", False)
 
         if not dynamically_provided:
             # rare case if no schema nor behaviors with markers are set
-            inst._v__providedBy__ = updated + (None, )
+            inst._v__providedBy__ = updated + (None,)
             return spec
 
         dynamically_provided.append(spec)
         all_spec = Implements(*dynamically_provided)
-        inst._v__providedBy__ = updated + (all_spec, )
+        inst._v__providedBy__ = updated + (all_spec,)
 
         return all_spec
 
@@ -208,7 +209,7 @@ class AttributeValidator(Explicit):
 
     def __call__(self, name, value):
         # Short circuit for things like views or viewlets
-        if name == '':
+        if name == "":
             return 1
 
         context = aq_parent(self)
@@ -218,8 +219,7 @@ class AttributeValidator(Explicit):
         # decides to have behaviors bound on something different than context
         # or fti, i.e. schemas for subtrees.
         protection_dict = all_merged_tagged_values_dict(
-            iterSchemata(context),
-            READ_PERMISSIONS_KEY
+            iterSchemata(context), READ_PERMISSIONS_KEY
         )
 
         if name not in protection_dict:
@@ -227,15 +227,12 @@ class AttributeValidator(Explicit):
 
         permission = queryUtility(IPermission, name=protection_dict[name])
         if permission is not None:
-            return getSecurityManager().checkPermission(
-                permission.title, context
-            )
+            return getSecurityManager().checkPermission(permission.title, context)
 
         return 0
 
 
 class PasteBehaviourMixin(object):
-
     def _notifyOfCopyTo(self, container, op=0):
         """Keep Archetypes' reference info internally when op == 1 (move)
         because in those cases we need to keep Archetypes' refeferences.
@@ -280,13 +277,11 @@ class PasteBehaviourMixin(object):
             if portal_type not in allowed_ids:
                 raise ValueError("Disallowed subobject type: %s" % portal_type)
         if validate_src:
-            portal_type = getattr(aq_base(obj), 'portal_type', None)
+            portal_type = getattr(aq_base(obj), "portal_type", None)
             if portal_type:
                 fti = queryUtility(ITypeInformation, name=portal_type)
                 if fti is not None and not fti.isConstructionAllowed(self):
-                    raise ValueError(
-                        'You can not add the copied content here.'
-                    )
+                    raise ValueError("You can not add the copied content here.")
 
     def _getCopy(self, container):
         # Copy the _v_is_cp and _v_cp_refs flags from the original
@@ -295,13 +290,13 @@ class PasteBehaviourMixin(object):
         # When the flags are missing, an Archetypes child object will not have
         # the UID updated in some situations.
         # Copied from Products.Archetypes.Referenceable.Referenceable._getCopy
-        is_cp_flag = getattr(self, '_v_is_cp', None)
-        cp_refs_flag = getattr(self, '_v_cp_refs', None)
+        is_cp_flag = getattr(self, "_v_is_cp", None)
+        cp_refs_flag = getattr(self, "_v_cp_refs", None)
         ob = super(PasteBehaviourMixin, self)._getCopy(container)
         if is_cp_flag:
-            setattr(ob, '_v_is_cp', is_cp_flag)
+            setattr(ob, "_v_is_cp", is_cp_flag)
         if cp_refs_flag:
-            setattr(ob, '_v_cp_refs', cp_refs_flag)
+            setattr(ob, "_v_cp_refs", cp_refs_flag)
         return ob
 
 
@@ -311,12 +306,10 @@ class PasteBehaviourMixin(object):
     IAttributeUUID,
     IDublinCore,
     ICatalogableDublinCore,
-    IMutableDublinCore
+    IMutableDublinCore,
 )
-class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
-                       Contained):
-    """Base class for Dexterity content
-    """
+class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contained):
+    """Base class for Dexterity content"""
 
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
@@ -326,23 +319,31 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     # portal_type is set by the add view and/or factory
     portal_type = None
 
-    title = u''
-    description = u''
+    title = u""
+    description = u""
     subject = ()
     creators = ()
     contributors = ()
     effective_date = None
     expiration_date = None
-    format = 'text/html'
-    language = ''
-    rights = ''
+    format = "text/html"
+    language = ""
+    rights = ""
 
     def __init__(
-            self,
-            id=None, title=_marker, subject=_marker, description=_marker,
-            contributors=_marker, effective_date=_marker,
-            expiration_date=_marker, format=_marker, language=_marker,
-            rights=_marker, **kwargs):
+        self,
+        id=None,
+        title=_marker,
+        subject=_marker,
+        description=_marker,
+        contributors=_marker,
+        effective_date=_marker,
+        expiration_date=_marker,
+        format=_marker,
+        language=_marker,
+        rights=_marker,
+        **kwargs
+    ):
 
         if id is not None:
             self.id = id
@@ -384,20 +385,16 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         # Ignore also some other well known names like
         # Permission, Acquisition and AccessControl related ones.
         if (
-            name.startswith('__')
-            or name.startswith('_v')
-            or name.endswith('_Permission')
+            name.startswith("__")
+            or name.startswith("_v")
+            or name.endswith("_Permission")
             or name in ATTRIBUTE_NAMES_TO_IGNORE
         ):
             raise AttributeError(name)
 
         # attribute was not found; try to look it up in the schema and return
         # a default
-        value = _default_from_schema(
-            self,
-            SCHEMA_CACHE.get(self.portal_type),
-            name
-        )
+        value = _default_from_schema(self, SCHEMA_CACHE.get(self.portal_type), name)
         if value is not _marker:
             return value
 
@@ -407,9 +404,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
             for behavior_registration in assignable.enumerateBehaviors():
                 if behavior_registration.interface:
                     value = _default_from_schema(
-                        self,
-                        behavior_registration.interface,
-                        name
+                        self, behavior_registration.interface, name
                     )
                     if value is not _marker:
                         return value
@@ -457,7 +452,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
 
         # call self.listCreators() to make sure self.creators exists
         if creator and creator not in self.listCreators():
-            self.creators = self.creators + (creator, )
+            self.creators = self.creators + (creator,)
 
     @security.protected(permissions.ModifyPortalContent)
     def setModificationDate(self, modification_date=None):
@@ -474,29 +469,29 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     def Title(self):
         # this is a CMF accessor, so should return utf8-encoded
         if six.PY2 and isinstance(self.title, six.text_type):
-            return self.title.encode('utf-8')
-        return self.title or ''
+            return self.title.encode("utf-8")
+        return self.title or ""
 
     @security.protected(permissions.View)
     def Description(self):
-        value = self.description or ''
+        value = self.description or ""
 
         # If description is containing linefeeds the HTML
         # validation can break.
         # See http://bo.geekworld.dk/diazo-bug-on-html5-validation-errors/
         # Remember: \r\n - Windows, \r - OS X, \n - Linux/Unix
-        value = value.replace('\r\n', ' ').replace('\r', ' ').replace('\n', ' ')  # noqa
+        value = value.replace("\r\n", " ").replace("\r", " ").replace("\n", " ")  # noqa
 
         # this is a CMF accessor, so should return utf8-encoded
         if six.PY2 and isinstance(value, six.text_type):
-            value = value.encode('utf-8')
+            value = value.encode("utf-8")
 
         return value
 
     @security.protected(permissions.View)
     def Type(self):
         ti = self.getTypeInfo()
-        return ti is not None and ti.Title() or 'Unknown'
+        return ti is not None and ti.Title() or "Unknown"
 
     # IDublinCore
 
@@ -513,7 +508,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     def Creator(self):
         # Dublin Core Creator element - resource author.
         creators = self.listCreators()
-        return creators and creators[0] or ''
+        return creators and creators[0] or ""
 
     @security.protected(permissions.View)
     def Subject(self):
@@ -527,7 +522,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     @security.protected(permissions.View)
     def Publisher(self):
         # Dublin Core Publisher element - resource publisher.
-        return 'No publisher'
+        return "No publisher"
 
     @security.protected(permissions.View)
     def listContributors(self):
@@ -547,7 +542,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
         if zone is None:
             zone = _zone
         # Return effective_date if set, modification date otherwise
-        date = getattr(self, 'effective_date', None)
+        date = getattr(self, "effective_date", None)
         if date is None:
             date = self.modified()
 
@@ -564,25 +559,25 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
             date = datify(self.creation_date)
             return date.toZone(zone).ISO()
         else:
-            return 'Unknown'
+            return "Unknown"
 
     @security.protected(permissions.View)
     def EffectiveDate(self, zone=None):
         # Dublin Core Date element - date resource becomes effective.
         if zone is None:
             zone = _zone
-        ed = getattr(self, 'effective_date', None)
+        ed = getattr(self, "effective_date", None)
         ed = datify(ed)
-        return ed and ed.toZone(zone).ISO() or 'None'
+        return ed and ed.toZone(zone).ISO() or "None"
 
     @security.protected(permissions.View)
     def ExpirationDate(self, zone=None):
         # Dublin Core Date element - date resource expires.
         if zone is None:
             zone = _zone
-        ed = getattr(self, 'expiration_date', None)
+        ed = getattr(self, "expiration_date", None)
         ed = datify(ed)
-        return ed and ed.toZone(zone).ISO() or 'None'
+        return ed and ed.toZone(zone).ISO() or "None"
 
     @security.protected(permissions.View)
     def ModificationDate(self, zone=None):
@@ -615,23 +610,23 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     def created(self):
         # Dublin Core Date element - date resource created.
         # allow for non-existent creation_date, existed always
-        date = getattr(self, 'creation_date', None)
+        date = getattr(self, "creation_date", None)
         date = datify(date)
         return date is None and FLOOR_DATE or date
 
     @security.protected(permissions.View)
     def effective(self):
         # Dublin Core Date element - date resource becomes effective.
-        date = getattr(self, 'effective_date', _marker)
+        date = getattr(self, "effective_date", _marker)
         if date is _marker:
-            date = getattr(self, 'creation_date', None)
+            date = getattr(self, "creation_date", None)
         date = datify(date)
         return date is None and FLOOR_DATE or date
 
     @security.protected(permissions.View)
     def expires(self):
         # Dublin Core Date element - date resource expires.
-        date = getattr(self, 'expiration_date', None)
+        date = getattr(self, "expiration_date", None)
         date = datify(date)
         return date is None and CEILING_DATE or date
 
@@ -649,10 +644,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     @security.protected(permissions.View)
     def isEffective(self, date):
         # Is the date within the resource's effective range?
-        pastEffective = (
-            self.effective_date is None or self.effective_date <= date)
-        beforeExpiration = (
-            self.expiration_date is None or self.expiration_date >= date)
+        pastEffective = self.effective_date is None or self.effective_date <= date
+        beforeExpiration = self.expiration_date is None or self.expiration_date >= date
         return pastEffective and beforeExpiration
 
     # IMutableDublinCore
@@ -685,9 +678,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
     def setContributors(self, contributors):
         # Set Dublin Core Contributor elements - resource collaborators.
         if isinstance(contributors, six.string_types):
-            contributors = contributors.split(';')
-        self.contributors = tuple(
-            safe_unicode(c.strip()) for c in contributors)
+            contributors = contributors.split(";")
+        self.contributors = tuple(safe_unicode(c.strip()) for c in contributors)
 
     @security.protected(permissions.ModifyPortalContent)
     def setEffectiveDate(self, effective_date):
@@ -717,18 +709,24 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager,
 
 @implementer(IDexterityItem)
 class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
-    """A non-containerish, CMFish item
-    """
+    """A non-containerish, CMFish item"""
 
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
 
     isPrincipiaFolderish = 0
 
-    manage_options = PropertyManager.manage_options + ({
-        'label': 'View',
-        'action': 'view',
-    },) + CMFCatalogAware.manage_options + SimpleItem.manage_options
+    manage_options = (
+        PropertyManager.manage_options
+        + (
+            {
+                "label": "View",
+                "action": "view",
+            },
+        )
+        + CMFCatalogAware.manage_options
+        + SimpleItem.manage_options
+    )
 
     # Be explicit about which __getattr__ to use
     __getattr__ = DexterityContent.__getattr__
@@ -736,26 +734,25 @@ class Item(PasteBehaviourMixin, BrowserDefaultMixin, DexterityContent):
 
 @implementer(IDexterityContainer)
 class Container(
-        PathReprProvider,
-        PasteBehaviourMixin, DAVCollectionMixin, BrowserDefaultMixin,
-        CMFCatalogAware, CMFOrderedBTreeFolderBase, DexterityContent):
-    """Base class for folderish items
-    """
+    PathReprProvider,
+    PasteBehaviourMixin,
+    DAVCollectionMixin,
+    BrowserDefaultMixin,
+    CMFCatalogAware,
+    CMFOrderedBTreeFolderBase,
+    DexterityContent,
+):
+    """Base class for folderish items"""
 
     __providedBy__ = FTIAwareSpecification()
     __allow_access_to_unprotected_subobjects__ = AttributeValidator()
 
     security = ClassSecurityInfo()
-    security.declareProtected(
-        acpermissions.copy_or_move, 'manage_copyObjects')
-    security.declareProtected(
-        permissions.ModifyPortalContent, 'manage_cutObjects')
-    security.declareProtected(
-        permissions.ModifyPortalContent, 'manage_pasteObjects')
-    security.declareProtected(
-        permissions.ModifyPortalContent, 'manage_renameObject')
-    security.declareProtected(
-        permissions.ModifyPortalContent, 'manage_renameObjects')
+    security.declareProtected(acpermissions.copy_or_move, "manage_copyObjects")
+    security.declareProtected(permissions.ModifyPortalContent, "manage_cutObjects")
+    security.declareProtected(permissions.ModifyPortalContent, "manage_pasteObjects")
+    security.declareProtected(permissions.ModifyPortalContent, "manage_renameObject")
+    security.declareProtected(permissions.ModifyPortalContent, "manage_renameObjects")
 
     isPrincipiaFolderish = 1
 
@@ -779,7 +776,10 @@ class Container(
             pass
 
         # Be specific about the implementation we use
-        return CMFOrderedBTreeFolderBase.__getattr__(self, name)
+        if self._tree is not None:
+            return CMFOrderedBTreeFolderBase.__getattr__(self, name)
+
+        raise AttributeError(name)
 
     @security.protected(permissions.DeleteObjects)
     def manage_delObjects(self, ids=None, REQUEST=None):
@@ -795,12 +795,9 @@ class Container(
         for id in ids:
             item = self._getOb(id)
             if not getSecurityManager().checkPermission(
-                permissions.DeleteObjects,
-                item
+                permissions.DeleteObjects, item
             ):
-                raise Unauthorized(
-                    "Do not have permissions to remove this object"
-                )
+                raise Unauthorized("Do not have permissions to remove this object")
         return super(Container, self).manage_delObjects(ids, REQUEST=REQUEST)
 
     # override PortalFolder's allowedContentTypes to respect IConstrainTypes
@@ -826,12 +823,12 @@ class Container(
             # an Unauthorized over a ValueError.
             fti = queryUtility(ITypeInformation, name=type_name)
             if fti is not None and not fti.isConstructionAllowed(self):
-                raise Unauthorized('Cannot create %s' % fti.getId())
+                raise Unauthorized("Cannot create %s" % fti.getId())
 
             allowed_ids = [i.getId() for i in constrains.allowedContentTypes()]
             if type_name not in allowed_ids:
                 raise ValueError(
-                    'Subobject type disallowed by IConstrainTypes adapter: %s'
+                    "Subobject type disallowed by IConstrainTypes adapter: %s"
                     % type_name
                 )
 
@@ -841,8 +838,7 @@ class Container(
 
 
 def reindexOnModify(content, event):
-    """When an object is modified, re-index it in the catalog
-    """
+    """When an object is modified, re-index it in the catalog"""
 
     if event.object is not content:
         return

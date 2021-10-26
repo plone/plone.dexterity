@@ -9,6 +9,53 @@ Changelog
 
 .. towncrier release notes start
 
+2.10.4 (2021-10-07)
+-------------------
+
+Bug fixes:
+
+
+- Catch maximum recursion error when lookup FTI
+  [petschki] (#155)
+- Optimize local components access by shortcutting `utilities` attribute access. [jensens] (#156)
+
+
+2.10.3 (2021-09-01)
+-------------------
+
+Bug fixes:
+
+
+- Fix ft._updateProperty so it doesn't break when receiving an empty value.
+  This happens when an DX FTI is part of a Generic Setup baseline import.
+  Update more code to work when the Plone Site is a dexterity item.
+  [jaroel] (#85)
+- Codestyle black and isort [jensens] (#154)
+
+
+2.10.2 (2021-07-29)
+-------------------
+
+Bug fixes:
+
+
+- Fix export/import of content in Python 3.
+  Fixes `issue 124 <https://github.com/plone/plone.dexterity/issues/124>`_.
+  Also fixes the tests in combination with newest ``Products.GenericSetup`` 2.1.2.
+  [maurits] (#124)
+
+
+2.10.1 (2021-06-30)
+-------------------
+
+Bug fixes:
+
+
+- Officially support Plone 6.0 and Python 3.9.
+  No code changes.
+  [maurits] (#1)
+
+
 2.10.0 (2020-10-12)
 -------------------
 
@@ -23,7 +70,7 @@ Bug fixes:
 
 
 - Fixes test to work clean with zope.interface.
-  Interfaces are hashed based on just their name and module. 
+  Interfaces are hashed based on just their name and module.
   So every one of these local `IBlank` interfaces will hash the same way, and be treated the same for purposes of zope.interface's `_dependents`.
   Thus in tests mock interfaces must not be used under the same name in the same module.
   [jensens] (#135)
