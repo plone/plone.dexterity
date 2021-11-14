@@ -67,7 +67,6 @@ setup(
         "plone.memoize",
         "plone.rfc822",
         "plone.supermodel>=1.0b2",
-        "plone.synchronize",
         "plone.uuid",
         "plone.z3cform>=0.6.0",
         "Products.CMFCore",
