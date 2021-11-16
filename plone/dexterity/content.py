@@ -46,6 +46,7 @@ from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import implementedBy
 from zope.interface.declarations import Implements
 from zope.interface.declarations import ObjectSpecificationDescriptor
+from zope.interface.interface import Method
 from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
 
@@ -82,7 +83,7 @@ def _default_from_schema(context, schema, fieldname):
     if schema is None:
         return _marker
     field = schema.get(fieldname, None)
-    if field is None:
+    if field is None or isinstance(field, Method):
         return _marker
     default_factory = getattr(field, "defaultFactory", None)
     if (
