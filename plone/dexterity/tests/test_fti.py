@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from .case import MockTestCase
-from plone.dexterity import utils
 from plone.dexterity.factory import DexterityFactory
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.fti import DexterityFTIModificationDescription
@@ -49,6 +48,12 @@ class TestClass2(object):
 
 class ITestInterface(Interface):
     pass
+
+
+class DexterityMtimeFTI(DexterityFTI):
+    # It was necessary to overwrite the _p_mtime attribute, as it is originally
+    # read-only.
+    _p_mtime = None
 
 
 class TestFTI(MockTestCase):
@@ -968,3 +973,60 @@ class TestFTIEvents(MockTestCase):
         site_manager_mock.unregisterUtility.assert_called_once_with(
             provided=IDexterityFTI, name=u"testtype"
         )
+
+    def test_loockup_schema_with_p_mtime_roundable(self):
+        fti = DexterityMtimeFTI("testtype")
+        fti.schema = None  # use dynamic schema
+        # Set a roundable _p_mtime
+        fti._p_mtime = 1637689348.9999528
+
+        portal = self.create_dummy(getPhysicalPath=lambda: ("", "site"))
+        self.mock_utility(portal, ISiteRoot)
+
+        # Generated schema name must be this.
+        schemaName = "site_5_1637689348_2_9999528_0_testtype"
+        setattr(plone.dexterity.schema.generated, schemaName, ITestSchema)
+
+        self.assertEqual(ITestSchema, fti.lookupSchema())
+
+        # cleanup
+        delattr(plone.dexterity.schema.generated, schemaName)
+
+    def test_fti_modified_with_p_mtime_roundable(self):
+        portal_type = "testtype"
+        fti = DexterityMtimeFTI(portal_type)
+        # Set a roundable _p_mtime
+        fti._p_mtime = 1637689348.9999528
+
+        class INew(Interface):
+            title = zope.schema.TextLine(title=u"title")
+
+        model_dummy = Model({u"": INew})
+
+        fti.lookupModel = Mock(return_value=model_dummy)
+        self.create_dummy()
+
+        site_dummy = self.create_dummy(getPhysicalPath=lambda: ("", "siteid"))
+        self.mock_utility(site_dummy, ISiteRoot)
+
+        class IBlank1(Interface):
+            pass
+
+        # Set source interface
+        # Generated schema name must be this.
+        schemaName = "siteid_5_1637689348_2_9999528_0_testtype"
+        setattr(plone.dexterity.schema.generated, schemaName, IBlank1)
+
+        # Sync this with schema
+        ftiModified(
+            fti,
+            ObjectModifiedEvent(
+                fti, DexterityFTIModificationDescription("model_file", "")
+            ),
+        )
+
+        self.assertTrue("title" in IBlank1)
+        self.assertTrue(IBlank1["title"].title == u"title")
+
+        # cleanup
+        delattr(plone.dexterity.schema.generated, schemaName)

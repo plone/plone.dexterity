@@ -30,6 +30,26 @@ import plone.dexterity.schema
 import six
 
 
+def get_suffix(fti):
+    mtime = getattr(fti, "_p_mtime", None)
+    # Python 2 rounds floats when we use the str function on them.
+
+    # Python 2:
+    # >>> str(1637689348.9999528)
+    # '1637689349.0'
+
+    # Python 3:
+    # >>> str(1637689348.9999528)
+    # '1637689348.9999528'
+
+    # This was causing the schema names in Python 2 to take an unexpected format,
+    # causing errors.
+    # So, we need to use the repr function, which doesn't round floats.
+    if mtime:
+        return repr(mtime)
+    return ""
+
+
 @implementer(IDexterityFTIModificationDescription)
 class DexterityFTIModificationDescription(object):
     def __init__(self, attribute, oldValue):
@@ -258,8 +278,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         # Otherwise, look up a dynamic schema. This will query the model for
         # an unnamed schema if it is the first time it is looked up.
         # See schema.py
-        mtime = getattr(self, "_p_mtime", None) or ""
-        schemaName = portalTypeToSchemaName(self.getId(), suffix=str(mtime))
+        schemaName = portalTypeToSchemaName(self.getId(), suffix=get_suffix(self))
         return getattr(plone.dexterity.schema.generated, schemaName)
 
     def lookupModel(self):
@@ -554,8 +573,7 @@ def ftiModified(object, event):
             "model_source" in mod or "model_file" in mod or "schema_policy" in mod
         ):
 
-            mtime = getattr(fti, "_p_mtime", None) or ""
-            schemaName = portalTypeToSchemaName(portal_type, suffix=str(mtime))
+            schemaName = portalTypeToSchemaName(portal_type, suffix=get_suffix(fti))
             schema = getattr(plone.dexterity.schema.generated, schemaName)
 
             model = fti.lookupModel()
