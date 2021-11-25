@@ -1,4 +1,0 @@
-Incorporate ``plone.synchronize`` its one and only simple ``synchronized`` function into ``plone.dexterity``, which were the only consumer.
-Also moves the test. Removes a dependency and a package to look after.
-[jensens]
-

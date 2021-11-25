@@ -9,6 +9,23 @@ Changelog
 
 .. towncrier release notes start
 
+2.10.5 (2021-11-25)
+-------------------
+
+Bug fixes:
+
+
+- Incorporate ``plone.synchronize`` its one and only simple ``synchronized`` function into ``plone.dexterity``, which were the only consumer.
+  Also moves the test. Removes a dependency and a package to look after.
+  [jensens] (#157)
+- Avoid setting a default value on methods.
+  If a Schema Interface has a method in it, i.e. to be used as a
+  constraint for another field, etc. the `default_from_schema` function
+  would trip over it while trying to get a default value for it.
+  [gforcada, jensens] (#158)
+- Fixes schema name generated in Python 2. [wesleybl] (#159)
+
+
 2.10.4 (2021-10-07)
 -------------------
 
