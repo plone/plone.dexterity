@@ -26,7 +26,6 @@ from zope.security.interfaces import IPermission
 import logging
 import os.path
 import plone.dexterity.schema
-import six
 
 
 def get_suffix(fti):
@@ -63,8 +62,6 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     meta_type = "Dexterity FTI"
 
     behaviors_type = "ulines"
-    if six.PY2:
-        behaviors_type = "lines"
 
     _properties = base.DynamicViewTypeInformation._properties + (
         {
@@ -216,20 +213,12 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     def Title(self):
         if self.title and self.i18n_domain:
             return Message(self.title, self.i18n_domain)
-        else:
-            if six.PY2:
-                if self.title:
-                    return self.title.decode("utf8")
-                return self.getId()
-            return self.title or self.getId()
+        return self.title or self.getId()
 
     def Description(self):
         if self.description and self.i18n_domain:
             return Message(self.description, self.i18n_domain)
-        else:
-            if six.PY2 and self.description:
-                return self.description.decode("utf8")
-            return self.description
+        return self.description
 
     def Metatype(self):
         if self.content_meta_type:

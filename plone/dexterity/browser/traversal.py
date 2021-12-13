@@ -5,19 +5,10 @@ from plone.dexterity import bbb
 from plone.dexterity.filerepresentation import FolderDataResource
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.interfaces import IDexterityContent
+from webdav.NullResource import NullResource
 from zope.component import adapter
 from zope.publisher.interfaces.browser import IBrowserRequest
-
-
-try:
-    from repoze.zope2.publishtraverse import DefaultPublishTraverse
-except ImportError:
-    from ZPublisher.BaseRequest import DefaultPublishTraverse
-
-if bbb.HAS_WEBDAV:
-    from webdav.NullResource import NullResource
-else:
-    NullResource = bbb.NullResource
+from ZPublisher.BaseRequest import DefaultPublishTraverse
 
 
 @adapter(IDexterityContent, IBrowserRequest)
@@ -47,9 +38,7 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         ):
             return FolderDataResource(DAV_FOLDER_DATA_ID, context).__of__(context)
 
-        defaultTraversal = super().publishTraverse(
-            request, name
-        )
+        defaultTraversal = super().publishTraverse(request, name)
 
         # If this is a WebDAV PUT/PROPFIND/PROPPATCH request, don't acquire
         # things. If we did, we couldn't create a new object with PUT, for

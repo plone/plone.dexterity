@@ -6,7 +6,6 @@ from .synchronize import synchronized
 from plone.alterego import dynamic
 from plone.alterego.interfaces import IDynamicObjectFactory
 from plone.behavior.interfaces import IBehavior
-from plone.behavior.registration import BehaviorRegistration
 from plone.supermodel.parser import ISchemaPolicy
 from plone.supermodel.utils import syncSchema
 from Products.CMFCore.interfaces import ISiteRoot
@@ -15,8 +14,6 @@ from zope.component import adapter
 from zope.component import getAllUtilitiesRegisteredFor
 from zope.component import getUtility
 from zope.component import queryUtility
-from zope.component.hooks import getSite
-from zope.dottedname.resolve import resolve
 from zope.globalrequest import getRequest
 from zope.interface import alsoProvides
 from zope.interface import implementer
@@ -24,10 +21,8 @@ from zope.interface.interface import InterfaceClass
 
 import functools
 import logging
-import six
 import types
 import warnings
-
 
 log = logging.getLogger(__name__)
 
@@ -172,32 +167,7 @@ class SchemaCache:
             return tuple()
         registrations = []
         for behavior_name in filter(None, fti.behaviors):
-            registration = queryUtility(IBehavior, name=behavior_name)
-            if registration is None:
-                # BBB - this case should be deprecated in v 3.0
-                warnings.warn(
-                    'No behavior registration found for behavior named "{}"'
-                    ' for factory "{}"'
-                    " - trying deprecated fallback lookup (will be removed "
-                    'in 3.0)..."'.format(behavior_name, fti.getId()),
-                    DeprecationWarning,
-                )
-                try:
-                    schema_interface = resolve(behavior_name)
-                except (ValueError, ImportError):
-                    log.error(
-                        "Error resolving behavior {} for factory {}".format(
-                            behavior_name, fti.getId()
-                        )
-                    )
-                    continue
-                registration = BehaviorRegistration(
-                    title=behavior_name,
-                    description="bbb fallback lookup",
-                    interface=schema_interface,
-                    marker=None,
-                    factory=None,
-                )
+            registration = getUtility(IBehavior, name=behavior_name)
             registrations.append(registration)
         return tuple(registrations)
 
@@ -207,6 +177,9 @@ class SchemaCache:
 
         XXX: this one does not make much sense and should be deprecated
         """
+        warnings.warn(
+            "subtypes will be no longer supported in version 4", DeprecationWarning
+        )
         if fti is None:
             return ()
         subtypes = []

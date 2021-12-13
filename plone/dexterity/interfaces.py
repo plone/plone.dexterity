@@ -7,7 +7,6 @@ from zope.lifecycleevent.interfaces import IModificationDescription
 
 import zope.schema
 
-
 try:
     from zope.app.content import IContentType
 except ImportError:

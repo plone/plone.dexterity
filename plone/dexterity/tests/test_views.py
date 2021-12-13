@@ -20,6 +20,7 @@ from plone.dexterity.schema import SCHEMA_CACHE
 from plone.z3cform.interfaces import IDeferSecurityCheck
 from Products.CMFCore.interfaces import ISiteRoot
 from Products.statusmessages.interfaces import IStatusMessage
+from unittest.mock import Mock
 from z3c.form.action import Actions
 from z3c.form.datamanager import AttributeField
 from z3c.form.field import Fields
@@ -35,7 +36,6 @@ from zope.interface import implementer
 from zope.interface import Interface
 from zope.interface import provider
 from zope.publisher.browser import TestRequest as TestRequestBase
-from unittest.mock import Mock
 
 
 class TestRequest(TestRequestBase):

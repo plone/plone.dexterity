@@ -4,10 +4,10 @@ from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.primary import PrimaryFieldInfo
 from plone.rfc822.interfaces import IPrimaryField
+from unittest.mock import Mock
 from zope import schema
 from zope.interface import alsoProvides
 from zope.interface import Interface
-from unittest.mock import Mock
 
 
 class PrimaryFieldInfoTestCase(MockTestCase):

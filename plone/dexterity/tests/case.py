@@ -1,12 +1,11 @@
 from plone.dexterity.bbb import HAS_WEBDAV
+from unittest.mock import Mock
 
 import gc
 import unittest
 import zope.component
 import zope.component.testing
 import zope.globalrequest
-
-from unittest.mock import Mock
 
 
 class MockTestCase(unittest.TestCase):

@@ -2,8 +2,8 @@ from .case import MockTestCase
 from plone.dexterity.factory import DexterityFactory
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
-from zope.interface import Interface
 from unittest.mock import Mock
+from zope.interface import Interface
 
 
 class IDummy(Interface):

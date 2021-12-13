@@ -6,14 +6,9 @@ from plone.app.uuid.utils import uuidToObject
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.schema import portalTypeToSchemaName  # noqa bbb
 from plone.dexterity.schema import SCHEMA_CACHE
-from plone.dexterity.schema import SchemaNameEncoder  # noqa bbb
-from plone.dexterity.schema import schemaNameToPortalType  # noqa bbb
-from plone.dexterity.schema import splitSchemaName  # noqa bbb
 from plone.supermodel.utils import mergedTaggedValueDict
 from plone.uuid.interfaces import IUUID
-from zope import deprecation
 from zope.component import createObject
 from zope.component import getUtility
 from zope.container.interfaces import INameChooser
@@ -23,13 +18,6 @@ from zope.lifecycleevent import ObjectCreatedEvent
 
 import datetime
 import logging
-import six
-
-
-deprecation.deprecated("SchemaNameEncoder", "moved to plone.dexterity.schema")
-deprecation.deprecated("portalTypeToSchemaName", "moved to plone.dexterity.schema")
-deprecation.deprecated("schemaNameToPortalType", "moved to plone.dexterity.schema")
-deprecation.deprecated("splitSchemaName", "moved to plone.dexterity.schema")
 
 log = logging.getLogger(__name__)
 

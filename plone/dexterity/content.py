@@ -21,7 +21,6 @@ from plone.dexterity.utils import all_merged_tagged_values_dict
 from plone.dexterity.utils import datify
 from plone.dexterity.utils import iterSchemata
 from plone.dexterity.utils import safe_unicode
-from plone.dexterity.utils import safe_utf8
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
 from plone.uuid.interfaces import IAttributeUUID
 from plone.uuid.interfaces import IUUID
@@ -49,9 +48,7 @@ from zope.interface.interface import Method
 from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
 
-import six
 import threading
-
 
 _marker = object()
 _zone = DateTime().timezone()
@@ -65,7 +62,6 @@ ATTRIBUTE_NAMES_TO_IGNORE = (
     "aq_inner",
     "getCurrentSkinName",
     "getURL",
-    "im_self",  # python 2 only, on python 3 it was renamed to __self__
     "plone_utils",
     "portal_membership",
     "portal_placeful_workflow",
@@ -410,13 +406,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     # that can't be encoded to ASCII will throw a UnicodeEncodeError
 
     def _get__name__(self):
-        if six.PY2:
-            return safe_unicode(self.id)
         return self.id
 
     def _set__name__(self, value):
-        if six.PY2 and isinstance(value, str):
-            value = str(value)  # may throw, but id must be ASCII in py2
         self.id = value
 
     __name__ = property(_get__name__, _set__name__)
@@ -462,8 +454,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     @security.protected(permissions.View)
     def Title(self):
         # this is a CMF accessor, so should return utf8-encoded
-        if six.PY2 and isinstance(self.title, str):
-            return self.title.encode("utf-8")
         return self.title or ""
 
     @security.protected(permissions.View)
@@ -475,11 +465,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         # See http://bo.geekworld.dk/diazo-bug-on-html5-validation-errors/
         # Remember: \r\n - Windows, \r - OS X, \n - Linux/Unix
         value = value.replace("\r\n", " ").replace("\r", " ").replace("\n", " ")  # noqa
-
-        # this is a CMF accessor, so should return utf8-encoded
-        if six.PY2 and isinstance(value, str):
-            value = value.encode("utf-8")
-
         return value
 
     @security.protected(permissions.View)
@@ -494,8 +479,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         # List Dublin Core Creator elements - resource authors.
         if self.creators is None:
             return ()
-        if six.PY2:
-            return tuple(safe_utf8(c) for c in self.creators)
         return self.creators
 
     @security.protected(permissions.View)
@@ -509,8 +492,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         # Dublin Core Subject element - resource keywords.
         if self.subject is None:
             return ()
-        if six.PY2:
-            return tuple(safe_utf8(s) for s in self.subject)
         return tuple(self.subject)
 
     @security.protected(permissions.View)
@@ -521,8 +502,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     @security.protected(permissions.View)
     def listContributors(self):
         # Dublin Core Contributor elements - resource collaborators.
-        if six.PY2:
-            return tuple(safe_utf8(c) for c in self.contributors)
         return tuple(self.contributors)
 
     @security.protected(permissions.View)
@@ -594,8 +573,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     @security.protected(permissions.View)
     def Rights(self):
         # Dublin Core Rights element - resource copyright.
-        if six.PY2:
-            return safe_utf8(self.rights)
         return self.rights
 
     # ICatalogableDublinCore
@@ -826,9 +803,7 @@ class Container(
                     % type_name
                 )
 
-        return super().invokeFactory(
-            type_name, id, RESPONSE, *args, **kw
-        )
+        return super().invokeFactory(type_name, id, RESPONSE, *args, **kw)
 
 
 def reindexOnModify(content, event):

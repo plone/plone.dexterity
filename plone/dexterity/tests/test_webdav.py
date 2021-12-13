@@ -1,7 +1,6 @@
 from .case import HAS_WEBDAV
 from .case import MockTestCase
 
-
 if HAS_WEBDAV:
 
     from .case import ItemDummy
@@ -24,6 +23,7 @@ if HAS_WEBDAV:
     from plone.dexterity.schema import SCHEMA_CACHE
     from plone.rfc822.interfaces import IPrimaryField
     from six import StringIO
+    from unittest.mock import Mock
     from webdav.NullResource import NullResource
     from zExceptions import Forbidden
     from zExceptions import MethodNotAllowed
@@ -43,7 +43,6 @@ if HAS_WEBDAV:
     from zope.size.interfaces import ISized
     from ZPublisher.HTTPResponse import HTTPResponse
     from ZPublisher.Iterators import IStreamIterator
-    from unittest.mock import Mock
 
     import re
 
@@ -1290,7 +1289,6 @@ Portal-Type: testtype
                 ),
                 traversal.browserDefault(request),
             )
-
 
 else:
 

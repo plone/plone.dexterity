@@ -30,7 +30,6 @@ import os.path
 import plone.dexterity.schema.generated
 import zope.schema
 
-
 try:
     from unittest.mock import Mock
 except ImportError:
@@ -139,9 +138,7 @@ class TestFTI(MockTestCase):
 
         model = fti.lookupModel()
         self.assertIs(model_dummy, model)
-        loadFile_mock.assert_called_once_with(
-            abs_file, reload=True, policy="dexterity"
-        )
+        loadFile_mock.assert_called_once_with(abs_file, reload=True, policy="dexterity")
 
     def test_lookupModel_from_file_with_absolute_path(self):
 
@@ -164,9 +161,7 @@ class TestFTI(MockTestCase):
 
         model = fti.lookupModel()
         self.assertIs(model_dummy, model)
-        loadFile_mock.assert_called_once_with(
-            abs_file, reload=True, policy="dexterity"
-        )
+        loadFile_mock.assert_called_once_with(abs_file, reload=True, policy="dexterity")
 
     def test_lookupModel_from_file_with_win32_absolute_path(self):
 
@@ -338,15 +333,11 @@ class TestFTI(MockTestCase):
         self.assertEqual("my.factory", fti.factory)
 
     def test_meta_type(self):
-        fti = DexterityFTI(
-            "testtype", klass="plone.dexterity.tests.test_fti.TestClass"
-        )
+        fti = DexterityFTI("testtype", klass="plone.dexterity.tests.test_fti.TestClass")
         self.assertEqual(TestClass.meta_type, fti.Metatype())
 
     def test_meta_type_change_class(self):
-        fti = DexterityFTI(
-            "testtype", klass="plone.dexterity.tests.test_fti.TestClass"
-        )
+        fti = DexterityFTI("testtype", klass="plone.dexterity.tests.test_fti.TestClass")
         fti._updateProperty("klass", "plone.dexterity.tests.test_fti.TestClass2")
         self.assertEqual(TestClass2.meta_type, fti.Metatype())
 
