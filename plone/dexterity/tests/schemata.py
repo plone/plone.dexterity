@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from plone.supermodel.interfaces import FILENAME_KEY
 from zope import schema
 from zope.interface import Interface
@@ -7,9 +6,9 @@ from zope.interface import Interface
 class ITestSchema(Interface):
     """Schema used for testing"""
 
-    title = schema.TextLine(title=u"Title", description=u"Administrative title")
+    title = schema.TextLine(title="Title", description="Administrative title")
 
-    description = schema.Text(title=u"Description", required=False)
+    description = schema.Text(title="Description", required=False)
 
 
 class ITaggedValueSchema(Interface):

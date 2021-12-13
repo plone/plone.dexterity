@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
 from Acquisition import aq_base
 from plone.dexterity import utils
@@ -51,7 +50,7 @@ def get_suffix(fti):
 
 
 @implementer(IDexterityFTIModificationDescription)
-class DexterityFTIModificationDescription(object):
+class DexterityFTIModificationDescription:
     def __init__(self, attribute, oldValue):
         self.attribute = attribute
         self.oldValue = oldValue
@@ -160,12 +159,12 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     <schema />
 </model>
 """
-    model_file = u""
-    schema = u""
-    schema_policy = u"dexterity"
+    model_file = ""
+    schema = ""
+    schema_policy = "dexterity"
 
     def __init__(self, *args, **kwargs):
-        super(DexterityFTI, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if "aliases" not in kwargs:
             self.setMethodAliases(self.default_aliases)
@@ -216,13 +215,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
     def Title(self):
         if self.title and self.i18n_domain:
-            if six.PY2:
-                try:
-                    return Message(self.title.decode("utf8"), self.i18n_domain)
-                except UnicodeDecodeError:
-                    return Message(self.title.decode("latin-1"), self.i18n_domain)
-            else:
-                return Message(self.title, self.i18n_domain)
+            return Message(self.title, self.i18n_domain)
         else:
             if six.PY2:
                 if self.title:
@@ -232,13 +225,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
     def Description(self):
         if self.description and self.i18n_domain:
-            if six.PY2:
-                try:
-                    return Message(self.description.decode("utf8"), self.i18n_domain)
-                except UnicodeDecodeError:
-                    return Message(self.description.decode("latin-1"), self.i18n_domain)
-            else:
-                return Message(self.description, self.i18n_domain)
+            return Message(self.description, self.i18n_domain)
         else:
             if six.PY2 and self.description:
                 return self.description.decode("utf8")
@@ -266,7 +253,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
                 schema = utils.resolveDottedName(self.schema)
             except ImportError:
                 logging.warning(
-                    u"Dexterity type FTI %s: schema dotted name [%s] cannot be resolved."
+                    "Dexterity type FTI %s: schema dotted name [%s] cannot be resolved."
                     % (self.getId(), self.schema)
                 )
                 # fall through to return a fake class with no
@@ -292,7 +279,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
         elif self.schema:
             schema = self.lookupSchema()
-            return Model({u"": schema})
+            return Model({"": schema})
 
         raise ValueError(
             "Neither model source, nor model file, nor schema is specified in "
@@ -312,7 +299,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         """
 
         oldValue = getattr(self, id, None)
-        super(DexterityFTI, self)._updateProperty(id, value)
+        super()._updateProperty(id, value)
         new_value = getattr(self, id, None)
 
         if oldValue != new_value:
@@ -364,8 +351,8 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         else:
             if not os.path.isabs(model_file):
                 raise ValueError(
-                    u"Model file name %s is not an absolute path and does "
-                    u"not contain a package name in %s"
+                    "Model file name %s is not an absolute path and does "
+                    "not contain a package name in %s"
                     % (
                         model_file,
                         self.getId(),
@@ -374,7 +361,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
         if not os.path.isfile(model_file):
             raise ValueError(
-                u"Model file %s in %s cannot be found"
+                "Model file %s in %s cannot be found"
                 % (
                     model_file,
                     self.getId(),

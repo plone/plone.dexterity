@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from Acquisition import aq_inner
 from Acquisition import aq_parent
 from Acquisition.interfaces import IAcquirer
@@ -48,7 +47,7 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         ):
             return FolderDataResource(DAV_FOLDER_DATA_ID, context).__of__(context)
 
-        defaultTraversal = super(DexterityPublishTraverse, self).publishTraverse(
+        defaultTraversal = super().publishTraverse(
             request, name
         )
 
@@ -85,4 +84,4 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         ):
             return self.context, ()
 
-        return super(DexterityPublishTraverse, self).browserDefault(request)
+        return super().browserDefault(request)

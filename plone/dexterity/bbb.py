@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import zope.deferredimport
 
 
@@ -20,7 +19,7 @@ zope.deferredimport.deprecated(
 NullResource = None
 
 
-class Resource(object):
+class Resource:
     def dav__init(self, request, response):
         pass
 

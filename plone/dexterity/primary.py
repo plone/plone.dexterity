@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.utils import iterSchemata
 from plone.rfc822.interfaces import IPrimaryField
@@ -10,7 +9,7 @@ from zope.schema import getFieldsInOrder
 
 @implementer(IPrimaryFieldInfo)
 @adapter(IDexterityContent)
-class PrimaryFieldInfo(object):
+class PrimaryFieldInfo:
     def __init__(self, context):
         self.context = context
         primary = None

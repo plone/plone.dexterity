@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .case import HAS_WEBDAV
 from .case import MockTestCase
 
@@ -44,20 +43,11 @@ if HAS_WEBDAV:
     from zope.size.interfaces import ISized
     from ZPublisher.HTTPResponse import HTTPResponse
     from ZPublisher.Iterators import IStreamIterator
+    from unittest.mock import Mock
 
     import re
-    import six
 
-    try:
-        from unittest.mock import Mock
-    except ImportError:
-        from mock import Mock
-
-    if six.PY2:
-        # cope with upstream library changes in rendering the XML prolog
-        XML_PROLOG = b'<?xml version="1.0" encoding="utf-8"?>'
-    else:
-        XML_PROLOG = b'<?xml version="1.0" encoding="utf-8" ?>'
+    XML_PROLOG = b'<?xml version="1.0" encoding="utf-8" ?>'
 
     @provider(IFormFieldProvider)
     class ITestBehavior(Interface):
@@ -78,7 +68,7 @@ if HAS_WEBDAV:
             self.assertEqual(0, item.get_size())
 
         def test_get_size_wrong_adapter(self):
-            class SizedAdapter(object):
+            class SizedAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -94,7 +84,7 @@ if HAS_WEBDAV:
             self.assertEqual(0, item.get_size())
 
         def test_get_size_right_adapter(self):
-            class SizedAdapter(object):
+            class SizedAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -116,7 +106,7 @@ if HAS_WEBDAV:
             self.assertEqual(None, item.Format())
 
         def test_content_type_simple_adapter(self):
-            class ReadFileAdapter(object):
+            class ReadFileAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -135,7 +125,7 @@ if HAS_WEBDAV:
             self.assertEqual("", item.manage_DAVget())
 
         def test_get_simple_adapter(self):
-            class ReadFileAdapter(object):
+            class ReadFileAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -162,7 +152,7 @@ if HAS_WEBDAV:
             self.assertEqual("10", request.response.getHeader("Content-Length"))
 
         def test_get_minimal_adapter(self):
-            class ReadFileAdapter(object):
+            class ReadFileAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -188,7 +178,7 @@ if HAS_WEBDAV:
 
         def test_get_streaming(self):
             @implementer(IStreamIterator)
-            class ReadFileAdapter(object):
+            class ReadFileAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -232,7 +222,7 @@ if HAS_WEBDAV:
             self.assertRaises(MethodNotAllowed, item.PUT)
 
         def test_put_no_content_type_header(self):
-            class WriteFile(object):
+            class WriteFile:
                 def __init__(self, context):
                     self.context = context
                     self._written = ""
@@ -266,7 +256,7 @@ if HAS_WEBDAV:
             self.assertEqual(True, adapterInstance._closed)
 
         def test_put_with_content_type_header_no_charset(self):
-            class WriteFile(object):
+            class WriteFile:
                 def __init__(self, context):
                     self.context = context
                     self._written = ""
@@ -309,7 +299,7 @@ if HAS_WEBDAV:
             self.assertEqual(1, len(events))
 
         def test_put_with_content_type_header_and_charset(self):
-            class WriteFile(object):
+            class WriteFile:
                 def __init__(self, context):
                     self.context = context
                     self._written = ""
@@ -361,7 +351,7 @@ if HAS_WEBDAV:
         def test_mkcol_simple_adapter(self):
             created = []
 
-            class DirectoryFactory(object):
+            class DirectoryFactory:
                 def __init__(self, context):
                     self.context = context
 
@@ -381,7 +371,7 @@ if HAS_WEBDAV:
         def test_put_factory_simple_adapter(self):
             instance = object()
 
-            class FileFactory(object):
+            class FileFactory:
                 def __init__(self, context):
                     self.context = context
 
@@ -887,7 +877,7 @@ The operation succeded.
             def factory(*args, **kwargs):
                 return result_dummy
 
-            self.mock_utility(factory, IFactory, name=u"childtype-factory")
+            self.mock_utility(factory, IFactory, name="childtype-factory")
 
             factory = DefaultFileFactory(container_mock)
 
@@ -915,7 +905,7 @@ The operation succeded.
             def factory(*args, **kwargs):
                 return Item(*args, **kwargs)
 
-            self.mock_utility(factory, IFactory, name=u"childtype-factory")
+            self.mock_utility(factory, IFactory, name="childtype-factory")
 
             factory = DefaultFileFactory(container_mock)
 
@@ -928,11 +918,11 @@ The operation succeded.
                 pass
 
             SCHEMA_CACHE.clear()
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
             fti_mock.behaviors = []
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
             item = Item("item")
             item.portal_type = "testtype"
@@ -946,11 +936,11 @@ The operation succeded.
                 title = schema.TextLine()
 
             SCHEMA_CACHE.clear()
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
             fti_mock.behaviors = []
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
             item = Item("item")
             item.portal_type = "testtype"
@@ -967,11 +957,11 @@ The operation succeded.
             alsoProvides(ITest["body"], IPrimaryField)
 
             SCHEMA_CACHE.clear()
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
             fti_mock.behaviors = []
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
             item = Item("item")
             item.portal_type = "testtype"
@@ -990,10 +980,10 @@ The operation succeded.
             alsoProvides(ITest["stuff"], IPrimaryField)
 
             SCHEMA_CACHE.clear()
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
             item = Item("item")
             item.portal_type = "testtype"
 
@@ -1017,11 +1007,11 @@ The operation succeded.
             alsoProvides(ITestAdditional["stuff"], IPrimaryField)
             alsoProvides(ITestAdditional, IFormFieldProvider)
 
-            class MockBehavior(object):
+            class MockBehavior:
                 def __init__(self, iface):
                     self.interface = iface
 
-            class MockBehaviorAssignable(object):
+            class MockBehaviorAssignable:
                 def __init__(self, context):
                     self.context = context
 
@@ -1029,11 +1019,11 @@ The operation succeded.
                     yield MockBehavior(ITestAdditional)
 
             SCHEMA_CACHE.clear()
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
 
             self.mock_adapter(MockBehaviorAssignable, IBehaviorAssignable, (Item,))
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
             item = Item("item")
             item.portal_type = "testtype"
 
@@ -1048,11 +1038,11 @@ The operation succeded.
 
             alsoProvides(ITest["body"], IPrimaryField)
 
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
             fti_mock.behaviors = [ITestBehavior.__identifier__]
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
             item = Item("item")
             item.portal_type = "testtype"
@@ -1119,18 +1109,18 @@ Portal-Type: testtype
 
             alsoProvides(ITest["body"], IPrimaryField)
 
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
             fti_mock.behaviors = [ITestBehavior.__identifier__]
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
             item = Item("item")
             item.portal_type = "testtype"
-            item.title = u"Test title"
+            item.title = "Test title"
             item.foo = 10
             item.bar = "xyz"
-            item.body = u"<p>body</p>"
+            item.body = "<p>body</p>"
 
             writefile = DefaultWriteFile(item)
 
