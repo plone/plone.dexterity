@@ -1,4 +1,4 @@
-from plone.dexterity.fti import DexterityFTI
+from ..fti import DexterityFTI
 from Products.CMFCore.browser.typeinfo import FactoryTypeInformationAddView
 
 

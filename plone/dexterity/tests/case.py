@@ -1,4 +1,3 @@
-from plone.dexterity.bbb import HAS_WEBDAV
 from unittest.mock import Mock
 
 import gc

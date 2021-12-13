@@ -1,10 +1,10 @@
-from plone.dexterity.browser.base import DexterityExtensibleForm
-from plone.dexterity.events import EditBegunEvent
-from plone.dexterity.events import EditCancelledEvent
-from plone.dexterity.events import EditFinishedEvent
-from plone.dexterity.i18n import MessageFactory as _
-from plone.dexterity.interfaces import IDexterityEditForm
-from plone.dexterity.interfaces import IDexterityFTI
+from ..events import EditBegunEvent
+from ..events import EditCancelledEvent
+from ..events import EditFinishedEvent
+from ..i18n import MessageFactory as _
+from ..interfaces import IDexterityEditForm
+from ..interfaces import IDexterityFTI
+from .base import DexterityExtensibleForm
 from plone.registry.interfaces import IRegistry
 from plone.z3cform import layout
 from Products.CMFCore.utils import getToolByName
@@ -61,10 +61,10 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
         super().updateActions()
 
         if "save" in self.actions:
-            self.actions["save"].addClass("success")
+            self.actions["save"].addClass("btn btn-primary")
 
         if "cancel" in self.actions:
-            self.actions["cancel"].addClass("secondary")
+            self.actions["cancel"].addClass("btn btn-secondary")
 
     @property
     def fti(self):

@@ -1,3 +1,5 @@
+from .interfaces import IDexterityFTI
+from .schema import SCHEMA_CACHE
 from AccessControl import Unauthorized
 from Acquisition import aq_base
 from Acquisition import aq_inner
@@ -5,8 +7,6 @@ from DateTime import DateTime
 from plone.app.uuid.utils import uuidToObject
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.behavior.interfaces import IBehaviorAssignable
-from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.schema import SCHEMA_CACHE
 from plone.supermodel.utils import mergedTaggedValueDict
 from plone.uuid.interfaces import IUUID
 from zope.component import createObject

@@ -1,7 +1,7 @@
+from ..i18n import MessageFactory as _
+from ..interfaces import IDexterityFTI
+from ..utils import getAdditionalSchemata
 from plone.autoform.form import AutoExtensibleForm
-from plone.dexterity.i18n import MessageFactory as _
-from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.utils import getAdditionalSchemata
 from zope.component import getUtility
 
 

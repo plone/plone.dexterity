@@ -1,13 +1,13 @@
+from ..events import AddBegunEvent
+from ..events import AddCancelledEvent
+from ..i18n import MessageFactory as _
+from ..interfaces import IDexterityFTI
+from ..utils import addContentToContainer
+from ..utils import getAdditionalSchemata
+from .base import DexterityExtensibleForm
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from Acquisition.interfaces import IAcquirer
-from plone.dexterity.browser.base import DexterityExtensibleForm
-from plone.dexterity.events import AddBegunEvent
-from plone.dexterity.events import AddCancelledEvent
-from plone.dexterity.i18n import MessageFactory as _
-from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.utils import addContentToContainer
-from plone.dexterity.utils import getAdditionalSchemata
 from plone.z3cform import layout
 from plone.z3cform.interfaces import IDeferSecurityCheck
 from Products.statusmessages.interfaces import IStatusMessage
@@ -142,10 +142,10 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     def updateActions(self):
         super().updateActions()
         if "save" in self.actions:
-            self.actions["save"].addClass("success")
+            self.actions["save"].addClass("btn btn-primary")
 
         if "cancel" in self.actions:
-            self.actions["cancel"].addClass("secondary")
+            self.actions["cancel"].addClass("btn btn-secondary")
 
     @property
     def label(self):

@@ -1,5 +1,5 @@
-from plone.dexterity.interfaces import IDexterityContent
-from plone.dexterity.utils import iterSchemata
+from .interfaces import IDexterityContent
+from .utils import iterSchemata
 from plone.rfc822.interfaces import IPrimaryField
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from zope.component import adapter

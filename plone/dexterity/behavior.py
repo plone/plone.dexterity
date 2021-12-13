@@ -1,6 +1,6 @@
+from .interfaces import IDexterityContent
+from .schema import SCHEMA_CACHE
 from plone.behavior.interfaces import IBehaviorAssignable
-from plone.dexterity.interfaces import IDexterityContent
-from plone.dexterity.schema import SCHEMA_CACHE
 from zope.component import adapter
 from zope.interface import implementer
 
