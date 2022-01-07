@@ -9,6 +9,17 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.0a1 (2022-01-07)
+--------------------
+
+Breaking changes:
+
+
+- Plone 6: Always use a lines property for behaviors, no longer the deprecated ulines.
+  Part of `issue 3305 <https://github.com/plone/Products.CMFPlone/issues/3305>`_.
+  [maurits] (#3305)
+
+
 2.10.5 (2021-11-25)
 -------------------
 
