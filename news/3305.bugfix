@@ -1,0 +1,4 @@
+Really always use a lines property for behaviors, no longer the deprecated ulines.
+This improves the fix from the previous release.
+Part of `issue 3305 <https://github.com/plone/Products.CMFPlone/issues/3305>`_.
+[maurits]
