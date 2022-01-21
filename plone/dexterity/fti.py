@@ -82,7 +82,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         },
         {
             "id": "behaviors",
-            "type": "ulines",
+            "type": "lines",
             "mode": "w",
             "label": "Behaviors",
             "description": "Names of enabled behaviors type",
