@@ -11,8 +11,7 @@ from zope.interface.declarations import Implements
 
 @implementer(IDexterityFactory)
 class DexterityFactory(Persistent, Factory):
-    """A factory for Dexterity content.
-    """
+    """A factory for Dexterity content."""
 
     def __init__(self, portal_type):
         self.portal_type = portal_type
@@ -30,11 +29,11 @@ class DexterityFactory(Persistent, Factory):
     def __call__(self, *args, **kw):
         fti = getUtility(IDexterityFTI, name=self.portal_type)
 
-        klass = resolveDottedName(fti.klass)
+        klass = resolveDottedName(fti.klass) if fti.klass else None
         if klass is None or not callable(klass):
             raise ValueError(
-                "Content class %s set for type %s is not valid" %
-                (fti.klass, self.portal_type)
+                "Content class %s set for type %s is not valid"
+                % (fti.klass, self.portal_type)
             )
 
         try:
@@ -47,7 +46,7 @@ class DexterityFactory(Persistent, Factory):
 
         # Set portal_type if not set, but avoid creating an instance variable
         # if possible
-        if getattr(obj, 'portal_type', '') != self.portal_type:
+        if getattr(obj, "portal_type", "") != self.portal_type:
             obj.portal_type = self.portal_type
 
         return obj
@@ -59,4 +58,4 @@ class DexterityFactory(Persistent, Factory):
         return spec
 
     def __repr__(self):
-        return '<%s for %s>' % (self.__class__.__name__, self.portal_type)
+        return "<%s for %s>" % (self.__class__.__name__, self.portal_type)

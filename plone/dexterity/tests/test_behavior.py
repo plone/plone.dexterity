@@ -24,7 +24,6 @@ class IFour(IThree):
 
 
 class TestBehavior(MockTestCase):
-
     def test_supports(self):
 
         # Context mock
@@ -32,17 +31,9 @@ class TestBehavior(MockTestCase):
 
         # Behavior mock
         behavior_dummy_1 = self.create_dummy(interface=IOne)
-        self.mock_utility(
-            behavior_dummy_1,
-            IBehavior,
-            name=IOne.__identifier__
-        )
+        self.mock_utility(behavior_dummy_1, IBehavior, name=IOne.__identifier__)
         behavior_dummy_4 = self.create_dummy(interface=IFour)
-        self.mock_utility(
-            behavior_dummy_4,
-            IBehavior,
-            name=IFour.__identifier__
-        )
+        self.mock_utility(behavior_dummy_4, IBehavior, name=IFour.__identifier__)
 
         # FTI mock
         fti = DexterityFTI(u"testtype")
@@ -72,7 +63,4 @@ class TestBehavior(MockTestCase):
 
         assignable = DexterityBehaviorAssignable(context_dummy)
 
-        self.assertEqual(
-            [behavior_dummy],
-            list(assignable.enumerateBehaviors())
-        )
+        self.assertEqual([behavior_dummy], list(assignable.enumerateBehaviors()))

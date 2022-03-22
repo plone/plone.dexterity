@@ -9,6 +9,93 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.0a2 (2022-01-25)
+--------------------
+
+Bug fixes:
+
+
+- Really always use a lines property for behaviors, no longer the deprecated ulines.
+  This improves the fix from the previous release.
+  Part of `issue 3305 <https://github.com/plone/Products.CMFPlone/issues/3305>`_.
+  [maurits] (#3305)
+
+
+3.0.0a1 (2022-01-07)
+--------------------
+
+Breaking changes:
+
+
+- Plone 6: Always use a lines property for behaviors, no longer the deprecated ulines.
+  Part of `issue 3305 <https://github.com/plone/Products.CMFPlone/issues/3305>`_.
+  [maurits] (#3305)
+
+
+2.10.5 (2021-11-25)
+-------------------
+
+Bug fixes:
+
+
+- Incorporate ``plone.synchronize`` its one and only simple ``synchronized`` function into ``plone.dexterity``, which were the only consumer.
+  Also moves the test. Removes a dependency and a package to look after.
+  [jensens] (#157)
+- Avoid setting a default value on methods.
+  If a Schema Interface has a method in it, i.e. to be used as a
+  constraint for another field, etc. the `default_from_schema` function
+  would trip over it while trying to get a default value for it.
+  [gforcada, jensens] (#158)
+- Fixes schema name generated in Python 2. [wesleybl] (#159)
+
+
+2.10.4 (2021-10-07)
+-------------------
+
+Bug fixes:
+
+
+- Catch maximum recursion error when lookup FTI
+  [petschki] (#155)
+- Optimize local components access by shortcutting `utilities` attribute access. [jensens] (#156)
+
+
+2.10.3 (2021-09-01)
+-------------------
+
+Bug fixes:
+
+
+- Fix ft._updateProperty so it doesn't break when receiving an empty value.
+  This happens when an DX FTI is part of a Generic Setup baseline import.
+  Update more code to work when the Plone Site is a dexterity item.
+  [jaroel] (#85)
+- Codestyle black and isort [jensens] (#154)
+
+
+2.10.2 (2021-07-29)
+-------------------
+
+Bug fixes:
+
+
+- Fix export/import of content in Python 3.
+  Fixes `issue 124 <https://github.com/plone/plone.dexterity/issues/124>`_.
+  Also fixes the tests in combination with newest ``Products.GenericSetup`` 2.1.2.
+  [maurits] (#124)
+
+
+2.10.1 (2021-06-30)
+-------------------
+
+Bug fixes:
+
+
+- Officially support Plone 6.0 and Python 3.9.
+  No code changes.
+  [maurits] (#1)
+
+
 2.10.0 (2020-10-12)
 -------------------
 
@@ -23,7 +110,7 @@ Bug fixes:
 
 
 - Fixes test to work clean with zope.interface.
-  Interfaces are hashed based on just their name and module. 
+  Interfaces are hashed based on just their name and module.
   So every one of these local `IBlank` interfaces will hash the same way, and be treated the same for purposes of zope.interface's `_dependents`.
   Thus in tests mock interfaces must not be used under the same name in the same module.
   [jensens] (#135)

@@ -44,7 +44,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         if ti is not None:
             self.ti = ti
             self.portal_type = ti.getId()
-        self.request.form['disable_border'] = True
+        self.request.form["disable_border"] = True
 
     @property
     def additionalSchemata(self):
@@ -71,7 +71,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         # to re-define a type through the web that uses the factory from an
         # existing type, but wants a unique portal_type!
 
-        if hasattr(content, '_setPortalTypeName'):
+        if hasattr(content, "_setPortalTypeName"):
             content._setPortalTypeName(fti.getId())
 
         # Acquisition wrap temporarily to satisfy things like vocabularies
@@ -107,7 +107,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
 
     # Buttons
 
-    @button.buttonAndHandler(_('Save'), name='save')
+    @button.buttonAndHandler(_("Save"), name="save")
     def handleAdd(self, action):
         data, errors = self.extractData()
         if errors:
@@ -117,11 +117,9 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         if obj is not None:
             # mark only as finished if we get the new object
             self._finishedAdd = True
-            IStatusMessage(self.request).addStatusMessage(
-                self.success_message, "info"
-            )
+            IStatusMessage(self.request).addStatusMessage(self.success_message, "info")
 
-    @button.buttonAndHandler(_(u'Cancel'), name='cancel')
+    @button.buttonAndHandler(_(u"Cancel"), name="cancel")
     def handleCancel(self, action):
         IStatusMessage(self.request).addStatusMessage(
             _(u"Add New Item operation cancelled"), "info"
@@ -131,11 +129,10 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
 
     def update(self):
         if not IDeferSecurityCheck.providedBy(self.request):
-            allowed_ids = [fti.getId() for fti in
-                           self.context.allowedContentTypes()]
+            allowed_ids = [fti.getId() for fti in self.context.allowedContentTypes()]
             if self.portal_type not in allowed_ids:
                 raise ValueError(
-                    'Subobject type disallowed by IConstrainTypes adapter: %s'
+                    "Subobject type disallowed by IConstrainTypes adapter: %s"
                     % self.portal_type
                 )
         super(DefaultAddForm, self).update()
@@ -145,10 +142,10 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
 
     def updateActions(self):
         super(DefaultAddForm, self).updateActions()
-        if 'save' in self.actions:
+        if "save" in self.actions:
             self.actions["save"].addClass("context")
 
-        if 'cancel' in self.actions:
+        if "cancel" in self.actions:
             self.actions["cancel"].addClass("standalone")
 
     @property
@@ -156,7 +153,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         portal_type = self.portal_type
         fti = getUtility(IDexterityFTI, name=portal_type)
         type_name = fti.Title()
-        return _(u"Add ${name}", mapping={'name': type_name})
+        return _(u"Add ${name}", mapping={"name": type_name})
 
 
 class DefaultAddView(layout.FormWrapper, BrowserPage):
@@ -175,8 +172,9 @@ class DefaultAddView(layout.FormWrapper, BrowserPage):
         self.ti = ti
 
         # Set portal_type name on newly created form instance
-        if self.form_instance is not None \
-           and not getattr(self.form_instance, 'portal_type', None):
+        if self.form_instance is not None and not getattr(
+            self.form_instance, "portal_type", None
+        ):
             self.form_instance.portal_type = ti.getId()
 
 

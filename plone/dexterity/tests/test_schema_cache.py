@@ -4,7 +4,8 @@ from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from zope.interface import Interface
-
+from zope.globalrequest import setRequest
+from zope.publisher.browser import TestRequest
 
 try:
     from unittest.mock import Mock
@@ -18,12 +19,11 @@ except ImportError:
 
 
 class TestSchemaCache(MockTestCase):
-
     def setUp(self):
+        setRequest(TestRequest())
         SCHEMA_CACHE.clear()
 
     def test_repeated_get_lookup(self):
-
         class ISchema(Interface):
             pass
 
@@ -44,24 +44,23 @@ class TestSchemaCache(MockTestCase):
         # Mock a test behavior
         class ITestBehavior(Interface):
             pass
+
         fti.behaviors = [ITestBehavior.__identifier__]
         from plone.behavior.registration import BehaviorRegistration
+
         registration = BehaviorRegistration(
             title=u"Test Behavior",
             description=u"Provides test behavior",
             interface=Interface,
             marker=ITestBehavior,
-            factory=None
+            factory=None,
         )
         from plone.behavior.interfaces import IBehavior
-        self.mock_utility(
-            registration,
-            IBehavior,
-            ITestBehavior.__identifier__
-        )
 
-        r1 = SCHEMA_CACHE.behavior_registrations(u'testtype')
-        r2 = SCHEMA_CACHE.behavior_registrations(u'testtype')
+        self.mock_utility(registration, IBehavior, ITestBehavior.__identifier__)
+
+        r1 = SCHEMA_CACHE.behavior_registrations(u"testtype")
+        r2 = SCHEMA_CACHE.behavior_registrations(u"testtype")
 
         self.assertTrue(r1[0] is r2[0] is registration)
 
@@ -72,11 +71,11 @@ class TestSchemaCache(MockTestCase):
         fti.behaviors = ["foo.bar"]
 
         with patch("warnings.warn") as mock_warnings:
-            SCHEMA_CACHE.behavior_registrations(u'testtype')
+            SCHEMA_CACHE.behavior_registrations(u"testtype")
             # Verify the warning has been issued
             mock_warnings.assert_called_once_with(
                 (
-                    'No behavior registration found for behavior named '
+                    "No behavior registration found for behavior named "
                     '"foo.bar" for factory "testtype" - trying deprecated '
                     'fallback lookup (will be removed in 3.0)..."'
                 ),
@@ -94,21 +93,20 @@ class TestSchemaCache(MockTestCase):
 
         class ITestMarker(Interface):
             pass
+
         fti.behaviors = [ITestSchema.__identifier__]
         from plone.behavior.registration import BehaviorRegistration
+
         registration = BehaviorRegistration(
             title=u"Test Behavior",
             description=u"Provides test behavior",
             interface=ITestSchema,
             marker=ITestMarker,
-            factory=None
+            factory=None,
         )
         from plone.behavior.interfaces import IBehavior
-        self.mock_utility(
-            registration,
-            IBehavior,
-            ITestSchema.__identifier__
-        )
+
+        self.mock_utility(registration, IBehavior, ITestSchema.__identifier__)
 
         s1 = SCHEMA_CACHE.subtypes(u"testtype")
         s2 = SCHEMA_CACHE.subtypes(u"testtype")
@@ -116,7 +114,6 @@ class TestSchemaCache(MockTestCase):
         self.assertTrue(s1[0] is s2[0] is ITestMarker)
 
     def test_repeated_lookup_with_changed_schema(self):
-
         class ISchema1(Interface):
             pass
 
@@ -133,7 +130,6 @@ class TestSchemaCache(MockTestCase):
         self.assertTrue(schema1 is schema2 and schema2 is ISchema1)
 
     def test_repeated_lookup_with_changed_schema_and_invalidation(self):
-
         class ISchema1(Interface):
             pass
 
@@ -152,7 +148,6 @@ class TestSchemaCache(MockTestCase):
         self.assertTrue(schema2 is ISchema2)
 
     def test_none_not_cached(self):
-
         class ISchema1(Interface):
             pass
 
@@ -160,34 +155,32 @@ class TestSchemaCache(MockTestCase):
         fti.lookupSchema = Mock(side_effect=[None, ISchema1, ISchema1])
         self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
-        SCHEMA_CACHE.invalidate('testtype')
+        SCHEMA_CACHE.invalidate("testtype")
         schema1 = SCHEMA_CACHE.get(u"testtype")
 
-        SCHEMA_CACHE.invalidate('testtype')
+        SCHEMA_CACHE.invalidate("testtype")
         schema2 = SCHEMA_CACHE.get(u"testtype")
 
-        SCHEMA_CACHE.invalidate('testtype')
+        SCHEMA_CACHE.invalidate("testtype")
         schema3 = SCHEMA_CACHE.get(u"testtype")
 
         self.assertTrue(schema1 is None)
         self.assertTrue(schema2 is schema3 is ISchema1)
 
     def test_attribute_and_value_error_not_cached(self):
-
         class ISchema1(Interface):
             pass
 
         fti = DexterityFTI(u"testtype")
-        fti.lookupSchema = Mock(
-            side_effect=[AttributeError, ValueError, ISchema1])
+        fti.lookupSchema = Mock(side_effect=[AttributeError, ValueError, ISchema1])
         self.mock_utility(fti, IDexterityFTI, name=u"testtype")
 
         schema1 = SCHEMA_CACHE.get(u"testtype")
 
-        SCHEMA_CACHE.invalidate('testtype')
+        SCHEMA_CACHE.invalidate("testtype")
         schema2 = SCHEMA_CACHE.get(u"testtype")
 
-        SCHEMA_CACHE.invalidate('testtype')
+        SCHEMA_CACHE.invalidate("testtype")
         schema3 = SCHEMA_CACHE.get(u"testtype")
 
         self.assertTrue(schema1 is None)
@@ -195,7 +188,6 @@ class TestSchemaCache(MockTestCase):
         self.assertTrue(schema3 is ISchema1)
 
     def test_unknown_type_not_cached(self):
-
         class ISchema1(Interface):
             pass
 
@@ -211,7 +203,6 @@ class TestSchemaCache(MockTestCase):
         self.assertTrue(schema2 is schema3 is ISchema1)
 
     def test_clear_all_caches(self):
-
         class ISchema1(Interface):
             pass
 
