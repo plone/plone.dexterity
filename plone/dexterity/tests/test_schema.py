@@ -2,6 +2,7 @@
 from .case import MockTestCase
 from plone.dexterity import schema
 from plone.dexterity.fti import DexterityFTI
+from plone.dexterity.fti import get_suffix
 from plone.dexterity.interfaces import IContentType
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.interfaces import IDexteritySchema
@@ -50,8 +51,57 @@ class TestSchemaModuleFactory(MockTestCase):
         self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
 
         factory = schema.SchemaModuleFactory()
-
         schemaName = schema.portalTypeToSchemaName("testtype", prefix="site")
+        klass = factory(schemaName, schema.generated)
+
+        self.assertTrue(isinstance(klass, InterfaceClass))
+        self.assertTrue(klass.isOrExtends(IDexteritySchema))
+        self.assertTrue(IContentType.providedBy(klass))
+        self.assertEqual(schemaName, klass.__name__)
+        self.assertEqual("plone.dexterity.schema.generated", klass.__module__)
+        self.assertEqual(("dummy",), tuple(zope.schema.getFieldNames(klass)))
+
+    def test_default_schema_with_mtime(self):
+
+        # Mock schema model
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"Dummy")
+
+        mock_model = Model({u"": IDummy})
+
+        # Mock FTI
+        fti_mock = Mock(spec=DexterityFTI)
+        fti_mock.lookupModel = Mock(return_value=mock_model)
+        fti_mock._p_mtime = 1650380190.961898
+        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+
+        factory = schema.SchemaModuleFactory()
+        schemaName = schema.portalTypeToSchemaName("testtype", prefix="site", suffix=get_suffix(fti_mock))
+        klass = factory(schemaName, schema.generated)
+
+        self.assertTrue(isinstance(klass, InterfaceClass))
+        self.assertTrue(klass.isOrExtends(IDexteritySchema))
+        self.assertTrue(IContentType.providedBy(klass))
+        self.assertEqual(schemaName, klass.__name__)
+        self.assertEqual("plone.dexterity.schema.generated", klass.__module__)
+        self.assertEqual(("dummy",), tuple(zope.schema.getFieldNames(klass)))
+
+    def test_default_schema_with_mtime_no_millis(self):
+
+        # Mock schema model
+        class IDummy(Interface):
+            dummy = zope.schema.TextLine(title=u"Dummy")
+
+        mock_model = Model({u"": IDummy})
+
+        # Mock FTI
+        fti_mock = Mock(spec=DexterityFTI)
+        fti_mock.lookupModel = Mock(return_value=mock_model)
+        fti_mock._p_mtime = 1650380190.0
+        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+
+        factory = schema.SchemaModuleFactory()
+        schemaName = schema.portalTypeToSchemaName("testtype", prefix="site", suffix=get_suffix(fti_mock))
         klass = factory(schemaName, schema.generated)
 
         self.assertTrue(isinstance(klass, InterfaceClass))
