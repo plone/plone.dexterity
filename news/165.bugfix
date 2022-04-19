@@ -1,0 +1,2 @@
+Avoid an edge case where content types would end up without fields
+[frapell]

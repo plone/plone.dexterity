@@ -32,21 +32,10 @@ import six
 
 def get_suffix(fti):
     mtime = getattr(fti, "_p_mtime", None)
-    # Python 2 rounds floats when we use the str function on them.
-
-    # Python 2:
-    # >>> str(1637689348.9999528)
-    # '1637689349.0'
-
-    # Python 3:
-    # >>> str(1637689348.9999528)
-    # '1637689348.9999528'
-
-    # This was causing the schema names in Python 2 to take an unexpected format,
-    # causing errors.
-    # So, we need to use the repr function, which doesn't round floats.
+    # There is no need to use the actual float, an int is good enough
+    # and we avoid issues when the mtime has no milliseconds
     if mtime:
-        return repr(mtime)
+        return str(int(mtime))
     return ""
 
 

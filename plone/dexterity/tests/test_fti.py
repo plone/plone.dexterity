@@ -984,7 +984,7 @@ class TestFTIEvents(MockTestCase):
         self.mock_utility(portal, ISiteRoot)
 
         # Generated schema name must be this.
-        schemaName = "site_5_1637689348_2_9999528_0_testtype"
+        schemaName = "site_5_1637689348_0_testtype"
         setattr(plone.dexterity.schema.generated, schemaName, ITestSchema)
 
         self.assertEqual(ITestSchema, fti.lookupSchema())
@@ -1014,7 +1014,7 @@ class TestFTIEvents(MockTestCase):
 
         # Set source interface
         # Generated schema name must be this.
-        schemaName = "siteid_5_1637689348_2_9999528_0_testtype"
+        schemaName = "siteid_5_1637689348_0_testtype"
         setattr(plone.dexterity.schema.generated, schemaName, IBlank1)
 
         # Sync this with schema
