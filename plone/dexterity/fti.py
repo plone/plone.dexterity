@@ -134,12 +134,14 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         {
             "id": "view",
             "title": "View",
+            "icon_expr": "string:toolbar-action/view",
             "action": "string:${object_url}",
             "permissions": ("View",),
         },
         {
             "id": "edit",
             "title": "Edit",
+            "icon_expr": "string:toolbar-action/edit",
             "action": "string:${object_url}/edit",
             "permissions": ("Modify portal content",),
         },
@@ -171,6 +173,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
                 self.addAction(
                     id=action["id"],
                     name=action["title"],
+                    icon_expr=action["icon_expr"],
                     action=action["action"],
                     condition=action.get("condition"),
                     permission=action.get("permissions", ()),
