@@ -9,6 +9,16 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.0a3 (2022-05-24)
+--------------------
+
+Bug fixes:
+
+
+- Added missing icon_expr to default actions.
+  [agitator] (#167)
+
+
 3.0.0a2 (2022-01-25)
 --------------------
 
