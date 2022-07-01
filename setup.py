@@ -77,7 +77,6 @@ setup(
         "zope.filerepresentation>=3.6.0",
         "zope.interface",
         "zope.lifecycleevent",
-        "zope.location",
         "zope.publisher",
         "zope.schema",
         "zope.security",
