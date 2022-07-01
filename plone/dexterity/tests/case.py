@@ -95,6 +95,10 @@ class Dummy(object):
     def __init__(self, **kw):
         self.__dict__.update(kw)
 
+    def contentIds(self):
+        # testAddContentToContainer_preserves_existing_id fails without this.
+        return []
+
 
 class ItemDummy(Dummy):
     """Dummy objects with title getter and setter"""
