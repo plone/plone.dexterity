@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
 from csv import reader
 from csv import writer
+from io import BytesIO
+from io import StringIO
 from Products.GenericSetup.content import _globtest
 from Products.GenericSetup.content import FauxDAVRequest
 from Products.GenericSetup.content import FauxDAVResponse
@@ -9,12 +10,8 @@ from Products.GenericSetup.interfaces import IContentFactoryName
 from Products.GenericSetup.interfaces import IFilesystemExporter
 from Products.GenericSetup.interfaces import IFilesystemImporter
 from Products.GenericSetup.utils import _getDottedName
-from six import BytesIO
-from six import StringIO
 from zope.component import queryAdapter
 from zope.interface import implementer
-
-import six
 
 
 @implementer(IFilesystemExporter, IFilesystemImporter)
@@ -47,7 +44,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         context = self.context
 
         if not root:
-            subdir = "%s/%s" % (subdir, context.getId())
+            subdir = "{}/{}".format(subdir, context.getId())
 
         exportable = self.listExportableItems()
 
@@ -89,7 +86,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         """See IFilesystemImporter."""
         context = self.context
         if not root:
-            subdir = "%s/%s" % (subdir, context.getId())
+            subdir = "{}/{}".format(subdir, context.getId())
 
         data = import_context.readDataFile(".data", subdir)
         if data is not None:
@@ -106,7 +103,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
             preserve = []
         else:
             # Make sure ``preserve`` is a native string
-            if six.PY3 and not isinstance(preserve, str):
+            if not isinstance(preserve, str):
                 preserve = preserve.decode("utf-8")
             preserve = _globtest(preserve, prior)
 
@@ -121,7 +118,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
             return
 
         dialect = "excel"
-        if six.PY3 and not isinstance(objects, str):
+        if not isinstance(objects, str):
             objects = objects.decode("utf-8")
         stream = StringIO(objects)
 
@@ -139,7 +136,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
                 if object is None:
                     logger = import_context.getLogger("SFWA")
                     logger.warning(
-                        "Couldn't make instance: %s/%s" % (subdir, object_id)
+                        "Couldn't make instance: {}/{}".format(subdir, object_id)
                     )
                     continue
 

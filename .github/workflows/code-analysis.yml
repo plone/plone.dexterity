@@ -1,0 +1,50 @@
+name: Code Analysis
+on:
+  push:
+
+jobs:
+  code-analysis:
+    name: Code analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v2
+
+      - name: Run check isort
+        uses: plone/code-analysis-action@v1
+        with:
+          check: 'isort'
+          path: |
+            plone
+            setup.py
+
+      - name: Run check black
+        uses: plone/code-analysis-action@v1
+        with:
+          check: 'black'
+          path: |
+            plone
+            setup.py
+
+      - name: Run check flake8
+        uses: plone/code-analysis-action@v1
+        with:
+          check: 'flake8'
+          path: |
+            plone
+            setup.py
+
+      - name: Run check pyroma
+        uses: plone/code-analysis-action@v1
+        with:
+          check: 'pyroma'
+          path: |
+            ./
+
+      - name: Run check zpretty
+        uses: plone/code-analysis-action@v1
+        with:
+          check: 'zpretty'
+          path: |
+            plone

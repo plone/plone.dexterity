@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .case import MockTestCase
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 from plone.dexterity.content import Container
@@ -6,20 +5,15 @@ from plone.dexterity.content import Item
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
+from unittest.mock import Mock
+from zope.globalrequest import setRequest
 from zope.interface import Interface
 from zope.interface import provider
+from zope.publisher.browser import TestRequest
 from zope.security.interfaces import IPermission
 from zope.security.permission import Permission
-from zope.globalrequest import setRequest
-from zope.publisher.browser import TestRequest
 
 import zope.schema
-
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from mock import Mock
 
 
 class TestAttributeProtection(MockTestCase):
@@ -31,7 +25,7 @@ class TestAttributeProtection(MockTestCase):
 
         # Mock schema model
         class ITestSchema(Interface):
-            test = zope.schema.TextLine(title=u"Test")
+            test = zope.schema.TextLine(title="Test")
 
         ITestSchema.setTaggedValue(
             READ_PERMISSIONS_KEY, dict(test="zope2.View", foo="foo.View")
@@ -41,7 +35,7 @@ class TestAttributeProtection(MockTestCase):
 
         @provider(IFormFieldProvider)
         class ITestBehavior(Interface):
-            test2 = zope.schema.TextLine(title=u"Test")
+            test2 = zope.schema.TextLine(title="Test")
 
         ITestBehavior.setTaggedValue(
             READ_PERMISSIONS_KEY, dict(test2="zope2.View", foo2="foo.View")
@@ -51,8 +45,8 @@ class TestAttributeProtection(MockTestCase):
         from plone.behavior.registration import BehaviorRegistration
 
         registration = BehaviorRegistration(
-            title=u"Test Behavior",
-            description=u"Provides test behavior",
+            title="Test Behavior",
+            description="Provides test behavior",
             interface=ITestBehavior,
             marker=Interface,
             factory=None,
@@ -69,24 +63,20 @@ class TestAttributeProtection(MockTestCase):
         )
 
         # Mock FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.behaviors = ()
         fti_mock.lookupSchema = Mock(return_value=ITestSchema)
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         # Mock permissions
-        self.mock_utility(
-            Permission(u"zope2.View", u"View"), IPermission, u"zope2.View"
-        )
-        self.mock_utility(
-            Permission(u"foo.View", u"View foo"), IPermission, u"foo.View"
-        )
+        self.mock_utility(Permission("zope2.View", "View"), IPermission, "zope2.View")
+        self.mock_utility(Permission("foo.View", "View foo"), IPermission, "foo.View")
 
         # Content item
         item = Item("test")
-        item.portal_type = u"testtype"
-        item.test = u"foo"
-        item.foo = u"bar"
+        item.portal_type = "testtype"
+        item.test = "foo"
+        item.foo = "bar"
 
         # mock security manager
         security_manager_mock = Mock()
@@ -97,21 +87,19 @@ class TestAttributeProtection(MockTestCase):
         # run 1: schema and no behavior access to schema protected attribute
         security_manager_mock.checkPermission = Mock(return_value=False)
         SCHEMA_CACHE.clear()
-        self.assertFalse(
-            item.__allow_access_to_unprotected_subobjects__("test", u"foo")
-        )
+        self.assertFalse(item.__allow_access_to_unprotected_subobjects__("test", "foo"))
         security_manager_mock.checkPermission.assert_called_with("View", item)
 
         # run 2: schema and no behavior access to known non schema attribute
         security_manager_mock.checkPermission = Mock(return_value=True)
         SCHEMA_CACHE.clear()
-        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("foo", u"bar"))
+        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("foo", "bar"))
         security_manager_mock.checkPermission.assert_called_with("View foo", item)
 
         # run 3: schema and no behavior, unknown attributes are allowed
         SCHEMA_CACHE.clear()
         self.assertTrue(
-            item.__allow_access_to_unprotected_subobjects__("random", u"stuff")
+            item.__allow_access_to_unprotected_subobjects__("random", "stuff")
         )
 
         # run 4: schema and behavior
@@ -119,7 +107,7 @@ class TestAttributeProtection(MockTestCase):
         fti_mock.behaviors = [ITestBehavior.__identifier__]
         SCHEMA_CACHE.clear()
         self.assertTrue(
-            item.__allow_access_to_unprotected_subobjects__("test2", u"foo2")
+            item.__allow_access_to_unprotected_subobjects__("test2", "foo2")
         )
         security_manager_mock.checkPermission.assert_called_with("View", item)
 
@@ -128,7 +116,7 @@ class TestAttributeProtection(MockTestCase):
         fti_mock.lookupSchema = Mock(return_value=None)
         SCHEMA_CACHE.clear()
         self.assertTrue(
-            item.__allow_access_to_unprotected_subobjects__("test2", u"foo2")
+            item.__allow_access_to_unprotected_subobjects__("test2", "foo2")
         )
         security_manager_mock.checkPermission.assert_called_with("View", item)
 
@@ -136,7 +124,7 @@ class TestAttributeProtection(MockTestCase):
 
         # Mock schema model
         class ITestSchema(Interface):
-            test = zope.schema.TextLine(title=u"Test")
+            test = zope.schema.TextLine(title="Test")
 
         ITestSchema.setTaggedValue(
             READ_PERMISSIONS_KEY, dict(test="zope2.View", foo="foo.View")
@@ -146,7 +134,7 @@ class TestAttributeProtection(MockTestCase):
 
         @provider(IFormFieldProvider)
         class ITestBehavior(Interface):
-            test2 = zope.schema.TextLine(title=u"Test")
+            test2 = zope.schema.TextLine(title="Test")
 
         ITestBehavior.setTaggedValue(
             READ_PERMISSIONS_KEY, dict(test2="zope2.View", foo2="foo.View")
@@ -156,8 +144,8 @@ class TestAttributeProtection(MockTestCase):
         from plone.behavior.registration import BehaviorRegistration
 
         registration = BehaviorRegistration(
-            title=u"Test Behavior",
-            description=u"Provides test behavior",
+            title="Test Behavior",
+            description="Provides test behavior",
             interface=ITestBehavior,
             marker=Interface,
             factory=None,
@@ -174,24 +162,20 @@ class TestAttributeProtection(MockTestCase):
         )
 
         # Mock FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=ITestSchema)
         fti_mock.behaviors = ()
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         # Mock permissions
-        self.mock_utility(
-            Permission(u"zope2.View", u"View"), IPermission, u"zope2.View"
-        )
-        self.mock_utility(
-            Permission(u"foo.View", u"View foo"), IPermission, u"foo.View"
-        )
+        self.mock_utility(Permission("zope2.View", "View"), IPermission, "zope2.View")
+        self.mock_utility(Permission("foo.View", "View foo"), IPermission, "foo.View")
 
         # Content item
         container = Container("test")
-        container.portal_type = u"testtype"
-        container.test = u"foo"
-        container.foo = u"bar"
+        container.portal_type = "testtype"
+        container.test = "foo"
+        container.foo = "bar"
 
         # mock security manager
         security_manager_mock = Mock()
@@ -203,7 +187,7 @@ class TestAttributeProtection(MockTestCase):
         security_manager_mock.checkPermission = Mock(return_value=False)
         SCHEMA_CACHE.clear()
         self.assertFalse(
-            container.__allow_access_to_unprotected_subobjects__("test", u"foo")
+            container.__allow_access_to_unprotected_subobjects__("test", "foo")
         )
         security_manager_mock.checkPermission.assert_called_with("View", container)
 
@@ -211,14 +195,14 @@ class TestAttributeProtection(MockTestCase):
         security_manager_mock.checkPermission = Mock(return_value=True)
         SCHEMA_CACHE.clear()
         self.assertTrue(
-            container.__allow_access_to_unprotected_subobjects__("foo", u"bar")
+            container.__allow_access_to_unprotected_subobjects__("foo", "bar")
         )
         security_manager_mock.checkPermission.assert_called_with("View foo", container)
 
         # run 3: schema and no behavior, unknown attributes are allowed
         SCHEMA_CACHE.clear()
         self.assertTrue(
-            container.__allow_access_to_unprotected_subobjects__("random", u"stuff")
+            container.__allow_access_to_unprotected_subobjects__("random", "stuff")
         )
 
         # run 4: schema and behavior
@@ -226,7 +210,7 @@ class TestAttributeProtection(MockTestCase):
         fti_mock.behaviors = [ITestBehavior.__identifier__]
         SCHEMA_CACHE.clear()
         self.assertTrue(
-            container.__allow_access_to_unprotected_subobjects__("test2", u"foo2")
+            container.__allow_access_to_unprotected_subobjects__("test2", "foo2")
         )
         security_manager_mock.checkPermission.assert_called_with("View", container)
 
@@ -235,7 +219,7 @@ class TestAttributeProtection(MockTestCase):
         security_manager_mock.checkPermission = Mock(return_value=True)
         SCHEMA_CACHE.clear()
         self.assertTrue(
-            container.__allow_access_to_unprotected_subobjects__("test2", u"foo2")
+            container.__allow_access_to_unprotected_subobjects__("test2", "foo2")
         )
         security_manager_mock.checkPermission.assert_called_with("View", container)
 
@@ -243,56 +227,54 @@ class TestAttributeProtection(MockTestCase):
 
         # Mock schema model
         class ITestSchema(Interface):
-            test = zope.schema.TextLine(title=u"Test")
+            test = zope.schema.TextLine(title="Test")
 
         # Mock FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=ITestSchema)
         fti_mock.behaviors = ()
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         # Content item
         item = Item("test")
-        item.portal_type = u"testtype"
-        item.test = u"foo"
-        item.foo = u"bar"
+        item.portal_type = "testtype"
+        item.test = "foo"
+        item.foo = "bar"
 
         SCHEMA_CACHE.clear()
 
         # Everything allowed
-        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("test", u"foo"))
-        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("foo", u"bar"))
+        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("test", "foo"))
+        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("foo", "bar"))
 
         # Unknown attributes are allowed
         self.assertTrue(
-            item.__allow_access_to_unprotected_subobjects__("random", u"stuff")
+            item.__allow_access_to_unprotected_subobjects__("random", "stuff")
         )
 
     def test_no_read_permission(self):
 
         # Mock schema model
         class ITestSchema(Interface):
-            test = zope.schema.TextLine(title=u"Test")
+            test = zope.schema.TextLine(title="Test")
 
         ITestSchema.setTaggedValue(READ_PERMISSIONS_KEY, dict(foo="foo.View"))
 
         # Mock FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=ITestSchema)
         fti_mock.behaviors = ()
 
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         # Mock permissions
-        self.mock_utility(
-            Permission(u"foo.View", u"View foo"), IPermission, u"foo.View"
-        )
+        self.mock_utility(Permission("foo.View", "View foo"), IPermission, "foo.View")
 
         # Content item
         item = Item("test")
-        item.portal_type = u"testtype"
-        item.test = u"foo"
-        item.foo = u"bar"
+        item.portal_type = "testtype"
+        item.test = "foo"
+        item.foo = "bar"
 
         # Check permission
         security_manager_mock = Mock()
@@ -303,69 +285,69 @@ class TestAttributeProtection(MockTestCase):
 
         SCHEMA_CACHE.clear()
 
-        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("test", u"foo"))
-        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("foo", u"bar"))
+        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("test", "foo"))
+        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("foo", "bar"))
 
         # Unknown attributes are allowed
         self.assertTrue(
-            item.__allow_access_to_unprotected_subobjects__("random", u"stuff")
+            item.__allow_access_to_unprotected_subobjects__("random", "stuff")
         )
 
     def test_no_schema(self):
 
         # Mock FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=None)
         fti_mock.behaviors = ()
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         # Content item
         item = Item("test")
-        item.portal_type = u"testtype"
-        item.test = u"foo"
-        item.foo = u"bar"
+        item.portal_type = "testtype"
+        item.test = "foo"
+        item.foo = "bar"
 
         SCHEMA_CACHE.clear()
 
-        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("test", u"foo"))
-        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("foo", u"bar"))
+        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("test", "foo"))
+        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("foo", "bar"))
         self.assertTrue(
-            item.__allow_access_to_unprotected_subobjects__("random", u"stuff")
+            item.__allow_access_to_unprotected_subobjects__("random", "stuff")
         )
 
     def test_schema_exception(self):
 
         # Mock FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(side_effect=AttributeError)
         fti_mock.behaviors = ()
 
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         # Content item
         item = Item("test")
-        item.portal_type = u"testtype"
-        item.test = u"foo"
-        item.foo = u"bar"
+        item.portal_type = "testtype"
+        item.test = "foo"
+        item.foo = "bar"
 
         SCHEMA_CACHE.clear()
 
-        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("test", u"foo"))
-        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("foo", u"bar"))
+        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("test", "foo"))
+        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("foo", "bar"))
         self.assertTrue(
-            item.__allow_access_to_unprotected_subobjects__("random", u"stuff")
+            item.__allow_access_to_unprotected_subobjects__("random", "stuff")
         )
 
     def test_empty_name(self):
 
         # Mock FTI
-        fti_mock = DexterityFTI(u"testtype")
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        fti_mock = DexterityFTI("testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         # Content item
         item = Item("test")
-        item.portal_type = u"testtype"
+        item.portal_type = "testtype"
 
         SCHEMA_CACHE.clear()
 
-        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("", u"foo"))
+        self.assertTrue(item.__allow_access_to_unprotected_subobjects__("", "foo"))

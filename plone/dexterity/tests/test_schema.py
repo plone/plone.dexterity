@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .case import MockTestCase
 from plone.dexterity import schema
 from plone.dexterity.fti import DexterityFTI
@@ -9,16 +8,11 @@ from plone.dexterity.schema import invalidate_cache
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.supermodel.model import Model
 from Products.CMFCore.interfaces import ISiteRoot
+from unittest.mock import Mock
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
 import zope.schema
-
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from mock import Mock
 
 
 class TestSchemaModuleFactory(MockTestCase):
@@ -40,14 +34,14 @@ class TestSchemaModuleFactory(MockTestCase):
 
         # Mock schema model
         class IDummy(Interface):
-            dummy = zope.schema.TextLine(title=u"Dummy")
+            dummy = zope.schema.TextLine(title="Dummy")
 
-        mock_model = Model({u"": IDummy})
+        mock_model = Model({"": IDummy})
 
         # Mock FTI
         fti_mock = Mock(spec=DexterityFTI)
         fti_mock.lookupModel = Mock(return_value=mock_model)
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         factory = schema.SchemaModuleFactory()
 
@@ -65,22 +59,22 @@ class TestSchemaModuleFactory(MockTestCase):
 
         # Mock schema model
         class IDummy(Interface):
-            dummy = zope.schema.TextLine(title=u"Dummy")
+            dummy = zope.schema.TextLine(title="Dummy")
 
         class INamedDummy(Interface):
-            named = zope.schema.TextLine(title=u"Named")
+            named = zope.schema.TextLine(title="Named")
 
-        mock_model = Model({u"": IDummy, u"named": INamedDummy})
+        mock_model = Model({"": IDummy, "named": INamedDummy})
 
         # Mock FTI
         fti_mock = Mock(spec=DexterityFTI)
         fti_mock.lookupModel = Mock(return_value=mock_model)
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         factory = schema.SchemaModuleFactory()
 
         schemaName = schema.portalTypeToSchemaName(
-            "testtype", schema=u"named", prefix="site"
+            "testtype", schema="named", prefix="site"
         )
         klass = factory(schemaName, schema.generated)
 
@@ -122,13 +116,13 @@ class TestSchemaModuleFactory(MockTestCase):
         # Now register a mock FTI and try again
 
         class IDummy(Interface):
-            dummy = zope.schema.TextLine(title=u"Dummy")
+            dummy = zope.schema.TextLine(title="Dummy")
 
-        mock_model = Model({u"": IDummy})
+        mock_model = Model({"": IDummy})
 
         fti_mock = Mock(spec=DexterityFTI)
         fti_mock.lookupModel = Mock(return_value=mock_model)
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         klass = factory(schemaName, schema.generated)
 
@@ -197,7 +191,7 @@ class TestSchemaModuleFactory(MockTestCase):
         )
 
     def test_invalidate_cache(self):
-        portal_type = u"testtype"
+        portal_type = "testtype"
         fti = DexterityFTI(portal_type)
         SCHEMA_CACHE.get(portal_type)
         SCHEMA_CACHE.behavior_schema_interfaces(fti)

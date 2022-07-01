@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from Acquisition.interfaces import IAcquirer
@@ -37,10 +36,10 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
 
     portal_type = None
     immediate_view = None
-    success_message = _(u"Item created")
+    success_message = _("Item created")
 
     def __init__(self, context, request, ti=None):
-        super(DefaultAddForm, self).__init__(context, request)
+        super().__init__(context, request)
         if ti is not None:
             self.ti = ti
             self.portal_type = ti.getId()
@@ -119,10 +118,10 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
             self._finishedAdd = True
             IStatusMessage(self.request).addStatusMessage(self.success_message, "info")
 
-    @button.buttonAndHandler(_(u"Cancel"), name="cancel")
+    @button.buttonAndHandler(_("Cancel"), name="cancel")
     def handleCancel(self, action):
         IStatusMessage(self.request).addStatusMessage(
-            _(u"Add New Item operation cancelled"), "info"
+            _("Add New Item operation cancelled"), "info"
         )
         self.request.response.redirect(self.nextURL())
         notify(AddCancelledEvent(self.context))
@@ -135,25 +134,25 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
                     "Subobject type disallowed by IConstrainTypes adapter: %s"
                     % self.portal_type
                 )
-        super(DefaultAddForm, self).update()
+        super().update()
         # fire the edit begun only if no action was executed
         if len(self.actions.executedActions) == 0:
             notify(AddBegunEvent(self.context))
 
     def updateActions(self):
-        super(DefaultAddForm, self).updateActions()
+        super().updateActions()
         if "save" in self.actions:
-            self.actions["save"].addClass("context")
+            self.actions["save"].addClass("success")
 
         if "cancel" in self.actions:
-            self.actions["cancel"].addClass("standalone")
+            self.actions["cancel"].addClass("secondary")
 
     @property
     def label(self):
         portal_type = self.portal_type
         fti = getUtility(IDexterityFTI, name=portal_type)
         type_name = fti.Title()
-        return _(u"Add ${name}", mapping={"name": type_name})
+        return _("Add ${name}", mapping={"name": type_name})
 
 
 class DefaultAddView(layout.FormWrapper, BrowserPage):
@@ -168,7 +167,7 @@ class DefaultAddView(layout.FormWrapper, BrowserPage):
     form = DefaultAddForm
 
     def __init__(self, context, request, ti):
-        super(DefaultAddView, self).__init__(context, request)
+        super().__init__(context, request)
         self.ti = ti
 
         # Set portal_type name on newly created form instance

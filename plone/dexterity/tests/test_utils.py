@@ -1,13 +1,7 @@
-# -*- coding: utf-8 -*-
 from .case import MockTestCase
 from plone.dexterity import utils
 from plone.dexterity.fti import DexterityFTI
-
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from mock import Mock
+from unittest.mock import Mock
 
 
 class TestUtils(MockTestCase):
@@ -25,7 +19,7 @@ class TestUtils(MockTestCase):
             pass
 
         behavior_mock = Mock()
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
 
         portal_type = "prefix_0_type_0_schema"
         behavior_name = "behavior_0"
@@ -54,7 +48,7 @@ class TestUtils(MockTestCase):
         from plone.dexterity.content import Item
 
         container = Container()
-        container._ordering = u"unordered"
+        container._ordering = "unordered"
         # Allow anyone to access the contents information on the container.
         # This allows to check for existing content with the same id.
         container.manage_permission(
