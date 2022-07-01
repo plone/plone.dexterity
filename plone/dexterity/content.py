@@ -10,6 +10,7 @@ from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import PathReprProvider
 from OFS.SimpleItem import SimpleItem
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
+from plone.base.interfaces import IConstrainTypes
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.filerepresentation import DAVCollectionMixin
 from plone.dexterity.filerepresentation import DAVResourceMixin
@@ -33,7 +34,6 @@ from Products.CMFCore.interfaces import ITypeInformation
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.PortalFolder import PortalFolderBase
 from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
-from Products.CMFPlone.interfaces import IConstrainTypes
 from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
 from zope.component import queryUtility

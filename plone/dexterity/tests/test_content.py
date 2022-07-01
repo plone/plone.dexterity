@@ -3,6 +3,7 @@ from datetime import date
 from datetime import datetime
 from DateTime import DateTime
 from plone.autoform.interfaces import IFormFieldProvider
+from plone.base.interfaces import IConstrainTypes
 from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.behavior.registration import BehaviorRegistration
@@ -16,7 +17,6 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
 from Products.CMFCore.interfaces import ITypesTool
-from Products.CMFPlone.interfaces import IConstrainTypes
 from pytz import timezone
 from unittest.mock import Mock
 from unittest.mock import patch
