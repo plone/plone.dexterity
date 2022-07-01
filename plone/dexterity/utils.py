@@ -23,7 +23,6 @@ from zope.lifecycleevent import ObjectCreatedEvent
 
 import datetime
 import logging
-import six
 
 
 deprecation.deprecated("SchemaNameEncoder", "moved to plone.dexterity.schema")

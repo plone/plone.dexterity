@@ -68,7 +68,6 @@ setup(
         "Products.CMFDynamicViewFTI",
         "Products.statusmessages",
         "setuptools",
-        "six",
         "zope.annotation",
         "zope.browser",
         "zope.component",
@@ -85,10 +84,5 @@ setup(
         "zope.size",
         "Zope",
     ],
-    extras_require={
-        "test": ["plone.testing", "Products.CMFPlone", "mock;python_version<'3'"]
-    },
-    entry_points="""
-    # -*- Entry points: -*-
-    """,
+    extras_require={"test": ["plone.testing", "Products.CMFPlone"]},
 )

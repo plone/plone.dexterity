@@ -1,15 +1,10 @@
+from unittest.mock import Mock
+
 import gc
-import six
 import unittest
 import zope.component
 import zope.component.testing
 import zope.globalrequest
-
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from unittest.mock import Mock
 
 
 class MockTestCase(unittest.TestCase):

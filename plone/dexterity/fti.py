@@ -26,24 +26,10 @@ from zope.security.interfaces import IPermission
 import logging
 import os.path
 import plone.dexterity.schema
-import six
 
 
 def get_suffix(fti):
     mtime = getattr(fti, "_p_mtime", None)
-    # Python 2 rounds floats when we use the str function on them.
-
-    # Python 2:
-    # >>> str(1637689348.9999528)
-    # '1637689349.0'
-
-    # Python 3:
-    # >>> str(1637689348.9999528)
-    # '1637689348.9999528'
-
-    # This was causing the schema names in Python 2 to take an unexpected format,
-    # causing errors.
-    # So, we need to use the repr function, which doesn't round floats.
     if mtime:
         return repr(mtime)
     return ""
@@ -215,20 +201,12 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     def Title(self):
         if self.title and self.i18n_domain:
             return Message(self.title, self.i18n_domain)
-        else:
-            if six.PY2:
-                if self.title:
-                    return self.title.decode("utf8")
-                return self.getId()
-            return self.title or self.getId()
+        return self.title or self.getId()
 
     def Description(self):
         if self.description and self.i18n_domain:
             return Message(self.description, self.i18n_domain)
-        else:
-            if six.PY2 and self.description:
-                return self.description.decode("utf8")
-            return self.description
+        return self.description
 
     def Metatype(self):
         if self.content_meta_type:

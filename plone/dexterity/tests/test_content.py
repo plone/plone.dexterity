@@ -18,6 +18,8 @@ from plone.folder.default import DefaultOrdering
 from Products.CMFCore.interfaces import ITypesTool
 from Products.CMFPlone.interfaces import IConstrainTypes
 from pytz import timezone
+from unittest.mock import Mock
+from unittest.mock import patch
 from zope.annotation.attribute import AttributeAnnotations
 from zope.component import getUtility
 from zope.component import provideAdapter
@@ -26,19 +28,7 @@ from zope.interface import alsoProvides
 from zope.interface import Interface
 from zope.publisher.browser import TestRequest
 
-import six
 import zope.schema
-
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from unittest.mock import Mock
-
-try:
-    from unittest.mock import patch
-except ImportError:
-    from unittest.mock import patch
 
 
 class TestContent(MockTestCase):

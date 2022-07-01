@@ -5,6 +5,7 @@ from plone.dexterity.content import Item
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
+from unittest.mock import Mock
 from zope.globalrequest import setRequest
 from zope.interface import Interface
 from zope.interface import provider
@@ -13,12 +14,6 @@ from zope.security.interfaces import IPermission
 from zope.security.permission import Permission
 
 import zope.schema
-
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from unittest.mock import Mock
 
 
 class TestAttributeProtection(MockTestCase):

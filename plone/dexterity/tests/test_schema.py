@@ -8,16 +8,11 @@ from plone.dexterity.schema import invalidate_cache
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.supermodel.model import Model
 from Products.CMFCore.interfaces import ISiteRoot
+from unittest.mock import Mock
 from zope.interface import Interface
 from zope.interface.interface import InterfaceClass
 
 import zope.schema
-
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from unittest.mock import Mock
 
 
 class TestSchemaModuleFactory(MockTestCase):

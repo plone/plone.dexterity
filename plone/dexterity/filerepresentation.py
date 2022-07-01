@@ -32,7 +32,6 @@ from zope.schema import getFieldsInOrder
 from zope.size.interfaces import ISized
 from ZPublisher.Iterators import IStreamIterator
 
-import six
 import tempfile
 
 

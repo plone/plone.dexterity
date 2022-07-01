@@ -6,6 +6,7 @@ if HAS_WEBDAV:
 
     from .case import ItemDummy
     from email.message import Message
+    from io import StringIO
     from OFS.Folder import Folder
     from OFS.SimpleItem import SimpleItem
     from plone.autoform.interfaces import IFormFieldProvider
@@ -23,7 +24,7 @@ if HAS_WEBDAV:
     from plone.dexterity.interfaces import IDexterityFTI
     from plone.dexterity.schema import SCHEMA_CACHE
     from plone.rfc822.interfaces import IPrimaryField
-    from six import StringIO
+    from unittest.mock import Mock
     from webdav.NullResource import NullResource
     from zExceptions import Forbidden
     from zExceptions import MethodNotAllowed
@@ -45,12 +46,6 @@ if HAS_WEBDAV:
     from ZPublisher.Iterators import IStreamIterator
 
     import re
-    import six
-
-    try:
-        from unittest.mock import Mock
-    except ImportError:
-        from unittest.mock import Mock
 
     XML_PROLOG = b'<?xml version="1.0" encoding="utf-8" ?>'
 

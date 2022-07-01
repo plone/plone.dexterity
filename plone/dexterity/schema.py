@@ -23,7 +23,6 @@ from zope.interface.interface import InterfaceClass
 
 import functools
 import logging
-import six
 import types
 import warnings
 

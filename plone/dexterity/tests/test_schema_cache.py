@@ -2,20 +2,11 @@ from .case import MockTestCase
 from plone.dexterity.fti import DexterityFTI
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
+from unittest.mock import Mock
+from unittest.mock import patch
 from zope.globalrequest import setRequest
 from zope.interface import Interface
 from zope.publisher.browser import TestRequest
-
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from unittest.mock import Mock
-
-try:
-    from unittest.mock import patch
-except ImportError:
-    from unittest.mock import patch
 
 
 class TestSchemaCache(MockTestCase):

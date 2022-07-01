@@ -12,6 +12,7 @@ from plone.dexterity.schema import portalTypeToSchemaName
 from plone.dexterity.tests.schemata import ITestSchema
 from plone.supermodel.model import Model
 from Products.CMFCore.interfaces import ISiteRoot
+from unittest.mock import Mock
 from zope.component import getGlobalSiteManager
 from zope.component import queryUtility
 from zope.component.hooks import setHooks
@@ -29,12 +30,6 @@ from zope.security.interfaces import IPermission
 import os.path
 import plone.dexterity.schema.generated
 import zope.schema
-
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from unittest.mock import Mock
 
 
 class TestClass:
