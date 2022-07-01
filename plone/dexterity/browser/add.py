@@ -142,10 +142,10 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     def updateActions(self):
         super().updateActions()
         if "save" in self.actions:
-            self.actions["save"].addClass("context")
+            self.actions["save"].addClass("success")
 
         if "cancel" in self.actions:
-            self.actions["cancel"].addClass("standalone")
+            self.actions["cancel"].addClass("secondary")
 
     @property
     def label(self):
