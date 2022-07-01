@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .case import HAS_WEBDAV
+from plone.dexterity.bbb import HAS_WEBDAV
 from .case import MockTestCase
 
 

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from plone.dexterity.bbb import HAS_WEBDAV
-
 import gc
 import six
 import unittest

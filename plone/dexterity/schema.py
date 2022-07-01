@@ -16,7 +16,6 @@ from zope.component import adapter
 from zope.component import getAllUtilitiesRegisteredFor
 from zope.component import getUtility
 from zope.component import queryUtility
-from zope.component.hooks import getSite
 from zope.dottedname.resolve import resolve
 from zope.globalrequest import getRequest
 from zope.interface import alsoProvides
