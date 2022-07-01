@@ -8,6 +8,7 @@ import zope.component
 import zope.component.testing
 import zope.globalrequest
 
+
 try:
     from unittest.mock import Mock
 except ImportError:
@@ -38,11 +39,11 @@ class MockTestCase(unittest.TestCase):
     # Help register mock components. The tear-down method will
     # wipe the registry each time.
 
-    def mock_utility(self, mock, provides, name=u""):
+    def mock_utility(self, mock, provides, name=""):
         """Register the mock as a utility providing the given interface"""
         zope.component.provideUtility(provides=provides, component=mock, name=name)
 
-    def mock_adapter(self, mock, provides, adapts, name=u""):
+    def mock_adapter(self, mock, provides, adapts, name=""):
         """Register the mock as an adapter providing the given interface
         and adapting the given interface(s)
         """

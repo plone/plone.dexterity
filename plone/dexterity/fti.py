@@ -158,9 +158,9 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     <schema />
 </model>
 """
-    model_file = u""
-    schema = u""
-    schema_policy = u"dexterity"
+    model_file = ""
+    schema = ""
+    schema_policy = "dexterity"
 
     def __init__(self, *args, **kwargs):
         super(DexterityFTI, self).__init__(*args, **kwargs)
@@ -265,7 +265,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
                 schema = utils.resolveDottedName(self.schema)
             except ImportError:
                 logging.warning(
-                    u"Dexterity type FTI %s: schema dotted name [%s] cannot be resolved."
+                    "Dexterity type FTI %s: schema dotted name [%s] cannot be resolved."
                     % (self.getId(), self.schema)
                 )
                 # fall through to return a fake class with no
@@ -291,7 +291,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
         elif self.schema:
             schema = self.lookupSchema()
-            return Model({u"": schema})
+            return Model({"": schema})
 
         raise ValueError(
             "Neither model source, nor model file, nor schema is specified in "
@@ -363,8 +363,8 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         else:
             if not os.path.isabs(model_file):
                 raise ValueError(
-                    u"Model file name %s is not an absolute path and does "
-                    u"not contain a package name in %s"
+                    "Model file name %s is not an absolute path and does "
+                    "not contain a package name in %s"
                     % (
                         model_file,
                         self.getId(),
@@ -373,7 +373,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
         if not os.path.isfile(model_file):
             raise ValueError(
-                u"Model file %s in %s cannot be found"
+                "Model file %s in %s cannot be found"
                 % (
                     model_file,
                     self.getId(),

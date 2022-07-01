@@ -37,7 +37,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
 
     portal_type = None
     immediate_view = None
-    success_message = _(u"Item created")
+    success_message = _("Item created")
 
     def __init__(self, context, request, ti=None):
         super(DefaultAddForm, self).__init__(context, request)
@@ -119,10 +119,10 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
             self._finishedAdd = True
             IStatusMessage(self.request).addStatusMessage(self.success_message, "info")
 
-    @button.buttonAndHandler(_(u"Cancel"), name="cancel")
+    @button.buttonAndHandler(_("Cancel"), name="cancel")
     def handleCancel(self, action):
         IStatusMessage(self.request).addStatusMessage(
-            _(u"Add New Item operation cancelled"), "info"
+            _("Add New Item operation cancelled"), "info"
         )
         self.request.response.redirect(self.nextURL())
         notify(AddCancelledEvent(self.context))
@@ -153,7 +153,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         portal_type = self.portal_type
         fti = getUtility(IDexterityFTI, name=portal_type)
         type_name = fti.Title()
-        return _(u"Add ${name}", mapping={"name": type_name})
+        return _("Add ${name}", mapping={"name": type_name})
 
 
 class DefaultAddView(layout.FormWrapper, BrowserPage):

@@ -19,9 +19,9 @@ from zope.interface import classImplements
 
 class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
 
-    success_message = _(u"Changes saved")
+    success_message = _("Changes saved")
 
-    @button.buttonAndHandler(_(u"Save"), name="save")
+    @button.buttonAndHandler(_("Save"), name="save")
     def handleApply(self, action):
         data, errors = self.extractData()
         if errors:
@@ -32,9 +32,9 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
         self.request.response.redirect(self.nextURL())
         notify(EditFinishedEvent(self.context))
 
-    @button.buttonAndHandler(_(u"Cancel"), name="cancel")
+    @button.buttonAndHandler(_("Cancel"), name="cancel")
     def handleCancel(self, action):
-        IStatusMessage(self.request).addStatusMessage(_(u"Edit cancelled"), "info")
+        IStatusMessage(self.request).addStatusMessage(_("Edit cancelled"), "info")
         self.request.response.redirect(self.nextURL())
         notify(EditCancelledEvent(self.context))
 
@@ -74,7 +74,7 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
     @property
     def label(self):
         type_name = self.fti.Title()
-        return _(u"Edit ${name}", mapping={"name": type_name})
+        return _("Edit ${name}", mapping={"name": type_name})
 
 
 DefaultEditView = layout.wrap_form(DefaultEditForm)

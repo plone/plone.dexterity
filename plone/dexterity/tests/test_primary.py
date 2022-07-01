@@ -24,14 +24,14 @@ class PrimaryFieldInfoTestCase(MockTestCase):
 
         alsoProvides(ITest["body"], IPrimaryField)
 
-        fti = DexterityFTI(u"testtype")
+        fti = DexterityFTI("testtype")
         fti.lookupSchema = Mock(return_value=ITest)
         fti.behaviors = []
-        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti, IDexterityFTI, name="testtype")
 
         item = Item("item")
         item.portal_type = "testtype"
-        item.body = u"body text"
+        item.body = "body text"
 
         info = PrimaryFieldInfo(item)
         assert info.fieldname == "body"

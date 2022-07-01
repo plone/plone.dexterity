@@ -321,7 +321,7 @@ class SchemaNameEncoder(object):
         return [self.decode(a) for a in s.split("_0_")]
 
 
-def portalTypeToSchemaName(portal_type, schema=u"", prefix=None, suffix=None):
+def portalTypeToSchemaName(portal_type, schema="", prefix=None, suffix=None):
     """Return a canonical interface name for a generated schema interface."""
     if prefix is None:
         siteroot = None
@@ -350,7 +350,7 @@ def splitSchemaName(schemaName):
     encoder = SchemaNameEncoder()
     items = encoder.split(schemaName)
     if len(items) == 2:
-        return items[0], items[1], u""
+        return items[0], items[1], ""
     elif len(items) == 3:
         return items[0], items[1], items[2]
     else:

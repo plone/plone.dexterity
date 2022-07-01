@@ -553,8 +553,8 @@ if HAS_WEBDAV:
 
             result = response.getBody()
             result = re.sub(
-                br"<n:getlastmodified>.+</n:getlastmodified>",
-                br"<n:getlastmodified>...</n:getlastmodified>",
+                rb"<n:getlastmodified>.+</n:getlastmodified>",
+                rb"<n:getlastmodified>...</n:getlastmodified>",
                 result,
             )
             self.assertEqual(result.strip(), body.strip())
@@ -887,7 +887,7 @@ The operation succeded.
             def factory(*args, **kwargs):
                 return result_dummy
 
-            self.mock_utility(factory, IFactory, name=u"childtype-factory")
+            self.mock_utility(factory, IFactory, name="childtype-factory")
 
             factory = DefaultFileFactory(container_mock)
 
@@ -915,7 +915,7 @@ The operation succeded.
             def factory(*args, **kwargs):
                 return Item(*args, **kwargs)
 
-            self.mock_utility(factory, IFactory, name=u"childtype-factory")
+            self.mock_utility(factory, IFactory, name="childtype-factory")
 
             factory = DefaultFileFactory(container_mock)
 
@@ -928,11 +928,11 @@ The operation succeded.
                 pass
 
             SCHEMA_CACHE.clear()
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
             fti_mock.behaviors = []
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
             item = Item("item")
             item.portal_type = "testtype"
@@ -946,11 +946,11 @@ The operation succeded.
                 title = schema.TextLine()
 
             SCHEMA_CACHE.clear()
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
             fti_mock.behaviors = []
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
             item = Item("item")
             item.portal_type = "testtype"
@@ -967,11 +967,11 @@ The operation succeded.
             alsoProvides(ITest["body"], IPrimaryField)
 
             SCHEMA_CACHE.clear()
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
             fti_mock.behaviors = []
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
             item = Item("item")
             item.portal_type = "testtype"
@@ -990,10 +990,10 @@ The operation succeded.
             alsoProvides(ITest["stuff"], IPrimaryField)
 
             SCHEMA_CACHE.clear()
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
             item = Item("item")
             item.portal_type = "testtype"
 
@@ -1029,11 +1029,11 @@ The operation succeded.
                     yield MockBehavior(ITestAdditional)
 
             SCHEMA_CACHE.clear()
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
 
             self.mock_adapter(MockBehaviorAssignable, IBehaviorAssignable, (Item,))
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
             item = Item("item")
             item.portal_type = "testtype"
 
@@ -1048,11 +1048,11 @@ The operation succeded.
 
             alsoProvides(ITest["body"], IPrimaryField)
 
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
             fti_mock.behaviors = [ITestBehavior.__identifier__]
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
             item = Item("item")
             item.portal_type = "testtype"
@@ -1119,18 +1119,18 @@ Portal-Type: testtype
 
             alsoProvides(ITest["body"], IPrimaryField)
 
-            fti_mock = DexterityFTI(u"testtype")
+            fti_mock = DexterityFTI("testtype")
             fti_mock.lookupSchema = Mock(return_value=ITest)
             fti_mock.behaviors = [ITestBehavior.__identifier__]
 
-            self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+            self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
             item = Item("item")
             item.portal_type = "testtype"
-            item.title = u"Test title"
+            item.title = "Test title"
             item.foo = 10
             item.bar = "xyz"
-            item.body = u"<p>body</p>"
+            item.body = "<p>body</p>"
 
             writefile = DefaultWriteFile(item)
 
@@ -1300,7 +1300,6 @@ Portal-Type: testtype
                 ),
                 traversal.browserDefault(request),
             )
-
 
 else:
 

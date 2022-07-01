@@ -27,7 +27,7 @@ class TestBehavior(MockTestCase):
     def test_supports(self):
 
         # Context mock
-        context_dummy = self.create_dummy(portal_type=u"testtype")
+        context_dummy = self.create_dummy(portal_type="testtype")
 
         # Behavior mock
         behavior_dummy_1 = self.create_dummy(interface=IOne)
@@ -36,9 +36,9 @@ class TestBehavior(MockTestCase):
         self.mock_utility(behavior_dummy_4, IBehavior, name=IFour.__identifier__)
 
         # FTI mock
-        fti = DexterityFTI(u"testtype")
+        fti = DexterityFTI("testtype")
         fti.behaviors = [IOne.__identifier__, IFour.__identifier__]
-        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti, IDexterityFTI, name="testtype")
 
         assignable = DexterityBehaviorAssignable(context_dummy)
 
@@ -50,16 +50,16 @@ class TestBehavior(MockTestCase):
     def test_enumerate(self):
 
         # Context mock
-        context_dummy = self.create_dummy(portal_type=u"testtype")
+        context_dummy = self.create_dummy(portal_type="testtype")
 
         # Behavior mock
         behavior_dummy = self.create_dummy()
         self.mock_utility(behavior_dummy, IBehavior, name=IOne.__identifier__)
 
         # FTI mock
-        fti = DexterityFTI(u"testtype")
+        fti = DexterityFTI("testtype")
         fti.behaviors = [IOne.__identifier__]
-        self.mock_utility(fti, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti, IDexterityFTI, name="testtype")
 
         assignable = DexterityBehaviorAssignable(context_dummy)
 

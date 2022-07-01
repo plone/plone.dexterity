@@ -314,8 +314,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     # portal_type is set by the add view and/or factory
     portal_type = None
 
-    title = u""
-    description = u""
+    title = ""
+    description = ""
     subject = ()
     creators = ()
     contributors = ()

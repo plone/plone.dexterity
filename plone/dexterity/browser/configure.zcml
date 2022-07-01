@@ -1,88 +1,89 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
-    i18n_domain="plone">
+    i18n_domain="plone"
+    >
 
-    <!-- Standard view -->
-    <browser:page
-        for="..interfaces.IDexterityContent"
-        name="view"
-        class=".view.DefaultView"
-        template="item.pt"
-        permission="zope2.View"
-        />
+  <!-- Standard view -->
+  <browser:page
+      name="view"
+      for="..interfaces.IDexterityContent"
+      class=".view.DefaultView"
+      template="item.pt"
+      permission="zope2.View"
+      />
 
-    <!-- Content core views -->
-    <!-- Note: the templaces are the same since the changes for
+  <!-- Content core views -->
+  <!-- Note: the templaces are the same since the changes for
          https://github.com/plone/Products.CMFPlone/issues/3177
          That may be okay: makes it easier to customize
          only the template for items or for containers. -->
-    <browser:page
-        for="..interfaces.IDexterityItem"
-        name="content-core"
-        class=".view.DefaultView"
-        template="itemcontentcore.pt"
-        permission="zope2.View"
+  <browser:page
+      name="content-core"
+      for="..interfaces.IDexterityItem"
+      class=".view.DefaultView"
+      template="itemcontentcore.pt"
+      permission="zope2.View"
+      />
+
+  <browser:page
+      name="content-core"
+      for="..interfaces.IDexterityContainer"
+      class=".view.DefaultView"
+      template="containercontentcore.pt"
+      permission="zope2.View"
+      />
+
+  <!-- Standard IPublishTraverse adapter -->
+  <adapter factory=".traversal.DexterityPublishTraverse" />
+
+  <!-- Standard add view and form - invoked from ++add++ traverser -->
+  <adapter
+      factory=".add.DefaultAddView"
+      provides="zope.publisher.interfaces.browser.IBrowserPage"
+      for="Products.CMFCore.interfaces.IFolderish
+           zope.publisher.interfaces.browser.IDefaultBrowserLayer
+           ..interfaces.IDexterityFTI"
+      />
+  <class class=".add.DefaultAddView">
+    <require
+        permission="cmf.AddPortalContent"
+        interface="zope.publisher.interfaces.browser.IBrowserPage"
         />
+  </class>
 
-    <browser:page
-        for="..interfaces.IDexterityContainer"
-        name="content-core"
-        class=".view.DefaultView"
-        template="containercontentcore.pt"
-        permission="zope2.View"
-        />
+  <!-- Standard edit view -->
+  <browser:page
+      name="edit"
+      for="..interfaces.IDexterityContent"
+      class=".edit.DefaultEditView"
+      permission="cmf.ModifyPortalContent"
+      />
 
-    <!-- Standard IPublishTraverse adapter -->
-    <adapter factory=".traversal.DexterityPublishTraverse" />
+  <!-- FTI add form -->
+  <browser:page
+      name="plone.dexterity.fti"
+      for="zope.browser.interfaces.IAdding"
+      class=".fti.FTIAddView"
+      template="fti.pt"
+      permission="cmf.ManagePortal"
+      />
 
-    <!-- Standard add view and form - invoked from ++add++ traverser -->
-    <adapter
-        for="Products.CMFCore.interfaces.IFolderish
-             zope.publisher.interfaces.browser.IDefaultBrowserLayer
-             ..interfaces.IDexterityFTI"
-        provides="zope.publisher.interfaces.browser.IBrowserPage"
-        factory=".add.DefaultAddView"
-        />
-    <class class=".add.DefaultAddView">
-        <require
-            permission="cmf.AddPortalContent"
-            interface="zope.publisher.interfaces.browser.IBrowserPage"
-            />
-    </class>
+  <!-- Resources for icons -->
 
-    <!-- Standard edit view -->
-    <browser:page
-        for="..interfaces.IDexterityContent"
-        name="edit"
-        class=".edit.DefaultEditView"
-        permission="cmf.ModifyPortalContent"
-        />
+  <browser:resource
+      name="plone.dexterity.item.gif"
+      file="icons/item_icon.gif"
+      />
 
-    <!-- FTI add form -->
-    <browser:page
-        for="zope.browser.interfaces.IAdding"
-        name="plone.dexterity.fti"
-        template="fti.pt"
-        class=".fti.FTIAddView"
-        permission="cmf.ManagePortal"
-        />
+  <browser:resource
+      name="plone.dexterity.container.gif"
+      file="icons/container_icon.gif"
+      />
 
-    <!-- Resources for icons -->
-
-    <browser:resource
-        name="plone.dexterity.item.gif"
-        file="icons/item_icon.gif"
-        />
-
-    <browser:resource
-        name="plone.dexterity.container.gif"
-        file="icons/container_icon.gif"
-        />
-
-    <browser:resource
-        name="plone.dexterity.fti.gif"
-        file="icons/typeinfo.gif"
-        />
+  <browser:resource
+      name="plone.dexterity.fti.gif"
+      file="icons/typeinfo.gif"
+      />
 
 </configure>
