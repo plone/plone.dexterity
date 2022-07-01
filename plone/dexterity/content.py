@@ -826,9 +826,7 @@ class Container(
                     % type_name
                 )
 
-        return super().invokeFactory(
-            type_name, id, RESPONSE, *args, **kw
-        )
+        return super().invokeFactory(type_name, id, RESPONSE, *args, **kw)
 
 
 def reindexOnModify(content, event):

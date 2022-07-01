@@ -47,9 +47,7 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         ):
             return FolderDataResource(DAV_FOLDER_DATA_ID, context).__of__(context)
 
-        defaultTraversal = super().publishTraverse(
-            request, name
-        )
+        defaultTraversal = super().publishTraverse(request, name)
 
         # If this is a WebDAV PUT/PROPFIND/PROPPATCH request, don't acquire
         # things. If we did, we couldn't create a new object with PUT, for

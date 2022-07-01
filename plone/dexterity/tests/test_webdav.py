@@ -1,5 +1,5 @@
-from plone.dexterity.bbb import HAS_WEBDAV
 from .case import MockTestCase
+from plone.dexterity.bbb import HAS_WEBDAV
 
 
 if HAS_WEBDAV:
