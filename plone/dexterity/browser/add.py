@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from Acquisition.interfaces import IAcquirer
@@ -40,7 +39,7 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
     success_message = _("Item created")
 
     def __init__(self, context, request, ti=None):
-        super(DefaultAddForm, self).__init__(context, request)
+        super().__init__(context, request)
         if ti is not None:
             self.ti = ti
             self.portal_type = ti.getId()
@@ -135,13 +134,13 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
                     "Subobject type disallowed by IConstrainTypes adapter: %s"
                     % self.portal_type
                 )
-        super(DefaultAddForm, self).update()
+        super().update()
         # fire the edit begun only if no action was executed
         if len(self.actions.executedActions) == 0:
             notify(AddBegunEvent(self.context))
 
     def updateActions(self):
-        super(DefaultAddForm, self).updateActions()
+        super().updateActions()
         if "save" in self.actions:
             self.actions["save"].addClass("context")
 
@@ -168,7 +167,7 @@ class DefaultAddView(layout.FormWrapper, BrowserPage):
     form = DefaultAddForm
 
     def __init__(self, context, request, ti):
-        super(DefaultAddView, self).__init__(context, request)
+        super().__init__(context, request)
         self.ti = ti
 
         # Set portal_type name on newly created form instance

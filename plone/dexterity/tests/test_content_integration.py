@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from plone.testing.zca import UNIT_TESTING
 
 import unittest

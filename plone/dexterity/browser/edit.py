@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from plone.dexterity.browser.base import DexterityExtensibleForm
 from plone.dexterity.events import EditBegunEvent
 from plone.dexterity.events import EditCancelledEvent
@@ -51,14 +50,14 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
 
     def update(self):
         self.portal_type = self.context.portal_type
-        super(DefaultEditForm, self).update()
+        super().update()
 
         # fire the edit begun only if no action was executed
         if len(self.actions.executedActions) == 0:
             notify(EditBegunEvent(self.context))
 
     def updateActions(self):
-        super(DefaultEditForm, self).updateActions()
+        super().updateActions()
 
         if "save" in self.actions:
             self.actions["save"].addClass("context")

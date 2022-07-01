@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .case import MockTestCase
 from plone.dexterity import utils
 from plone.dexterity.fti import DexterityFTI
@@ -7,7 +6,7 @@ from plone.dexterity.fti import DexterityFTI
 try:
     from unittest.mock import Mock
 except ImportError:
-    from mock import Mock
+    from unittest.mock import Mock
 
 
 class TestUtils(MockTestCase):

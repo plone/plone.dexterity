@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .case import MockTestCase
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
 from plone.dexterity.content import Container
@@ -19,7 +18,7 @@ import zope.schema
 try:
     from unittest.mock import Mock
 except ImportError:
-    from mock import Mock
+    from unittest.mock import Mock
 
 
 class TestAttributeProtection(MockTestCase):

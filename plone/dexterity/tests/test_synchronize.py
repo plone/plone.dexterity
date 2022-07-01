@@ -4,7 +4,7 @@ from threading import Lock
 import unittest
 
 
-class StupidStack(object):
+class StupidStack:
 
     _elements = []  # not thread safe
     _lock = Lock()

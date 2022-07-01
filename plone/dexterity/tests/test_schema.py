@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .case import MockTestCase
 from plone.dexterity import schema
 from plone.dexterity.fti import DexterityFTI
@@ -18,7 +17,7 @@ import zope.schema
 try:
     from unittest.mock import Mock
 except ImportError:
-    from mock import Mock
+    from unittest.mock import Mock
 
 
 class TestSchemaModuleFactory(MockTestCase):

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .case import MockTestCase
 from datetime import date
 from datetime import datetime
@@ -34,12 +33,12 @@ import zope.schema
 try:
     from unittest.mock import Mock
 except ImportError:
-    from mock import Mock
+    from unittest.mock import Mock
 
 try:
     from unittest.mock import patch
 except ImportError:
-    from mock import patch
+    from unittest.mock import patch
 
 
 class TestContent(MockTestCase):
@@ -50,7 +49,7 @@ class TestContent(MockTestCase):
         provideAdapter(AttributeAnnotations)
 
     def test_provided_by_item(self):
-        class FauxDataManager(object):
+        class FauxDataManager:
             def setstate(self, obj):
                 pass
 
@@ -106,7 +105,7 @@ class TestContent(MockTestCase):
         class MyItem(Item):
             pass
 
-        class FauxDataManager(object):
+        class FauxDataManager:
             def setstate(self, obj):
                 pass
 
@@ -211,7 +210,7 @@ class TestContent(MockTestCase):
             pass
 
         # Fake data manager
-        class FauxDataManager(object):
+        class FauxDataManager:
             def setstate(self, obj):
                 pass
 
@@ -304,7 +303,7 @@ class TestContent(MockTestCase):
             pass
 
         # Fake data manager
-        class FauxDataManager(object):
+        class FauxDataManager:
             def setstate(self, obj):
                 pass
 
@@ -461,7 +460,7 @@ class TestContent(MockTestCase):
 
         @provider(IContextAwareDefaultFactory)
         def defaultFactory(context):
-            return "{0:s}_{1:s}".format(context.id, context.portal_type)
+            return f"{context.id:s}_{context.portal_type:s}"
 
         class ISchema(Interface):
             foo = zope.schema.TextLine(title="foo", defaultFactory=defaultFactory)
@@ -561,15 +560,7 @@ class TestContent(MockTestCase):
     def test_name_unicode_id_str(self):
 
         i = Item()
-        if six.PY2:
-            try:
-                i.__name__ = b"\xc3\xb8".decode("utf-8")
-            except UnicodeEncodeError:
-                pass
-            else:
-                self.fail()
-        else:
-            i.__name__ = b"\xc3\xb8".decode("utf-8")
+        i.__name__ = b"\xc3\xb8".decode("utf-8")
 
         i.__name__ = "o"
 
@@ -577,7 +568,7 @@ class TestContent(MockTestCase):
         self.assertEqual("o", i.id)
         self.assertEqual("o", i.getId())
 
-        self.assertTrue(isinstance(i.__name__, six.text_type))
+        self.assertTrue(isinstance(i.__name__, str))
         self.assertTrue(isinstance(i.id, str))
         self.assertTrue(isinstance(i.getId(), str))
 
@@ -747,7 +738,7 @@ class TestContent(MockTestCase):
         i = Item()
 
         def mock_getTypeInfo():
-            class TypeInfo(object):
+            class TypeInfo:
                 def Title(self):
                     return "Foo"
 
@@ -892,7 +883,7 @@ class TestContent(MockTestCase):
         # Ensure that fields using the default value aren't being assigned
         # shallow copies.
 
-        class FauxDataManager(object):
+        class FauxDataManager:
             def setstate(self, obj):
                 pass
 
@@ -961,7 +952,7 @@ class TestContent(MockTestCase):
         item.__class__.__ac_permissions__ = perms_before
 
     def test_iconstraintypes_adapter(self):
-        class DummyConstrainTypes(object):
+        class DummyConstrainTypes:
             def __init__(self, context):
                 self.context = context
 

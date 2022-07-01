@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from Products.CMFCore.interfaces import ITypeInformation
 from zope.component.interfaces import IFactory
 from zope.interface import Attribute

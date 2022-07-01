@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from plone.autoform.form import AutoExtensibleForm
 from plone.dexterity.i18n import MessageFactory as _
 from plone.dexterity.interfaces import IDexterityFTI

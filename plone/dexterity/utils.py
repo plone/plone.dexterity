@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from AccessControl import Unauthorized
 from Acquisition import aq_base
 from Acquisition import aq_inner
@@ -55,8 +54,7 @@ def iterSchemataForType(portal_type):
     main_schema = SCHEMA_CACHE.get(portal_type)
     if main_schema:
         yield main_schema
-    for schema in getAdditionalSchemata(portal_type=portal_type):
-        yield schema
+    yield from getAdditionalSchemata(portal_type=portal_type)
 
 
 def iterSchemata(context):
@@ -66,8 +64,7 @@ def iterSchemata(context):
     main_schema = SCHEMA_CACHE.get(context.portal_type)
     if main_schema:
         yield main_schema
-    for schema in getAdditionalSchemata(context=context):
-        yield schema
+    yield from getAdditionalSchemata(context=context)
 
 
 def getAdditionalSchemata(context=None, portal_type=None):
@@ -189,13 +186,13 @@ def createContentInContainer(container, portal_type, checkConstraints=True, **kw
 
 
 def safe_utf8(st):
-    if isinstance(st, six.text_type):
+    if isinstance(st, str):
         st = st.encode("utf8")
     return st
 
 
 def safe_unicode(st):
-    if isinstance(st, six.binary_type):
+    if isinstance(st, bytes):
         st = st.decode("utf8")
     return st
 

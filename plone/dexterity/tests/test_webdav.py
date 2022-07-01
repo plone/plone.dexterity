@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from plone.dexterity.bbb import HAS_WEBDAV
 from .case import MockTestCase
 
@@ -51,13 +50,9 @@ if HAS_WEBDAV:
     try:
         from unittest.mock import Mock
     except ImportError:
-        from mock import Mock
+        from unittest.mock import Mock
 
-    if six.PY2:
-        # cope with upstream library changes in rendering the XML prolog
-        XML_PROLOG = b'<?xml version="1.0" encoding="utf-8"?>'
-    else:
-        XML_PROLOG = b'<?xml version="1.0" encoding="utf-8" ?>'
+    XML_PROLOG = b'<?xml version="1.0" encoding="utf-8" ?>'
 
     @provider(IFormFieldProvider)
     class ITestBehavior(Interface):
@@ -78,7 +73,7 @@ if HAS_WEBDAV:
             self.assertEqual(0, item.get_size())
 
         def test_get_size_wrong_adapter(self):
-            class SizedAdapter(object):
+            class SizedAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -94,7 +89,7 @@ if HAS_WEBDAV:
             self.assertEqual(0, item.get_size())
 
         def test_get_size_right_adapter(self):
-            class SizedAdapter(object):
+            class SizedAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -116,7 +111,7 @@ if HAS_WEBDAV:
             self.assertEqual(None, item.Format())
 
         def test_content_type_simple_adapter(self):
-            class ReadFileAdapter(object):
+            class ReadFileAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -135,7 +130,7 @@ if HAS_WEBDAV:
             self.assertEqual("", item.manage_DAVget())
 
         def test_get_simple_adapter(self):
-            class ReadFileAdapter(object):
+            class ReadFileAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -162,7 +157,7 @@ if HAS_WEBDAV:
             self.assertEqual("10", request.response.getHeader("Content-Length"))
 
         def test_get_minimal_adapter(self):
-            class ReadFileAdapter(object):
+            class ReadFileAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -188,7 +183,7 @@ if HAS_WEBDAV:
 
         def test_get_streaming(self):
             @implementer(IStreamIterator)
-            class ReadFileAdapter(object):
+            class ReadFileAdapter:
                 def __init__(self, context):
                     self.context = context
 
@@ -232,7 +227,7 @@ if HAS_WEBDAV:
             self.assertRaises(MethodNotAllowed, item.PUT)
 
         def test_put_no_content_type_header(self):
-            class WriteFile(object):
+            class WriteFile:
                 def __init__(self, context):
                     self.context = context
                     self._written = ""
@@ -266,7 +261,7 @@ if HAS_WEBDAV:
             self.assertEqual(True, adapterInstance._closed)
 
         def test_put_with_content_type_header_no_charset(self):
-            class WriteFile(object):
+            class WriteFile:
                 def __init__(self, context):
                     self.context = context
                     self._written = ""
@@ -309,7 +304,7 @@ if HAS_WEBDAV:
             self.assertEqual(1, len(events))
 
         def test_put_with_content_type_header_and_charset(self):
-            class WriteFile(object):
+            class WriteFile:
                 def __init__(self, context):
                     self.context = context
                     self._written = ""
@@ -361,7 +356,7 @@ if HAS_WEBDAV:
         def test_mkcol_simple_adapter(self):
             created = []
 
-            class DirectoryFactory(object):
+            class DirectoryFactory:
                 def __init__(self, context):
                     self.context = context
 
@@ -381,7 +376,7 @@ if HAS_WEBDAV:
         def test_put_factory_simple_adapter(self):
             instance = object()
 
-            class FileFactory(object):
+            class FileFactory:
                 def __init__(self, context):
                     self.context = context
 
@@ -1017,11 +1012,11 @@ The operation succeded.
             alsoProvides(ITestAdditional["stuff"], IPrimaryField)
             alsoProvides(ITestAdditional, IFormFieldProvider)
 
-            class MockBehavior(object):
+            class MockBehavior:
                 def __init__(self, iface):
                     self.interface = iface
 
-            class MockBehaviorAssignable(object):
+            class MockBehaviorAssignable:
                 def __init__(self, context):
                     self.context = context
 

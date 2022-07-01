@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from csv import reader
 from csv import writer
 from Products.GenericSetup.content import _globtest
@@ -47,7 +46,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         context = self.context
 
         if not root:
-            subdir = "%s/%s" % (subdir, context.getId())
+            subdir = "{}/{}".format(subdir, context.getId())
 
         exportable = self.listExportableItems()
 
@@ -89,7 +88,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         """See IFilesystemImporter."""
         context = self.context
         if not root:
-            subdir = "%s/%s" % (subdir, context.getId())
+            subdir = "{}/{}".format(subdir, context.getId())
 
         data = import_context.readDataFile(".data", subdir)
         if data is not None:
@@ -139,7 +138,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
                 if object is None:
                     logger = import_context.getLogger("SFWA")
                     logger.warning(
-                        "Couldn't make instance: %s/%s" % (subdir, object_id)
+                        "Couldn't make instance: {}/{}".format(subdir, object_id)
                     )
                     continue
 

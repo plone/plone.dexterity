@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
 from AccessControl import Permissions as acpermissions
@@ -233,7 +232,7 @@ class AttributeValidator(Explicit):
         return 0
 
 
-class PasteBehaviourMixin(object):
+class PasteBehaviourMixin:
     def _notifyOfCopyTo(self, container, op=0):
         """Keep Archetypes' reference info internally when op == 1 (move)
         because in those cases we need to keep Archetypes' refeferences.
@@ -270,7 +269,7 @@ class PasteBehaviourMixin(object):
         # Products.CMFCore.PortalFolder.PortalFolderBase (permission checks and
         # allowed content types) to also ask the FTI if construction is
         # allowed.
-        super(PasteBehaviourMixin, self)._verifyObjectPaste(obj, validate_src)
+        super()._verifyObjectPaste(obj, validate_src)
         if validate_src:
             portal_type = getattr(aq_base(obj), "portal_type", None)
             if portal_type:
@@ -287,7 +286,7 @@ class PasteBehaviourMixin(object):
         # Copied from Products.Archetypes.Referenceable.Referenceable._getCopy
         is_cp_flag = getattr(self, "_v_is_cp", None)
         cp_refs_flag = getattr(self, "_v_cp_refs", None)
-        ob = super(PasteBehaviourMixin, self)._getCopy(container)
+        ob = super()._getCopy(container)
         if is_cp_flag:
             setattr(ob, "_v_is_cp", is_cp_flag)
         if cp_refs_flag:
@@ -416,7 +415,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         return self.id
 
     def _set__name__(self, value):
-        if six.PY2 and isinstance(value, six.text_type):
+        if six.PY2 and isinstance(value, str):
             value = str(value)  # may throw, but id must be ASCII in py2
         self.id = value
 
@@ -463,7 +462,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     @security.protected(permissions.View)
     def Title(self):
         # this is a CMF accessor, so should return utf8-encoded
-        if six.PY2 and isinstance(self.title, six.text_type):
+        if six.PY2 and isinstance(self.title, str):
             return self.title.encode("utf-8")
         return self.title or ""
 
@@ -478,7 +477,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         value = value.replace("\r\n", " ").replace("\r", " ").replace("\n", " ")  # noqa
 
         # this is a CMF accessor, so should return utf8-encoded
-        if six.PY2 and isinstance(value, six.text_type):
+        if six.PY2 and isinstance(value, str):
             value = value.encode("utf-8")
 
         return value
@@ -658,21 +657,21 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     @security.protected(permissions.ModifyPortalContent)
     def setCreators(self, creators):
         # Set Dublin Core Creator elements - resource authors.
-        if isinstance(creators, six.string_types):
+        if isinstance(creators, str):
             creators = [creators]
         self.creators = tuple(safe_unicode(c.strip()) for c in creators)
 
     @security.protected(permissions.ModifyPortalContent)
     def setSubject(self, subject):
         # Set Dublin Core Subject element - resource keywords.
-        if isinstance(subject, six.string_types):
+        if isinstance(subject, str):
             subject = [subject]
         self.subject = tuple(safe_unicode(s.strip()) for s in subject)
 
     @security.protected(permissions.ModifyPortalContent)
     def setContributors(self, contributors):
         # Set Dublin Core Contributor elements - resource collaborators.
-        if isinstance(contributors, six.string_types):
+        if isinstance(contributors, str):
             contributors = contributors.split(";")
         self.contributors = tuple(safe_unicode(c.strip()) for c in contributors)
 
@@ -785,7 +784,7 @@ class Container(
         """
         if ids is None:
             ids = []
-        if isinstance(ids, six.string_types):
+        if isinstance(ids, str):
             ids = [ids]
         for id in ids:
             item = self._getOb(id)
@@ -793,7 +792,7 @@ class Container(
                 permissions.DeleteObjects, item
             ):
                 raise Unauthorized("Do not have permissions to remove this object")
-        return super(Container, self).manage_delObjects(ids, REQUEST=REQUEST)
+        return super().manage_delObjects(ids, REQUEST=REQUEST)
 
     # override PortalFolder's allowedContentTypes to respect IConstrainTypes
     # adapters
@@ -803,7 +802,7 @@ class Container(
 
         constrains = IConstrainTypes(context, None)
         if not constrains:
-            return super(Container, self).allowedContentTypes()
+            return super().allowedContentTypes()
 
         return constrains.allowedContentTypes()
 
@@ -827,7 +826,7 @@ class Container(
                     % type_name
                 )
 
-        return super(Container, self).invokeFactory(
+        return super().invokeFactory(
             type_name, id, RESPONSE, *args, **kw
         )
 

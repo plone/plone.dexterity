@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .case import MockTestCase
 from AccessControl import Unauthorized
 from plone.autoform.interfaces import IFormFieldProvider
@@ -43,7 +42,7 @@ import six
 try:
     from unittest.mock import Mock
 except ImportError:
-    from mock import Mock
+    from unittest.mock import Mock
 
 
 class TestRequest(TestRequestBase):
@@ -76,7 +75,7 @@ class IBehaviorThree(Interface):
 
 @implementer(IBehaviorAssignable)
 @adapter(Interface)
-class NoBehaviorAssignable(object):
+class NoBehaviorAssignable:
     # We will use this simple class to check that registering our own
     # IBehaviorAssignable adapter has an effect.
 
@@ -168,7 +167,7 @@ class TestAddView(MockTestCase):
 
         # Name chooser
         @implementer(INameChooser)
-        class NameChooser(object):
+        class NameChooser:
             def __init__(self, context):
                 pass
 
@@ -252,7 +251,7 @@ class TestAddView(MockTestCase):
         addform.portal_type = "testtype"
 
         label = addform.label
-        self.assertEqual("Add ${name}", six.text_type(label))
+        self.assertEqual("Add ${name}", str(label))
         self.assertEqual("Test title", label.mapping["name"])
 
     def test_schema_lookup_add(self):
@@ -403,7 +402,7 @@ class TestAddView(MockTestCase):
 
         # mock status message
         @implementer(IStatusMessage)
-        class StatusMessage(object):
+        class StatusMessage:
             def __init__(self, request):
                 pass
 
@@ -451,7 +450,7 @@ class TestEditView(MockTestCase):
         editview.portal_type = "testtype"
 
         label = editview.label
-        self.assertEqual("Edit ${name}", six.text_type(label))
+        self.assertEqual("Edit ${name}", str(label))
         self.assertEqual("Test title", label.mapping["name"])
 
     def test_schema_lookup_edit(self):
@@ -552,7 +551,7 @@ class TestEditView(MockTestCase):
 
         # mock status message
         @implementer(IStatusMessage)
-        class StatusMessage(object):
+        class StatusMessage:
             def __init__(self, request):
                 pass
 
@@ -582,7 +581,7 @@ class TestEditView(MockTestCase):
 
         # mock status message
         @implementer(IStatusMessage)
-        class StatusMessage(object):
+        class StatusMessage:
             def __init__(self, request):
                 pass
 

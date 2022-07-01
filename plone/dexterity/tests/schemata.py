@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from plone.supermodel.interfaces import FILENAME_KEY
 from zope import schema
 from zope.interface import Interface

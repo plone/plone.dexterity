@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
 from Acquisition import aq_base
 from plone.dexterity import utils
@@ -51,7 +50,7 @@ def get_suffix(fti):
 
 
 @implementer(IDexterityFTIModificationDescription)
-class DexterityFTIModificationDescription(object):
+class DexterityFTIModificationDescription:
     def __init__(self, attribute, oldValue):
         self.attribute = attribute
         self.oldValue = oldValue
@@ -163,7 +162,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
     schema_policy = "dexterity"
 
     def __init__(self, *args, **kwargs):
-        super(DexterityFTI, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if "aliases" not in kwargs:
             self.setMethodAliases(self.default_aliases)
@@ -215,13 +214,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
     def Title(self):
         if self.title and self.i18n_domain:
-            if six.PY2:
-                try:
-                    return Message(self.title.decode("utf8"), self.i18n_domain)
-                except UnicodeDecodeError:
-                    return Message(self.title.decode("latin-1"), self.i18n_domain)
-            else:
-                return Message(self.title, self.i18n_domain)
+            return Message(self.title, self.i18n_domain)
         else:
             if six.PY2:
                 if self.title:
@@ -231,13 +224,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
 
     def Description(self):
         if self.description and self.i18n_domain:
-            if six.PY2:
-                try:
-                    return Message(self.description.decode("utf8"), self.i18n_domain)
-                except UnicodeDecodeError:
-                    return Message(self.description.decode("latin-1"), self.i18n_domain)
-            else:
-                return Message(self.description, self.i18n_domain)
+            return Message(self.description, self.i18n_domain)
         else:
             if six.PY2 and self.description:
                 return self.description.decode("utf8")
@@ -311,7 +298,7 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         """
 
         oldValue = getattr(self, id, None)
-        super(DexterityFTI, self)._updateProperty(id, value)
+        super()._updateProperty(id, value)
         new_value = getattr(self, id, None)
 
         if oldValue != new_value:

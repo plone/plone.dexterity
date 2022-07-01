@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .case import MockTestCase
 from plone.dexterity.factory import DexterityFactory
 from plone.dexterity.fti import DexterityFTI
@@ -35,14 +34,14 @@ import zope.schema
 try:
     from unittest.mock import Mock
 except ImportError:
-    from mock import Mock
+    from unittest.mock import Mock
 
 
-class TestClass(object):
+class TestClass:
     meta_type = "Test Class"
 
 
-class TestClass2(object):
+class TestClass2:
     meta_type = "Test Class 2"
 
 

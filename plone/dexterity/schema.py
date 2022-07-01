@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .interfaces import IContentType
 from .interfaces import IDexterityFTI
 from .interfaces import IDexteritySchema
@@ -55,7 +54,7 @@ def invalidate_cache(fti):
 
 def lookup_fti(portal_type, cache=True):
     # if its a string lookup fti
-    if isinstance(portal_type, six.string_types):
+    if isinstance(portal_type, str):
         # looking up a utility is expensive, using the global request as
         # cache is twice as fast
         if cache:
@@ -80,7 +79,7 @@ def lookup_fti(portal_type, cache=True):
         return portal_type
     raise ValueError(
         "portal_type has to either string or IDexterityFTI instance but is "
-        "{0!r}".format(portal_type)
+        "{!r}".format(portal_type)
     )
 
 
@@ -117,7 +116,7 @@ def volatile(func):
     return decorator
 
 
-class SchemaCache(object):
+class SchemaCache:
     """Simple schema cache for FTI based schema information.
 
     This cache will store a Python object reference to the schema, as returned
@@ -176,8 +175,8 @@ class SchemaCache(object):
             if registration is None:
                 # BBB - this case should be deprecated in v 3.0
                 warnings.warn(
-                    'No behavior registration found for behavior named "{0}"'
-                    ' for factory "{1}"'
+                    'No behavior registration found for behavior named "{}"'
+                    ' for factory "{}"'
                     " - trying deprecated fallback lookup (will be removed "
                     'in 3.0)..."'.format(behavior_name, fti.getId()),
                     DeprecationWarning,
@@ -186,7 +185,7 @@ class SchemaCache(object):
                     schema_interface = resolve(behavior_name)
                 except (ValueError, ImportError):
                     log.error(
-                        "Error resolving behavior {0} for factory {1}".format(
+                        "Error resolving behavior {} for factory {}".format(
                             behavior_name, fti.getId()
                         )
                     )
@@ -278,7 +277,7 @@ SCHEMA_CACHE = SchemaCache()
 
 
 @implementer(ISchemaInvalidatedEvent)
-class SchemaInvalidatedEvent(object):
+class SchemaInvalidatedEvent:
     def __init__(self, portal_type):
         self.portal_type = portal_type
 
@@ -292,7 +291,7 @@ def invalidate_schema(event):
 
 
 # here starts the code dealing wih dynamic schemas.
-class SchemaNameEncoder(object):
+class SchemaNameEncoder:
     """Schema name encoding"""
 
     key = (
@@ -358,7 +357,7 @@ def splitSchemaName(schemaName):
 
 # Dynamic module factory
 @implementer(IDynamicObjectFactory)
-class SchemaModuleFactory(object):
+class SchemaModuleFactory:
     """Create dynamic schema interfaces on the fly"""
 
     lock = RLock()
@@ -422,7 +421,7 @@ class SchemaModuleFactory(object):
 
 
 @implementer(ISchemaPolicy)
-class DexteritySchemaPolicy(object):
+class DexteritySchemaPolicy:
     """Determines how and where imported dynamic interfaces are created.
     Note that these schemata are never used directly. Rather, they are merged
     into a schema with a proper name and module, either dynamically or

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from Acquisition import aq_base
@@ -43,7 +42,7 @@ else:
     Resource = bbb.Resource
 
 
-class DAVResourceMixin(object):
+class DAVResourceMixin:
     """Mixin class for WebDAV resource support.
 
     The main purpose of this class is to implement the Zope 2 WebDAV API to
@@ -235,7 +234,7 @@ class DAVCollectionMixin(DAVResourceMixin):
         We add a non-folderish pseudo object which contains the "body" data
         for this container.
         """
-        parentList = super(DAVCollectionMixin, self).listDAVObjects()
+        parentList = super().listDAVObjects()
         if not parentList:
             parentList = []
         else:
@@ -329,7 +328,7 @@ class FolderDataResource(Implicit, Resource):
 
         Certain things may be acquired, notably .propertysheets
         """
-        return super(FolderDataResource, self).PROPFIND(REQUEST, RESPONSE)
+        return super().PROPFIND(REQUEST, RESPONSE)
 
     @security.protected(permissions.ModifyPortalContent)
     def PROPPATCH(self, REQUEST, RESPONSE):
@@ -338,7 +337,7 @@ class FolderDataResource(Implicit, Resource):
 
         Certain things may be acquired, notably .propertysheets
         """
-        return super(FolderDataResource, self).PROPPATCH(REQUEST, RESPONSE)
+        return super().PROPPATCH(REQUEST, RESPONSE)
 
     @security.protected(permissions.ModifyPortalContent)
     def LOCK(self, REQUEST, RESPONSE):
@@ -395,7 +394,7 @@ class FolderDataResource(Implicit, Resource):
 
 
 @implementer(IStreamIterator)
-class StringStreamIterator(object):
+class StringStreamIterator:
     """Simple stream iterator to allow efficient data streaming."""
 
     def __init__(self, data, size=None, chunk=1 << 16):
@@ -436,7 +435,7 @@ class StringStreamIterator(object):
 
 @implementer(IDirectoryFactory)
 @adapter(IDexterityContainer)
-class DefaultDirectoryFactory(object):
+class DefaultDirectoryFactory:
     """Default directory factory, invoked when an FTP/WebDAV operation
     attempts to create a new folder via a MKCOL request.
 
@@ -452,7 +451,7 @@ class DefaultDirectoryFactory(object):
 
 @implementer(IFileFactory)
 @adapter(IDexterityContainer)
-class DefaultFileFactory(object):
+class DefaultFileFactory:
     """Default file factory, invoked when an FTP/WebDAV operation
     attempts to create a new resource via a PUT request.
 
@@ -534,7 +533,7 @@ class DefaultFileFactory(object):
 
 
 @implementer(IRawReadFile)
-class ReadFileBase(object):
+class ReadFileBase:
     """Convenience base class for read files which delegate to another stream
     type (e.g. a temporary file or StringIO)
 
@@ -672,10 +671,7 @@ class DefaultReadFile(ReadFileBase):
         # transaction is closed
         message = self._getMessage()
         out = tempfile.TemporaryFile(mode="w+b")
-        if six.PY2:
-            out.write(message.as_string())
-        else:
-            out.write(message.as_string().encode("utf-8"))
+        out.write(message.as_string().encode("utf-8"))
         self._size = out.tell()
         out.seek(0)
         return out
@@ -686,7 +682,7 @@ class DefaultReadFile(ReadFileBase):
 
 
 @implementer(IRawWriteFile)
-class WriteFileBase(object):
+class WriteFileBase:
     """Convenience base class for write files which delegate to another
     stream, e.g. a file or StringIO.
 
@@ -748,7 +744,7 @@ class WriteFileBase(object):
 
 @implementer(IRawWriteFile)
 @adapter(IDexterityContent)
-class DefaultWriteFile(object):
+class DefaultWriteFile:
     """IRawWriteFile file adapter for Dexterity objects.
 
     Uses RFC822 marshaler.
@@ -818,7 +814,7 @@ class DefaultWriteFile(object):
     def write(self, data):
         if self._closed:
             raise ValueError("File is closed")
-        if isinstance(data, six.text_type):
+        if isinstance(data, str):
             data = data.encode()
         self._written += len(data)
         self._parser.feed(data)
