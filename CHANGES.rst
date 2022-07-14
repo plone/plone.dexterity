@@ -9,6 +9,25 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.0b1 (2022-07-14)
+--------------------
+
+Breaking changes:
+
+
+- Remove long deprecated imports and fallbacks.
+  [jensens, maurits] (#161)
+- Python 3.7+ only, drop Python 2 support.
+  [jensens, maurits] (#161)
+
+
+Bug fixes:
+
+
+- Use Bootstrap 5 classes for buttons.
+  [jensens] (#161)
+
+
 3.0.0a3 (2022-05-24)
 --------------------
 
