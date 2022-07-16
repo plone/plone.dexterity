@@ -38,6 +38,7 @@ from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
 from zope.component import queryUtility
 from zope.container.contained import Contained
+from zope.container.interfaces import IContainerModifiedEvent
 from zope.globalrequest import getRequest
 from zope.interface import implementer
 from zope.interface.declarations import getObjectSpecification
@@ -812,6 +813,10 @@ def reindexOnModify(content, event):
     """When an object is modified, re-index it in the catalog"""
 
     if event.object is not content:
+        return
+
+    # Don't reindex just because the container contents changed.
+    if IContainerModifiedEvent.providedBy(event):
         return
 
     # NOTE: We are not using event.descriptions because the field names may
