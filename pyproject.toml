@@ -36,3 +36,8 @@ mccabe = ["+*"]
 pycodestyle = ["+*", "-E501", "-W503"]
 pyflakes = ["+*"]
 pylint = ["+*"]
+
+[tool.plone-code-analysis]
+paths = "plone/ setup.py"
+paths_pyroma = "."
+paths_zpretty = "plone/"
