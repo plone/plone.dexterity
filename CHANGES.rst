@@ -9,6 +9,16 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.0b2 (2022-08-30)
+--------------------
+
+Bug fixes:
+
+
+- Check code quality with fresh plone/code-quality 2.0.0.
+  [maurits+erico] (#171)
+
+
 3.0.0b1 (2022-07-14)
 --------------------
 
