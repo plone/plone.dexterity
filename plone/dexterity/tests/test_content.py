@@ -1004,60 +1004,54 @@ class TestContent(MockTestCase):
 
     def test_verifyObjectPaste_locally_disallowed_contents(self):
         from Products.CMFCore.interfaces import ITypeInformation
-        
-        class DummyConstrainTypes(object):
 
+        class DummyConstrainTypes(object):
             def __init__(self, context):
                 self.context = context
 
             def allowedContentTypes(self):
 
-                fti = getUtility(IDexterityFTI, name=u"news")
+                fti = getUtility(IDexterityFTI, name="news")
                 return [fti]
 
-        self.mock_adapter(
-            DummyConstrainTypes, IConstrainTypes, (IDexterityContainer, ))
+        self.mock_adapter(DummyConstrainTypes, IConstrainTypes, (IDexterityContainer,))
 
         # FTI mock
-        fti_mock = Mock(wraps=DexterityFTI(u"news"))
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"news")
+        fti_mock = Mock(wraps=DexterityFTI("news"))
+        self.mock_utility(fti_mock, IDexterityFTI, name="news")
 
         fti_mock2 = Mock()
         fti_mock2.isConstructionAllowed = Mock(return_value=True)
-        self.mock_utility(fti_mock2, ITypeInformation, name='document')
+        self.mock_utility(fti_mock2, ITypeInformation, name="document")
 
         mock_pt = Mock()
         mock_pt.getTypeInfo = Mock(return_value=None)
-        self.mock_tool(mock_pt, 'portal_types')
+        self.mock_tool(mock_pt, "portal_types")
         self.mock_utility(mock_pt, ITypesTool)
 
-        document = Item(id='test document')
-        document.__factory_meta_type__ = 'document'
-        document.portal_type = 'document'
-        news = Item(id='test news')
-        news.__factory_meta_type__ = 'news'
-        news.portal_type = 'news'
+        document = Item(id="test document")
+        document.__factory_meta_type__ = "document"
+        document.portal_type = "document"
+        news = Item(id="test news")
+        news.__factory_meta_type__ = "news"
+        news.portal_type = "news"
 
         container = Container(id="testfolder")
-        container.all_meta_types = [{'name': 'document',
-                                     'action': None,
-                                     'permission': 'View'},{'name': 'news',
-                                     'action': None,
-                                     'permission': 'View'}]
-        container.manage_permission('View', ('Anonymous',))
-        container['test-document'] = document
-        container['test-news'] = news
-        document_content = container['test-document']
-        news_content = container['test-news']
+        container.all_meta_types = [
+            {"name": "document", "action": None, "permission": "View"},
+            {"name": "news", "action": None, "permission": "View"},
+        ]
+        container.manage_permission("View", ("Anonymous",))
+        container["test-document"] = document
+        container["test-news"] = news
+        document_content = container["test-document"]
+        news_content = container["test-news"]
 
         # can paste news
         container._verifyObjectPaste(news_content, False)
         # cannot paste documents
         self.assertRaises(
-            ValueError,
-            container._verifyObjectPaste,
-            document_content,
-            False
+            ValueError, container._verifyObjectPaste, document_content, False
         )
 
     def test_verifyObjectPaste_fti_does_allow_content(self):
