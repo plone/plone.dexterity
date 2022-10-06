@@ -1,17 +1,10 @@
-# -*- coding: utf-8 -*-
-from plone.dexterity.bbb import HAS_WEBDAV
+from unittest.mock import Mock
 
 import gc
-import six
 import unittest
 import zope.component
 import zope.component.testing
 import zope.globalrequest
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from mock import Mock
 
 
 class MockTestCase(unittest.TestCase):
@@ -38,11 +31,11 @@ class MockTestCase(unittest.TestCase):
     # Help register mock components. The tear-down method will
     # wipe the registry each time.
 
-    def mock_utility(self, mock, provides, name=u""):
+    def mock_utility(self, mock, provides, name=""):
         """Register the mock as a utility providing the given interface"""
         zope.component.provideUtility(provides=provides, component=mock, name=name)
 
-    def mock_adapter(self, mock, provides, adapts, name=u""):
+    def mock_adapter(self, mock, provides, adapts, name=""):
         """Register the mock as an adapter providing the given interface
         and adapting the given interface(s)
         """
@@ -89,11 +82,15 @@ class MockTestCase(unittest.TestCase):
         return mock
 
 
-class Dummy(object):
+class Dummy:
     """Dummy object with arbitrary attributes"""
 
     def __init__(self, **kw):
         self.__dict__.update(kw)
+
+    def contentIds(self):
+        # testAddContentToContainer_preserves_existing_id fails without this.
+        return []
 
 
 class ItemDummy(Dummy):
@@ -117,6 +114,6 @@ def _global_replace(remove, install):
     """Replace object 'remove' with object 'install' on all dictionaries."""
     for referrer in gc.get_referrers(remove):
         if type(referrer) is dict:
-            for key, value in list(six.iteritems(referrer)):
+            for key, value in list(referrer.items()):
                 if value is remove:
                     referrer[key] = install

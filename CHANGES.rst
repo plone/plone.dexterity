@@ -9,6 +9,85 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.0b2 (2022-08-30)
+--------------------
+
+Bug fixes:
+
+
+- Check code quality with fresh plone/code-quality 2.0.0.
+  [maurits+erico] (#171)
+
+
+3.0.0b1 (2022-07-14)
+--------------------
+
+Breaking changes:
+
+
+- Remove long deprecated imports and fallbacks.
+  [jensens, maurits] (#161)
+- Python 3.7+ only, drop Python 2 support.
+  [jensens, maurits] (#161)
+
+
+Bug fixes:
+
+
+- Use Bootstrap 5 classes for buttons.
+  [jensens] (#161)
+
+
+3.0.0a3 (2022-05-24)
+--------------------
+
+Bug fixes:
+
+
+- Added missing icon_expr to default actions.
+  [agitator] (#167)
+
+
+3.0.0a2 (2022-01-25)
+--------------------
+
+Bug fixes:
+
+
+- Really always use a lines property for behaviors, no longer the deprecated ulines.
+  This improves the fix from the previous release.
+  Part of `issue 3305 <https://github.com/plone/Products.CMFPlone/issues/3305>`_.
+  [maurits] (#3305)
+
+
+3.0.0a1 (2022-01-07)
+--------------------
+
+Breaking changes:
+
+
+- Plone 6: Always use a lines property for behaviors, no longer the deprecated ulines.
+  Part of `issue 3305 <https://github.com/plone/Products.CMFPlone/issues/3305>`_.
+  [maurits] (#3305)
+
+
+2.10.5 (2021-11-25)
+-------------------
+
+Bug fixes:
+
+
+- Incorporate ``plone.synchronize`` its one and only simple ``synchronized`` function into ``plone.dexterity``, which were the only consumer.
+  Also moves the test. Removes a dependency and a package to look after.
+  [jensens] (#157)
+- Avoid setting a default value on methods.
+  If a Schema Interface has a method in it, i.e. to be used as a
+  constraint for another field, etc. the `default_from_schema` function
+  would trip over it while trying to get a default value for it.
+  [gforcada, jensens] (#158)
+- Fixes schema name generated in Python 2. [wesleybl] (#159)
+
+
 2.10.4 (2021-10-07)
 -------------------
 

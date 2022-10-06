@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
 from .case import MockTestCase
 from datetime import date
 from datetime import datetime
 from DateTime import DateTime
 from plone.autoform.interfaces import IFormFieldProvider
+from plone.base.interfaces import IConstrainTypes
 from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.behavior.registration import BehaviorRegistration
@@ -17,30 +17,18 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
 from Products.CMFCore.interfaces import ITypesTool
-from Products.CMFPlone.interfaces import IConstrainTypes
-from Products.CMFPlone.interfaces import ISelectableConstrainTypes
 from pytz import timezone
+from unittest.mock import Mock
+from unittest.mock import patch
 from zope.annotation.attribute import AttributeAnnotations
 from zope.component import getUtility
 from zope.component import provideAdapter
+from zope.globalrequest import setRequest
 from zope.interface import alsoProvides
 from zope.interface import Interface
-from zope.globalrequest import setRequest
 from zope.publisher.browser import TestRequest
 
-import six
 import zope.schema
-
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from mock import Mock
-
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
 
 
 class TestContent(MockTestCase):
@@ -51,7 +39,7 @@ class TestContent(MockTestCase):
         provideAdapter(AttributeAnnotations)
 
     def test_provided_by_item(self):
-        class FauxDataManager(object):
+        class FauxDataManager:
             def setstate(self, obj):
                 pass
 
@@ -62,14 +50,14 @@ class TestContent(MockTestCase):
                 pass
 
         # Dummy instance
-        item = Item(id=u"id")
-        item.portal_type = u"testtype"
+        item = Item(id="id")
+        item.portal_type = "testtype"
         item._p_jar = FauxDataManager()
 
         # Dummy schema
         class ISchema(Interface):
-            foo = zope.schema.TextLine(title=u"foo", default=u"foo_default")
-            bar = zope.schema.TextLine(title=u"bar")
+            foo = zope.schema.TextLine(title="foo", default="foo_default")
+            bar = zope.schema.TextLine(title="bar")
 
         class IMarker(Interface):
             pass
@@ -77,7 +65,7 @@ class TestContent(MockTestCase):
         # FTI mock
         fti_mock = Mock(wraps=DexterityFTI("testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
         alsoProvides(fti_mock, IDexterityFTI)
 
         self.assertFalse(ISchema.implementedBy(Item))
@@ -107,7 +95,7 @@ class TestContent(MockTestCase):
         class MyItem(Item):
             pass
 
-        class FauxDataManager(object):
+        class FauxDataManager:
             def setstate(self, obj):
                 pass
 
@@ -118,22 +106,22 @@ class TestContent(MockTestCase):
                 pass
 
         # Dummy instance
-        item = MyItem(id=u"id")
+        item = MyItem(id="id")
         item.portal_type = "testtype"
         item._p_jar = FauxDataManager()
 
         # Dummy schema
         class ISchema(Interface):
-            foo = zope.schema.TextLine(title=u"foo", default=u"foo_default")
-            bar = zope.schema.TextLine(title=u"bar")
+            foo = zope.schema.TextLine(title="foo", default="foo_default")
+            bar = zope.schema.TextLine(title="bar")
 
         class IMarker(Interface):
             pass
 
         # FTI mock
-        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock = Mock(wraps=DexterityFTI("testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
         alsoProvides(fti_mock, IDexterityFTI)
 
         self.assertFalse(ISchema.implementedBy(MyItem))
@@ -162,7 +150,7 @@ class TestContent(MockTestCase):
             pass
 
         # Dummy instance
-        item = MyItem(id=u"id")
+        item = MyItem(id="id")
         item.portal_type = "testtype"
 
         # Without a persistence jar, the _p_changed check doesn't work. In
@@ -171,16 +159,16 @@ class TestContent(MockTestCase):
 
         # Dummy schema
         class ISchema(Interface):
-            foo = zope.schema.TextLine(title=u"foo", default=u"foo_default")
-            bar = zope.schema.TextLine(title=u"bar")
+            foo = zope.schema.TextLine(title="foo", default="foo_default")
+            bar = zope.schema.TextLine(title="bar")
 
         class IMarker(Interface):
             pass
 
         # FTI mock
-        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock = Mock(wraps=DexterityFTI("testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
         alsoProvides(fti_mock, IDexterityFTI)
 
         self.assertFalse(ISchema.implementedBy(MyItem))
@@ -212,7 +200,7 @@ class TestContent(MockTestCase):
             pass
 
         # Fake data manager
-        class FauxDataManager(object):
+        class FauxDataManager:
             def setstate(self, obj):
                 pass
 
@@ -223,7 +211,7 @@ class TestContent(MockTestCase):
                 pass
 
         # Dummy instance
-        item = MyItem(id=u"id")
+        item = MyItem(id="id")
         item.portal_type = "testtype"
 
         # Without a persistence jar, the _p_changed check doesn't work. In
@@ -232,8 +220,8 @@ class TestContent(MockTestCase):
 
         # Dummy schema
         class ISchema(Interface):
-            foo = zope.schema.TextLine(title=u"foo", default=u"foo_default")
-            bar = zope.schema.TextLine(title=u"bar")
+            foo = zope.schema.TextLine(title="foo", default="foo_default")
+            bar = zope.schema.TextLine(title="bar")
 
         # Schema is not implemented by class or provided by instance
         self.assertFalse(ISchema.implementedBy(MyItem))
@@ -247,23 +235,23 @@ class TestContent(MockTestCase):
         class IBehavior1(Interface):
             pass
 
-        behavior1 = BehaviorRegistration(u"Behavior1", "", IBehavior1, None, None)
+        behavior1 = BehaviorRegistration("Behavior1", "", IBehavior1, None, None)
         self.mock_utility(behavior1, IBehavior, name="behavior1")
 
         class IBehavior2(Interface):
-            baz = zope.schema.TextLine(title=u"baz", default=u"baz")
+            baz = zope.schema.TextLine(title="baz", default="baz")
 
         class IMarker2(Interface):
             pass
 
-        behavior2 = BehaviorRegistration(u"Behavior2", "", IBehavior2, IMarker2, None)
+        behavior2 = BehaviorRegistration("Behavior2", "", IBehavior2, IMarker2, None)
         self.mock_utility(behavior2, IBehavior, name="behavior2")
 
         # FTI mock
-        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock = Mock(wraps=DexterityFTI("testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         fti_mock.behaviors = ["behavior1", "behavior2"]
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
         alsoProvides(fti_mock, IDexterityFTI)
 
         # start clean
@@ -283,7 +271,7 @@ class TestContent(MockTestCase):
         self.assertTrue(IMarker2.providedBy(item))
 
         # Subtypes provide field defaults.
-        self.assertEqual(u"baz", getattr(item, "baz", None))
+        self.assertEqual("baz", getattr(item, "baz", None))
 
         # We also need to ensure that the _v_ attribute doesn't hide any
         # interface set directly on the instance with alsoProvides() or
@@ -305,7 +293,7 @@ class TestContent(MockTestCase):
             pass
 
         # Fake data manager
-        class FauxDataManager(object):
+        class FauxDataManager:
             def setstate(self, obj):
                 pass
 
@@ -316,7 +304,7 @@ class TestContent(MockTestCase):
                 pass
 
         # Dummy instance
-        item = MyItem(id=u"id")
+        item = MyItem(id="id")
         item.portal_type = "testtype"
 
         # Without a persistence jar, the _p_changed check doesn't work. In
@@ -325,8 +313,8 @@ class TestContent(MockTestCase):
 
         # Dummy schema
         class ISchema(Interface):
-            foo = zope.schema.TextLine(title=u"foo", default=u"foo_default")
-            bar = zope.schema.TextLine(title=u"bar")
+            foo = zope.schema.TextLine(title="foo", default="foo_default")
+            bar = zope.schema.TextLine(title="bar")
 
         # Schema is not implemented by class or provided by instance
         self.assertFalse(ISchema.implementedBy(MyItem))
@@ -336,7 +324,7 @@ class TestContent(MockTestCase):
         class IBehavior1(Interface):
             pass
 
-        behavior1 = BehaviorRegistration(u"Behavior1", "", IBehavior1, None, None)
+        behavior1 = BehaviorRegistration("Behavior1", "", IBehavior1, None, None)
         self.mock_utility(behavior1, IBehavior, name="behavior1")
 
         class IBehavior2(Interface):
@@ -345,7 +333,7 @@ class TestContent(MockTestCase):
         class IMarker2(Interface):
             pass
 
-        behavior2 = BehaviorRegistration(u"Behavior2", "", IBehavior2, IMarker2, None)
+        behavior2 = BehaviorRegistration("Behavior2", "", IBehavior2, IMarker2, None)
         self.mock_utility(behavior2, IBehavior, name="behavior2")
 
         class IBehavior3(Interface):
@@ -354,7 +342,7 @@ class TestContent(MockTestCase):
         class IMarker3(Interface):
             pass
 
-        behavior3 = BehaviorRegistration(u"Behavior3", "", IBehavior3, IMarker3, None)
+        behavior3 = BehaviorRegistration("Behavior3", "", IBehavior3, IMarker3, None)
         self.mock_utility(behavior3, IBehavior, name="behavior3")
 
         self.mock_adapter(
@@ -362,9 +350,9 @@ class TestContent(MockTestCase):
         )
 
         # FTI mock
-        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock = Mock(wraps=DexterityFTI("testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
         alsoProvides(fti_mock, IDexterityFTI)
 
         # start clean
@@ -408,102 +396,102 @@ class TestContent(MockTestCase):
     def test_getattr_consults_schema_item(self):
 
         content = Item()
-        content.id = u"id"
-        content.portal_type = u"testtype"
+        content.id = "id"
+        content.portal_type = "testtype"
 
         class ISchema(Interface):
-            foo = zope.schema.TextLine(title=u"foo", default=u"foo_default")
-            bar = zope.schema.TextLine(title=u"bar")
+            foo = zope.schema.TextLine(title="foo", default="foo_default")
+            bar = zope.schema.TextLine(title="bar")
 
         # FTI mock
-        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock = Mock(wraps=DexterityFTI("testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
         alsoProvides(fti_mock, IDexterityFTI)
 
         SCHEMA_CACHE.invalidate("testtype")
 
-        self.assertEqual(u"foo_default", content.foo)
+        self.assertEqual("foo_default", content.foo)
         self.assertEqual(None, content.bar)
-        self.assertEqual(u"id", content.id)
+        self.assertEqual("id", content.id)
         self.assertRaises(AttributeError, getattr, content, "baz")
 
     def test_getattr_consults_schema_container(self):
 
         content = Container()
-        content.id = u"id"
-        content.portal_type = u"testtype"
+        content.id = "id"
+        content.portal_type = "testtype"
 
         class ISchema(Interface):
-            foo = zope.schema.TextLine(title=u"foo", default=u"foo_default")
-            bar = zope.schema.TextLine(title=u"bar")
+            foo = zope.schema.TextLine(title="foo", default="foo_default")
+            bar = zope.schema.TextLine(title="bar")
 
         # FTI mock
-        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock = Mock(wraps=DexterityFTI("testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
         alsoProvides(fti_mock, IDexterityFTI)
 
         SCHEMA_CACHE.invalidate("testtype")
 
-        self.assertEqual(u"foo_default", content.foo)
+        self.assertEqual("foo_default", content.foo)
         self.assertEqual(None, content.bar)
-        self.assertEqual(u"id", content.id)
+        self.assertEqual("id", content.id)
         self.assertRaises(AttributeError, getattr, content, "baz")
 
     def test_getattr_consults_schema_item_default_factory_with_context(self):
 
         content = Item()
-        content.id = u"id"
-        content.portal_type = u"testtype"
+        content.id = "id"
+        content.portal_type = "testtype"
 
         from zope.interface import provider
         from zope.schema.interfaces import IContextAwareDefaultFactory
 
         @provider(IContextAwareDefaultFactory)
         def defaultFactory(context):
-            return u"{0:s}_{1:s}".format(context.id, context.portal_type)
+            return f"{context.id:s}_{context.portal_type:s}"
 
         class ISchema(Interface):
-            foo = zope.schema.TextLine(title=u"foo", defaultFactory=defaultFactory)
-            bar = zope.schema.TextLine(title=u"bar")
+            foo = zope.schema.TextLine(title="foo", defaultFactory=defaultFactory)
+            bar = zope.schema.TextLine(title="bar")
 
         # FTI mock
-        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock = Mock(wraps=DexterityFTI("testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
         alsoProvides(fti_mock, IDexterityFTI)
 
         SCHEMA_CACHE.invalidate("testtype")
 
-        self.assertEqual(u"id_testtype", content.foo)
+        self.assertEqual("id_testtype", content.foo)
         self.assertEqual(None, content.bar)
-        self.assertEqual(u"id", content.id)
+        self.assertEqual("id", content.id)
         self.assertRaises(AttributeError, getattr, content, "baz")
 
     def test_getattr_on_container_returns_children(self):
 
         content = Container()
-        content.id = u"id"
-        content.portal_type = u"testtype"
+        content.id = "id"
+        content.portal_type = "testtype"
 
         content["foo"] = Item("foo")
         content["quux"] = Item("quux")
 
         class ISchema(Interface):
-            foo = zope.schema.TextLine(title=u"foo", default=u"foo_default")
-            bar = zope.schema.TextLine(title=u"bar")
+            foo = zope.schema.TextLine(title="foo", default="foo_default")
+            bar = zope.schema.TextLine(title="bar")
 
         # FTI mock
-        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock = Mock(wraps=DexterityFTI("testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
         alsoProvides(fti_mock, IDexterityFTI)
 
         SCHEMA_CACHE.invalidate("testtype")
 
         # Schema field masks contained item
-        self.assertEqual(u"foo_default", content.foo)
+        self.assertEqual("foo_default", content.foo)
 
         # But we can still obtain an item
         self.assertTrue(isinstance(content["foo"], Item))
@@ -545,40 +533,32 @@ class TestContent(MockTestCase):
         i = Item()
         self.assertEqual("", i.id)
         self.assertEqual("", i.getId())
-        self.assertEqual(u"", i.__name__)
+        self.assertEqual("", i.__name__)
 
         i = Item()
         i.id = "foo"
         self.assertEqual("foo", i.id)
         self.assertEqual("foo", i.getId())
-        self.assertEqual(u"foo", i.__name__)
+        self.assertEqual("foo", i.__name__)
 
         i = Item()
-        i.__name__ = u"foo"
+        i.__name__ = "foo"
         self.assertEqual("foo", i.id)
         self.assertEqual("foo", i.getId())
-        self.assertEqual(u"foo", i.__name__)
+        self.assertEqual("foo", i.__name__)
 
     def test_name_unicode_id_str(self):
 
         i = Item()
-        if six.PY2:
-            try:
-                i.__name__ = b"\xc3\xb8".decode("utf-8")
-            except UnicodeEncodeError:
-                pass
-            else:
-                self.fail()
-        else:
-            i.__name__ = b"\xc3\xb8".decode("utf-8")
+        i.__name__ = b"\xc3\xb8".decode("utf-8")
 
-        i.__name__ = u"o"
+        i.__name__ = "o"
 
-        self.assertEqual(u"o", i.__name__)
+        self.assertEqual("o", i.__name__)
         self.assertEqual("o", i.id)
         self.assertEqual("o", i.getId())
 
-        self.assertTrue(isinstance(i.__name__, six.text_type))
+        self.assertTrue(isinstance(i.__name__, str))
         self.assertTrue(isinstance(i.id, str))
         self.assertTrue(isinstance(i.getId(), str))
 
@@ -593,10 +573,10 @@ class TestContent(MockTestCase):
         self.addCleanup(datetime_patcher.stop)
 
         i = Item(
-            title=u"Emperor Penguin",
-            description=u"One of the most magnificent birds.",
-            subject=u"Penguins",
-            contributors=u"admin",
+            title="Emperor Penguin",
+            description="One of the most magnificent birds.",
+            subject="Penguins",
+            contributors="admin",
             effective_date="08/20/2010",
             expiration_date="07/09/2013",
             format="text/plain",
@@ -605,13 +585,13 @@ class TestContent(MockTestCase):
         )
 
         summer_timezone = i.effective_date.timezone()
-        self.assertEqual(i.title, u"Emperor Penguin")
+        self.assertEqual(i.title, "Emperor Penguin")
         self.assertEqual(i.Title(), "Emperor Penguin")
-        self.assertEqual(i.description, u"One of the most magnificent birds.")
+        self.assertEqual(i.description, "One of the most magnificent birds.")
         self.assertEqual(i.Description(), "One of the most magnificent birds.")
-        self.assertEqual(i.subject, (u"Penguins",))
+        self.assertEqual(i.subject, ("Penguins",))
         self.assertEqual(i.Subject(), ("Penguins",))
-        self.assertEqual(i.contributors, (u"admin",))
+        self.assertEqual(i.contributors, ("admin",))
         self.assertEqual(i.listContributors(), ("admin",))
         self.assertEqual(i.Contributors(), ("admin",))
         self.assertEqual(i.format, "text/plain")
@@ -649,10 +629,10 @@ class TestContent(MockTestCase):
         self.addCleanup(datetime_patcher.stop)
 
         i = Item(
-            title=u"Emperor Penguin",
-            description=u"One of the most magnificent birds.",
-            subject=u"Penguins",
-            contributors=u"admin",
+            title="Emperor Penguin",
+            description="One of the most magnificent birds.",
+            subject="Penguins",
+            contributors="admin",
             effective_date=date(2010, 8, 20),
             expiration_date=date(2013, 7, 9),
             format="text/plain",
@@ -689,10 +669,10 @@ class TestContent(MockTestCase):
         mocked_datetime.return_value = DateTime(2014, 6, 1)
         self.addCleanup(datetime_patcher.stop)
         i = Item(
-            title=u"Emperor Penguin",
-            description=u"One of the most magnificent birds.",
-            subject=u"Penguins",
-            contributors=u"admin",
+            title="Emperor Penguin",
+            description="One of the most magnificent birds.",
+            subject="Penguins",
+            contributors="admin",
             effective_date=datetime(2010, 8, 20, 12, 59, 59, 0, timezone("US/Eastern")),
             expiration_date=datetime(2013, 7, 9, 12, 59, 59, 0, timezone("US/Eastern")),
             format="text/plain",
@@ -739,16 +719,16 @@ class TestContent(MockTestCase):
 
     def test_item_addCreator(self):
         i = Item()
-        i.addCreator(u"harvey")
-        self.assertEqual(i.creators, (u"harvey",))
-        self.assertEqual(i.listCreators(), (u"harvey",))
+        i.addCreator("harvey")
+        self.assertEqual(i.creators, ("harvey",))
+        self.assertEqual(i.listCreators(), ("harvey",))
         self.assertEqual(i.Creator(), "harvey")
 
     def test_item_Type(self):
         i = Item()
 
         def mock_getTypeInfo():
-            class TypeInfo(object):
+            class TypeInfo:
                 def Title(self):
                     return "Foo"
 
@@ -765,8 +745,8 @@ class TestContent(MockTestCase):
     def test_container_init_dublincore(self):
         from DateTime.DateTime import DateTime
 
-        c = Container(title=u"Test title", language="en", effective_date="2010-08-20")
-        self.assertEqual(c.title, u"Test title")
+        c = Container(title="Test title", language="en", effective_date="2010-08-20")
+        self.assertEqual(c.title, "Test title")
         self.assertEqual(c.language, "en")
         self.assertTrue(isinstance(c.effective_date, DateTime))
 
@@ -778,23 +758,23 @@ class TestContent(MockTestCase):
         # fix http://code.google.com/p/dexterity/issues/detail?id=145
         i = Item()
         i.setTitle("é")
-        self.assertEqual(i.title, u"é")
-        i.setTitle(u"é")
-        self.assertEqual(i.title, u"é")
+        self.assertEqual(i.title, "é")
+        i.setTitle("é")
+        self.assertEqual(i.title, "é")
         c = Container()
         c.setTitle("é")
-        self.assertEqual(c.title, u"é")
-        c.setTitle(u"é")
-        self.assertEqual(c.title, u"é")
+        self.assertEqual(c.title, "é")
+        c.setTitle("é")
+        self.assertEqual(c.title, "é")
 
     def test_Title_converts_to_utf8(self):
         i = Item()
-        i.title = u"é"
+        i.title = "é"
         self.assertEqual("é", i.Title())
         i.title = "é"
         self.assertEqual("é", i.Title())
         c = Container()
-        c.title = u"é"
+        c.title = "é"
         self.assertEqual("é", c.Title())
         c.title = "é"
         self.assertEqual("é", c.Title())
@@ -807,14 +787,14 @@ class TestContent(MockTestCase):
 
     def test_Creator_converts_to_utf8(self):
         i = Item()
-        i.creators = (u"é",)
+        i.creators = ("é",)
         self.assertEqual("é", i.Creator())
         i.creators = ("é",)
         self.assertEqual("é", i.Creator())
         c = Container()
-        c.creators = (u"é",)
+        c.creators = ("é",)
         self.assertEqual("é", c.Creator())
-        self.assertEqual((u"é",), c.creators)
+        self.assertEqual(("é",), c.creators)
 
     def test_Creator_handles_None(self):
         i = Item(creators=None)
@@ -824,12 +804,12 @@ class TestContent(MockTestCase):
 
     def test_Description_converts_to_utf8(self):
         i = Item()
-        i.description = u"é"
+        i.description = "é"
         self.assertEqual("é", i.Description())
         i.description = "é"
         self.assertEqual("é", i.Description())
         c = Container()
-        c.description = u"é"
+        c.description = "é"
         self.assertEqual("é", c.Description())
         c.description = "é"
         self.assertEqual("é", c.Description())
@@ -837,14 +817,14 @@ class TestContent(MockTestCase):
     def test_setDescription_converts_to_unicode(self):
         i = Item()
         i.setDescription("é")
-        self.assertEqual(i.description, u"é")
-        i.setDescription(u"é")
-        self.assertEqual(i.description, u"é")
+        self.assertEqual(i.description, "é")
+        i.setDescription("é")
+        self.assertEqual(i.description, "é")
         c = Container()
         c.setDescription("é")
-        self.assertEqual(c.description, u"é")
-        c.setDescription(u"é")
-        self.assertEqual(c.description, u"é")
+        self.assertEqual(c.description, "é")
+        c.setDescription("é")
+        self.assertEqual(c.description, "é")
 
     def test_Description_handles_None(self):
         i = Item(description=None)
@@ -854,17 +834,17 @@ class TestContent(MockTestCase):
 
     def test_Description_removes_newlines(self):
         i = Item()
-        i.description = u"foo\r\nbar\nbaz\r"
+        i.description = "foo\r\nbar\nbaz\r"
         self.assertEqual("foo bar baz ", i.Description())
 
     def test_Subject_converts_to_utf8(self):
         i = Item()
-        i.subject = (u"é",)
+        i.subject = ("é",)
         self.assertEqual(("é",), i.Subject())
         i.subject = ("é",)
         self.assertEqual(("é",), i.Subject())
         c = Container()
-        c.subject = (u"é",)
+        c.subject = ("é",)
         self.assertEqual(("é",), c.Subject())
         c.subject = ("é",)
         self.assertEqual(("é",), c.Subject())
@@ -872,14 +852,14 @@ class TestContent(MockTestCase):
     def test_setSubject_converts_to_unicode(self):
         i = Item()
         i.setSubject(("é",))
-        self.assertEqual(i.subject, (u"é",))
-        i.setSubject((u"é",))
-        self.assertEqual(i.subject, (u"é",))
+        self.assertEqual(i.subject, ("é",))
+        i.setSubject(("é",))
+        self.assertEqual(i.subject, ("é",))
         c = Container()
         c.setSubject(("é",))
-        self.assertEqual(c.subject, (u"é",))
-        c.setSubject((u"é",))
-        self.assertEqual(c.subject, (u"é",))
+        self.assertEqual(c.subject, ("é",))
+        c.setSubject(("é",))
+        self.assertEqual(c.subject, ("é",))
 
     def test_Subject_handles_None(self):
         i = Item()
@@ -893,7 +873,7 @@ class TestContent(MockTestCase):
         # Ensure that fields using the default value aren't being assigned
         # shallow copies.
 
-        class FauxDataManager(object):
+        class FauxDataManager:
             def setstate(self, obj):
                 pass
 
@@ -904,26 +884,26 @@ class TestContent(MockTestCase):
                 pass
 
         # Dummy instances
-        foo = Item(id=u"foo")
+        foo = Item(id="foo")
         foo.portal_type = "testtype"
         foo._p_jar = FauxDataManager()
 
-        bar = Item(id=u"bar")
+        bar = Item(id="bar")
         bar.portal_type = "testtype"
         bar._p_jar = FauxDataManager()
 
-        baz = Container(id=u"baz")
+        baz = Container(id="baz")
         baz.portal_type = "testtype"
         baz._p_jar = FauxDataManager()
 
         # Dummy schema
         class ISchema(Interface):
-            listfield = zope.schema.List(title=u"listfield", default=[1, 2])
+            listfield = zope.schema.List(title="listfield", default=[1, 2])
 
         # FTI mock
-        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
+        fti_mock = Mock(wraps=DexterityFTI("testtype"))
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         # Ensure that the field of foo is not the same field, also attached to
         # bar.
@@ -962,25 +942,25 @@ class TestContent(MockTestCase):
         item.__class__.__ac_permissions__ = perms_before
 
     def test_iconstraintypes_adapter(self):
-        class DummyConstrainTypes(object):
+        class DummyConstrainTypes:
             def __init__(self, context):
                 self.context = context
 
             def allowedContentTypes(self):
-                fti = getUtility(IDexterityFTI, name=u"testtype")
+                fti = getUtility(IDexterityFTI, name="testtype")
                 return [fti]
 
         self.mock_adapter(DummyConstrainTypes, IConstrainTypes, (IDexterityContainer,))
 
         # FTI mock
-        fti_mock = Mock(wraps=DexterityFTI(u"testtype"))
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        fti_mock = Mock(wraps=DexterityFTI("testtype"))
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         folder = Container(id="testfolder")
 
         self.assertEqual(folder.allowedContentTypes(), [fti_mock])
         self.assertRaises(
-            ValueError, folder.invokeFactory, u"disallowed_type", id="test"
+            ValueError, folder.invokeFactory, "disallowed_type", id="test"
         )
 
     def test_verifyObjectPaste_paste_without_portal_type(self):
@@ -1122,13 +1102,13 @@ class TestContent(MockTestCase):
             DexterityBehaviorAssignable, IBehaviorAssignable, (IDexterityContent,)
         )
 
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=ITest)
         fti_mock.behaviors = ["test_behavior"]
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         behavior_reg = BehaviorRegistration(
-            u"Test Behavior", "", ITestBehavior, ITestBehavior, None
+            "Test Behavior", "", ITestBehavior, ITestBehavior, None
         )
         self.mock_utility(behavior_reg, IBehavior, name="test_behavior")
 

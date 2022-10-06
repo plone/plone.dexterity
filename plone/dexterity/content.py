@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
 from AccessControl import Permissions as acpermissions
@@ -11,6 +10,7 @@ from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import PathReprProvider
 from OFS.SimpleItem import SimpleItem
 from plone.autoform.interfaces import READ_PERMISSIONS_KEY
+from plone.base.interfaces import IConstrainTypes
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.filerepresentation import DAVCollectionMixin
 from plone.dexterity.filerepresentation import DAVResourceMixin
@@ -22,7 +22,6 @@ from plone.dexterity.utils import all_merged_tagged_values_dict
 from plone.dexterity.utils import datify
 from plone.dexterity.utils import iterSchemata
 from plone.dexterity.utils import safe_unicode
-from plone.dexterity.utils import safe_utf8
 from plone.folder.ordered import CMFOrderedBTreeFolderBase
 from plone.uuid.interfaces import IAttributeUUID
 from plone.uuid.interfaces import IUUID
@@ -35,7 +34,6 @@ from Products.CMFCore.interfaces import ITypeInformation
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.PortalFolder import PortalFolderBase
 from Products.CMFDynamicViewFTI.browserdefault import BrowserDefaultMixin
-from Products.CMFPlone.interfaces import IConstrainTypes
 from zExceptions import Unauthorized
 from zope.annotation import IAttributeAnnotatable
 from zope.component import queryUtility
@@ -46,10 +44,10 @@ from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import implementedBy
 from zope.interface.declarations import Implements
 from zope.interface.declarations import ObjectSpecificationDescriptor
+from zope.interface.interface import Method
 from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
 
-import six
 import threading
 
 
@@ -82,7 +80,7 @@ def _default_from_schema(context, schema, fieldname):
     if schema is None:
         return _marker
     field = schema.get(fieldname, None)
-    if field is None:
+    if field is None or isinstance(field, Method):
         return _marker
     default_factory = getattr(field, "defaultFactory", None)
     if (
@@ -232,7 +230,7 @@ class AttributeValidator(Explicit):
         return 0
 
 
-class PasteBehaviourMixin(object):
+class PasteBehaviourMixin:
     def _notifyOfCopyTo(self, container, op=0):
         """Keep Archetypes' reference info internally when op == 1 (move)
         because in those cases we need to keep Archetypes' refeferences.
@@ -269,7 +267,7 @@ class PasteBehaviourMixin(object):
         # Products.CMFCore.PortalFolder.PortalFolderBase (permission checks and
         # allowed content types) to also ask the FTI if construction is
         # allowed.
-        super(PasteBehaviourMixin, self)._verifyObjectPaste(obj, validate_src)
+        super()._verifyObjectPaste(obj, validate_src)
         portal_type = getattr(aq_base(obj), "portal_type", None)
         constrains = IConstrainTypes(self, None)
         if constrains:
@@ -292,7 +290,7 @@ class PasteBehaviourMixin(object):
         # Copied from Products.Archetypes.Referenceable.Referenceable._getCopy
         is_cp_flag = getattr(self, "_v_is_cp", None)
         cp_refs_flag = getattr(self, "_v_cp_refs", None)
-        ob = super(PasteBehaviourMixin, self)._getCopy(container)
+        ob = super()._getCopy(container)
         if is_cp_flag:
             setattr(ob, "_v_is_cp", is_cp_flag)
         if cp_refs_flag:
@@ -319,8 +317,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     # portal_type is set by the add view and/or factory
     portal_type = None
 
-    title = u""
-    description = u""
+    title = ""
+    description = ""
     subject = ()
     creators = ()
     contributors = ()
@@ -416,13 +414,9 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     # that can't be encoded to ASCII will throw a UnicodeEncodeError
 
     def _get__name__(self):
-        if six.PY2:
-            return safe_unicode(self.id)
         return self.id
 
     def _set__name__(self, value):
-        if six.PY2 and isinstance(value, six.text_type):
-            value = str(value)  # may throw, but id must be ASCII in py2
         self.id = value
 
     __name__ = property(_get__name__, _set__name__)
@@ -467,9 +461,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
 
     @security.protected(permissions.View)
     def Title(self):
-        # this is a CMF accessor, so should return utf8-encoded
-        if six.PY2 and isinstance(self.title, six.text_type):
-            return self.title.encode("utf-8")
         return self.title or ""
 
     @security.protected(permissions.View)
@@ -481,10 +472,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         # See http://bo.geekworld.dk/diazo-bug-on-html5-validation-errors/
         # Remember: \r\n - Windows, \r - OS X, \n - Linux/Unix
         value = value.replace("\r\n", " ").replace("\r", " ").replace("\n", " ")  # noqa
-
-        # this is a CMF accessor, so should return utf8-encoded
-        if six.PY2 and isinstance(value, six.text_type):
-            value = value.encode("utf-8")
 
         return value
 
@@ -500,8 +487,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         # List Dublin Core Creator elements - resource authors.
         if self.creators is None:
             return ()
-        if six.PY2:
-            return tuple(safe_utf8(c) for c in self.creators)
         return self.creators
 
     @security.protected(permissions.View)
@@ -515,8 +500,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         # Dublin Core Subject element - resource keywords.
         if self.subject is None:
             return ()
-        if six.PY2:
-            return tuple(safe_utf8(s) for s in self.subject)
         return tuple(self.subject)
 
     @security.protected(permissions.View)
@@ -527,8 +510,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     @security.protected(permissions.View)
     def listContributors(self):
         # Dublin Core Contributor elements - resource collaborators.
-        if six.PY2:
-            return tuple(safe_utf8(c) for c in self.contributors)
         return tuple(self.contributors)
 
     @security.protected(permissions.View)
@@ -600,8 +581,6 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     @security.protected(permissions.View)
     def Rights(self):
         # Dublin Core Rights element - resource copyright.
-        if six.PY2:
-            return safe_utf8(self.rights)
         return self.rights
 
     # ICatalogableDublinCore
@@ -663,21 +642,21 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
     @security.protected(permissions.ModifyPortalContent)
     def setCreators(self, creators):
         # Set Dublin Core Creator elements - resource authors.
-        if isinstance(creators, six.string_types):
+        if isinstance(creators, str):
             creators = [creators]
         self.creators = tuple(safe_unicode(c.strip()) for c in creators)
 
     @security.protected(permissions.ModifyPortalContent)
     def setSubject(self, subject):
         # Set Dublin Core Subject element - resource keywords.
-        if isinstance(subject, six.string_types):
+        if isinstance(subject, str):
             subject = [subject]
         self.subject = tuple(safe_unicode(s.strip()) for s in subject)
 
     @security.protected(permissions.ModifyPortalContent)
     def setContributors(self, contributors):
         # Set Dublin Core Contributor elements - resource collaborators.
-        if isinstance(contributors, six.string_types):
+        if isinstance(contributors, str):
             contributors = contributors.split(";")
         self.contributors = tuple(safe_unicode(c.strip()) for c in contributors)
 
@@ -790,7 +769,7 @@ class Container(
         """
         if ids is None:
             ids = []
-        if isinstance(ids, six.string_types):
+        if isinstance(ids, str):
             ids = [ids]
         for id in ids:
             item = self._getOb(id)
@@ -798,7 +777,7 @@ class Container(
                 permissions.DeleteObjects, item
             ):
                 raise Unauthorized("Do not have permissions to remove this object")
-        return super(Container, self).manage_delObjects(ids, REQUEST=REQUEST)
+        return super().manage_delObjects(ids, REQUEST=REQUEST)
 
     # override PortalFolder's allowedContentTypes to respect IConstrainTypes
     # adapters
@@ -808,7 +787,7 @@ class Container(
 
         constrains = IConstrainTypes(context, None)
         if not constrains:
-            return super(Container, self).allowedContentTypes()
+            return super().allowedContentTypes()
 
         return constrains.allowedContentTypes()
 
@@ -832,9 +811,7 @@ class Container(
                     % type_name
                 )
 
-        return super(Container, self).invokeFactory(
-            type_name, id, RESPONSE, *args, **kw
-        )
+        return super().invokeFactory(type_name, id, RESPONSE, *args, **kw)
 
 
 def reindexOnModify(content, event):
