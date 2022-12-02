@@ -9,6 +9,15 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.0 (2022-12-02)
+------------------
+
+Bug fixes:
+
+
+- Final release for Plone 6.0.0 (#600)
+
+
 3.0.0b2 (2022-08-30)
 --------------------
 
