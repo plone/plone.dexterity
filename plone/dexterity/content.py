@@ -334,7 +334,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         format=_marker,
         language=_marker,
         rights=_marker,
-        **kwargs
+        **kwargs,
     ):
 
         if id is not None:

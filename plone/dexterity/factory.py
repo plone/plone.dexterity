@@ -57,4 +57,4 @@ class DexterityFactory(Persistent, Factory):
         return spec
 
     def __repr__(self):
-        return "<{} for {}>".format(self.__class__.__name__, self.portal_type)
+        return f"<{self.__class__.__name__} for {self.portal_type}>"
