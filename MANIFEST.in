@@ -10,3 +10,4 @@ global-exclude *.pyc
 include pyproject.toml
 recursive-exclude news *
 exclude news
+exclude Makefile
