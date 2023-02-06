@@ -41,3 +41,6 @@ profile = "plone"
 
 [tool.black]
 target-version = ["py38"]
+
+[tool.dependencychecker]
+Zope = ['OFS', 'ZPublisher', 'webdav',]
