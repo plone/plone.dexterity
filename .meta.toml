@@ -8,3 +8,6 @@ commit-id = "a9bb3be7"
 mappings = [
     "Zope = ['OFS', 'ZPublisher', 'webdav',]",
     ]
+
+[codespell]
+additional-ignores = "succeded"

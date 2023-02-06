@@ -42,5 +42,8 @@ profile = "plone"
 [tool.black]
 target-version = ["py38"]
 
+[tool.codespell]
+ignore-words-list = "succeded"
+
 [tool.dependencychecker]
 Zope = ['OFS', 'ZPublisher', 'webdav',]
