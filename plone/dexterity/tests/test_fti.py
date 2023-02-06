@@ -90,7 +90,7 @@ class TestFTI(MockTestCase):
         from the fti, but the code has been removed.
         """
         fti = DexterityFTI("testtype")
-        fti.schema = "model.wont.be.imported"
+        fti.schema = "model.will.not.be.imported"
         portal = self.create_dummy(getPhysicalPath=lambda: ("", "site"))
         self.mock_utility(portal, ISiteRoot)
         schemaName = portalTypeToSchemaName(fti.getId())

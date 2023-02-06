@@ -289,7 +289,7 @@ def invalidate_schema(event):
         SCHEMA_CACHE.clear()
 
 
-# here starts the code dealing wih dynamic schemas.
+# here starts the code dealing with dynamic schemas.
 class SchemaNameEncoder:
     """Schema name encoding"""
 

@@ -216,7 +216,7 @@ def datify(in_date):
 def all_merged_tagged_values_dict(ifaces, key):
     """mergedTaggedValueDict of all interfaces for a given key
 
-    usally interfaces is a list of schemas
+    usually interfaces is a list of schemas
     """
     info = dict()
     for iface in ifaces:
