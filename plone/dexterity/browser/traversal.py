@@ -7,12 +7,7 @@ from plone.dexterity.interfaces import IDexterityContent
 from webdav.NullResource import NullResource
 from zope.component import adapter
 from zope.publisher.interfaces.browser import IBrowserRequest
-
-
-try:
-    from repoze.zope2.publishtraverse import DefaultPublishTraverse
-except ImportError:
-    from ZPublisher.BaseRequest import DefaultPublishTraverse
+from ZPublisher.BaseRequest import DefaultPublishTraverse
 
 
 @adapter(IDexterityContent, IBrowserRequest)
