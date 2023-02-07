@@ -1,3 +1,5 @@
+# Generated from:
+# https://github.com/plone/meta/tree/master/config/default
 [tool.towncrier]
 filename = "CHANGES.rst"
 directory = "news/"
@@ -19,25 +21,29 @@ directory = "bugfix"
 name = "Bug fixes:"
 showcontent = true
 
+[[tool.towncrier.type]]
+directory = "internal"
+name = "Internal:"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "documentation"
+name = "Documentation:"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "tests"
+name = "Tests"
+showcontent = true
+
 [tool.isort]
-profile = "black"
-force_alphabetical_sort = true
-force_single_line = true
-lines_after_imports = 2
+profile = "plone"
 
-[tool.flakeheaven.plugins]
-# Disable some checks.
-# - E501 line too long
-#   flake8 is already testing this, with max-line-length=100000 in .flake8,
-#   so pycodestyle should not test it.
-# - W503 line break before binary operator
-#   Outdated recommendation, see https://www.flake8rules.com/rules/W503.html
-mccabe = ["+*"]
-pycodestyle = ["+*", "-E501", "-W503"]
-pyflakes = ["+*"]
-pylint = ["+*"]
+[tool.black]
+target-version = ["py38"]
 
-[tool.plone-code-analysis]
-paths = "plone/ setup.py"
-paths_pyroma = "."
-paths_zpretty = "plone/"
+[tool.codespell]
+ignore-words-list = "succeded"
+
+[tool.dependencychecker]
+Zope = ['OFS', 'ZPublisher', 'webdav',]

@@ -44,7 +44,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         context = self.context
 
         if not root:
-            subdir = "{}/{}".format(subdir, context.getId())
+            subdir = f"{subdir}/{context.getId()}"
 
         exportable = self.listExportableItems()
 
@@ -86,7 +86,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         """See IFilesystemImporter."""
         context = self.context
         if not root:
-            subdir = "{}/{}".format(subdir, context.getId())
+            subdir = f"{subdir}/{context.getId()}"
 
         data = import_context.readDataFile(".data", subdir)
         if data is not None:
@@ -135,9 +135,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
                 )
                 if object is None:
                     logger = import_context.getLogger("SFWA")
-                    logger.warning(
-                        "Couldn't make instance: {}/{}".format(subdir, object_id)
-                    )
+                    logger.warning(f"Couldn't make instance: {subdir}/{object_id}")
                     continue
 
             wrapped = context._getOb(object_id)

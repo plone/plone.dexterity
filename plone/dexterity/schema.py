@@ -126,14 +126,14 @@ class SchemaCache:
     You should only use this if you require bare-metal speed. For almost all
     operations, it's safer and easier to do:
 
-        >>> fti = getUtility(IDexterityFTI, name=portal_type)
-        >>> schema = fti.lookupSchema()
+        >> fti = getUtility(IDexterityFTI, name=portal_type)
+        >> schema = fti.lookupSchema()
 
     The lookupSchema() call is probably as fast as this cache. However, if
     you need to avoid the utility lookup, you can use the cache like so:
 
-        >>> from plone.dexterity.schema import SCHEMA_CACHE
-        >>> my_schema = SCHEMA_CACHE.get(portal_type)
+        >> from plone.dexterity.schema import SCHEMA_CACHE
+        >> my_schema = SCHEMA_CACHE.get(portal_type)
 
     The cache uses the FTI's modification time as its invariant.
     """
@@ -289,7 +289,7 @@ def invalidate_schema(event):
         SCHEMA_CACHE.clear()
 
 
-# here starts the code dealing wih dynamic schemas.
+# here starts the code dealing with dynamic schemas.
 class SchemaNameEncoder:
     """Schema name encoding"""
 

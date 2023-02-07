@@ -294,7 +294,7 @@ class FolderDataResource(Implicit, Resource):
         return self.__name__
 
     def getId(self):
-        # Get id for traveral purposes.
+        # Get id for traversal purposes.
         return self.__name__
 
     @security.protected(permissions.View)

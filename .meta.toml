@@ -1,0 +1,13 @@
+# Generated from:
+# https://github.com/plone/meta/tree/master/config/default
+[meta]
+template = "default"
+commit-id = "a9bb3be7"
+
+[dependencies]
+mappings = [
+    "Zope = ['OFS', 'ZPublisher', 'webdav',]",
+    ]
+
+[codespell]
+additional-ignores = "succeded"

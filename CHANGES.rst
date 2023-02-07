@@ -207,7 +207,7 @@ Bug fixes:
 Bug fixes:
 
 
-- Speedup (~1.6x) parallel thread execution by removing superfluos synchronization [jensens] (#123)
+- Speedup (~1.6x) parallel thread execution by removing superfluous synchronization [jensens] (#123)
 
 
 2.9.4 (2019-12-26)
@@ -243,7 +243,7 @@ Bug fixes:
 - Performance enhancement:
   Refine pre-filtering of attributes on content ``__getattr__``.
   Filter out all permissions (ending with ``_Permission``) and some portal-tools.
-  Also often called aquired functions are skipped.
+  Also often called acquired functions are skipped.
   [jensens] (#116)
 - Performance enhancement: avoid a providedBy in ``_default_from_schema``.
   [jensens] (#117)
@@ -549,7 +549,7 @@ Fixes:
   behaviors weren't taken into account, or only FTI based behaviors but not
   those returned by the IBehaviorAssignable adapter. Also the caching was
   cleaned up. The tests are now better readable (at least I hope so).  In order
-  to avoid circular imports some methods where moved fro ``utils.py`` to
+  to avoid circular imports some methods where moved for ``utils.py`` to
   ``schema.py``.  Deprecations are in place.
   [jensens]
 
@@ -612,7 +612,7 @@ Fixes:
   [toutpt]
 
 - Date index method works even if source field is a dexterity field
-  wich provides a  datetime python value.
+  which provides a  datetime python value.
   Now you can manually add a field with the name of a common Plone metadata field
   (as effective_date, publication_date, etc.)
   [tdesvenain]
@@ -701,7 +701,7 @@ Fixes:
 * Added Finnish translations.
   [pingviini]
 
-* Overrride allowedContentTypes and invokeFactory from PortalFolder
+* Override allowedContentTypes and invokeFactory from PortalFolder
   to mimic the behavior of Archetypes based folders. This allows the
   registration of IConstrainTypes adapters to actually have the
   expected effect.
