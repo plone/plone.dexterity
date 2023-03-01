@@ -1,0 +1,2 @@
+Fix webdav tests to pass with Zope 5.8 and the master branch.
+[maurits]
