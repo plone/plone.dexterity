@@ -20,9 +20,12 @@ class PrimaryFieldInfo:
                     primary = (name, field)
                     break
         if not primary:
-            raise TypeError("Could not adapt", context, IPrimaryFieldInfo)
-        self.fieldname, self.field = primary
+            self.fieldname, self.field = None, None
+        else:
+            self.fieldname, self.field = primary
 
     @property
     def value(self):
+        if self.field is None:
+            return None
         return self.field.get(self.context)
