@@ -22,7 +22,6 @@ class TestAttributeProtection(MockTestCase):
         SCHEMA_CACHE.clear()
 
     def test_item(self):
-
         # Mock schema model
         class ITestSchema(Interface):
             test = zope.schema.TextLine(title="Test")
@@ -121,7 +120,6 @@ class TestAttributeProtection(MockTestCase):
         security_manager_mock.checkPermission.assert_called_with("View", item)
 
     def test_container(self):
-
         # Mock schema model
         class ITestSchema(Interface):
             test = zope.schema.TextLine(title="Test")
@@ -224,7 +222,6 @@ class TestAttributeProtection(MockTestCase):
         security_manager_mock.checkPermission.assert_called_with("View", container)
 
     def test_no_tagged_value(self):
-
         # Mock schema model
         class ITestSchema(Interface):
             test = zope.schema.TextLine(title="Test")
@@ -253,7 +250,6 @@ class TestAttributeProtection(MockTestCase):
         )
 
     def test_no_read_permission(self):
-
         # Mock schema model
         class ITestSchema(Interface):
             test = zope.schema.TextLine(title="Test")
@@ -294,7 +290,6 @@ class TestAttributeProtection(MockTestCase):
         )
 
     def test_no_schema(self):
-
         # Mock FTI
         fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=None)
@@ -316,7 +311,6 @@ class TestAttributeProtection(MockTestCase):
         )
 
     def test_schema_exception(self):
-
         # Mock FTI
         fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(side_effect=AttributeError)
@@ -339,7 +333,6 @@ class TestAttributeProtection(MockTestCase):
         )
 
     def test_empty_name(self):
-
         # Mock FTI
         fti_mock = DexterityFTI("testtype")
         self.mock_utility(fti_mock, IDexterityFTI, "testtype")

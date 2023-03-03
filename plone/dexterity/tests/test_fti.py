@@ -114,7 +114,6 @@ class TestFTI(MockTestCase):
         self.assertIs(model_dummy, model)
 
     def test_lookupModel_from_file_with_package(self):
-
         fti = DexterityFTI("testtype")
         fti.schema = None
         fti.model_source = None
@@ -137,7 +136,6 @@ class TestFTI(MockTestCase):
         loadFile_mock.assert_called_once_with(abs_file, reload=True, policy="dexterity")
 
     def test_lookupModel_from_file_with_absolute_path(self):
-
         import plone.dexterity.tests
 
         abs_file = os.path.join(
@@ -160,7 +158,6 @@ class TestFTI(MockTestCase):
         loadFile_mock.assert_called_once_with(abs_file, reload=True, policy="dexterity")
 
     def test_lookupModel_from_file_with_win32_absolute_path(self):
-
         fti = DexterityFTI("testtype")
         fti.schema = None
         fti.model_source = None
@@ -405,7 +402,6 @@ class TestFTI(MockTestCase):
 
 
 class TestFTIEvents(MockTestCase):
-
     # These tests are a bit verbose, but the basic premise is pretty simple.
     # We create a proxy mock of a PersistentComponents() registry, and
     # use this for mock assertions as well as to verify that the right

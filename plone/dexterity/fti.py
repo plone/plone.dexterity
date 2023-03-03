@@ -246,7 +246,6 @@ class DexterityFTI(base.DynamicViewTypeInformation):
         return getattr(plone.dexterity.schema.generated, schemaName)
 
     def lookupModel(self):
-
         if self.model_source:
             return loadString(self.model_source, policy=self.schema_policy)
 
@@ -531,12 +530,10 @@ def ftiModified(object, event):
         or "model_file" in mod
         or "schema_policy" in mod
     ):
-
         # Determine if we need to re-sync a dynamic schema
         if (fti.model_source or fti.model_file) and (
             "model_source" in mod or "model_file" in mod or "schema_policy" in mod
         ):
-
             schemaName = portalTypeToSchemaName(portal_type, suffix=get_suffix(fti))
             schema = getattr(plone.dexterity.schema.generated, schemaName)
 

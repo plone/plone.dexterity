@@ -28,7 +28,6 @@ class TestSchemaCache(MockTestCase):
         self.assertTrue(schema1 is schema2 is ISchema)
 
     def test_repeated_behavior_registration_lookup(self):
-
         fti = DexterityFTI("testtype")
         self.mock_utility(fti, IDexterityFTI, name="testtype")
 
@@ -74,7 +73,6 @@ class TestSchemaCache(MockTestCase):
             )
 
     def test_repeated_subtypes_lookup(self):
-
         fti = DexterityFTI("testtype")
         self.mock_utility(fti, IDexterityFTI, name="testtype")
 

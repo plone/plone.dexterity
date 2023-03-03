@@ -9,7 +9,6 @@ import zope.schema
 
 
 class IContentType(Interface):
-
     pass
 
 

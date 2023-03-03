@@ -52,7 +52,6 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         csv_writer = writer(stream)
 
         for object_id, object, adapter in exportable:
-
             factory_namer = IContentFactoryName(object, None)
             if factory_namer is None:
                 factory_name = _getDottedName(object.__class__)
@@ -128,7 +127,6 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         existing = context.objectIds()
 
         for object_id, type_name in rows:
-
             if object_id not in existing:
                 object = self._makeInstance(
                     object_id, type_name, subdir, import_context
