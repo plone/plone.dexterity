@@ -25,7 +25,6 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         self.request = request
 
     def publishTraverse(self, request, name):
-
         context = aq_inner(self.context)
 
         # If we are trying to traverse to the folder "body" pseudo-object
@@ -59,7 +58,6 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         return defaultTraversal
 
     def browserDefault(self, request):
-
         # If this is not a WebDAV request, we don't want to give a
         # default view. The ZPublisher's WebDAV implementation doesn't
         # deal well with default views.

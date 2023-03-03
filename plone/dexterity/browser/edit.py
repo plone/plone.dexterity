@@ -16,7 +16,6 @@ from zope.interface import classImplements
 
 
 class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
-
     success_message = _("Changes saved")
 
     @button.buttonAndHandler(_("Save"), name="save")

@@ -24,7 +24,6 @@ class IFour(IThree):
 
 class TestBehavior(MockTestCase):
     def test_supports(self):
-
         # Context mock
         context_dummy = self.create_dummy(portal_type="testtype")
 
@@ -47,7 +46,6 @@ class TestBehavior(MockTestCase):
         self.assertEqual(True, assignable.supports(IFour))
 
     def test_enumerate(self):
-
         # Context mock
         context_dummy = self.create_dummy(portal_type="testtype")
 

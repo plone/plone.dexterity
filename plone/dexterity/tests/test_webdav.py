@@ -53,7 +53,6 @@ class ITestBehavior(Interface):
 
 
 class DAVTestRequest(TestRequest):
-
     get_header = TestRequest.getHeader
 
     def _createResponse(self):

@@ -135,7 +135,7 @@ def createContent(portal_type, **kw):
             setattr(behavior, name, value)
             done.append(name)
 
-    for (key, value) in fields.items():
+    for key, value in fields.items():
         if key in done:
             continue
         setattr(content, key, value)
