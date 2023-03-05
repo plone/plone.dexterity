@@ -19,13 +19,9 @@ class PrimaryFieldInfo:
                 if IPrimaryField.providedBy(field):
                     primary = (name, field)
                     break
-        if not primary:
-            self.fieldname, self.field = None, None
-        else:
-            self.fieldname, self.field = primary
+        self.fieldname, self.field = primary or (None, None)
 
     @property
     def value(self):
-        if self.field is None:
-            return None
-        return self.field.get(self.context)
+        return self.field.get(self.context) if self.field else None
+
