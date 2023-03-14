@@ -9,6 +9,32 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.2 (2023-03-14)
+------------------
+
+Bug fixes:
+
+
+- Type error is removed and none is returned.
+  In this modified version of the code, if no primary field adapter is found, the fieldname and field attributes are set to None.
+  The value property checks whether the field attribute is None, and returns None if it is, instead of raising an error.
+  [Coder-aadarsh] (#59)
+
+
+Internal:
+
+
+- Update configuration files.
+  [plone devs] (13d8d6c0)
+
+
+Tests
+
+
+- Fix webdav tests to pass with Zope 5.8 and the master branch.
+  [maurits] (#844)
+
+
 3.0.1 (2023-02-08)
 ------------------
 
