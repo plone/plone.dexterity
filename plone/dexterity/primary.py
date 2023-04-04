@@ -24,4 +24,3 @@ class PrimaryFieldInfo:
     @property
     def value(self):
         return self.field.get(self.context) if self.field else None
-
