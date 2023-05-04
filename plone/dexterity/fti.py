@@ -458,7 +458,7 @@ def ftiAdded(object, event):
 
 
 def ftiRemoved(object, event):
-    """When the FTI is removed, uninstall local coponents"""
+    """When the FTI is removed, uninstall local components"""
 
     if not IDexterityFTI.providedBy(event.object):
         return
