@@ -1,13 +1,9 @@
 # Generated from:
 # https://github.com/plone/meta/tree/master/config/default
+# See the inline comments on how to expand/tweak this configuration file
 [meta]
 template = "default"
-commit-id = "13d8d6c0"
+commit-id = "55bda5c9"
 
-[dependencies]
-mappings = [
-    "Zope = ['OFS', 'ZPublisher', 'webdav',]",
-    ]
-
-[codespell]
-additional-ignores = "succeded"
+[pyproject]
+codespell_ignores = "succeded"
