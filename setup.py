@@ -1,3 +1,4 @@
+from pathlib import Path
 from setuptools import find_packages
 from setuptools import setup
 
@@ -5,33 +6,23 @@ from setuptools import setup
 version = "3.0.3.dev0"
 
 
-def read(filename):
-    with open(filename) as myfile:
-        try:
-            return myfile.read()
-        except UnicodeDecodeError:
-            # Happens on one Jenkins node on Python 3.6,
-            # so maybe it happens for users too.
-            pass
-    # Opening and reading as text failed, so retry opening as bytes.
-    with open(filename, "rb") as myfile:
-        contents = myfile.read()
-        return contents.decode("utf-8")
+long_description = (
+    f"{Path('README.rst').read_text()}\n{Path('CHANGES.rst').read_text()}"
+)
 
 
 short_description = """\
 Framework for content types as filesystem code and TTW (Zope/CMF/Plone)\
 """
-long_description = read("README.rst")
-long_description += "\n"
-long_description += read("CHANGES.rst")
 
 setup(
     name="plone.dexterity",
     version=version,
     description=short_description,
     long_description=long_description,
-    # Get more strings from https://pypi.org/classifiers/
+    long_description_content_type="text/x-rst",
+    # Get more strings from
+    # https://pypi.org/classifiers/
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Framework :: Plone",
