@@ -1,8 +1,6 @@
 # Generated from:
 # https://github.com/plone/meta/tree/master/config/default
-[bdist_wheel]
-universal = 0
-
+# See the inline comments on how to expand/tweak this configuration file
 [flake8]
 doctests = 1
 ignore =
@@ -15,10 +13,10 @@ ignore =
     # black takes care of spaces after commas
     E231,
 
-[check-manifest]
-ignore =
-    .editorconfig
-    .meta.toml
-    .pre-commit-config.yaml
-    tox.ini
-    lint-requirements.txt
+##
+# Add extra configuration options in .meta.toml:
+#  [flake8]
+#  extra_lines = """
+#  _your own configuration lines_
+#  """
+##

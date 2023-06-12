@@ -21,7 +21,9 @@
   >
     <tr>
       <td>
-        <div class="form-label">ID</div>
+        <div class="form-label"
+             i18n:translate=""
+        >ID</div>
       </td>
       <td>
         <input name="add_input_name"
@@ -32,12 +34,15 @@
     </tr>
     <tr tal:condition="view/getProfileInfos">
       <td>
-        <div class="form-label">Presettings</div>
+        <div class="form-label"
+             i18n:translate=""
+        >Presettings</div>
       </td>
       <td>
         <select name="settings_id">
           <option selected="selected"
                   value=""
+                  i18n:translate=""
           >(None)</option>
           <optgroup label="PROFILE_TITLE"
                     tal:repeat="profile view/getProfileInfos"
@@ -64,6 +69,7 @@
                name="submit_add"
                type="submit"
                value="Add"
+               i18n:attributes="value"
         />
       </td>
     </tr>
