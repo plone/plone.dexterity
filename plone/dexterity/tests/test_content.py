@@ -995,12 +995,11 @@ class TestContent(MockTestCase):
     def test_verifyObjectPaste_locally_disallowed_contents(self):
         from Products.CMFCore.interfaces import ITypeInformation
 
-        class DummyConstrainTypes(object):
+        class DummyConstrainTypes:
             def __init__(self, context):
                 self.context = context
 
             def allowedContentTypes(self):
-
                 fti = getUtility(IDexterityFTI, name="news")
                 return [fti]
 
