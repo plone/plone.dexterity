@@ -226,6 +226,6 @@ The `Dexterity Developer Manual <http://docs.plone.org/external/plone.app.dexter
 Source Code
 ===========
 
-Contributors please read the document `Process for Plone core's development <https://docs.plone.org/develop/coredev/docs/index.html>`_
+Contributors please read the document `Contributing to Plone <https://6.docs.plone.org/contributing/index.html>`_
 
 Sources are at the `Plone code repository hosted at Github <https://github.com/plone/plone.dexterity>`_.

@@ -135,7 +135,7 @@ def createContent(portal_type, **kw):
             setattr(behavior, name, value)
             done.append(name)
 
-    for (key, value) in fields.items():
+    for key, value in fields.items():
         if key in done:
             continue
         setattr(content, key, value)
@@ -216,7 +216,7 @@ def datify(in_date):
 def all_merged_tagged_values_dict(ifaces, key):
     """mergedTaggedValueDict of all interfaces for a given key
 
-    usally interfaces is a list of schemas
+    usually interfaces is a list of schemas
     """
     info = dict()
     for iface in ifaces:

@@ -5,7 +5,6 @@ import unittest
 
 
 class StupidStack:
-
     _elements = []  # not thread safe
     _lock = Lock()
 
@@ -32,7 +31,6 @@ def reverse_global_list():
 
 class Test(unittest.TestCase):
     def test_instance_method(self):
-
         shared_stack = StupidStack()
         shared_stack.push("one")
         item = shared_stack.pop()

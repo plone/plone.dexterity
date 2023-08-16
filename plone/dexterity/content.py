@@ -340,9 +340,8 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         format=_marker,
         language=_marker,
         rights=_marker,
-        **kwargs
+        **kwargs,
     ):
-
         if id is not None:
             self.id = id
         now = DateTime()
@@ -368,7 +367,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         if rights is not _marker:
             self.setRights(rights)
 
-        for (k, v) in kwargs.items():
+        for k, v in kwargs.items():
             setattr(self, k, v)
 
     def __getattr__(self, name):

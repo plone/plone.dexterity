@@ -1,21 +1,28 @@
 <metal:content-core define-macro="content-core">
 
   <tal:block repeat="widget view/widgets/values">
-      <div class="field" tal:condition="python:widget.__name__ not in ('IBasic.title', 'IBasic.description', 'title', 'description',)">
-          <label tal:content="widget/label" />
-          <br />
-          <div tal:content="structure widget/render" />
-      </div>
+    <div class="field"
+         tal:condition="python:widget.__name__ not in ('IBasic.title', 'IBasic.description', 'title', 'description',)"
+    >
+      <label tal:content="widget/label"></label>
+      <br />
+      <div tal:content="structure widget/render"></div>
+    </div>
   </tal:block>
 
   <fieldset tal:repeat="group view/groups"
-            tal:attributes="id python:''.join((group.prefix, 'groups.', group.__name__)).replace('.', '-')">
-      <legend tal:content="group/label" />
-      <div class="field" tal:repeat="widget group/widgets/values">
-          <label tal:content="widget/label" />
-          <br />
-          <div tal:content="structure widget/render" />
-      </div>
+            tal:attributes="
+              id python:''.join((group.prefix, 'groups.', group.__name__)).replace('.', '-');
+            "
+  >
+    <legend tal:content="group/label"></legend>
+    <div class="field"
+         tal:repeat="widget group/widgets/values"
+    >
+      <label tal:content="widget/label"></label>
+      <br />
+      <div tal:content="structure widget/render"></div>
+    </div>
   </fieldset>
 
 </metal:content-core>

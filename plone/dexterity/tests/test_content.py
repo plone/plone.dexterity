@@ -88,7 +88,6 @@ class TestContent(MockTestCase):
         self.assertTrue(ISchema.providedBy(item))
 
     def test_provided_by_subclass(self):
-
         # Make sure the __providedBy__ descriptor lives in sub-classes
 
         # Dummy type
@@ -144,7 +143,6 @@ class TestContent(MockTestCase):
         self.assertTrue(ISchema.providedBy(item))
 
     def test_provided_by_subclass_nojar(self):
-
         # Dummy type
         class MyItem(Item):
             pass
@@ -191,7 +189,6 @@ class TestContent(MockTestCase):
         self.assertTrue(ISchema.providedBy(item))
 
     def test_provided_by_behavior_subtype(self):
-
         # Dummy type
         class MyItem(Item):
             pass
@@ -287,7 +284,6 @@ class TestContent(MockTestCase):
         self.assertTrue(IMarker2.providedBy(item))
 
     def test_provided_by_behavior_subtype_invalidation(self):
-
         # Dummy type
         class MyItem(Item):
             pass
@@ -394,7 +390,6 @@ class TestContent(MockTestCase):
         self.assertTrue(IMarker3.providedBy(item))
 
     def test_getattr_consults_schema_item(self):
-
         content = Item()
         content.id = "id"
         content.portal_type = "testtype"
@@ -417,7 +412,6 @@ class TestContent(MockTestCase):
         self.assertRaises(AttributeError, getattr, content, "baz")
 
     def test_getattr_consults_schema_container(self):
-
         content = Container()
         content.id = "id"
         content.portal_type = "testtype"
@@ -440,7 +434,6 @@ class TestContent(MockTestCase):
         self.assertRaises(AttributeError, getattr, content, "baz")
 
     def test_getattr_consults_schema_item_default_factory_with_context(self):
-
         content = Item()
         content.id = "id"
         content.portal_type = "testtype"
@@ -470,7 +463,6 @@ class TestContent(MockTestCase):
         self.assertRaises(AttributeError, getattr, content, "baz")
 
     def test_getattr_on_container_returns_children(self):
-
         content = Container()
         content.id = "id"
         content.portal_type = "testtype"
@@ -529,7 +521,6 @@ class TestContent(MockTestCase):
             self.assertTrue(tab in containerOptions, "Tab %s not found" % tab)
 
     def test_name_and_id_in_sync(self):
-
         i = Item()
         self.assertEqual("", i.id)
         self.assertEqual("", i.getId())
@@ -548,7 +539,6 @@ class TestContent(MockTestCase):
         self.assertEqual("foo", i.__name__)
 
     def test_name_unicode_id_str(self):
-
         i = Item()
         i.__name__ = b"\xc3\xb8".decode("utf-8")
 

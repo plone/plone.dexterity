@@ -17,7 +17,6 @@ import zope.schema
 
 class TestSchemaModuleFactory(MockTestCase):
     def test_transient_schema(self):
-
         # No IDexterityFTI registered
         factory = schema.SchemaModuleFactory()
         schemaName = schema.portalTypeToSchemaName("testtype", prefix="site")
@@ -31,7 +30,6 @@ class TestSchemaModuleFactory(MockTestCase):
         self.assertEqual((), tuple(zope.schema.getFields(klass)))
 
     def test_concrete_default_schema(self):
-
         # Mock schema model
         class IDummy(Interface):
             dummy = zope.schema.TextLine(title="Dummy")
@@ -56,7 +54,6 @@ class TestSchemaModuleFactory(MockTestCase):
         self.assertEqual(("dummy",), tuple(zope.schema.getFieldNames(klass)))
 
     def test_named_schema(self):
-
         # Mock schema model
         class IDummy(Interface):
             dummy = zope.schema.TextLine(title="Dummy")
@@ -89,7 +86,6 @@ class TestSchemaModuleFactory(MockTestCase):
         self.assertEqual(("named",), tuple(zope.schema.getFieldNames(klass)))
 
     def test_transient_schema_made_concrete(self):
-
         factory = schema.SchemaModuleFactory()
         schemaName = schema.portalTypeToSchemaName("testtype", prefix="site")
 

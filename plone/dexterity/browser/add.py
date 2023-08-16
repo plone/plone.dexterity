@@ -85,7 +85,6 @@ class DefaultAddForm(DexterityExtensibleForm, form.AddForm):
         return aq_base(content)
 
     def add(self, object):
-
         fti = getUtility(IDexterityFTI, name=self.portal_type)
         new_object = addContentToContainer(self.container, object)
 

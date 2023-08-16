@@ -44,7 +44,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         context = self.context
 
         if not root:
-            subdir = "{}/{}".format(subdir, context.getId())
+            subdir = f"{subdir}/{context.getId()}"
 
         exportable = self.listExportableItems()
 
@@ -52,7 +52,6 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         csv_writer = writer(stream)
 
         for object_id, object, adapter in exportable:
-
             factory_namer = IContentFactoryName(object, None)
             if factory_namer is None:
                 factory_name = _getDottedName(object.__class__)
@@ -86,7 +85,7 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         """See IFilesystemImporter."""
         context = self.context
         if not root:
-            subdir = "{}/{}".format(subdir, context.getId())
+            subdir = f"{subdir}/{context.getId()}"
 
         data = import_context.readDataFile(".data", subdir)
         if data is not None:
@@ -128,16 +127,13 @@ class DexterityContentExporterImporter(FolderishExporterImporter):
         existing = context.objectIds()
 
         for object_id, type_name in rows:
-
             if object_id not in existing:
                 object = self._makeInstance(
                     object_id, type_name, subdir, import_context
                 )
                 if object is None:
                     logger = import_context.getLogger("SFWA")
-                    logger.warning(
-                        "Couldn't make instance: {}/{}".format(subdir, object_id)
-                    )
+                    logger.warning(f"Couldn't make instance: {subdir}/{object_id}")
                     continue
 
             wrapped = context._getOb(object_id)

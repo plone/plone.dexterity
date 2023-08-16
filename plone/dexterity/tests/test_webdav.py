@@ -53,7 +53,6 @@ class ITestBehavior(Interface):
 
 
 class DAVTestRequest(TestRequest):
-
     get_header = TestRequest.getHeader
 
     def _createResponse(self):
@@ -593,16 +592,18 @@ class TestFolderDataResource(MockTestCase):
   <d:status>HTTP/1.1 200 OK</d:status>
 </d:propstat>
 <d:responsedescription>
-The operation succeded.
+The operation succeeded.
 </d:responsedescription>
 </d:response>
 </d:multistatus>
 """
         )
-
-        result = response.getBody()
-
-        self.assertEqual(body.strip(), result.strip())
+        body = body.strip()
+        result = response.getBody().strip()
+        # TODO: remove next line when Zope 5.8.1 is released and used in coredev.
+        # Then also remove codespell settings from .meta.toml and pyproject.toml.
+        result = result.replace(b"succeded", b"succeeded")
+        self.assertEqual(body, result)
 
     def test_LOCK(self):
         # Too much WebDAV magic - just test that it delegates correctly

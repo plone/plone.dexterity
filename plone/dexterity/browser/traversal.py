@@ -7,12 +7,7 @@ from plone.dexterity.interfaces import IDexterityContent
 from webdav.NullResource import NullResource
 from zope.component import adapter
 from zope.publisher.interfaces.browser import IBrowserRequest
-
-
-try:
-    from repoze.zope2.publishtraverse import DefaultPublishTraverse
-except ImportError:
-    from ZPublisher.BaseRequest import DefaultPublishTraverse
+from ZPublisher.BaseRequest import DefaultPublishTraverse
 
 
 @adapter(IDexterityContent, IBrowserRequest)
@@ -30,7 +25,6 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         self.request = request
 
     def publishTraverse(self, request, name):
-
         context = aq_inner(self.context)
 
         # If we are trying to traverse to the folder "body" pseudo-object
@@ -64,7 +58,6 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         return defaultTraversal
 
     def browserDefault(self, request):
-
         # If this is not a WebDAV request, we don't want to give a
         # default view. The ZPublisher's WebDAV implementation doesn't
         # deal well with default views.
