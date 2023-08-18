@@ -67,6 +67,7 @@ setup(
     ],
     extras_require={
         "test": [
+            "Products.CMFPlone",
             "plone.testing",
             "plone.app.content",
             "plone.i18n",
