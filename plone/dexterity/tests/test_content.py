@@ -16,6 +16,7 @@ from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
+from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFCore.interfaces import ITypesTool
 from pytz import timezone
 from unittest.mock import Mock
@@ -995,6 +996,9 @@ class TestContent(MockTestCase):
     def test_verifyObjectPaste_locally_disallowed_contents(self):
         from Products.CMFCore.interfaces import ITypeInformation
 
+        portal = self.create_dummy(getPhysicalPath=lambda: ("", "site"))
+        self.mock_utility(portal, ISiteRoot)
+
         class DummyConstrainTypes:
             def __init__(self, context):
                 self.context = context
@@ -1045,6 +1049,9 @@ class TestContent(MockTestCase):
 
     def test_verifyObjectPaste_fti_does_allow_content(self):
         from Products.CMFCore.interfaces import ITypeInformation
+
+        portal = self.create_dummy(getPhysicalPath=lambda: ("", "site"))
+        self.mock_utility(portal, ISiteRoot)
 
         original_container = Container(id="parent")
         original_container.manage_permission("View", ("Anonymous",))

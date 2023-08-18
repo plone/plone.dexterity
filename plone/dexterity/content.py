@@ -28,6 +28,7 @@ from plone.uuid.interfaces import IUUID
 from Products.CMFCore import permissions
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.CMFCore.interfaces import ICatalogableDublinCore
+from Products.CMFCore.interfaces import IContentish
 from Products.CMFCore.interfaces import IDublinCore
 from Products.CMFCore.interfaces import IMutableDublinCore
 from Products.CMFCore.interfaces import ITypeInformation
@@ -268,12 +269,13 @@ class PasteBehaviourMixin:
         # allowed content types) to also ask the FTI if construction is
         # allowed.
         super()._verifyObjectPaste(obj, validate_src)
-        portal_type = getattr(aq_base(obj), "portal_type", None)
-        constrains = IConstrainTypes(self, None)
-        if constrains:
-            allowed_ids = [i.getId() for i in constrains.allowedContentTypes()]
-            if portal_type not in allowed_ids:
-                raise ValueError("Disallowed subobject type: %s" % portal_type)
+        if IContentish.providedBy(obj):
+            portal_type = getattr(aq_base(obj), "portal_type", None)
+            constrains = IConstrainTypes(self, None)
+            if constrains:
+                allowed_ids = [i.getId() for i in constrains.allowedContentTypes()]
+                if portal_type not in allowed_ids:
+                    raise ValueError("Disallowed subobject type: %s" % portal_type)
         if validate_src:
             portal_type = getattr(aq_base(obj), "portal_type", None)
             if portal_type:
