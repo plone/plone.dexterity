@@ -193,7 +193,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
             return spec
 
         dynamically_provided.append(spec)
-        all_spec = Provides(*dynamically_provided)
+        all_spec = Provides(cls, *dynamically_provided)
         inst._v__providedBy__ = updated + (all_spec,)
 
         return all_spec
