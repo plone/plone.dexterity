@@ -3,7 +3,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-version = "3.0.3"
+version = "3.0.4.dev0"
 
 
 long_description = (
