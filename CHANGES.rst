@@ -9,6 +9,23 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.3 (2023-09-01)
+------------------
+
+Bug fixes:
+
+
+- Respect locally allowed types when pasting objects [cekk] (#146)
+- Fix a memory leak as reported in https://github.com/plone/Products.CMFPlone/issues/3829, changing interface declaration type as suggested by @d-maurer in https://github.com/plone/plone.dexterity/issues/186 [mamico] (#187)
+
+
+Internal:
+
+
+- Update configuration files.
+  [plone devs] (55bda5c9)
+
+
 3.0.2 (2023-03-14)
 ------------------
 
