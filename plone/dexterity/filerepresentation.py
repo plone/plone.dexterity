@@ -647,7 +647,7 @@ class DefaultReadFile(ReadFileBase):
         # Construct message on demand.
         message = constructMessageFromSchemata(self.context, iterSchemata(self.context))
 
-        # Store the portal type in a header, to allow it to be identifed later
+        # Store the portal type in a header, to allow it to be identified later
         message["Portal-Type"] = self.context.portal_type
 
         return message
