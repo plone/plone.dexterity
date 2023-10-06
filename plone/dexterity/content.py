@@ -44,8 +44,8 @@ from zope.globalrequest import getRequest
 from zope.interface import implementer
 from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import implementedBy
-from zope.interface.declarations import Implements
 from zope.interface.declarations import ObjectSpecificationDescriptor
+from zope.interface.declarations import Provides
 from zope.interface.interface import Method
 from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.security.interfaces import IPermission
@@ -196,7 +196,7 @@ class FTIAwareSpecification(ObjectSpecificationDescriptor):
             return spec
 
         dynamically_provided.append(spec)
-        all_spec = Implements(*dynamically_provided)
+        all_spec = Provides(cls, *dynamically_provided)
         inst._v__providedBy__ = updated + (all_spec,)
 
         return all_spec
