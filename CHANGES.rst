@@ -9,6 +9,15 @@ Changelog
 
 .. towncrier release notes start
 
+2.11.0 (2023-11-10)
+-------------------
+
+New features:
+
+
+- Fix a memory leak as reported in https://github.com/plone/Products.CMFPlone/issues/3829, changing interface declaration type as suggested by @d-maurer in https://github.com/plone/plone.dexterity/issues/186 [mamico] (#189)
+
+
 2.10.5 (2021-11-25)
 -------------------
 
