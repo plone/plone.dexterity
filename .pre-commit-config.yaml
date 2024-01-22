@@ -1,5 +1,5 @@
 # Generated from:
-# https://github.com/plone/meta/tree/master/config/default
+# https://github.com/plone/meta/tree/main/config/default
 # See the inline comments on how to expand/tweak this configuration file
 ci:
     autofix_prs: false
@@ -35,6 +35,14 @@ repos:
     rev: 6.1.0
     hooks:
     -   id: flake8
+
+##
+# Add extra configuration options in .meta.toml:
+#  [pre_commit]
+#  flake8_extra_lines = """
+#  _your own configuration lines_
+#  """
+##
 -   repo: https://github.com/codespell-project/codespell
     rev: v2.2.6
     hooks:
@@ -66,6 +74,16 @@ repos:
     rev: "6.1.0"
     hooks:
     -   id: i18ndude
+
+
+##
+# Add extra configuration options in .meta.toml:
+#  [pre_commit]
+#  i18ndude_extra_lines = """
+#  _your own configuration lines_
+#  """
+##
+
 
 ##
 # Add extra configuration options in .meta.toml:
