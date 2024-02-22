@@ -41,6 +41,7 @@ from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.Iterators import IStreamIterator
 
 import re
+import unittest
 
 
 XML_PROLOG = b'<?xml version="1.0" encoding="utf-8" ?>'
@@ -1261,3 +1262,75 @@ class TestDAVTraversal(MockTestCase):
             ),
             traversal.browserDefault(request),
         )
+
+
+class TestDexterityPublishTraverse(unittest.TestCase):
+
+    def setUp(self):
+        """Inspired by webdav.tests.testPUT_factory.TestPUTFactory"""
+        from Testing.makerequest import makerequest
+
+        import Zope2
+
+        # Create a basic data structure
+        self.app = makerequest(Zope2.app())
+
+        self.app.manage_addFolder("folder", "")
+        self.folder = self.app.folder
+
+        self.folder.manage_addFolder("subfolder", "")
+        self.subfolder = self.folder.subfolder
+
+    @property
+    def get_request(self):
+        request = self.app.REQUEST
+        request["PARENTS"] = [self.app]
+        return request
+
+    @property
+    def lock_request(self):
+        lock_request = self.get_request.clone()
+        lock_request["REQUEST_METHOD"] = "LOCK"
+        lock_request.maybe_webdav_client = True
+        return lock_request
+
+    def test_get_subfolder(self):
+        traversal = DexterityPublishTraverse(self.folder, None)
+        traversed = traversal.publishTraverse(self.get_request, "subfolder")
+        self.assertEqual(traversed, self.subfolder)
+
+    def test_lock_subfolder(self):
+        traversal = DexterityPublishTraverse(self.folder, None)
+        traversed = traversal.publishTraverse(self.lock_request, "subfolder")
+        self.assertEqual(traversed, self.subfolder)
+
+    def test_get_acquired(self):
+        traversal = DexterityPublishTraverse(self.subfolder, None)
+        traversed = traversal.publishTraverse(self.get_request, "folder")
+        self.assertEqual(traversed, self.folder)
+
+    def test_lock_acquired(self):
+        """Ensure we are protected against acquisition:
+        traversing to an acquired object should return a NullResource
+        """
+        from webdav.NullResource import NullResource
+
+        traversal = DexterityPublishTraverse(self.subfolder, None)
+        traversed = traversal.publishTraverse(self.lock_request, "folder")
+        self.assertIsInstance(traversed, NullResource)
+
+    def test_get_vhm(self):
+        """Ensure we can handle virtual hosting with regular requests"""
+        from Products.SiteAccess.VirtualHostMonster import VirtualHostMonster
+
+        traversal = DexterityPublishTraverse(self.folder, None)
+        traversed = traversal.publishTraverse(self.get_request, "virtual_hosting")
+        self.assertIsInstance(traversed, VirtualHostMonster)
+
+    def test_lock_vhm(self):
+        """Ensure we can handle virtual hosting with dav requests"""
+        from Products.SiteAccess.VirtualHostMonster import VirtualHostMonster
+
+        traversal = DexterityPublishTraverse(self.folder, None)
+        traversed = traversal.publishTraverse(self.lock_request, "virtual_hosting")
+        self.assertIsInstance(traversed, VirtualHostMonster)
