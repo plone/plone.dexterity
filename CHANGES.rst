@@ -9,6 +9,16 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.5 (2024-02-27)
+------------------
+
+Bug fixes:
+
+
+- Fix a traversal error that happens when traversing a WebDAV resource and the virtual host monster is used.
+  [ale-rt] (#195)
+
+
 3.0.4 (2024-01-22)
 ------------------
 

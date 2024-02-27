@@ -1,2 +1,0 @@
-Fix a traversal error that happens when traversing a WebDAV resource and the virtual host monster is used.
-[ale-rt]
