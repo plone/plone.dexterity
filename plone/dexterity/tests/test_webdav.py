@@ -605,9 +605,6 @@ The operation succeeded.
         )
         body = body.strip()
         result = response.getBody().strip()
-        # TODO: remove next line when Zope 5.8.1 is released and used in coredev.
-        # Then also remove codespell settings from .meta.toml and pyproject.toml.
-        result = result.replace(b"succeded", b"succeeded")
         self.assertEqual(body, result)
 
     def test_LOCK(self):

@@ -4,6 +4,3 @@
 [meta]
 template = "default"
 commit-id = "6e36bcc4"
-
-[pyproject]
-codespell_ignores = "succeded"
