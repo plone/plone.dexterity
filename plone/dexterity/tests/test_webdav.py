@@ -59,6 +59,10 @@ class DAVTestRequest(TestRequest):
     def _createResponse(self):
         return HTTPResponse()
 
+    def ensure_publishable(self, obj, for_call=False):
+        # Needed for Zope > 5.9.
+        return
+
 
 class TestWebZope2DAVAPI(MockTestCase):
     def test_get_size_no_adapter(self):
@@ -1295,18 +1299,21 @@ class TestDexterityPublishTraverse(unittest.TestCase):
         return lock_request
 
     def test_get_subfolder(self):
-        traversal = DexterityPublishTraverse(self.folder, None)
-        traversed = traversal.publishTraverse(self.get_request, "subfolder")
+        request = self.get_request
+        traversal = DexterityPublishTraverse(self.folder, request)
+        traversed = traversal.publishTraverse(request, "subfolder")
         self.assertEqual(traversed, self.subfolder)
 
     def test_lock_subfolder(self):
-        traversal = DexterityPublishTraverse(self.folder, None)
-        traversed = traversal.publishTraverse(self.lock_request, "subfolder")
+        request = self.lock_request
+        traversal = DexterityPublishTraverse(self.folder, request)
+        traversed = traversal.publishTraverse(request, "subfolder")
         self.assertEqual(traversed, self.subfolder)
 
     def test_get_acquired(self):
-        traversal = DexterityPublishTraverse(self.subfolder, None)
-        traversed = traversal.publishTraverse(self.get_request, "folder")
+        request = self.get_request
+        traversal = DexterityPublishTraverse(self.subfolder, request)
+        traversed = traversal.publishTraverse(request, "folder")
         self.assertEqual(traversed, self.folder)
 
     def test_lock_acquired(self):
@@ -1315,22 +1322,25 @@ class TestDexterityPublishTraverse(unittest.TestCase):
         """
         from webdav.NullResource import NullResource
 
-        traversal = DexterityPublishTraverse(self.subfolder, None)
-        traversed = traversal.publishTraverse(self.lock_request, "folder")
+        request = self.lock_request
+        traversal = DexterityPublishTraverse(self.subfolder, request)
+        traversed = traversal.publishTraverse(request, "folder")
         self.assertIsInstance(traversed, NullResource)
 
     def test_get_vhm(self):
         """Ensure we can handle virtual hosting with regular requests"""
         from Products.SiteAccess.VirtualHostMonster import VirtualHostMonster
 
-        traversal = DexterityPublishTraverse(self.folder, None)
-        traversed = traversal.publishTraverse(self.get_request, "virtual_hosting")
+        request = self.get_request
+        traversal = DexterityPublishTraverse(self.folder, request)
+        traversed = traversal.publishTraverse(request, "virtual_hosting")
         self.assertIsInstance(traversed, VirtualHostMonster)
 
     def test_lock_vhm(self):
         """Ensure we can handle virtual hosting with dav requests"""
         from Products.SiteAccess.VirtualHostMonster import VirtualHostMonster
 
-        traversal = DexterityPublishTraverse(self.folder, None)
-        traversed = traversal.publishTraverse(self.lock_request, "virtual_hosting")
+        request = self.lock_request
+        traversal = DexterityPublishTraverse(self.folder, request)
+        traversed = traversal.publishTraverse(request, "virtual_hosting")
         self.assertIsInstance(traversed, VirtualHostMonster)
