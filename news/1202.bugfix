@@ -1,2 +1,0 @@
-Fix tests to work with Zope master which expects requests to have an `ensure_publishable` method.
-[maurits]

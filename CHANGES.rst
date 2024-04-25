@@ -9,6 +9,16 @@ Changelog
 
 .. towncrier release notes start
 
+3.0.6 (2024-04-25)
+------------------
+
+Bug fixes:
+
+
+- Fix tests to work with Zope master which expects requests to have an `ensure_publishable` method.
+  [maurits] (#1202)
+
+
 3.0.5 (2024-02-27)
 ------------------
 
