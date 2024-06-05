@@ -13,7 +13,8 @@
 root = true
 
 
-[*]  # For All Files
+[*]
+# Default settings for all files.
 # Unix-style newlines with a newline ending every file
 end_of_line = lf
 insert_final_newline = true
@@ -33,7 +34,8 @@ indent_size = 4
 # 2 space indentation
 indent_size = 2
 
-[*.{json,jsonl,js,jsx,ts,tsx,css,less,scss}]  # Frontend development
+[*.{json,jsonl,js,jsx,ts,tsx,css,less,scss}]
+# Frontend development
 # 2 space indentation
 indent_size = 2
 max_line_length = 80
