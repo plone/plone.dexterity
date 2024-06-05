@@ -538,7 +538,7 @@ Fixes:
 - Made utils/datify work with newer DateTime and pytz.  Adjust tests
   to reflect changes.  [jensens]
 
-- Fixed: duplicate aq_base without using Acquistion API resulted in an
+- Fixed: duplicate aq_base without using Acquisition API resulted in an
   AttributeError that was masqued in the calling hasattr and resulted
   in wrong conclusion.  [jensens]
 
