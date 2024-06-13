@@ -16,6 +16,7 @@ from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.folder.default import DefaultOrdering
+from Products.CMFCore.interfaces import ISiteRoot
 from Products.CMFCore.interfaces import ITypesTool
 from pytz import timezone
 from unittest.mock import Mock
@@ -88,7 +89,6 @@ class TestContent(MockTestCase):
         self.assertTrue(ISchema.providedBy(item))
 
     def test_provided_by_subclass(self):
-
         # Make sure the __providedBy__ descriptor lives in sub-classes
 
         # Dummy type
@@ -144,7 +144,6 @@ class TestContent(MockTestCase):
         self.assertTrue(ISchema.providedBy(item))
 
     def test_provided_by_subclass_nojar(self):
-
         # Dummy type
         class MyItem(Item):
             pass
@@ -191,7 +190,6 @@ class TestContent(MockTestCase):
         self.assertTrue(ISchema.providedBy(item))
 
     def test_provided_by_behavior_subtype(self):
-
         # Dummy type
         class MyItem(Item):
             pass
@@ -287,7 +285,6 @@ class TestContent(MockTestCase):
         self.assertTrue(IMarker2.providedBy(item))
 
     def test_provided_by_behavior_subtype_invalidation(self):
-
         # Dummy type
         class MyItem(Item):
             pass
@@ -394,7 +391,6 @@ class TestContent(MockTestCase):
         self.assertTrue(IMarker3.providedBy(item))
 
     def test_getattr_consults_schema_item(self):
-
         content = Item()
         content.id = "id"
         content.portal_type = "testtype"
@@ -417,7 +413,6 @@ class TestContent(MockTestCase):
         self.assertRaises(AttributeError, getattr, content, "baz")
 
     def test_getattr_consults_schema_container(self):
-
         content = Container()
         content.id = "id"
         content.portal_type = "testtype"
@@ -440,7 +435,6 @@ class TestContent(MockTestCase):
         self.assertRaises(AttributeError, getattr, content, "baz")
 
     def test_getattr_consults_schema_item_default_factory_with_context(self):
-
         content = Item()
         content.id = "id"
         content.portal_type = "testtype"
@@ -470,7 +464,6 @@ class TestContent(MockTestCase):
         self.assertRaises(AttributeError, getattr, content, "baz")
 
     def test_getattr_on_container_returns_children(self):
-
         content = Container()
         content.id = "id"
         content.portal_type = "testtype"
@@ -529,7 +522,6 @@ class TestContent(MockTestCase):
             self.assertTrue(tab in containerOptions, "Tab %s not found" % tab)
 
     def test_name_and_id_in_sync(self):
-
         i = Item()
         self.assertEqual("", i.id)
         self.assertEqual("", i.getId())
@@ -548,7 +540,6 @@ class TestContent(MockTestCase):
         self.assertEqual("foo", i.__name__)
 
     def test_name_unicode_id_str(self):
-
         i = Item()
         i.__name__ = b"\xc3\xb8".decode("utf-8")
 
@@ -1002,8 +993,65 @@ class TestContent(MockTestCase):
 
         self.assertRaises(ValueError, container._verifyObjectPaste, content, True)
 
+    def test_verifyObjectPaste_locally_disallowed_contents(self):
+        from Products.CMFCore.interfaces import ITypeInformation
+
+        portal = self.create_dummy(getPhysicalPath=lambda: ("", "site"))
+        self.mock_utility(portal, ISiteRoot)
+
+        class DummyConstrainTypes:
+            def __init__(self, context):
+                self.context = context
+
+            def allowedContentTypes(self):
+                fti = getUtility(IDexterityFTI, name="news")
+                return [fti]
+
+        self.mock_adapter(DummyConstrainTypes, IConstrainTypes, (IDexterityContainer,))
+
+        # FTI mock
+        fti_mock = Mock(wraps=DexterityFTI("news"))
+        self.mock_utility(fti_mock, IDexterityFTI, name="news")
+
+        fti_mock2 = Mock()
+        fti_mock2.isConstructionAllowed = Mock(return_value=True)
+        self.mock_utility(fti_mock2, ITypeInformation, name="document")
+
+        mock_pt = Mock()
+        mock_pt.getTypeInfo = Mock(return_value=None)
+        self.mock_tool(mock_pt, "portal_types")
+        self.mock_utility(mock_pt, ITypesTool)
+
+        document = Item(id="test document")
+        document.__factory_meta_type__ = "document"
+        document.portal_type = "document"
+        news = Item(id="test news")
+        news.__factory_meta_type__ = "news"
+        news.portal_type = "news"
+
+        container = Container(id="testfolder")
+        container.all_meta_types = [
+            {"name": "document", "action": None, "permission": "View"},
+            {"name": "news", "action": None, "permission": "View"},
+        ]
+        container.manage_permission("View", ("Anonymous",))
+        container["test-document"] = document
+        container["test-news"] = news
+        document_content = container["test-document"]
+        news_content = container["test-news"]
+
+        # can paste news
+        container._verifyObjectPaste(news_content, False)
+        # cannot paste documents
+        self.assertRaises(
+            ValueError, container._verifyObjectPaste, document_content, False
+        )
+
     def test_verifyObjectPaste_fti_does_allow_content(self):
         from Products.CMFCore.interfaces import ITypeInformation
+
+        portal = self.create_dummy(getPhysicalPath=lambda: ("", "site"))
+        self.mock_utility(portal, ISiteRoot)
 
         original_container = Container(id="parent")
         original_container.manage_permission("View", ("Anonymous",))

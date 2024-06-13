@@ -15,9 +15,13 @@ GREEN=`tput setaf 2`
 RESET=`tput sgr0`
 YELLOW=`tput setaf 3`
 
-CODE_QUALITY_VERSION=1.0.1
+# See https://github.com/plone/code-quality
+# Our configuration is in pyproject.toml.
+CODE_QUALITY_VERSION=2.0.0
+CURRENT_USER=$$(whoami)
+USER_INFO=$$(id -u ${CURRENT_USER}):$$(id -g ${CURRENT_USER})
 LINT=docker run --rm -v "$(PWD)":/github/workspace plone/code-quality:${CODE_QUALITY_VERSION} check
-FORMAT=docker run --rm -v "$(PWD)":/github/workspace plone/code-quality:${CODE_QUALITY_VERSION} format
+FORMAT=docker run --user="${USER_INFO}" --rm -v "$(PWD)":/github/workspace plone/code-quality:${CODE_QUALITY_VERSION} format
 
 PACKAGE_NAME=plone.dexterity
 PACKAGE_PATH=plone/
@@ -31,13 +35,8 @@ help: ## This help message
 
 .PHONY: format
 format:  ## Format the codebase according to our standards
-	$(FORMAT) "$(CHECK_PATH)"
+	$(FORMAT)
 
 .PHONY: lint
 lint:  ## validate with isort, black, flake8, pyroma, zpretty
-    # Would be nice to have a way to run all available checks, instead of specifying them here.
-	$(LINT) isort "$(CHECK_PATH)"
-	$(LINT) black "$(CHECK_PATH)"
-	$(LINT) flake8 "$(CHECK_PATH)"
-	$(LINT) pyroma .
-	$(LINT) zpretty "$(PACKAGE_PATH)"
+	$(LINT)

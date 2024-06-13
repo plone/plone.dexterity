@@ -294,7 +294,7 @@ class FolderDataResource(Implicit, Resource):
         return self.__name__
 
     def getId(self):
-        # Get id for traveral purposes.
+        # Get id for traversal purposes.
         return self.__name__
 
     @security.protected(permissions.View)
@@ -457,7 +457,6 @@ class DefaultFileFactory:
         self.context = context
 
     def __call__(self, name, contentType, data):
-
         # Deal with Finder cruft
         if name == ".DS_Store":
             raise Unauthorized("Refusing to store Mac OS X resource forks")
@@ -488,14 +487,12 @@ class DefaultFileFactory:
         # sane thing for content with new-style factories.
 
         if targetType.product:  # boo :(
-
             newName = self.context.invokeFactory(typeObjectName, name)
             obj = aq_base(self.context._getOb(newName))
             self.context._delObject(newName)
             return obj
 
         else:  # yay
-
             contextType = typesTool.getTypeInfo(self.context)
             if contextType is not None:
                 if not contextType.allowType(typeObjectName):
@@ -650,7 +647,7 @@ class DefaultReadFile(ReadFileBase):
         # Construct message on demand.
         message = constructMessageFromSchemata(self.context, iterSchemata(self.context))
 
-        # Store the portal type in a header, to allow it to be identifed later
+        # Store the portal type in a header, to allow it to be identified later
         message["Portal-Type"] = self.context.portal_type
 
         return message

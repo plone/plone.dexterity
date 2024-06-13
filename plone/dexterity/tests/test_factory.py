@@ -44,7 +44,6 @@ class TestFactory(MockTestCase):
     #   - portal_type is set if not set already
 
     def test_create_with_schema_already_provided_and_portal_type_set(self):
-
         # Object returned by class
         obj_mock = Mock(portal_type="testtype")
 
@@ -64,7 +63,6 @@ class TestFactory(MockTestCase):
         self.assertEqual(obj_mock, factory())
 
     def test_create_sets_portal_type_if_not_set(self):
-
         # Object returned by class
         obj_mock = Mock()
 
@@ -86,7 +84,6 @@ class TestFactory(MockTestCase):
         self.assertEqual(obj_mock.portal_type, "testtype")
 
     def test_create_sets_portal_type_if_wrong(self):
-
         # Object returned by class
         obj_mock = Mock(portal_type="othertype")
 
@@ -108,7 +105,6 @@ class TestFactory(MockTestCase):
         self.assertEqual(obj_mock.portal_type, "testtype")
 
     def test_create_initialises_schema_if_not_provided(self):
-
         # Object returned by class
         obj_mock = Mock(portal_type="testtype")
 
@@ -129,7 +125,6 @@ class TestFactory(MockTestCase):
         self.assertEqual(obj_mock, factory())
 
     def test_factory_passes_args_and_kwargs(self):
-
         # Object returned by class
         obj_mock = Mock(portal_type="testtype")
 

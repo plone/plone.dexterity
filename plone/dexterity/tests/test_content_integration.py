@@ -9,7 +9,6 @@ import unittest
 
 
 class TestUUIDIntegration(unittest.TestCase):
-
     layer = UNIT_TESTING
 
     def setUp(self):

@@ -10,7 +10,6 @@ class TestFileRepresentation(MockTestCase):
         return ItemDummy(**kw)
 
     def test_defaultreadfile_verify_iface(self):
-
         dummy = DefaultReadFile(ItemDummy())
         self.assertTrue(IStreamIterator.providedBy(dummy))
         self.assertTrue(verifyObject(IStreamIterator, dummy))

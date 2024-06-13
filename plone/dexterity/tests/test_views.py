@@ -84,7 +84,6 @@ class NoBehaviorAssignable:
 
 class TestAddView(MockTestCase):
     def test_addview_sets_form_portal_type(self):
-
         context = Container("container")
         request = TestRequest()
         fti = DexterityFTI("testtype")
@@ -94,7 +93,6 @@ class TestAddView(MockTestCase):
         self.assertEqual("testtype", addview.form_instance.portal_type)
 
     def test_form_create(self):
-
         # Context and request
         context = Container("container")
         request = TestRequest()
@@ -133,7 +131,6 @@ class TestAddView(MockTestCase):
         self.assertEqual("testtype", obj_dummy.portal_type)
 
     def test_add(self):
-
         # Container, new object, and request
         container = Mock()
         obj = Mock()
@@ -222,7 +219,6 @@ class TestAddView(MockTestCase):
         self.assertRaises(ValueError, form.add, obj)
 
     def test_label(self):
-
         # Add view should take its label from the FTI title
 
         # Context and request
@@ -248,7 +244,6 @@ class TestAddView(MockTestCase):
         self.assertEqual("Test title", label.mapping["name"])
 
     def test_schema_lookup_add(self):
-
         # Context and request
         context_mock = self.create_dummy(portal_type="testtype")
         request_mock = TestRequest()
@@ -308,7 +303,6 @@ class TestAddView(MockTestCase):
         self.assertEqual((IBehaviorOne, IBehaviorTwo), tuple(view.additionalSchemata))
 
     def test_fires_add_begun_event(self):
-
         # Context and request
         context_mock = self.create_dummy(
             portal_type="testtype",
@@ -339,7 +333,6 @@ class TestAddView(MockTestCase):
         self.assertTrue(IAddBegunEvent.providedBy(notify_mock.call_args[0][0]))
 
     def test_update_checks_allowed_types(self):
-
         # Context and request
         context_mock = self.create_dummy(
             portal_type="testtype", allowedContentTypes=lambda: []
@@ -361,7 +354,6 @@ class TestAddView(MockTestCase):
         self.assertRaises(ValueError, view.update)
 
     def test_update_ignores_type_check_if_security_check_deferred(self):
-
         # Context and request
         context_mock = self.create_dummy(
             portal_type="testtype", allowedContentTypes=lambda: []
@@ -387,7 +379,6 @@ class TestAddView(MockTestCase):
             self.fail("Update raised Unauthorized with security checks " "deferred")
 
     def test_fires_add_cancelled_event(self):
-
         # Context and request
         context_mock = self.create_dummy(portal_type="testtype")
         context_mock.absolute_url = lambda *a, **kw: "http://127.0.0.1/plone/item"
@@ -422,7 +413,6 @@ class TestEditView(MockTestCase):
         SCHEMA_CACHE.clear()
 
     def test_label(self):
-
         # Edit view should take its label from the FTI title
 
         # Context and request
@@ -447,7 +437,6 @@ class TestEditView(MockTestCase):
         self.assertEqual("Test title", label.mapping["name"])
 
     def test_schema_lookup_edit(self):
-
         # Context and request
         class IMarker(IDexterityContent):
             pass
@@ -510,7 +499,6 @@ class TestEditView(MockTestCase):
         self.assertEqual(tuple(), tuple(additionalSchemata))
 
     def test_fires_edit_begun_event(self):
-
         # Context and request
         context_mock = self.create_dummy(portal_type="testtype")
         request_mock = TestRequest()
@@ -536,7 +524,6 @@ class TestEditView(MockTestCase):
         self.assertTrue(IEditBegunEvent.providedBy(notify_mock.call_args[0][0]))
 
     def test_fires_edit_cancelled_event(self):
-
         # Context and request
         context_mock = self.create_dummy(portal_type="testtype", title="foo")
         context_mock.absolute_url = lambda *a, **kw: "http://127.0.0.1/plone/item"
@@ -566,7 +553,6 @@ class TestEditView(MockTestCase):
         self.assertTrue(IEditCancelledEvent.providedBy(notify_mock.call_args[0][0]))
 
     def test_fires_edit_finished_event(self):
-
         # Context and request
         context_mock = self.create_dummy(portal_type="testtype", title="foo")
         context_mock.absolute_url = lambda *a, **kw: "http://127.0.0.1/plone/item"
@@ -601,7 +587,6 @@ class TestEditView(MockTestCase):
 
 class TestDefaultView(MockTestCase):
     def test_schema_lookup_default_view(self):
-
         # Context and request
         class IMarker(IDexterityContent):
             pass

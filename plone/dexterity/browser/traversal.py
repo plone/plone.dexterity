@@ -4,15 +4,11 @@ from Acquisition.interfaces import IAcquirer
 from plone.dexterity.filerepresentation import FolderDataResource
 from plone.dexterity.interfaces import DAV_FOLDER_DATA_ID
 from plone.dexterity.interfaces import IDexterityContent
+from Products.SiteAccess.VirtualHostMonster import VirtualHostMonster
 from webdav.NullResource import NullResource
 from zope.component import adapter
 from zope.publisher.interfaces.browser import IBrowserRequest
-
-
-try:
-    from repoze.zope2.publishtraverse import DefaultPublishTraverse
-except ImportError:
-    from ZPublisher.BaseRequest import DefaultPublishTraverse
+from ZPublisher.BaseRequest import DefaultPublishTraverse
 
 
 @adapter(IDexterityContent, IBrowserRequest)
@@ -30,7 +26,6 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         self.request = request
 
     def publishTraverse(self, request, name):
-
         context = aq_inner(self.context)
 
         # If we are trying to traverse to the folder "body" pseudo-object
@@ -43,6 +38,14 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
             return FolderDataResource(DAV_FOLDER_DATA_ID, context).__of__(context)
 
         defaultTraversal = super().publishTraverse(request, name)
+
+        if isinstance(defaultTraversal, VirtualHostMonster):
+            # If we are traversing to a VHM, we want to just return it immediately.
+            # For WebDAV requests, the check that controls if the parent
+            # of the traversed object is the same as the context
+            # will most probably fail because VHM parent will usually be
+            # the Zope App object.
+            return defaultTraversal
 
         # If this is a WebDAV PUT/PROPFIND/PROPPATCH request, don't acquire
         # things. If we did, we couldn't create a new object with PUT, for
@@ -64,7 +67,6 @@ class DexterityPublishTraverse(DefaultPublishTraverse):
         return defaultTraversal
 
     def browserDefault(self, request):
-
         # If this is not a WebDAV request, we don't want to give a
         # default view. The ZPublisher's WebDAV implementation doesn't
         # deal well with default views.

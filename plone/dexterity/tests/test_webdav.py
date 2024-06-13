@@ -41,6 +41,7 @@ from ZPublisher.HTTPResponse import HTTPResponse
 from ZPublisher.Iterators import IStreamIterator
 
 import re
+import unittest
 
 
 XML_PROLOG = b'<?xml version="1.0" encoding="utf-8" ?>'
@@ -53,11 +54,14 @@ class ITestBehavior(Interface):
 
 
 class DAVTestRequest(TestRequest):
-
     get_header = TestRequest.getHeader
 
     def _createResponse(self):
         return HTTPResponse()
+
+    def ensure_publishable(self, obj, for_call=False):
+        # Needed for Zope > 5.9.
+        return
 
 
 class TestWebZope2DAVAPI(MockTestCase):
@@ -593,16 +597,15 @@ class TestFolderDataResource(MockTestCase):
   <d:status>HTTP/1.1 200 OK</d:status>
 </d:propstat>
 <d:responsedescription>
-The operation succeded.
+The operation succeeded.
 </d:responsedescription>
 </d:response>
 </d:multistatus>
 """
         )
-
-        result = response.getBody()
-
-        self.assertEqual(body.strip(), result.strip())
+        body = body.strip()
+        result = response.getBody().strip()
+        self.assertEqual(body, result)
 
     def test_LOCK(self):
         # Too much WebDAV magic - just test that it delegates correctly
@@ -1260,3 +1263,81 @@ class TestDAVTraversal(MockTestCase):
             ),
             traversal.browserDefault(request),
         )
+
+
+class TestDexterityPublishTraverse(unittest.TestCase):
+
+    def setUp(self):
+        """Inspired by webdav.tests.testPUT_factory.TestPUTFactory"""
+        from Testing.makerequest import makerequest
+
+        import Zope2
+
+        # Create a basic data structure
+        self.app = makerequest(Zope2.app())
+
+        self.app.manage_addFolder("folder", "")
+        self.folder = self.app.folder
+
+        self.folder.manage_addFolder("subfolder", "")
+        self.subfolder = self.folder.subfolder
+
+    @property
+    def get_request(self):
+        request = self.app.REQUEST
+        request["PARENTS"] = [self.app]
+        return request
+
+    @property
+    def lock_request(self):
+        lock_request = self.get_request.clone()
+        lock_request["REQUEST_METHOD"] = "LOCK"
+        lock_request.maybe_webdav_client = True
+        return lock_request
+
+    def test_get_subfolder(self):
+        request = self.get_request
+        traversal = DexterityPublishTraverse(self.folder, request)
+        traversed = traversal.publishTraverse(request, "subfolder")
+        self.assertEqual(traversed, self.subfolder)
+
+    def test_lock_subfolder(self):
+        request = self.lock_request
+        traversal = DexterityPublishTraverse(self.folder, request)
+        traversed = traversal.publishTraverse(request, "subfolder")
+        self.assertEqual(traversed, self.subfolder)
+
+    def test_get_acquired(self):
+        request = self.get_request
+        traversal = DexterityPublishTraverse(self.subfolder, request)
+        traversed = traversal.publishTraverse(request, "folder")
+        self.assertEqual(traversed, self.folder)
+
+    def test_lock_acquired(self):
+        """Ensure we are protected against acquisition:
+        traversing to an acquired object should return a NullResource
+        """
+        from webdav.NullResource import NullResource
+
+        request = self.lock_request
+        traversal = DexterityPublishTraverse(self.subfolder, request)
+        traversed = traversal.publishTraverse(request, "folder")
+        self.assertIsInstance(traversed, NullResource)
+
+    def test_get_vhm(self):
+        """Ensure we can handle virtual hosting with regular requests"""
+        from Products.SiteAccess.VirtualHostMonster import VirtualHostMonster
+
+        request = self.get_request
+        traversal = DexterityPublishTraverse(self.folder, request)
+        traversed = traversal.publishTraverse(request, "virtual_hosting")
+        self.assertIsInstance(traversed, VirtualHostMonster)
+
+    def test_lock_vhm(self):
+        """Ensure we can handle virtual hosting with dav requests"""
+        from Products.SiteAccess.VirtualHostMonster import VirtualHostMonster
+
+        request = self.lock_request
+        traversal = DexterityPublishTraverse(self.folder, request)
+        traversed = traversal.publishTraverse(request, "virtual_hosting")
+        self.assertIsInstance(traversed, VirtualHostMonster)
