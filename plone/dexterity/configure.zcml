@@ -1,139 +1,140 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
-    xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:five="http://namespaces.zope.org/five"
-    i18n_domain="plone">
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    i18n_domain="plone"
+    >
 
-    <include package="Products.CMFCore" />
+  <include package="Products.CMFCore" />
 
-    <include package="plone.behavior" />
-    <include package="plone.folder" />
-    <include package="plone.supermodel" />
-    <include package="plone.rfc822" />
-    <include package="plone.uuid" />
-    <include package="plone.z3cform" />
+  <include package="plone.behavior" />
+  <include package="plone.folder" />
+  <include package="plone.supermodel" />
+  <include package="plone.rfc822" />
+  <include package="plone.uuid" />
+  <include package="plone.z3cform" />
 
-    <include package=".browser" />
-    <include package=".fti" />
+  <include package=".browser" />
+  <include package=".fti" />
 
-    <!-- Re-index content when it's modified -->
-    <subscriber
-        for=".interfaces.IDexterityContent
-             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-        handler=".content.reindexOnModify"
-        />
+  <!-- Re-index content when it's modified -->
+  <subscriber
+      for=".interfaces.IDexterityContent
+           zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+      handler=".content.reindexOnModify"
+      />
 
-    <!-- Support for dynamic schemata -->
+  <!-- Support for dynamic schemata -->
 
-    <utility
-        factory=".schema.DexteritySchemaPolicy"
-        name="dexterity"
-        />
+  <utility
+      factory=".schema.DexteritySchemaPolicy"
+      name="dexterity"
+      />
 
-    <utility
-        factory=".schema.SchemaModuleFactory"
-        name="plone.dexterity.schema.generated"
-        />
+  <utility
+      factory=".schema.SchemaModuleFactory"
+      name="plone.dexterity.schema.generated"
+      />
 
-    <!-- Schema cache -->
-    <subscriber handler=".schema.invalidate_schema" />
+  <!-- Schema cache -->
+  <subscriber handler=".schema.invalidate_schema" />
 
-    <!-- Support for plone.behavior behaviors -->
-    <adapter factory=".behavior.DexterityBehaviorAssignable" />
+  <!-- Support for plone.behavior behaviors -->
+  <adapter factory=".behavior.DexterityBehaviorAssignable" />
 
-    <!-- Register the content classes -->
-    <five:registerClass
-        class=".content.Item"
-        meta_type="Dexterity Item"
-        permission="cmf.AddPortalContent"
-        icon="plone.dexterity.item.gif"
-        />
-    <class class=".content.Item" />
+  <!-- Register the content classes -->
+  <five:registerClass
+      class=".content.Item"
+      permission="cmf.AddPortalContent"
+      icon="plone.dexterity.item.gif"
+      meta_type="Dexterity Item"
+      />
+  <class class=".content.Item" />
 
-    <five:registerClass
-        class=".content.Container"
-        meta_type="Dexterity Container"
-        permission="cmf.AddPortalContent"
-        icon="plone.dexterity.item.gif"
-        />
-    <class class=".content.Container" />
+  <five:registerClass
+      class=".content.Container"
+      permission="cmf.AddPortalContent"
+      icon="plone.dexterity.item.gif"
+      meta_type="Dexterity Container"
+      />
+  <class class=".content.Container" />
 
-    <!-- Register FTI class -->
-    <five:registerClass
-        class=".fti.DexterityFTI"
-        meta_type="Dexterity FTI"
-        addview="plone.dexterity.fti"
-        permission="cmf.ManagePortal"
-        icon="plone.dexterity.fti.gif"
-        global="False"
-        />
+  <!-- Register FTI class -->
+  <five:registerClass
+      class=".fti.DexterityFTI"
+      permission="cmf.ManagePortal"
+      addview="plone.dexterity.fti"
+      global="False"
+      icon="plone.dexterity.fti.gif"
+      meta_type="Dexterity FTI"
+      />
 
-    <!-- Register FTI add/remove/modify handlers -->
+  <!-- Register FTI add/remove/modify handlers -->
 
-    <subscriber
-        for=".interfaces.IDexterityFTI
-             zope.container.interfaces.IObjectAddedEvent"
-        handler=".fti.ftiAdded"
-        />
+  <subscriber
+      for=".interfaces.IDexterityFTI
+           zope.container.interfaces.IObjectAddedEvent"
+      handler=".fti.ftiAdded"
+      />
 
-    <subscriber
-        for=".interfaces.IDexterityFTI
-             zope.container.interfaces.IObjectRemovedEvent"
-        handler=".fti.ftiRemoved"
-        />
+  <subscriber
+      for=".interfaces.IDexterityFTI
+           zope.container.interfaces.IObjectRemovedEvent"
+      handler=".fti.ftiRemoved"
+      />
 
-    <subscriber
-        for=".interfaces.IDexterityFTI
-             zope.container.interfaces.IObjectMovedEvent"
-        handler=".fti.ftiRenamed"
-        />
+  <subscriber
+      for=".interfaces.IDexterityFTI
+           zope.container.interfaces.IObjectMovedEvent"
+      handler=".fti.ftiRenamed"
+      />
 
-    <subscriber
-        for=".interfaces.IDexterityFTI
-             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-        handler=".fti.ftiModified"
-        />
+  <subscriber
+      for=".interfaces.IDexterityFTI
+           zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+      handler=".fti.ftiModified"
+      />
 
-    <!-- File representation (FTP/WebDAV support) -->
-    <adapter factory=".filerepresentation.DefaultDirectoryFactory" />
-    <adapter factory=".filerepresentation.DefaultFileFactory" />
+  <!-- File representation (FTP/WebDAV support) -->
+  <adapter factory=".filerepresentation.DefaultDirectoryFactory" />
+  <adapter factory=".filerepresentation.DefaultFileFactory" />
 
-    <adapter
-        provides="zope.filerepresentation.interfaces.IRawReadFile"
-        factory=".filerepresentation.DefaultReadFile"
-        />
-    <adapter factory=".filerepresentation.DefaultWriteFile" />
+  <adapter
+      factory=".filerepresentation.DefaultReadFile"
+      provides="zope.filerepresentation.interfaces.IRawReadFile"
+      />
+  <adapter factory=".filerepresentation.DefaultWriteFile" />
 
-    <!-- GenericSetup structure import/export support -->
-    <adapter
-        factory=".exportimport.DexterityContentExporterImporter"
-        provides="Products.GenericSetup.interfaces.IFilesystemImporter"
-        for=".interfaces.IDexterityItem"
-        />
-    <adapter
-        factory=".exportimport.DexterityContentExporterImporter"
-        provides="Products.GenericSetup.interfaces.IFilesystemExporter"
-        for=".interfaces.IDexterityItem"
-        />
-    <adapter
-        factory=".exportimport.DexterityContentExporterImporter"
-        provides="Products.GenericSetup.interfaces.IFilesystemImporter"
-        for=".interfaces.IDexterityContainer"
-        />
-    <adapter
-        factory=".exportimport.DexterityContentExporterImporter"
-        provides="Products.GenericSetup.interfaces.IFilesystemExporter"
-        for=".interfaces.IDexterityContainer"
-        />
+  <!-- GenericSetup structure import/export support -->
+  <adapter
+      factory=".exportimport.DexterityContentExporterImporter"
+      provides="Products.GenericSetup.interfaces.IFilesystemImporter"
+      for=".interfaces.IDexterityItem"
+      />
+  <adapter
+      factory=".exportimport.DexterityContentExporterImporter"
+      provides="Products.GenericSetup.interfaces.IFilesystemExporter"
+      for=".interfaces.IDexterityItem"
+      />
+  <adapter
+      factory=".exportimport.DexterityContentExporterImporter"
+      provides="Products.GenericSetup.interfaces.IFilesystemImporter"
+      for=".interfaces.IDexterityContainer"
+      />
+  <adapter
+      factory=".exportimport.DexterityContentExporterImporter"
+      provides="Products.GenericSetup.interfaces.IFilesystemExporter"
+      for=".interfaces.IDexterityContainer"
+      />
 
-    <!-- PrimaryFieldInfo -->
-    <adapter factory=".primary.PrimaryFieldInfo"/>
+  <!-- PrimaryFieldInfo -->
+  <adapter factory=".primary.PrimaryFieldInfo" />
 
-    <!-- ISized -->
-    <adapter
-        for="*"
-        factory="zope.size.DefaultSized"
-        provides="zope.size.interfaces.ISized"
-        />
+  <!-- ISized -->
+  <adapter
+      factory="zope.size.DefaultSized"
+      provides="zope.size.interfaces.ISized"
+      for="*"
+      />
 
 </configure>

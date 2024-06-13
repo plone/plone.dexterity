@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from plone.autoform.view import WidgetsView
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import getAdditionalSchemata

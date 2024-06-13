@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from AccessControl import Unauthorized
 from Acquisition import aq_base
 from Acquisition import aq_inner
@@ -24,7 +23,6 @@ from zope.lifecycleevent import ObjectCreatedEvent
 
 import datetime
 import logging
-import six
 
 
 deprecation.deprecated("SchemaNameEncoder", "moved to plone.dexterity.schema")
@@ -55,8 +53,7 @@ def iterSchemataForType(portal_type):
     main_schema = SCHEMA_CACHE.get(portal_type)
     if main_schema:
         yield main_schema
-    for schema in getAdditionalSchemata(portal_type=portal_type):
-        yield schema
+    yield from getAdditionalSchemata(portal_type=portal_type)
 
 
 def iterSchemata(context):
@@ -66,8 +63,7 @@ def iterSchemata(context):
     main_schema = SCHEMA_CACHE.get(context.portal_type)
     if main_schema:
         yield main_schema
-    for schema in getAdditionalSchemata(context=context):
-        yield schema
+    yield from getAdditionalSchemata(context=context)
 
 
 def getAdditionalSchemata(context=None, portal_type=None):
@@ -139,7 +135,7 @@ def createContent(portal_type, **kw):
             setattr(behavior, name, value)
             done.append(name)
 
-    for (key, value) in fields.items():
+    for key, value in fields.items():
         if key in done:
             continue
         setattr(content, key, value)
@@ -189,13 +185,13 @@ def createContentInContainer(container, portal_type, checkConstraints=True, **kw
 
 
 def safe_utf8(st):
-    if isinstance(st, six.text_type):
+    if isinstance(st, str):
         st = st.encode("utf8")
     return st
 
 
 def safe_unicode(st):
-    if isinstance(st, six.binary_type):
+    if isinstance(st, bytes):
         st = st.decode("utf8")
     return st
 
@@ -220,7 +216,7 @@ def datify(in_date):
 def all_merged_tagged_values_dict(ifaces, key):
     """mergedTaggedValueDict of all interfaces for a given key
 
-    usally interfaces is a list of schemas
+    usually interfaces is a list of schemas
     """
     info = dict()
     for iface in ifaces:

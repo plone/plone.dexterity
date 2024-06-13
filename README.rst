@@ -149,7 +149,7 @@ The Factory Type Information (FTI)
    which can be entered TTW if there is no file or schema interface to use), and export it as a GenericSetup extension profile.
 
 Behaviors
-   Behaviors are a way write make re-usable bits of functionality that can be toggled on or off on a per-type basis.
+   Behaviors are a way write make reusable bits of functionality that can be toggled on or off on a per-type basis.
    Examples may include common metadata, or common functionality such as locking, tagging or ratings.
 
    Behaviors are implemented using the plone.behavior package.
@@ -171,7 +171,7 @@ The Dexterity Ecosystem
 -----------------------
 
 The Dexterity system comprises a number of packages, most of which are
-independently re-usable. In addition, Dexterity uses many components from
+independently reusable. In addition, Dexterity uses many components from
 Zope and CMF.
 
 The most important packages are:
@@ -220,12 +220,12 @@ The most important packages are:
 Developer Manual
 ----------------
 
-The `Dexterity Developer Manual <http://docs.plone.org/external/plone.app.dexterity/docs/index.html>`_ is a complete documentation with practical examples and part of the `Offical Plone Documentation <http://docs.plone.org/>`_.
+The `Dexterity Developer Manual <http://docs.plone.org/external/plone.app.dexterity/docs/index.html>`_ is a complete documentation with practical examples and part of the `Official Plone Documentation <http://docs.plone.org/>`_.
 
 
 Source Code
 ===========
 
-Contributors please read the document `Process for Plone core's development <https://docs.plone.org/develop/coredev/docs/index.html>`_
+Contributors please read the document `Contributing to Plone <https://6.docs.plone.org/contributing/index.html>`_
 
 Sources are at the `Plone code repository hosted at Github <https://github.com/plone/plone.dexterity>`_.

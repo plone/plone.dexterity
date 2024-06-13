@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .case import MockTestCase
 from AccessControl import Unauthorized
 from plone.autoform.interfaces import IFormFieldProvider
@@ -21,6 +20,7 @@ from plone.dexterity.schema import SCHEMA_CACHE
 from plone.z3cform.interfaces import IDeferSecurityCheck
 from Products.CMFCore.interfaces import ISiteRoot
 from Products.statusmessages.interfaces import IStatusMessage
+from unittest.mock import Mock
 from z3c.form.action import Actions
 from z3c.form.datamanager import AttributeField
 from z3c.form.field import Fields
@@ -36,14 +36,6 @@ from zope.interface import implementer
 from zope.interface import Interface
 from zope.interface import provider
 from zope.publisher.browser import TestRequest as TestRequestBase
-
-import six
-
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from mock import Mock
 
 
 class TestRequest(TestRequestBase):
@@ -76,7 +68,7 @@ class IBehaviorThree(Interface):
 
 @implementer(IBehaviorAssignable)
 @adapter(Interface)
-class NoBehaviorAssignable(object):
+class NoBehaviorAssignable:
     # We will use this simple class to check that registering our own
     # IBehaviorAssignable adapter has an effect.
 
@@ -92,30 +84,28 @@ class NoBehaviorAssignable(object):
 
 class TestAddView(MockTestCase):
     def test_addview_sets_form_portal_type(self):
-
-        context = Container(u"container")
+        context = Container("container")
         request = TestRequest()
-        fti = DexterityFTI(u"testtype")
+        fti = DexterityFTI("testtype")
 
         addview = DefaultAddView(context, request, fti)
 
-        self.assertEqual(u"testtype", addview.form_instance.portal_type)
+        self.assertEqual("testtype", addview.form_instance.portal_type)
 
     def test_form_create(self):
-
         # Context and request
-        context = Container(u"container")
+        context = Container("container")
         request = TestRequest()
 
         # FTI - returns dummy factory name
 
-        fti_mock = DexterityFTI(u"testtype")
-        fti_mock.factory = u"testfactory"
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        fti_mock = DexterityFTI("testtype")
+        fti_mock.factory = "testfactory"
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         # The form we're testing
         form = DefaultAddForm(context, request)
-        form.portal_type = u"testtype"
+        form.portal_type = "testtype"
 
         class ISchema(Interface):
             foo = schema.TextLine()
@@ -126,7 +116,7 @@ class TestAddView(MockTestCase):
 
         obj_dummy = Item(id="dummy")
         alsoProvides(obj_dummy, ISchema)
-        data_dummy = {u"foo": u"bar"}
+        data_dummy = {"foo": "bar"}
 
         from zope.component import createObject
 
@@ -141,44 +131,43 @@ class TestAddView(MockTestCase):
         self.assertEqual("testtype", obj_dummy.portal_type)
 
     def test_add(self):
-
         # Container, new object, and request
         container = Mock()
         obj = Mock()
         request = TestRequest()
 
-        container._setObject = Mock(return_value=u"newid")
+        container._setObject = Mock(return_value="newid")
         container._getOb = Mock(return_value=obj)
         container.absolute_url = Mock(return_value="http://nohost/plone/container")
 
-        obj.id = u"newid"
+        obj.id = "newid"
         obj.portal_type = "testtype"
 
         # New object's FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.isConstructionAllowed = Mock(return_value=True)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         # Container FTI
-        container_fti_mock = DexterityFTI(u"containertype")
+        container_fti_mock = DexterityFTI("containertype")
         container_fti_mock.allowType = Mock(return_value=True)
-        self.mock_utility(container_fti_mock, IDexterityFTI, name=u"containertype")
+        self.mock_utility(container_fti_mock, IDexterityFTI, name="containertype")
 
         container.getTypeInfo = Mock(return_value=container_fti_mock)
 
         # Name chooser
         @implementer(INameChooser)
-        class NameChooser(object):
+        class NameChooser:
             def __init__(self, context):
                 pass
 
             def chooseName(self, name, object):
-                return u"newid"
+                return "newid"
 
         self.mock_adapter(NameChooser, INameChooser, (Interface,))
 
         form = DefaultAddForm(container, request)
-        form.portal_type = u"testtype"
+        form.portal_type = "testtype"
         form.add(obj)
 
     def test_add_raises_unauthorized_if_construction_not_allowed(self):
@@ -188,19 +177,19 @@ class TestAddView(MockTestCase):
         request = TestRequest()
 
         # New object's FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.isConstructionAllowed = Mock(return_value=False)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         # Container FTI
-        container_fti_mock = DexterityFTI(u"containertype")
-        self.mock_utility(container_fti_mock, IDexterityFTI, name=u"containertype")
+        container_fti_mock = DexterityFTI("containertype")
+        self.mock_utility(container_fti_mock, IDexterityFTI, name="containertype")
 
         container.getTypeInfo = Mock(return_value=container_fti_mock)
         obj.portal_type = "testtype"
 
         form = DefaultAddForm(container, request)
-        form.portal_type = u"testtype"
+        form.portal_type = "testtype"
 
         self.assertRaises(Unauthorized, form.add, obj)
 
@@ -213,24 +202,23 @@ class TestAddView(MockTestCase):
         obj.portal_type = "testtype"
 
         # New object's FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.isConstructionAllowed = Mock(return_value=True)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         # Container FTI
-        container_fti_mock = DexterityFTI(u"containertype")
+        container_fti_mock = DexterityFTI("containertype")
         container_fti_mock.allowType = Mock(return_value=False)
-        self.mock_utility(container_fti_mock, IDexterityFTI, name=u"containertype")
+        self.mock_utility(container_fti_mock, IDexterityFTI, name="containertype")
 
         container.getTypeInfo = Mock(return_value=container_fti_mock)
 
         form = DefaultAddForm(container, request)
-        form.portal_type = u"testtype"
+        form.portal_type = "testtype"
 
         self.assertRaises(ValueError, form.add, obj)
 
     def test_label(self):
-
         # Add view should take its label from the FTI title
 
         # Context and request
@@ -242,57 +230,56 @@ class TestAddView(MockTestCase):
 
         # FTI
 
-        fti_mock = DexterityFTI(u"testtype")
-        fti_mock.Title = Mock(return_value=u"Test title")
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        fti_mock = DexterityFTI("testtype")
+        fti_mock.Title = Mock(return_value="Test title")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         # Form
 
         addform = DefaultAddForm(context_mock, request_mock)
-        addform.portal_type = u"testtype"
+        addform.portal_type = "testtype"
 
         label = addform.label
-        self.assertEqual(u"Add ${name}", six.text_type(label))
-        self.assertEqual(u"Test title", label.mapping["name"])
+        self.assertEqual("Add ${name}", str(label))
+        self.assertEqual("Test title", label.mapping["name"])
 
     def test_schema_lookup_add(self):
-
         # Context and request
-        context_mock = self.create_dummy(portal_type=u"testtype")
+        context_mock = self.create_dummy(portal_type="testtype")
         request_mock = TestRequest()
 
         # FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         fti_mock.behaviors = (
             IBehaviorOne.__identifier__,
             IBehaviorTwo.__identifier__,
             IBehaviorThree.__identifier__,
         )
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         from plone.behavior.interfaces import IBehavior
         from plone.behavior.registration import BehaviorRegistration
 
         registration = BehaviorRegistration(
-            title=u"Test Behavior 1",
-            description=u"Provides test behavior",
+            title="Test Behavior 1",
+            description="Provides test behavior",
             interface=IBehaviorOne,
             marker=None,
             factory=None,
         )
         self.mock_utility(registration, IBehavior, IBehaviorOne.__identifier__)
         registration = BehaviorRegistration(
-            title=u"Test Behavior 2",
-            description=u"Provides test behavior",
+            title="Test Behavior 2",
+            description="Provides test behavior",
             interface=IBehaviorTwo,
             marker=None,
             factory=None,
         )
         self.mock_utility(registration, IBehavior, IBehaviorTwo.__identifier__)
         registration = BehaviorRegistration(
-            title=u"Test Behavior 3",
-            description=u"Provides test behavior",
+            title="Test Behavior 3",
+            description="Provides test behavior",
             interface=IBehaviorThree,
             marker=None,
             factory=None,
@@ -301,7 +288,7 @@ class TestAddView(MockTestCase):
 
         # Form
         view = DefaultAddForm(context_mock, request_mock)
-        view.portal_type = u"testtype"
+        view.portal_type = "testtype"
 
         self.assertEqual(ISchema, view.schema)
 
@@ -316,18 +303,17 @@ class TestAddView(MockTestCase):
         self.assertEqual((IBehaviorOne, IBehaviorTwo), tuple(view.additionalSchemata))
 
     def test_fires_add_begun_event(self):
-
         # Context and request
         context_mock = self.create_dummy(
-            portal_type=u"testtype",
+            portal_type="testtype",
             allowedContentTypes=lambda: [self.create_dummy(getId=lambda: "testtype")],
         )
         request_mock = TestRequest()
 
         # FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         self.mock_adapter(FieldWidgets, IWidgets, (Interface, Interface, Interface))
 
@@ -347,17 +333,16 @@ class TestAddView(MockTestCase):
         self.assertTrue(IAddBegunEvent.providedBy(notify_mock.call_args[0][0]))
 
     def test_update_checks_allowed_types(self):
-
         # Context and request
         context_mock = self.create_dummy(
-            portal_type=u"testtype", allowedContentTypes=lambda: []
+            portal_type="testtype", allowedContentTypes=lambda: []
         )
         request_mock = TestRequest()
 
         # FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         self.mock_adapter(FieldWidgets, IWidgets, (Interface, Interface, Interface))
 
@@ -369,18 +354,17 @@ class TestAddView(MockTestCase):
         self.assertRaises(ValueError, view.update)
 
     def test_update_ignores_type_check_if_security_check_deferred(self):
-
         # Context and request
         context_mock = self.create_dummy(
-            portal_type=u"testtype", allowedContentTypes=lambda: []
+            portal_type="testtype", allowedContentTypes=lambda: []
         )
         request_mock = TestRequest()
         alsoProvides(request_mock, IDeferSecurityCheck)
 
         # FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         self.mock_adapter(FieldWidgets, IWidgets, (Interface, Interface, Interface))
 
@@ -395,15 +379,14 @@ class TestAddView(MockTestCase):
             self.fail("Update raised Unauthorized with security checks " "deferred")
 
     def test_fires_add_cancelled_event(self):
-
         # Context and request
-        context_mock = self.create_dummy(portal_type=u"testtype")
+        context_mock = self.create_dummy(portal_type="testtype")
         context_mock.absolute_url = lambda *a, **kw: "http://127.0.0.1/plone/item"
         request_mock = TestRequest()
 
         # mock status message
         @implementer(IStatusMessage)
-        class StatusMessage(object):
+        class StatusMessage:
             def __init__(self, request):
                 pass
 
@@ -430,72 +413,70 @@ class TestEditView(MockTestCase):
         SCHEMA_CACHE.clear()
 
     def test_label(self):
-
         # Edit view should take its label from the FTI title
 
         # Context and request
 
-        context_mock = self.create_dummy(portal_type=u"testtype")
+        context_mock = self.create_dummy(portal_type="testtype")
         request_mock = TestRequest()
 
         # FTI
 
-        fti_mock = DexterityFTI(u"testtype")
-        fti_mock.Title = Mock(return_value=u"Test title")
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        fti_mock = DexterityFTI("testtype")
+        fti_mock.Title = Mock(return_value="Test title")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         # Form
         editview = DefaultEditForm(context_mock, request_mock)
 
         # emulate update()
-        editview.portal_type = u"testtype"
+        editview.portal_type = "testtype"
 
         label = editview.label
-        self.assertEqual(u"Edit ${name}", six.text_type(label))
-        self.assertEqual(u"Test title", label.mapping["name"])
+        self.assertEqual("Edit ${name}", str(label))
+        self.assertEqual("Test title", label.mapping["name"])
 
     def test_schema_lookup_edit(self):
-
         # Context and request
         class IMarker(IDexterityContent):
             pass
 
-        context_mock = self.create_dummy(portal_type=u"testtype")
+        context_mock = self.create_dummy(portal_type="testtype")
         alsoProvides(context_mock, IMarker)
         request_mock = TestRequest()
 
         # FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         fti_mock.behaviors = (
             IBehaviorOne.__identifier__,
             IBehaviorTwo.__identifier__,
             IBehaviorThree.__identifier__,
         )
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         from plone.behavior.interfaces import IBehavior
         from plone.behavior.registration import BehaviorRegistration
 
         registration = BehaviorRegistration(
-            title=u"Test Behavior 1",
-            description=u"Provides test behavior",
+            title="Test Behavior 1",
+            description="Provides test behavior",
             interface=IBehaviorOne,
             marker=None,
             factory=None,
         )
         self.mock_utility(registration, IBehavior, IBehaviorOne.__identifier__)
         registration = BehaviorRegistration(
-            title=u"Test Behavior 2",
-            description=u"Provides test behavior",
+            title="Test Behavior 2",
+            description="Provides test behavior",
             interface=IBehaviorTwo,
             marker=None,
             factory=None,
         )
         self.mock_utility(registration, IBehavior, IBehaviorTwo.__identifier__)
         registration = BehaviorRegistration(
-            title=u"Test Behavior 3",
-            description=u"Provides test behavior",
+            title="Test Behavior 3",
+            description="Provides test behavior",
             interface=IBehaviorThree,
             marker=None,
             factory=None,
@@ -504,7 +485,7 @@ class TestEditView(MockTestCase):
 
         # Form
         view = DefaultEditForm(context_mock, request_mock)
-        view.portal_type = u"testtype"
+        view.portal_type = "testtype"
 
         self.assertEqual(ISchema, view.schema)
 
@@ -518,15 +499,14 @@ class TestEditView(MockTestCase):
         self.assertEqual(tuple(), tuple(additionalSchemata))
 
     def test_fires_edit_begun_event(self):
-
         # Context and request
-        context_mock = self.create_dummy(portal_type=u"testtype")
+        context_mock = self.create_dummy(portal_type="testtype")
         request_mock = TestRequest()
 
         # FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=ISchema)
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         self.mock_adapter(FieldWidgets, IWidgets, (Interface, Interface, Interface))
         self.mock_adapter(Actions, IActions, (Interface, Interface, Interface))
@@ -544,15 +524,14 @@ class TestEditView(MockTestCase):
         self.assertTrue(IEditBegunEvent.providedBy(notify_mock.call_args[0][0]))
 
     def test_fires_edit_cancelled_event(self):
-
         # Context and request
-        context_mock = self.create_dummy(portal_type=u"testtype", title=u"foo")
+        context_mock = self.create_dummy(portal_type="testtype", title="foo")
         context_mock.absolute_url = lambda *a, **kw: "http://127.0.0.1/plone/item"
         request_mock = TestRequest()
 
         # mock status message
         @implementer(IStatusMessage)
-        class StatusMessage(object):
+        class StatusMessage:
             def __init__(self, request):
                 pass
 
@@ -574,15 +553,14 @@ class TestEditView(MockTestCase):
         self.assertTrue(IEditCancelledEvent.providedBy(notify_mock.call_args[0][0]))
 
     def test_fires_edit_finished_event(self):
-
         # Context and request
-        context_mock = self.create_dummy(portal_type=u"testtype", title=u"foo")
+        context_mock = self.create_dummy(portal_type="testtype", title="foo")
         context_mock.absolute_url = lambda *a, **kw: "http://127.0.0.1/plone/item"
         request_mock = TestRequest()
 
         # mock status message
         @implementer(IStatusMessage)
-        class StatusMessage(object):
+        class StatusMessage:
             def __init__(self, request):
                 pass
 
@@ -599,7 +577,7 @@ class TestEditView(MockTestCase):
         # Form
         view = DefaultEditForm(context_mock, request_mock)
         view.widgets = Mock()
-        view.widgets.extract = Mock(return_value=({"title": u"foo"}, []))
+        view.widgets.extract = Mock(return_value=({"title": "foo"}, []))
         view.applyChanges = Mock()
         view.handleApply(view, {})
 
@@ -609,47 +587,46 @@ class TestEditView(MockTestCase):
 
 class TestDefaultView(MockTestCase):
     def test_schema_lookup_default_view(self):
-
         # Context and request
         class IMarker(IDexterityContent):
             pass
 
-        context_mock = self.create_dummy(portal_type=u"testtype")
+        context_mock = self.create_dummy(portal_type="testtype")
         alsoProvides(context_mock, IMarker)
         request_mock = TestRequest()
 
         # FTI
-        fti_mock = DexterityFTI(u"testtype")
+        fti_mock = DexterityFTI("testtype")
         fti_mock.lookupSchema = Mock(return_value=ISchema)
         fti_mock.behaviors = (
             IBehaviorOne.__identifier__,
             IBehaviorTwo.__identifier__,
             IBehaviorThree.__identifier__,
         )
-        self.mock_utility(fti_mock, IDexterityFTI, name=u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, name="testtype")
 
         from plone.behavior.interfaces import IBehavior
         from plone.behavior.registration import BehaviorRegistration
 
         registration = BehaviorRegistration(
-            title=u"Test Behavior 1",
-            description=u"Provides test behavior",
+            title="Test Behavior 1",
+            description="Provides test behavior",
             interface=IBehaviorOne,
             marker=None,
             factory=None,
         )
         self.mock_utility(registration, IBehavior, IBehaviorOne.__identifier__)
         registration = BehaviorRegistration(
-            title=u"Test Behavior 2",
-            description=u"Provides test behavior",
+            title="Test Behavior 2",
+            description="Provides test behavior",
             interface=IBehaviorTwo,
             marker=None,
             factory=None,
         )
         self.mock_utility(registration, IBehavior, IBehaviorTwo.__identifier__)
         registration = BehaviorRegistration(
-            title=u"Test Behavior 3",
-            description=u"Provides test behavior",
+            title="Test Behavior 3",
+            description="Provides test behavior",
             interface=IBehaviorThree,
             marker=None,
             factory=None,
@@ -658,7 +635,7 @@ class TestDefaultView(MockTestCase):
 
         # Form
         view = DefaultView(context_mock, request_mock)
-        view.portal_type = u"testtype"
+        view.portal_type = "testtype"
 
         self.assertEqual(ISchema, view.schema)
 

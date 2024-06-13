@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from plone.testing.zca import UNIT_TESTING
 
 import unittest
@@ -10,7 +9,6 @@ import unittest
 
 
 class TestUUIDIntegration(unittest.TestCase):
-
     layer = UNIT_TESTING
 
     def setUp(self):

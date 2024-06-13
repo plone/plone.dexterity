@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from plone.dexterity.browser.base import DexterityExtensibleForm
 from plone.dexterity.events import EditBegunEvent
 from plone.dexterity.events import EditCancelledEvent
@@ -8,7 +7,6 @@ from plone.dexterity.interfaces import IDexterityEditForm
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 from plone.z3cform import layout
-from Products.CMFCore.utils import getToolByName
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.form import button
 from z3c.form import form
@@ -18,10 +16,9 @@ from zope.interface import classImplements
 
 
 class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
+    success_message = _("Changes saved")
 
-    success_message = _(u"Changes saved")
-
-    @button.buttonAndHandler(_(u"Save"), name="save")
+    @button.buttonAndHandler(_("Save"), name="save")
     def handleApply(self, action):
         data, errors = self.extractData()
         if errors:
@@ -32,9 +29,9 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
         self.request.response.redirect(self.nextURL())
         notify(EditFinishedEvent(self.context))
 
-    @button.buttonAndHandler(_(u"Cancel"), name="cancel")
+    @button.buttonAndHandler(_("Cancel"), name="cancel")
     def handleCancel(self, action):
-        IStatusMessage(self.request).addStatusMessage(_(u"Edit cancelled"), "info")
+        IStatusMessage(self.request).addStatusMessage(_("Edit cancelled"), "info")
         self.request.response.redirect(self.nextURL())
         notify(EditCancelledEvent(self.context))
 
@@ -52,20 +49,20 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
 
     def update(self):
         self.portal_type = self.context.portal_type
-        super(DefaultEditForm, self).update()
+        super().update()
 
         # fire the edit begun only if no action was executed
         if len(self.actions.executedActions) == 0:
             notify(EditBegunEvent(self.context))
 
     def updateActions(self):
-        super(DefaultEditForm, self).updateActions()
+        super().updateActions()
 
         if "save" in self.actions:
-            self.actions["save"].addClass("context")
+            self.actions["save"].addClass("success")
 
         if "cancel" in self.actions:
-            self.actions["cancel"].addClass("standalone")
+            self.actions["cancel"].addClass("secondary")
 
     @property
     def fti(self):
@@ -74,7 +71,7 @@ class DefaultEditForm(DexterityExtensibleForm, form.EditForm):
     @property
     def label(self):
         type_name = self.fti.Title()
-        return _(u"Edit ${name}", mapping={"name": type_name})
+        return _("Edit ${name}", mapping={"name": type_name})
 
 
 DefaultEditView = layout.wrap_form(DefaultEditForm)
