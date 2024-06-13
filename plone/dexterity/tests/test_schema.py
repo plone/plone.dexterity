@@ -57,18 +57,20 @@ class TestSchemaModuleFactory(MockTestCase):
 
         # Mock schema model
         class IDummy(Interface):
-            dummy = zope.schema.TextLine(title=u"Dummy")
+            dummy = zope.schema.TextLine(title="Dummy")
 
-        mock_model = Model({u"": IDummy})
+        mock_model = Model({"": IDummy})
 
         # Mock FTI
         fti_mock = Mock(spec=DexterityFTI)
         fti_mock.lookupModel = Mock(return_value=mock_model)
         fti_mock._p_mtime = 1650380190.961898
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         factory = schema.SchemaModuleFactory()
-        schemaName = schema.portalTypeToSchemaName("testtype", prefix="site", suffix=get_suffix(fti_mock))
+        schemaName = schema.portalTypeToSchemaName(
+            "testtype", prefix="site", suffix=get_suffix(fti_mock)
+        )
         klass = factory(schemaName, schema.generated)
 
         self.assertTrue(isinstance(klass, InterfaceClass))
@@ -82,18 +84,20 @@ class TestSchemaModuleFactory(MockTestCase):
 
         # Mock schema model
         class IDummy(Interface):
-            dummy = zope.schema.TextLine(title=u"Dummy")
+            dummy = zope.schema.TextLine(title="Dummy")
 
-        mock_model = Model({u"": IDummy})
+        mock_model = Model({"": IDummy})
 
         # Mock FTI
         fti_mock = Mock(spec=DexterityFTI)
         fti_mock.lookupModel = Mock(return_value=mock_model)
         fti_mock._p_mtime = 1650380190.0
-        self.mock_utility(fti_mock, IDexterityFTI, u"testtype")
+        self.mock_utility(fti_mock, IDexterityFTI, "testtype")
 
         factory = schema.SchemaModuleFactory()
-        schemaName = schema.portalTypeToSchemaName("testtype", prefix="site", suffix=get_suffix(fti_mock))
+        schemaName = schema.portalTypeToSchemaName(
+            "testtype", prefix="site", suffix=get_suffix(fti_mock)
+        )
         klass = factory(schemaName, schema.generated)
 
         self.assertTrue(isinstance(klass, InterfaceClass))
