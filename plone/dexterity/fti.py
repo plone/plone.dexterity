@@ -30,8 +30,10 @@ import plone.dexterity.schema
 
 def get_suffix(fti):
     mtime = getattr(fti, "_p_mtime", None)
+    # There is no need to use the actual float, an int is good enough
+    # and we avoid issues when the mtime has no milliseconds
     if mtime:
-        return repr(mtime)
+        return str(int(mtime))
     return ""
 
 
