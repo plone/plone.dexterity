@@ -38,7 +38,6 @@ _dottedCache = {}
 
 def resolveDottedName(dottedName):
     """Resolve a dotted name to a real object"""
-    global _dottedCache
     if dottedName not in _dottedCache:
         _dottedCache[dottedName] = resolve(dottedName)
     return _dottedCache[dottedName]
