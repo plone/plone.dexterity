@@ -55,6 +55,8 @@ import threading
 _marker = object()
 _zone = DateTime().timezone()
 _recursion_detection = threading.local()
+
+# for backwards-compatibility
 FLOOR_DATE = DateTime(1970, 0)  # always effective
 CEILING_DATE = DateTime(2500, 0)  # never expires
 
@@ -591,8 +593,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         # Dublin Core Date element - date resource created.
         # allow for non-existent creation_date, existed always
         date = getattr(self, "creation_date", None)
-        date = datify(date)
-        return date is None and FLOOR_DATE or date
+        return datify(date)
 
     @security.protected(permissions.View)
     def effective(self):
@@ -600,15 +601,13 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
         date = getattr(self, "effective_date", _marker)
         if date is _marker:
             date = getattr(self, "creation_date", None)
-        date = datify(date)
-        return date is None and FLOOR_DATE or date
+        return datify(date)
 
     @security.protected(permissions.View)
     def expires(self):
         # Dublin Core Date element - date resource expires.
         date = getattr(self, "expiration_date", None)
-        date = datify(date)
-        return date is None and CEILING_DATE or date
+        return datify(date)
 
     @security.protected(permissions.View)
     def modified(self):
@@ -618,8 +617,7 @@ class DexterityContent(DAVResourceMixin, PortalContent, PropertyManager, Contain
             # Upgrade.
             date = DateTime(self._p_mtime)
             self.modification_date = date
-        date = datify(date)
-        return date
+        return datify(date)
 
     @security.protected(permissions.View)
     def isEffective(self, date):
