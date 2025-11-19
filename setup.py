@@ -1,9 +1,8 @@
 from pathlib import Path
-from setuptools import find_packages
 from setuptools import setup
 
 
-version = "3.0.9.dev0"
+version = "4.0.0.dev0"
 
 
 long_description = (
@@ -26,12 +25,10 @@ setup(
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Framework :: Plone",
-        "Framework :: Plone :: 6.0",
+        "Framework :: Plone :: 6.2",
         "Framework :: Plone :: Core",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Topic :: Software Development :: Libraries :: Python Modules",
@@ -43,12 +40,9 @@ setup(
     maintainer_email="releaseteam@plone.org",
     url="https://github.com/plone/plone.dexterity",
     license="GPL version 2",
-    packages=find_packages("src"),
-    namespace_packages=["plone"],
-    package_dir={"": "src"},
     include_package_data=True,
     zip_safe=False,
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     install_requires=[
         "Products.CMFCore",
         "Products.statusmessages",
@@ -64,7 +58,6 @@ setup(
         "plone.supermodel>=1.0",
         "plone.uuid",
         "z3c.form",
-        "setuptools",
     ],
     extras_require={
         "test": [
