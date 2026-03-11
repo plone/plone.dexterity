@@ -43,7 +43,6 @@ from ZPublisher.Iterators import IStreamIterator
 import re
 import unittest
 
-
 XML_PROLOG = b'<?xml version="1.0" encoding="utf-8" ?>'
 
 
