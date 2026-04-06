@@ -26,7 +26,6 @@ import logging
 import types
 import warnings
 
-
 log = logging.getLogger(__name__)
 
 # Dynamic modules
