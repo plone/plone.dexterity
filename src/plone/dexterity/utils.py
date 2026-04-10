@@ -24,7 +24,6 @@ from zope.lifecycleevent import ObjectCreatedEvent
 import datetime
 import logging
 
-
 deprecation.deprecated("SchemaNameEncoder", "moved to plone.dexterity.schema")
 deprecation.deprecated("portalTypeToSchemaName", "moved to plone.dexterity.schema")
 deprecation.deprecated("schemaNameToPortalType", "moved to plone.dexterity.schema")

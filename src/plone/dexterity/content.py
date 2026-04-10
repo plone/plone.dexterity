@@ -51,7 +51,6 @@ from zope.security.interfaces import IPermission
 
 import threading
 
-
 _marker = object()
 _zone = DateTime().timezone()
 _recursion_detection = threading.local()
