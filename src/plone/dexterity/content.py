@@ -51,7 +51,6 @@ from zope.security.interfaces import IPermission
 
 import threading
 
-
 _marker = object()
 _zone = DateTime().timezone()
 _recursion_detection = threading.local()
@@ -734,7 +733,9 @@ class Container(
     security.declareProtected(permissions.ModifyPortalContent, "manage_renameObject")
     security.declareProtected(permissions.ModifyPortalContent, "manage_renameObjects")
 
-    isPrincipiaFolderish = 1
+    @property
+    def isPrincipiaFolderish(self):
+        return self._count() > 0
 
     # make sure CMFCatalogAware's manage_options don't take precedence
     manage_options = PortalFolderBase.manage_options
