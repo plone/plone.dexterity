@@ -43,7 +43,6 @@ from ZPublisher.Iterators import IStreamIterator
 import re
 import unittest
 
-
 XML_PROLOG = b'<?xml version="1.0" encoding="utf-8" ?>'
 
 
@@ -497,9 +496,7 @@ class TestFolderDataResource(MockTestCase):
         )
         self.assertEqual(207, response.getStatus())
 
-        body = (
-            XML_PROLOG
-            + b"""
+        body = XML_PROLOG + b"""
 <d:multistatus xmlns:d="DAV:">
 <d:response>
 <d:href>/site/container</d:href>
@@ -533,7 +530,6 @@ class TestFolderDataResource(MockTestCase):
 </d:response>
 </d:multistatus>
 """
-        )
 
         result = response.getBody()
         result = re.sub(
@@ -584,9 +580,7 @@ class TestFolderDataResource(MockTestCase):
         )
         self.assertEqual(207, response.getStatus())
 
-        body = (
-            XML_PROLOG
-            + b"""
+        body = XML_PROLOG + b"""
 <d:multistatus xmlns:d="DAV:">
 <d:response>
 <d:href>http%3A//example.org/site/container</d:href>
@@ -602,7 +596,6 @@ The operation succeeded.
 </d:response>
 </d:multistatus>
 """
-        )
         body = body.strip()
         result = response.getBody().strip()
         self.assertEqual(body, result)

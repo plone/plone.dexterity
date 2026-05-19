@@ -25,7 +25,6 @@ _global_list = []
 
 @synchronized(_global_lock)
 def reverse_global_list():
-    global _global_list
     _global_list.reverse()
 
 
@@ -48,7 +47,6 @@ class Test(unittest.TestCase):
         self.assertEqual("two", item)
 
     def test_function(self):
-        global _global_list
         _global_list.extend([1, 2, 3])
 
         reverse_global_list()
