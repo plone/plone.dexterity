@@ -4,7 +4,69 @@
 [build-system]
 requires = ["setuptools>=68.2,<83", "wheel"]
 
+# START-MARKER-MANUAL-CONFIG
+# Anything from here until END-MARKER-MANUAL-CONFIG
+# will be kept by plone.meta
 
+[project]
+name = "plone.dexterity"
+version = "4.0.1.dev0"
+description = "Framework for content types as filesystem code and TTW (Zope/CMF/Plone)"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: Plone",
+    "Framework :: Plone :: 6.2",
+    "Framework :: Plone :: Core",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+license = "GPL-2.0-only"
+dynamic = ["readme"]
+requires-python = ">=3.10"
+authors = [
+    {name = "Martin Aspeli",email = "optilude@gmail.com"},
+]
+maintainers = [
+    {name = "Plone Foundation and contributors",email = "plone-developers@lists.sourceforge.net"},
+]
+dependencies = [
+    "Products.CMFCore",
+    "Products.statusmessages",
+    "Zope",
+    "plone.alterego",
+    "plone.app.uuid",
+    "plone.autoform",
+    "plone.base",
+    "plone.behavior",
+    "plone.folder",
+    "plone.memoize",
+    "plone.rfc822",
+    "plone.supermodel",
+    "plone.uuid",
+    "z3c.form",
+]
+keywords = ["plone", "dexterity", "contenttypes"]
+
+[project.optional-dependencies]
+test = [
+    "plone.app.content",
+    "plone.i18n",
+    "plone.testing",
+]
+
+[project.urls]
+Source = "https://github.com/plone/plone.dexterity"
+Issues = "https://github.com/plone/Products.CMFPlone/issues"
+Changelog = "https://github.com/plone/plone.dexterity/blob/master/CHANGES.rst"
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.rst", "CHANGES.rst"]}
+# END-MARKER-MANUAL-CONFIG
 
 [tool.towncrier]
 directory = "news/"
