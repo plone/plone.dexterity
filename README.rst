@@ -220,7 +220,7 @@ The most important packages are:
 Developer Manual
 ----------------
 
-The `Dexterity Developer Manual <http://docs.plone.org/external/plone.app.dexterity/docs/index.html>`_ is a complete documentation with practical examples and part of the `Official Plone Documentation <http://docs.plone.org/>`_.
+The `Dexterity Developer Manual <https://5.docs.plone.org/external/plone.app.dexterity/docs/index.html>`_ is a complete documentation with practical examples and part of the `Official Plone Documentation <http://docs.plone.org/>`_.
 
 
 Source Code
