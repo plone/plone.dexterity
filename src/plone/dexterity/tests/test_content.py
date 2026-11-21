@@ -1108,3 +1108,11 @@ class TestContent(MockTestCase):
         item.field2 = SizedValue("22")
 
         self.assertEqual(3, item.getSize())
+
+    def test_container_isPrincipiaFolderish(self):
+        folder = Container(id="folder")
+        self.assertEqual(folder.isPrincipiaFolderish, False)
+
+        document = Item(id="test document")
+        folder["doc"] = document
+        self.assertEqual(folder.isPrincipiaFolderish, True)
