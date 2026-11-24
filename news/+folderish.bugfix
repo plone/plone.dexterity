@@ -1,0 +1,1 @@
+Make `Container.isPrincipiaFolderish` dynamic: A `Container` is only a folder if it actually contains items. @davisagli
